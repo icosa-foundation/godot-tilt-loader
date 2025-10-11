@@ -15,7 +15,7 @@
 namespace TiltBrush
 {
 
-    public class QuadStripUnitizedUVBrush : QuadStripBrush
+    public partial class QuadStripUnitizedUVBrush : QuadStripBrush
     {
         override protected void UpdateUVs(int iQuad0, int iQuad1, float size)
         {

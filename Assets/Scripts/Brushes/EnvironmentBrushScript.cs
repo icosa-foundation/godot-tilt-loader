@@ -19,7 +19,7 @@ namespace TiltBrush
     ///
     /// EnvironmentBrushScript purely exists to provide a vertex layout.
     ///
-    public class EnvironmentBrushScript : BaseBrushScript
+    public partial class EnvironmentBrushScript : BaseBrushScript
     {
         enum UvSetCount
         {

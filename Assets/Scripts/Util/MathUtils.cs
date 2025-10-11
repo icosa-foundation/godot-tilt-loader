@@ -59,14 +59,14 @@ namespace TiltBrush
             out Quaternion rotation,
             out float uniformScale)
         {
-            translation = m.GetColumn(3);
-            Vector3 fwd = m.GetColumn(2); // shorthand for m * Vector3.forward
-            Vector3 up = m.GetColumn(1);  // shorthand for m * Vector3.up
+            translation = (Vector3)m.GetColumn(3);
+            Vector3 fwd = (Vector3)m.GetColumn(2); // shorthand for m * Vector3.forward
+            Vector3 up = (Vector3)m.GetColumn(1);  // shorthand for m * Vector3.up
 
             // Use triple product to determine if det(m) < 0 (detects a mirroring)
-            float scaleSign = Mathf.Sign(Vector3.Dot(m.GetColumn(0),
-                Vector3.Cross(m.GetColumn(1),
-                    m.GetColumn(2))));
+            float scaleSign = Mathf.Sign(Vector3.Dot((Vector3)m.GetColumn(0),
+                Vector3.Cross((Vector3)m.GetColumn(1),
+                    (Vector3)m.GetColumn(2))));
             rotation = Quaternion.LookRotation(fwd * scaleSign, up * scaleSign);
 
             // Which axis (or row) to use is arbitrary, but I'm going to standardize

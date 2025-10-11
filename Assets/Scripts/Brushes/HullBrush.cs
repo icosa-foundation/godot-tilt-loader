@@ -31,7 +31,7 @@ namespace TiltBrush
     // - Experiment with texture mapping
     // - GPU collision only checks verts and edges, not faces. That doesn't interact
     //   well with this brush, which generates larger faces than other brushes.
-    public class HullBrush : GeometryBrush
+    public partial class HullBrush : GeometryBrush
     {
         const double kToleranceMeters_PS = 1e-6;
 
@@ -320,8 +320,8 @@ namespace TiltBrush
 
                                 // And rings of points around that tip.
                                 // phi is the angle with dir; theta is the angle around the ring.
-                                Quaternion qPhi = Quaternion.AngleAxis(kDirectedSphereRingAngleDegrees, ortho);
-                                Quaternion qHalfTheta = Quaternion.AngleAxis(360f / kDirectedSphereRingPoints / 2, dir);
+                                Quaternion qPhi = UnityEngine.Quaternion.AngleAxis(kDirectedSphereRingAngleDegrees, ortho);
+                                Quaternion qHalfTheta = UnityEngine.Quaternion.AngleAxis(360f / kDirectedSphereRingPoints / 2, dir);
                                 Quaternion qTheta = qHalfTheta * qHalfTheta;
 
                                 for (int iRing = 0; iRing < kDirectedSphereRings; ++iRing)
@@ -421,7 +421,7 @@ namespace TiltBrush
             // like what a production implementation would do -- if simplification happens
             // every frame we get very jittery behavior that feels uncontrollable.
             UnityEngine.Profiling.Profiler.BeginSample("Create Hull");
-            ConvexHull<Vertex, Face> hull = CreateHull(input, enableSimplify: simplify);
+            ConvexHullCreationResult<Vertex, Face> hull = CreateHull(input, enableSimplify: simplify);
             UnityEngine.Profiling.Profiler.EndSample();
 
             if (hull != null)
@@ -432,7 +432,7 @@ namespace TiltBrush
                     {
                         v.DefinitelyInterior = true;
                     }
-                    foreach (var v in hull.Points)
+                    foreach (var v in hull.Result.Points)
                     {
                         v.DefinitelyInterior = false;
                     }
@@ -453,7 +453,7 @@ namespace TiltBrush
             m_knots[1] = knot;
         }
 
-        ConvexHull<Vertex, Face> CreateHull(List<Vertex> input, bool enableSimplify)
+        ConvexHullCreationResult<Vertex, Face> CreateHull(List<Vertex> input, bool enableSimplify)
         {
             if (input.Count < 3)
             {
@@ -469,7 +469,7 @@ namespace TiltBrush
                     // tolerance. Thus, this pass is used solely to strip points.
                     var simpleHull = ConvexHull.Create<Vertex, Face>(
                         input, m_Simplification_PS * App.METERS_TO_UNITS * POINTER_TO_LOCAL);
-                    input = simpleHull.Points.ToList();
+                    input = simpleHull.Result.Points.ToList();
                 }
                 return ConvexHull.Create<Vertex, Face>(
                     input, kToleranceMeters_PS * App.METERS_TO_UNITS * POINTER_TO_LOCAL);
@@ -495,9 +495,9 @@ namespace TiltBrush
 
         // Geometry pool is empty. Create all-new geometry, associated with the passed knot,
         // for the given hull.
-        void CreateFacetedGeometry(ref Knot knot, ConvexHull<Vertex, Face> hull)
+        void CreateFacetedGeometry(ref Knot knot, ConvexHullCreationResult<Vertex, Face> hull)
         {
-            foreach (var face in hull.Faces)
+            foreach (var face in hull.Result.Faces)
             {
                 // This is the index of a vertex pair, not a vertex
                 int v0 = m_geometry.m_Vertices.Count / NS;
@@ -518,16 +518,16 @@ namespace TiltBrush
 
         // Geometry pool is empty. Create all-new geometry, associated with the passed knot,
         // for the given hull.
-        void CreateSmoothGeometry(ref Knot knot, ConvexHull<Vertex, Face> hull)
+        void CreateSmoothGeometry(ref Knot knot, ConvexHullCreationResult<Vertex, Face> hull)
         {
             int i = 0;
-            foreach (var v in hull.Points)
+            foreach (var v in hull.Result.Points)
             {
                 v.TempNormal = Vector3.zero;
                 v.TempIndex = i++;
             }
 
-            foreach (var face in hull.Faces)
+            foreach (var face in hull.Result.Faces)
             {
                 Vector3 normal = AsVector3(face.Normal);
                 Vertex[] vs = face.Vertices;
@@ -551,7 +551,7 @@ namespace TiltBrush
                 }
             }
 
-            foreach (var vertex in hull.Points)
+            foreach (var vertex in hull.Result.Points)
             {
                 AppendVert(ref knot, AsVector3(vertex.Position), vertex.TempNormal.normalized);
             }

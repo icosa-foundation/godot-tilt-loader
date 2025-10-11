@@ -26,7 +26,7 @@ namespace TiltBrush
             // Versions that use radians are called "AxisAngle" rather than "AngleAxis".
             // They're marked deprecated because Unity wants everyone to use degrees.
 #pragma warning disable 0612, 0618
-            return Quaternion.AxisAngle(axis, angle);
+            return UnityEngine.Quaternion.AngleAxis(angle * Mathf.Rad2Deg, axis);
 #pragma warning restore 0612, 0618
         }
 

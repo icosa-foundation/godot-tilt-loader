@@ -22,7 +22,7 @@ namespace TiltBrush
     // TODO: Could be slightly more vtx-efficient with a non-textured tube
     // (no need to duplicate verts along seam)
     // TODO: remove use of nRight, nSurface
-    class TetraBrush : GeometryBrush
+    partial class TetraBrush : GeometryBrush
     {
         const float M2U = App.METERS_TO_UNITS;
         const float U2M = App.UNITS_TO_METERS;
@@ -112,7 +112,7 @@ namespace TiltBrush
             Vector3 nTangent, Quaternion qPrevFrame)
         {
             Vector3 nPrevTangent = qPrevFrame * Vector3.forward;
-            Quaternion minimal = Quaternion.FromToRotation(nPrevTangent, nTangent);
+            Quaternion minimal = UnityEngine.Quaternion.FromToRotation(nPrevTangent, nTangent);
             return minimal * qPrevFrame;
         }
 
@@ -147,7 +147,7 @@ namespace TiltBrush
                         Vector3 nRight, nUp;
                         // No previous orientation; compute a reasonable starting point
                         ComputeSurfaceFrameNew(Vector3.zero, nTangent, cur.point.m_Orient, out nRight, out nUp);
-                        cur.qFrame = Quaternion.LookRotation(nTangent, nUp);
+                        cur.qFrame = UnityEngine.Quaternion.LookRotation(nTangent, nUp);
                     }
 
                     // More break checking; replicates previous logic
@@ -157,7 +157,7 @@ namespace TiltBrush
                     {
                         float fWidthHeightRatio = cur.length / PressuredSize(cur.smoothedPressure);
                         float fBreakAngle = Mathf.Atan(fWidthHeightRatio) * Mathf.Rad2Deg * m_BreakAngleMultiplier;
-                        float angle = Quaternion.Angle(prev.qFrame, cur.qFrame);
+                        float angle = UnityEngine.Quaternion.Angle(prev.qFrame, cur.qFrame);
                         if (angle > fBreakAngle)
                         {
                             shouldBreak = true;
@@ -246,7 +246,7 @@ namespace TiltBrush
                         float circumference = TWOPI * radius;
                         float uRate = m_Desc.m_TileRate / circumference;
 
-                        Vector2 uv = Vector3.zero;
+                        Vector2 uv = Vector2.zero;
                         AppendVert(ref cur, cur.smoothedPos, fwd, m_Color, fwd, uv);
                     }
 

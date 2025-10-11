@@ -17,7 +17,7 @@ using UnityEngine;
 namespace TiltBrush
 {
 
-    public class QuadStripBrushDistanceUV : QuadStripBrush
+    public partial class QuadStripBrushDistanceUV : QuadStripBrush
     {
         const float kOpacityFadeDistanceMeters_PS = 0.025f;
 

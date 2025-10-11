@@ -19,7 +19,7 @@ namespace TiltBrush
     ///
     /// PbrBrushScript purely exists to provide a vertex layout.
     ///
-    public class PbrBrushScript : BaseBrushScript
+    public partial class PbrBrushScript : BaseBrushScript
     {
 
         protected PbrBrushScript() : base(bCanBatch: true)

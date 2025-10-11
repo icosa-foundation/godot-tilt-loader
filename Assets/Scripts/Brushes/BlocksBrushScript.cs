@@ -19,7 +19,7 @@ namespace TiltBrush
     ///
     /// BlocksBrushScript purely exists to provide a vertex layout.
     ///
-    public class BlocksBrushScript : BaseBrushScript
+    public partial class BlocksBrushScript : BaseBrushScript
     {
 
         protected BlocksBrushScript() : base(bCanBatch: true)

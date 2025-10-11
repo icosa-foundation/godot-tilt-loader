@@ -1,0 +1,43 @@
+[gd_scene load_steps=7 format=3 uid="uid://dq3yiemvfngrt"]
+
+[ext_resource type="Script" uid="uid://bup6f8v03dflc" path="res://Scenes/MinimalExample.cs" id="1_8ve2m"]
+[ext_resource type="Script" uid="uid://bw0lxsjnb78o1" path="res://Scripts/App.cs" id="1_bdpsi"]
+[ext_resource type="Script" uid="uid://pglwkjx5l4fg" path="res://Scripts/PointerScript.cs" id="2_bdpsi"]
+[ext_resource type="Script" uid="uid://phvyh04cagl3" path="res://Scripts/BrushSystemSetup.cs" id="3_setup"]
+[ext_resource type="Script" uid="uid://djvtwrpe6ox2y" path="res://Scripts/SimpleDrawingController.cs" id="4_controller"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_pointer"]
+radius = 0.1
+height = 0.2
+
+[node name="SampleScene" type="Node3D"]
+
+[node name="App" type="Node3D" parent="."]
+script = ExtResource("1_bdpsi")
+
+[node name="BrushSystemSetup" type="Node3D" parent="."]
+script = ExtResource("3_setup")
+
+[node name="Canvas" type="Node3D" parent="."]
+script = ExtResource("1_8ve2m")
+BrushSystemPath = NodePath("../BrushSystemSetup")
+PointerPath = NodePath("Pointer")
+
+[node name="Pointer" type="Node3D" parent="Canvas"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5672777, 0, 2.082432)
+script = ExtResource("2_bdpsi")
+
+[node name="PointerVisual" type="MeshInstance3D" parent="Canvas/Pointer"]
+mesh = SubResource("SphereMesh_pointer")
+
+[node name="DrawingController" type="Node3D" parent="."]
+script = ExtResource("4_controller")
+PointerPath = NodePath("../Canvas/Pointer")
+CircleRadius = 0.5
+MoveSpeed = 0.1
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 3, 1)

@@ -22,7 +22,7 @@ namespace TiltBrush
     /// geometry rather than the Unity Particle system to render, as it is considerably faster.
     /// All the particle shaders use the Particles.cginc library to do things like align the
     /// quads with the camera etc. See particles.cginc for details.
-    class GeniusParticlesBrush : GeometryBrush
+    partial class GeniusParticlesBrush : GeometryBrush
     {
         private const float kSpawnInterval_PS = 0.0025f * App.METERS_TO_UNITS;
         private const float kSingleParticleTriggerPressure = 0.8f;
@@ -368,7 +368,7 @@ namespace TiltBrush
             cur.iTri = prev.iTri + prev.nTri;
             cur.iVert = (ushort)(prev.iVert + prev.nVert);
             cur.length = (cur.point.m_Pos - prev.point.m_Pos).magnitude;
-            cur.nRight = Vector2.right;
+            cur.nRight = new Vector3(Vector2.right.x, Vector2.right.y, 0);
             cur.nTri = (ushort)(kTrisInSolid * particleCount);
             cur.nVert = (ushort)(kVertsInSolid * particleCount);
 

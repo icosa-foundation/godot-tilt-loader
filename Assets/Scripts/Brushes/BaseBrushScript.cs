@@ -56,7 +56,7 @@ using System.Collections.Generic;
 namespace TiltBrush
 {
 
-    public abstract class BaseBrushScript : MonoBehaviour
+    public abstract partial class BaseBrushScript : MonoBehaviour
     {
         #region Static public
 

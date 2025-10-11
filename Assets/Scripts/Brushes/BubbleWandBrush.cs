@@ -18,7 +18,7 @@ using UnityEngine;
 namespace TiltBrush
 {
 
-    class BubbleWandBrush : TubeBrush
+    partial class BubbleWandBrush : TubeBrush
     {
         const ushort kVertsInClosedCircle = 9;
 

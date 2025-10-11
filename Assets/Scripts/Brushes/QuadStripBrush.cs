@@ -43,7 +43,7 @@ namespace TiltBrush
     // vertices to back quad vertices at the same location is as follows:
     // Front: 0 1 2 3 4 5
     // Back:  0 2 1 3 5 4
-    public abstract class QuadStripBrush : BaseBrushScript
+    public abstract partial class QuadStripBrush : BaseBrushScript
     {
         // Former inspector data; move to brush.xml if you want these tunable
         // Distance for pressure to lerp to ~90% of its instantaneous value. Value in meters.

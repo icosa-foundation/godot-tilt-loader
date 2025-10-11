@@ -3,101 +3,177 @@ using System.Linq;
 using TiltBrush;
 using UnityEngine;
 
-public class MinimalExample : MonoBehaviour
+public partial class MinimalExample : MonoBehaviour
 {
-    public TiltBrushManifest m_ManifestStandard;
-    public TiltBrushManifest m_ManifestExperimental;
-    public BrushDescriptor m_DefaultBrush;
-    public PointerScript m_Pointer;
+	// Optional: Use BrushSystemSetup for automatic brush loading
+	[Godot.Export] public Godot.NodePath BrushSystemPath;
+	[Godot.Export] public Godot.NodePath PointerPath;
 
-    private CanvasScript m_Canvas;
+	// Optional: Manual references (only needed if not using BrushSystemSetup)
+	public TiltBrushManifest m_ManifestStandard;
+	public TiltBrushManifest m_ManifestExperimental;
+	public BrushDescriptor m_DefaultBrush;
 
-    void Start()
-    {
-        var mergedManifest = Instantiate(m_ManifestStandard);
-        if (m_ManifestExperimental != null)
-        {
-            mergedManifest.AppendFrom(m_ManifestExperimental);
-        }
-        BrushCatalog.Init(mergedManifest);
-        m_Canvas = gameObject.AddComponent<CanvasScript>();
-        m_Pointer.Canvas = m_Canvas;
-    }
+	private BrushSystemSetup BrushSystem;
+	private PointerScript m_Pointer;
 
-    [ContextMenu("Draw Circle")]
-    public void DrawCircle()
-    {
-        var path = new List<TrTransform>();
+	private CanvasScript m_Canvas;
+	private BrushDescriptor _runtimeBrush;
 
-        int segments = 32;
-        float radius = 1.5f;
-        for (int i = 0; i < segments; i++)
-        {
-            float angle = i * 2 * Mathf.PI / segments;
-            Vector3 position = new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0);
-            Quaternion rotation = Quaternion.LookRotation(Vector3.forward, position);
-            path.Add(TrTransform.TRS(position, rotation, 1));
-        }
+	public override void Start()
+	{
+		base.Start();
+		Godot.GD.Print("MinimalExample: Start called");
 
-        var color = Color.blue;
-        var brush = m_DefaultBrush;
-        float smoothing = 0;
-        var canvas = m_Canvas;
-        float brushScale = 1f;
-        float brushSize = 1f;
-        int seed = 0;
-        uint group = 0;
-        var tr = TrTransform.identity;
+		// Resolve NodePaths
+		if (BrushSystemPath != null && !BrushSystemPath.IsEmpty)
+		{
+			var node = GetNode(BrushSystemPath);
+			BrushSystem = node as BrushSystemSetup;
+			if (BrushSystem == null)
+			{
+				Godot.GD.PushError($"MinimalExample: BrushSystemPath does not point to a BrushSystemSetup!");
+			}
+		}
 
-        uint time = 0;
-        int pathIndex = 0;
+		if (PointerPath != null && !PointerPath.IsEmpty)
+		{
+			var node = GetNode(PointerPath);
+			m_Pointer = node as PointerScript;
+			if (m_Pointer == null)
+			{
+				Godot.GD.PushError($"MinimalExample: PointerPath does not point to a PointerScript!");
+			}
+		}
 
-        int cpCount = path.Count - 1;
-        if (smoothing > 0) cpCount *= 3; // Three control points per original vertex
-        var controlPoints = new List<ControlPoint>(cpCount);
+		// Initialize brush system
+		if (BrushSystem != null)
+		{
+			// Using BrushSystemSetup - brushes already loaded
+			_runtimeBrush = BrushSystem.GetBrushByName("Ink") ?? BrushSystem.GetDefaultBrush();
+			Godot.GD.Print($"Using brush: {_runtimeBrush?.m_DurableName ?? "none"}");
+		}
+		else if (m_ManifestStandard != null)
+		{
+			// Manual manifest setup
+			var mergedManifest = Object.Instantiate(m_ManifestStandard);
+			if (m_ManifestExperimental != null)
+			{
+				mergedManifest.AppendFrom(m_ManifestExperimental);
+			}
+			BrushCatalog.Init(mergedManifest);
+			_runtimeBrush = m_DefaultBrush;
+		}
+		else
+		{
+			// Fallback: Load brushes automatically
+			Godot.GD.Print("No BrushSystem assigned - loading brushes automatically");
+			var brushesPath = UnityAssetLoader.GetDefaultBrushesPath();
+			var manifest = UnityAssetLoader.CreateManifestFromDirectory(brushesPath);
+			BrushCatalog.Init(manifest);
+			_runtimeBrush = manifest.Brushes?.FirstOrDefault();
+		}
 
-        for (var vertexIndex = 0; vertexIndex < path.Count - 1; vertexIndex++)
-        {
-            Vector3 position = path[vertexIndex].translation;
-            Quaternion orientation = path[vertexIndex].rotation;
-            float pressure = path[vertexIndex].scale;
-            Vector3 nextPosition = path[(vertexIndex + 1) % path.Count].translation;
+		// Initialize canvas
+		m_Canvas = gameObject.AddComponent<CanvasScript>();
 
-            void addPoint(Vector3 pos)
-            {
-                controlPoints.Add(new ControlPoint
-                {
-                    m_Pos = pos,
-                    m_Orient = orientation,
-                    m_Pressure = pressure,
-                    m_TimestampMs = time++
-                });
-            }
+		// Setup pointer if assigned
+		if (m_Pointer != null)
+		{
+			m_Pointer.Canvas = m_Canvas;
+			if (_runtimeBrush != null)
+			{
+				m_Pointer.m_CurrentBrush = _runtimeBrush;
+				m_Pointer.m_CurrentColor = new Color(1, 0, 0, 1); // Red
+				m_Pointer.BrushSize01 = 0.5f;
+				m_Pointer.m_CurrentPressure = 1.0f;
+				Godot.GD.Print("Pointer configured and ready to draw");
+			}
+			else
+			{
+				Godot.GD.PushError("No brush available for pointer!");
+			}
+		}
+		else
+		{
+			Godot.GD.PushWarning("No Pointer assigned to MinimalExample");
+		}
+	}
 
-            addPoint(position);
-            if (smoothing > 0)
-            {
-                // smoothing controls much to pull extra vertices towards the middle
-                // 0.25 smooths corners a lot, 0.1 is tighter
-                addPoint(position);
-                addPoint(position + (nextPosition - position) * smoothing);
-                addPoint(position + (nextPosition - position) * .5f);
-                addPoint(position + (nextPosition - position) * (1 - smoothing));
-            }
-        }
+	[ContextMenu("Draw Circle")]
+	public void DrawCircle()
+	{
+		var path = new List<TrTransform>();
 
-        var stroke = new Stroke
-        {
-            m_Type = Stroke.Type.NotCreated,
-            m_IntendedCanvas = canvas,
-            m_BrushGuid = brush.m_Guid,
-            m_BrushScale = brushScale,
-            m_BrushSize = brushSize,
-            m_Color = color,
-            m_Seed = seed,
-            m_ControlPoints = controlPoints.ToArray(),
-        };
-        stroke.m_ControlPointsToDrop = Enumerable.Repeat(false, stroke.m_ControlPoints.Length).ToArray();
-        stroke.Recreate(m_Pointer, tr, canvas);
-    }
+		int segments = 32;
+		float radius = 1.5f;
+		for (int i = 0; i < segments; i++)
+		{
+			float angle = i * 2 * Mathf.PI / segments;
+			Vector3 position = new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0);
+			Quaternion rotation = UnityEngine.Quaternion.LookRotation(Vector3.forward, position);
+			path.Add(TrTransform.TRS(position, rotation, 1));
+		}
+
+		var color = Color.blue;
+		var brush = m_DefaultBrush;
+		float smoothing = 0;
+		var canvas = m_Canvas;
+		float brushScale = 1f;
+		float brushSize = 1f;
+		int seed = 0;
+		uint group = 0;
+		var tr = TrTransform.identity;
+
+		uint time = 0;
+		int pathIndex = 0;
+
+		int cpCount = path.Count - 1;
+		if (smoothing > 0) cpCount *= 3; // Three control points per original vertex
+		var controlPoints = new List<ControlPoint>(cpCount);
+
+		for (var vertexIndex = 0; vertexIndex < path.Count - 1; vertexIndex++)
+		{
+			Vector3 position = path[vertexIndex].translation;
+			Quaternion orientation = path[vertexIndex].rotation;
+			float pressure = path[vertexIndex].scale;
+			Vector3 nextPosition = path[(vertexIndex + 1) % path.Count].translation;
+
+			void addPoint(Vector3 pos)
+			{
+				controlPoints.Add(new ControlPoint
+				{
+					m_Pos = pos,
+					m_Orient = orientation,
+					m_Pressure = pressure,
+					m_TimestampMs = time++
+				});
+			}
+
+			addPoint(position);
+			if (smoothing > 0)
+			{
+				// smoothing controls much to pull extra vertices towards the middle
+				// 0.25 smooths corners a lot, 0.1 is tighter
+				addPoint(position);
+				addPoint(position + (nextPosition - position) * smoothing);
+				addPoint(position + (nextPosition - position) * .5f);
+				addPoint(position + (nextPosition - position) * (1 - smoothing));
+			}
+		}
+
+		var stroke = new Stroke
+		{
+			m_Type = Stroke.Type.NotCreated,
+			m_IntendedCanvas = canvas,
+			m_BrushGuid = brush.m_Guid,
+			m_BrushScale = brushScale,
+			m_BrushSize = brushSize,
+			m_Color = color,
+			m_Seed = seed,
+			m_ControlPoints = controlPoints.ToArray(),
+		};
+		stroke.m_ControlPointsToDrop = Enumerable.Repeat(false, stroke.m_ControlPoints.Length).ToArray();
+		stroke.Recreate(m_Pointer, tr, canvas);
+	}
 }

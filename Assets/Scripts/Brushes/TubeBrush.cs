@@ -21,7 +21,7 @@ namespace TiltBrush
     // TODO: Could be slightly more vtx-efficient with a non-textured tube
     // (no need to duplicate verts along seam)
     // TODO: remove use of nRight, nSurface
-    class TubeBrush : GeometryBrush
+    partial class TubeBrush : GeometryBrush
     {
         const float TWOPI = 2 * Mathf.PI;
 
@@ -196,7 +196,7 @@ namespace TiltBrush
                         float fWidthHeightRatio = cur.length / PressuredSize(cur.smoothedPressure);
                         float fBreakAngle = Mathf.Atan(fWidthHeightRatio) * Mathf.Rad2Deg
                             * m_BreakAngleMultiplier;
-                        float angle = Quaternion.Angle(prev.qFrame, cur.qFrame);
+                        float angle = UnityEngine.Quaternion.Angle(prev.qFrame, cur.qFrame);
                         if (angle > fBreakAngle)
                         {
                             shouldBreak = true;

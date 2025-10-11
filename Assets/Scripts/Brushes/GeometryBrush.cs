@@ -18,7 +18,7 @@ using UnityEngine;
 namespace TiltBrush
 {
 
-    public abstract class GeometryBrush : BaseBrushScript
+    public abstract partial class GeometryBrush : BaseBrushScript
     {
         // TODO: change to class?
         public struct Knot

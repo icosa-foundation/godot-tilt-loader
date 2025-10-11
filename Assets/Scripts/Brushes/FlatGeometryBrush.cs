@@ -18,7 +18,7 @@ using UnityEngine;
 namespace TiltBrush
 {
 
-    class FlatGeometryBrush : GeometryBrush
+    partial class FlatGeometryBrush : GeometryBrush
     {
         const int kVertsInSolid = 4;
         const int kSharedVertsInSolidPair = 2;

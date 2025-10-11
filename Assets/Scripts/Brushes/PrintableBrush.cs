@@ -17,7 +17,7 @@ using UnityEngine;
 namespace TiltBrush
 {
 
-    class PrintableBrush : GeometryBrush
+    partial class PrintableBrush : GeometryBrush
     {
         protected const int BR = 0; // back  right
         protected const int BL = 1; // back  left

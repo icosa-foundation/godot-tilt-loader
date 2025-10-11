@@ -18,7 +18,7 @@ using System;
 namespace TiltBrush
 {
 
-    public class QuadStripBrushStretchUV : QuadStripBrush
+    public partial class QuadStripBrushStretchUV : QuadStripBrush
     {
         struct UpdateUVRequest
         {

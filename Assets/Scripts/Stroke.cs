@@ -278,7 +278,7 @@ namespace TiltBrush
                 case Type.BrushStroke:
                     BaseBrushScript rBrushScript =
                         m_Object.GetComponent<BaseBrushScript>();
-                    if (rBrushScript)
+                    if (rBrushScript != null)
                     {
                         rBrushScript.HideBrush(hide);
                     }

@@ -24,7 +24,7 @@ namespace TiltBrush
     ///
     /// The curve ignores pointer orientation (except for the first knot); it
     /// is framed to minimize twist.
-    class SliceBrush : GeometryBrush
+    partial class SliceBrush : GeometryBrush
     {
         const float M2U = App.METERS_TO_UNITS;
         const float U2M = App.UNITS_TO_METERS;
@@ -89,7 +89,7 @@ namespace TiltBrush
             Vector3 nTangent, Quaternion qPrevFrame)
         {
             Vector3 nPrevTangent = qPrevFrame * Vector3.forward;
-            Quaternion minimal = Quaternion.FromToRotation(nPrevTangent, nTangent);
+            Quaternion minimal = UnityEngine.Quaternion.FromToRotation(nPrevTangent, nTangent);
             return minimal * qPrevFrame;
         }
 
@@ -124,7 +124,7 @@ namespace TiltBrush
                         Vector3 nRight, nUp;
                         // No previous orientation; compute a reasonable starting point
                         ComputeSurfaceFrameNew(Vector3.zero, nTangent, cur.point.m_Orient, out nRight, out nUp);
-                        cur.qFrame = Quaternion.LookRotation(nTangent, nUp);
+                        cur.qFrame = UnityEngine.Quaternion.LookRotation(nTangent, nUp);
                     }
                 }
 

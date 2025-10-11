@@ -17,7 +17,7 @@ using UnityEngine;
 namespace TiltBrush
 {
 
-    class SquareBrush : GeometryBrush
+    partial class SquareBrush : GeometryBrush
     {
         protected const int BBR_B = 0; // back bottom right
         protected const int BBR_R = 1; // back bottom right

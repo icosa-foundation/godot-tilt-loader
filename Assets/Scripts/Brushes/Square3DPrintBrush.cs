@@ -17,7 +17,7 @@ using UnityEngine;
 namespace TiltBrush
 {
     /// Brush generates a manifold, 3D printable "tube" with a rounded square cross section
-    class Square3DPrintBrush : GeometryBrush
+    partial class Square3DPrintBrush : GeometryBrush
     {
 
         const float kRingDenseDistanceMeters_LS = 0.005f;
@@ -243,7 +243,7 @@ namespace TiltBrush
                 else
                 {
                     // Purely used to store stroke-forward direction
-                    cur.qFrame = Quaternion.LookRotation(curStrokeTangent);
+                    cur.qFrame = UnityEngine.Quaternion.LookRotation(curStrokeTangent);
                     cur.nRight = Vector3.zero;
                     cur.nSurface = Vector3.zero;
                     cur.nTri = cur.nVert = 1;

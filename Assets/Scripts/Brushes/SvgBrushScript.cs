@@ -19,7 +19,7 @@ namespace TiltBrush
     ///
     /// SvgBrushScript purely exists to provide a vertex layout.
     ///
-    public class SvgBrushScript : BaseBrushScript
+    public partial class SvgBrushScript : BaseBrushScript
     {
 
         protected SvgBrushScript() : base(bCanBatch: true)

@@ -18,7 +18,7 @@ using UnityEngine;
 namespace TiltBrush
 {
 
-    class MidpointPlusLifetimeSprayBrush : GeometryBrush
+    partial class MidpointPlusLifetimeSprayBrush : GeometryBrush
     {
         const int kVertsInSolid = 4;
         const int kTrisInSolid = 2;
@@ -154,7 +154,7 @@ namespace TiltBrush
                         float rotationVariance = m_Desc.m_RotationVariance;
                         if (rotationVariance > 0.0001f)
                         {
-                            Quaternion qRotate = Quaternion.AngleAxis(
+                            Quaternion qRotate = UnityEngine.Quaternion.AngleAxis(
                                 m_rng.InRange(salt + kSaltRotation,
                                     -rotationVariance, rotationVariance), cur.nSurface);
 

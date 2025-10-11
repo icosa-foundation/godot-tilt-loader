@@ -17,7 +17,7 @@ using UnityEngine;
 namespace TiltBrush
 {
 
-    public class CanvasScript : MonoBehaviour
+    public partial class CanvasScript : MonoBehaviour
     {
         public TrTransform Pose => Coords.AsGlobal[transform];
     }
