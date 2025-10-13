@@ -74,8 +74,11 @@ public partial class MinimalExample : MonoBehaviour
 			_runtimeBrush = manifest.Brushes?.FirstOrDefault();
 		}
 
-		// Initialize canvas
-		m_Canvas = gameObject.AddComponent<CanvasScript>();
+		// Initialize canvas - create as a child node so it's in the scene tree
+		m_Canvas = new CanvasScript();
+		m_Canvas.Name = "CanvasScript";
+		AddChild(m_Canvas); // Add to scene tree so it and its children are visible
+		Godot.GD.Print($"Canvas created and added to scene tree: IsInsideTree={m_Canvas.IsInsideTree()}");
 
 		// Setup pointer if assigned
 		if (m_Pointer != null)
@@ -84,7 +87,7 @@ public partial class MinimalExample : MonoBehaviour
 			if (_runtimeBrush != null)
 			{
 				m_Pointer.m_CurrentBrush = _runtimeBrush;
-				m_Pointer.m_CurrentColor = new Color(1, 0, 0, 1); // Red
+				m_Pointer.m_CurrentColor = new Color(0.2f, 0.5f, 1.0f, 1f); // Mid blue
 				m_Pointer.BrushSize01 = 0.5f;
 				m_Pointer.m_CurrentPressure = 1.0f;
 				Godot.GD.Print("Pointer configured and ready to draw");

@@ -26,6 +26,11 @@ namespace TiltBrush
 		private static List<BrushDescriptor> m_GuiBrushList;
 		private static TiltBrushManifest m_Manifest;
 
+		/// <summary>
+		/// Returns all brushes that are not hidden in the GUI
+		/// </summary>
+		public static IEnumerable<BrushDescriptor> AllBrushes => m_GuiBrushList ?? Enumerable.Empty<BrushDescriptor>();
+
 		public static BrushDescriptor GetBrush(Guid guid)
 		{
 			try

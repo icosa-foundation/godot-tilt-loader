@@ -106,6 +106,7 @@ namespace TiltBrush
             MeshFilter mf = GetComponent<MeshFilter>();
             MasterBrush geometry = m_Geometry;
             mf.mesh.vertices = geometry.m_Vertices;
+            mf.mesh.triangles = geometry.m_Tris;
             mf.mesh.normals = geometry.m_Normals;
             mf.mesh.colors32 = geometry.m_Colors;
             mf.mesh.tangents = geometry.m_Tangents;

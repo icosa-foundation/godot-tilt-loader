@@ -33,11 +33,13 @@ mesh = SubResource("SphereMesh_pointer")
 [node name="DrawingController" type="Node3D" parent="."]
 script = ExtResource("4_controller")
 PointerPath = NodePath("../Canvas/Pointer")
-CircleRadius = 0.5
-MoveSpeed = 0.1
+CameraPath = NodePath("../Camera3D")
+CircleRadius = 10.0
+MoveSpeed = 0.5
+DrawingPlaneZ = 0.0
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 25)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 3, 1)

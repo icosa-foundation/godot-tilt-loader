@@ -107,17 +107,34 @@ namespace UnityEngine
 		{
 			if (_node == null || parent?._node == null) return;
 
-			if (worldPositionStays)
+			// Check if parent is in the tree before adding child
+			if (!parent._node.IsInsideTree())
 			{
-				var globalPos = _node.GlobalPosition;
-				var globalRot = _node.GlobalBasis;
-				_node.Reparent(parent._node);
-				_node.GlobalPosition = globalPos;
-				_node.GlobalBasis = globalRot;
+				Debug.LogWarning($"SetParent: parent node '{parent._node.Name}' is not in scene tree yet");
+				// Still try to add the child - it will be in tree once parent is added to tree
+			}
+
+			// Check if node has a parent (is in tree)
+			if (_node.GetParent() != null)
+			{
+				// Node is already in tree, use Reparent
+				if (worldPositionStays)
+				{
+					var globalPos = _node.GlobalPosition;
+					var globalRot = _node.GlobalBasis;
+					_node.Reparent(parent._node);
+					_node.GlobalPosition = globalPos;
+					_node.GlobalBasis = globalRot;
+				}
+				else
+				{
+					_node.Reparent(parent._node);
+				}
 			}
 			else
 			{
-				_node.Reparent(parent._node);
+				// Node is not in tree yet, use AddChild
+				parent._node.AddChild(_node);
 			}
 		}
 
@@ -179,6 +196,13 @@ namespace UnityEngine
 		{
 			if (_components.TryGetValue(typeof(T), out var component))
 				return component as T;
+
+			// Check if the node itself is the component type
+			if (_node is T nodeAsT)
+			{
+				_components[typeof(T)] = nodeAsT;
+				return nodeAsT;
+			}
 
 			// Try to find in node's children
 			if (_node != null)

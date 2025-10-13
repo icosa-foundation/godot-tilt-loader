@@ -17,6 +17,7 @@ namespace UnityEngine
         private List<Color32> _colors = new List<Color32>();
         private Aabb _bounds;
         private bool _needsCommit = false;
+        private MeshInstance3D _meshInstance; // Keep reference to auto-update on commit
 
         public Mesh()
         {
@@ -24,6 +25,16 @@ namespace UnityEngine
         }
 
         internal ArrayMesh GodotMesh => _godotMesh;
+
+        internal void SetMeshInstance(MeshInstance3D meshInstance)
+        {
+            _meshInstance = meshInstance;
+            // Assign the mesh immediately if we have surfaces
+            if (_meshInstance != null && _godotMesh.GetSurfaceCount() > 0)
+            {
+                _meshInstance.Mesh = _godotMesh;
+            }
+        }
 
         public Vector3[] vertices
         {
@@ -261,8 +272,11 @@ namespace UnityEngine
         /// </summary>
         private void CommitToGodotMesh()
         {
+
             if (_vertices.Count == 0 || _triangles.Count == 0)
-                return;
+            {
+                    return;
+            }
 
             // Clear existing surfaces
             _godotMesh.ClearSurfaces();
@@ -333,6 +347,13 @@ namespace UnityEngine
 
             // Add the surface to the mesh
             _godotMesh.AddSurfaceFromArrays(Godot.Mesh.PrimitiveType.Triangles, arrays);
+
+            // CRITICAL: Assign the mesh to MeshInstance3D so it actually renders!
+            if (_meshInstance != null)
+            {
+                _meshInstance.Mesh = _godotMesh;
+            }
+
         }
 
         public void Dispose()
@@ -360,12 +381,26 @@ namespace UnityEngine
 
         public Mesh mesh
         {
-            get => _mesh;
+            get
+            {
+                // Auto-create mesh if null (Unity behavior)
+                if (_mesh == null)
+                {
+                    _mesh = new Mesh();
+                    // Link the mesh to the MeshInstance3D so it can auto-update
+                    if (_meshInstance != null)
+                    {
+                        _mesh.SetMeshInstance(_meshInstance);
+                    }
+                }
+                return _mesh;
+            }
             set
             {
                 _mesh = value;
                 if (_meshInstance != null && _mesh != null)
                 {
+                    _mesh.SetMeshInstance(_meshInstance);
                     _meshInstance.Mesh = _mesh.GodotMesh;
                 }
             }

@@ -95,6 +95,7 @@ namespace TiltBrush
 			m_BrushSizeRange.x = 1.0f;
 			m_BrushSizeRange.y = 2.0f;
 			m_CurrentPressure = 1.0f;
+			m_CurrentColor = new Color(0.2f, 0.5f, 1.0f, 1f); // Initialize to mid blue
 		}
 
 		public override void Update()
@@ -105,33 +106,18 @@ namespace TiltBrush
 			{
 				// Drawing just got enabled, so we need to create a new line.
 				// This is a no-op if the current line is already set.
-				Godot.GD.Print("[PointerScript] Creating new line...");
-				Godot.GD.Print($"  Canvas: {(m_Canvas != null ? "set" : "NULL")}");
-				Godot.GD.Print($"  Brush: {(m_CurrentBrush != null ? m_CurrentBrush.m_DurableName : "NULL")}");
-
-				try
-				{
-					CreateNewLine(m_Canvas, TrTransform.FromLocalTransform(transform));
-					Godot.GD.Print($"  Line created: {(m_CurrentLine != null ? "SUCCESS" : "FAILED")}");
-
-					if (m_CurrentLine == null)
-					{
-						Godot.GD.PushError("  CreateNewLine returned but m_CurrentLine is NULL!");
-					}
-				}
-				catch (System.Exception ex)
-				{
-					Godot.GD.PushError($"  CreateNewLine EXCEPTION: {ex.Message}");
-					Godot.GD.PushError($"  Stack: {ex.StackTrace}");
-				}
+				CreateNewLine(m_Canvas, TrTransform.FromLocalTransform(transform));
 			}
 			else if (DrawingEnabled && m_WasDrawingEnabled)
 			{
-				UpdateLineFromObject();
+				// Only update if the line is in the scene tree
+				if (m_CurrentLine != null && m_CurrentLine.IsInsideTree())
+				{
+					UpdateLineFromObject();
+				}
 			}
 			else if (!DrawingEnabled && m_WasDrawingEnabled)
 			{
-				Godot.GD.Print("[PointerScript] Detaching line...");
 				DetachLine(false);
 			}
 			m_WasDrawingEnabled = DrawingEnabled;
@@ -155,9 +141,15 @@ namespace TiltBrush
 		public void UpdateLineFromObject()
 		{
 			if (m_CurrentLine == null) return;
+
+
 			var xf_LS = GetTransformForLine(m_CurrentLine.transform, Coords.AsRoom[transform]);
 
 			bool bQuadCreated = m_CurrentLine.UpdatePosition_LS(xf_LS, m_CurrentPressure);
+
+			if (bQuadCreated)
+			{
+			}
 
 			// TODO: let brush take care of storing control points, not us
 			SetControlPoint(xf_LS, isKeeper: bQuadCreated);
@@ -188,7 +180,10 @@ namespace TiltBrush
 
 		public void UpdateLineVisuals()
 		{
-			m_CurrentLine.ApplyChangesToVisuals();
+			if (m_CurrentLine != null)
+			{
+				m_CurrentLine.ApplyChangesToVisuals();
+			}
 		}
 
 		void _SetBrushSizeAbsolute(float value)
@@ -205,9 +200,22 @@ namespace TiltBrush
 			// Maybe change the brush to a proxy brush.
 			BrushDescriptor desc = overrideDesc != null ? overrideDesc : m_CurrentBrush;
 
+			// Debug canvas state
+			if (canvas == null)
+			{
+				Debug.LogError("CreateNewLine: canvas is NULL");
+				return;
+			}
+
+			var canvasNode = canvas as MonoBehaviour;
+			Debug.Log($"CreateNewLine: Canvas node name='{canvasNode?.Name}', IsInsideTree={canvasNode?.IsInsideTree()}");
+			Debug.Log($"CreateNewLine: Brush desc='{desc?.m_DurableName}', color={m_CurrentColor}");
+
 			m_CurrentLine = BaseBrushScript.Create(
 				canvas.transform, xf_CS,
 				desc, m_CurrentColor, m_CurrentBrushSize);
+
+			Debug.Log($"CreateNewLine: Line created, node name='{m_CurrentLine?.Name}', IsInsideTree={m_CurrentLine?.IsInsideTree()}");
 		}
 
 		/// Like BeginLineFromMemory + EndLineFromMemory
