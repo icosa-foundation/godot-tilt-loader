@@ -62,6 +62,66 @@ namespace TiltBrush
 
 		public const float kPreviewDuration = 0.2f; // Must be > 0 for the particles shader to work.
 
+		// Mapping from brush DurableName to brush script class type (from Brush Analysis.csv)
+		private static readonly Dictionary<string, System.Type> BrushScriptMapping = new Dictionary<string, System.Type>
+		{
+			{ "BlocksBasic", typeof(BlocksBrushScript) },
+			{ "BlocksGem", typeof(BlocksBrushScript) },
+			{ "BlocksGlass", typeof(BlocksBrushScript) },
+			{ "Bubbles", typeof(GeniusParticlesBrush) },
+			{ "CelVinyl", typeof(QuadStripBrushStretchUV) },
+			{ "ChromaticWave", typeof(TubeBrush) },
+			{ "CoarseBristles", typeof(SprayBrush) },
+			{ "Comet", typeof(TubeBrush) },
+			{ "DiamondHull", typeof(HullBrush) },
+			{ "Disco", typeof(TubeBrush) },
+			{ "DotMarker", typeof(SprayBrush) },
+			{ "Dots", typeof(GeniusParticlesBrush) },
+			{ "DoubleTaperedFlat", typeof(FlatGeometryBrush) },
+			{ "DoubleTaperedMarker", typeof(FlatGeometryBrush) },
+			{ "DuctTape", typeof(QuadStripBrushDistanceUV) },
+			{ "Electricity", typeof(FlatGeometryBrush) },
+			{ "Embers", typeof(GeniusParticlesBrush) },
+			{ "Fire", typeof(QuadStripBrushStretchUV) },
+			{ "Flat", typeof(QuadStripBrushDistanceUV) },
+			{ "Highlighter", typeof(QuadStripBrushDistanceUV) },
+			{ "HyperGrid", typeof(MidpointPlusLifetimeSprayBrush) },
+			{ "Hypercolor", typeof(QuadStripBrushStretchUV) },
+			{ "Icing", typeof(TubeBrush) },
+			{ "Ink", typeof(QuadStripBrushStretchUV) },
+			{ "Leaves", typeof(SprayBrush) },
+			{ "Light", typeof(QuadStripBrushStretchUV) },
+			{ "LightWire", typeof(TubeBrush) },
+			{ "Lofted", typeof(TubeBrush) },
+			{ "Marker", typeof(QuadStripBrushDistanceUV) },
+			{ "MatteHull", typeof(HullBrush) },
+			{ "NeonPulse", typeof(TubeBrush) },
+			{ "OilPaint", typeof(QuadStripBrushStretchUV) },
+			{ "Paper", typeof(QuadStripBrushDistanceUV) },
+			{ "Petal", typeof(TubeBrush) },
+			{ "Plasma", typeof(QuadStripBrushDistanceUV) },
+			{ "Rainbow", typeof(QuadStripBrushDistanceUV) },
+			{ "ShinyHull", typeof(HullBrush) },
+			{ "Smoke", typeof(GeniusParticlesBrush) },
+			{ "Snow", typeof(GeniusParticlesBrush) },
+			{ "SoftHighlighter", typeof(QuadStripBrushStretchUV) },
+			{ "Spikes", typeof(TubeBrush) },
+			{ "Splatter", typeof(SprayBrush) },
+			{ "Stars", typeof(GeniusParticlesBrush) },
+			{ "Streamers", typeof(QuadStripBrushDistanceUV) },
+			{ "Taffy", typeof(QuadStripBrushStretchUV) },
+			{ "TaperedFlat", typeof(QuadStripBrushStretchUV) },
+			{ "TaperedMarker", typeof(QuadStripBrushStretchUV) },
+			{ "ThickPaint", typeof(QuadStripBrushDistanceUV) },
+			{ "Toon", typeof(TubeBrush) },
+			{ "UnlitHull", typeof(HullBrush) },
+			{ "VelvetInk", typeof(QuadStripBrushStretchUV) },
+			{ "Waveform", typeof(QuadStripBrushStretchUV) },
+			{ "WetPaint", typeof(QuadStripBrushStretchUV) },
+			{ "WigglyGraphite", typeof(QuadStripBrushDistanceUV) },
+			{ "Wire", typeof(TubeBrush) },
+		};
+
 		/// Creates and properly initializes a new line.
 		/// Pass the initial transform in parent-local (Canvas) space.
 		/// Pass the size in pointer (Room) space.
@@ -73,7 +133,7 @@ namespace TiltBrush
 			// Create a brush prefab if it doesn't exist
 			if (desc.m_BrushPrefab == null)
 			{
-				desc.m_BrushPrefab = CreateDefaultBrushPrefab(desc.Description);
+				desc.m_BrushPrefab = CreateDefaultBrushPrefab(desc);
 			}
 
 			GameObject line = Instantiate(desc.m_BrushPrefab);
@@ -89,12 +149,20 @@ namespace TiltBrush
 			return currentLine;
 		}
 
-		private static GameObject CreateDefaultBrushPrefab(string brushName)
+		private static GameObject CreateDefaultBrushPrefab(BrushDescriptor desc)
 		{
-			// Create a brush script node (it IS the node, not a component attached to a node)
-			// Use QuadStripBrushStretchUV as the default concrete brush type
-			var brushScript = new QuadStripBrushStretchUV();
-			brushScript.Name = $"Brush_{brushName}";
+			// Look up the correct brush script type from the mapping
+			System.Type brushScriptType;
+			if (!BrushScriptMapping.TryGetValue(desc.m_DurableName, out brushScriptType))
+			{
+				// Fall back to QuadStripBrushStretchUV if not found
+				Debug.LogWarning($"No brush script mapping found for '{desc.m_DurableName}', using QuadStripBrushStretchUV");
+				brushScriptType = typeof(QuadStripBrushStretchUV);
+			}
+
+			// Create an instance of the correct brush script type
+			var brushScript = (BaseBrushScript)System.Activator.CreateInstance(brushScriptType);
+			brushScript.Name = $"Brush_{desc.Description}";
 
 			// Add a MeshInstance3D child for MeshFilter/Renderer to find
 			var meshInstance = new Godot.MeshInstance3D();
@@ -217,7 +285,8 @@ namespace TiltBrush
 			m_Color = rColor;
 			m_BaseSize_PS = fSize;
 			// TODO: do preview brushes really need this?
-			GetComponent<Renderer>().material = m_Desc.Material;
+			var mat = m_Desc.Material;
+			GetComponent<Renderer>().material = mat;
 		}
 
 		public void DestroyMesh()
@@ -239,7 +308,8 @@ namespace TiltBrush
 			Debug.Assert(m_BaseSize_PS != 0, "Set size and color first");
 			m_Desc = desc;
 
-			GetComponent<Renderer>().material = m_Desc.Material;
+			var mat = m_Desc.Material;
+			GetComponent<Renderer>().material = mat;
 
 			m_EnableBackfaces = desc.m_RenderBackfaces;
 			m_rng = new StatelessRng(MathUtils.RandomInt());

@@ -460,7 +460,7 @@ namespace UnityEngine
             _godotMaterial = new StandardMaterial3D();
         }
 
-        internal Material(Godot.Material godotMaterial)
+        public Material(Godot.Material godotMaterial)
         {
             _godotMaterial = godotMaterial;
         }

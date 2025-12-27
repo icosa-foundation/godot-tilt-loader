@@ -141,7 +141,55 @@ namespace TiltBrush
         public float m_BoundsPadding; // amount to pad bounding box by in canvas space in meters
 
         /// Return non-instantiated material
-        public Material Material => m_Material;
+        public Material Material
+        {
+            get
+            {
+                // Try to load Godot material from icosa addon if Unity material is null
+                if (m_Material == null && !string.IsNullOrEmpty(m_DurableName))
+                {
+                    LoadGodotMaterial();
+                }
+                return m_Material;
+            }
+        }
+
+        /// Load Godot material from icosa-godot-addon
+        private void LoadGodotMaterial()
+        {
+            // Try standard material path first
+            string materialPath = $"res://addons/icosa/open_brush/brush_materials/{m_DurableName}/{m_DurableName}.tres";
+
+            // Check if file exists first
+            bool exists = Godot.FileAccess.FileExists(materialPath);
+
+            var material = exists ? Godot.ResourceLoader.Load<Godot.Material>(materialPath) : null;
+
+            if (material == null)
+            {
+                // Try DoubleSided variant
+                materialPath = $"res://addons/icosa/open_brush/brush_materials/{m_DurableName}/{m_DurableName}DoubleSided.tres";
+                exists = Godot.FileAccess.FileExists(materialPath);
+                material = exists ? Godot.ResourceLoader.Load<Godot.Material>(materialPath) : null;
+            }
+
+            if (material != null)
+            {
+                // Duplicate the material so we can modify it per-brush without affecting the shared resource
+                var duplicatedMaterial = (Godot.Material)material.Duplicate();
+                m_Material = new Material(duplicatedMaterial);
+
+                // Apply m_TileRate to UV scale (Godot-specific: Unity uses Material.mainTextureScale)
+                if (m_TileRate > 0 && duplicatedMaterial is Godot.StandardMaterial3D stdMat)
+                {
+                    stdMat.Uv1Scale = new Godot.Vector3(m_TileRate, m_TileRate, 1.0f);
+                }
+            }
+            else
+            {
+                System.IO.File.AppendAllText("/tmp/godot_materials.log", $"✗ FAILED: {m_DurableName} (tried {materialPath})\n");
+            }
+        }
 
         public override string ToString()
         {
