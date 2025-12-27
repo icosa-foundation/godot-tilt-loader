@@ -29,13 +29,25 @@ The Unity scripts have been wrapped with a compatibility layer that allows them 
 
 - Godot 4.5 or later with .NET support
 - .NET SDK 8.0 or later
+- Git (for cloning dependencies)
 
-### Build the Project
+### Setup
 
-1. Open project in Godot Editor
-2. **Project → Tools → C# → Create C# Solution**
-3. **Build → Build Project**
-4. Check Output panel for any errors
+1. **Clone the icosa-godot-addon for brush materials:**
+   ```bash
+   cd Assets/addons
+   git clone https://github.com/icosa-foundation/icosa-godot-addon.git icosa-temp
+   mv icosa-temp/addons/icosa .
+   rm -rf icosa-temp
+   ```
+
+2. **Open project in Godot Editor**
+
+3. **Project → Tools → C# → Create C# Solution**
+
+4. **Build → Build Project**
+
+5. Check Output panel for any errors
 
 ### Understanding the Structure
 

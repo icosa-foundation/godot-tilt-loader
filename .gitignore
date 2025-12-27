@@ -38,6 +38,9 @@ export_presets.cfg
 # Claude Code
 .claude/
 
+# Third-party addons (cloned separately, see SETUP.md)
+Assets/addons/icosa/
+
 # Build outputs
 /[Bb]uild/
 /[Bb]uilds/
