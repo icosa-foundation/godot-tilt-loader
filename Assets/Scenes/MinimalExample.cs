@@ -114,7 +114,8 @@ public partial class MinimalExample : MonoBehaviour
 		{
 			float angle = i * 2 * Mathf.PI / segments;
 			Vector3 position = new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0);
-			Quaternion rotation = UnityEngine.Quaternion.LookRotation(Vector3.forward, position);
+			// For 2D paths (mouse input), use identity - let ComputeMinimalRotationFrame infer orientation from tangents
+			Quaternion rotation = UnityEngine.Quaternion.identity;
 			path.Add(TrTransform.TRS(position, rotation, 1));
 		}
 

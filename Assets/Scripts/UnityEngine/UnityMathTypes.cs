@@ -258,7 +258,10 @@ namespace UnityEngine
         public static Quaternion LookRotation(Vector3 forward) => LookRotation(forward, Vector3.up);
         public static Quaternion LookRotation(Vector3 forward, Vector3 upwards)
         {
-            var basis = Godot.Basis.LookingAt(forward, upwards);
+            // Godot's Basis.LookingAt looks in the NEGATIVE direction of the given vector
+            // Unity's LookRotation looks in the POSITIVE direction
+            // So we need to negate the forward vector
+            var basis = Godot.Basis.LookingAt(-forward, upwards);
             return basis.GetRotationQuaternion();
         }
         public static Quaternion FromToRotation(Vector3 fromDirection, Vector3 toDirection)
