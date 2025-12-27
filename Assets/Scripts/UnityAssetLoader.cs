@@ -102,6 +102,53 @@ namespace TiltBrush
 				{
 					descriptor.m_RenderBackfaces = ParseBoolValue(trimmed);
 				}
+				else if (trimmed.StartsWith("m_Opacity:"))
+				{
+					descriptor.m_Opacity = ParseFloatValue(trimmed);
+				}
+				else if (trimmed.StartsWith("m_PressureOpacityRange:"))
+				{
+					descriptor.m_PressureOpacityRange = ParseVector2(trimmed);
+				}
+				else if (trimmed.StartsWith("m_TextureAtlasV:"))
+				{
+					descriptor.m_TextureAtlasV = (int)ParseFloatValue(trimmed);
+				}
+				else if (trimmed.StartsWith("m_TileRate:"))
+				{
+					descriptor.m_TileRate = ParseFloatValue(trimmed);
+				}
+				else if (trimmed.StartsWith("m_PressureSizeRange:"))
+				{
+					var vec = ParseVector2(trimmed);
+					descriptor.GetType().GetField("m_PressureSizeRange",
+						System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+						?.SetValue(descriptor, vec);
+				}
+				else if (trimmed.StartsWith("m_ColorLuminanceMin:"))
+				{
+					descriptor.m_ColorLuminanceMin = ParseFloatValue(trimmed);
+				}
+				else if (trimmed.StartsWith("m_ColorSaturationMax:"))
+				{
+					descriptor.m_ColorSaturationMax = ParseFloatValue(trimmed);
+				}
+				else if (trimmed.StartsWith("m_SizeVariance:"))
+				{
+					descriptor.m_SizeVariance = ParseFloatValue(trimmed);
+				}
+				else if (trimmed.StartsWith("m_SizeRatio:"))
+				{
+					descriptor.m_SizeRatio = ParseVector2(trimmed);
+				}
+				else if (trimmed.StartsWith("m_RotationVariance:"))
+				{
+					descriptor.m_RotationVariance = ParseFloatValue(trimmed);
+				}
+				else if (trimmed.StartsWith("m_PositionVariance:"))
+				{
+					descriptor.m_PositionVariance = ParseFloatValue(trimmed);
+				}
 			}
 
 			// Only return if we successfully parsed a GUID and name
@@ -128,6 +175,13 @@ namespace TiltBrush
 		{
 			var value = ParseStringValue(line);
 			return value == "1" || value.ToLower() == "true";
+		}
+
+		private static float ParseFloatValue(string line)
+		{
+			var value = ParseStringValue(line);
+			float.TryParse(value, out var result);
+			return result;
 		}
 
 		private static Vector2 ParseVector2(string line)
