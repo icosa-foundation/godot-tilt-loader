@@ -110,6 +110,41 @@ public partial class MinimalExample : MonoBehaviour
 		{
 			Godot.GD.PushWarning("No Pointer assigned to MinimalExample");
 		}
+
+		// Torus knot drawing is now available via auto-movement (press M key)
+	}
+
+	[ContextMenu("Draw Torus Knot")]
+	public void DrawTorusKnot()
+	{
+		var path = new List<TrTransform>();
+
+		// Torus knot parameters (p, q) - (3, 2) creates a trefoil knot
+		int p = 3;
+		int q = 2;
+		float R = 1.0f; // Major radius (distance from center to tube center)
+		float r = 0.4f; // Minor radius (tube radius)
+		int segments = 120; // More segments for smoother 3D curve
+
+		for (int i = 0; i < segments; i++)
+		{
+			float t = i * 2 * Mathf.PI / segments;
+
+			// Parametric equations for (p, q) torus knot
+			float x = (R + r * Mathf.Cos(q * t)) * Mathf.Cos(p * t);
+			float y = (R + r * Mathf.Cos(q * t)) * Mathf.Sin(p * t);
+			float z = r * Mathf.Sin(q * t);
+
+			Vector3 position = new Vector3(x, y, z);
+			// For 3D paths, use identity and let ComputeMinimalRotationFrame infer orientation
+			Quaternion rotation = UnityEngine.Quaternion.identity;
+			path.Add(TrTransform.TRS(position, rotation, 1));
+		}
+
+		var color = Color.blue;
+		var brush = _runtimeBrush ?? m_DefaultBrush;
+
+		DrawStroke(path, brush, color);
 	}
 
 	[ContextMenu("Draw Circle")]
@@ -129,7 +164,13 @@ public partial class MinimalExample : MonoBehaviour
 		}
 
 		var color = Color.blue;
-		var brush = m_DefaultBrush;
+		var brush = _runtimeBrush ?? m_DefaultBrush;
+
+		DrawStroke(path, brush, color);
+	}
+
+	private void DrawStroke(List<TrTransform> path, BrushDescriptor brush, Color color)
+	{
 		float smoothing = 0;
 		var canvas = m_Canvas;
 		float brushScale = 1f;

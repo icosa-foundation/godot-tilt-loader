@@ -84,6 +84,7 @@ namespace TiltBrush
 			{ "Embers", typeof(GeniusParticlesBrush) },
 			{ "Fire", typeof(QuadStripBrushStretchUV) },
 			{ "Flat", typeof(QuadStripBrushDistanceUV) },
+			{ "Guts", typeof(TubeBrush) },
 			{ "Highlighter", typeof(QuadStripBrushDistanceUV) },
 			{ "HyperGrid", typeof(MidpointPlusLifetimeSprayBrush) },
 			{ "Hypercolor", typeof(QuadStripBrushStretchUV) },
@@ -95,6 +96,7 @@ namespace TiltBrush
 			{ "Lofted", typeof(TubeBrush) },
 			{ "Marker", typeof(QuadStripBrushDistanceUV) },
 			{ "MatteHull", typeof(HullBrush) },
+			{ "Muscle", typeof(TubeBrush) },
 			{ "NeonPulse", typeof(TubeBrush) },
 			{ "OilPaint", typeof(QuadStripBrushStretchUV) },
 			{ "Paper", typeof(QuadStripBrushDistanceUV) },
@@ -136,12 +138,38 @@ namespace TiltBrush
 				desc.m_BrushPrefab = CreateDefaultBrushPrefab(desc);
 			}
 
+			// FATAL: Check for missing material (triggers Godot material loading)
+			if (desc.Material == null)
+			{
+				throw new System.Exception($"FATAL ERROR: Brush '{desc.m_DurableName}' has no material assigned and could not load Godot material");
+			}
+
+			// FATAL: Check for missing shader
+			var godotMaterial = desc.Material.GodotMaterial;
+			if (godotMaterial != null)
+			{
+				if (godotMaterial is Godot.ShaderMaterial shaderMat)
+				{
+					if (shaderMat.Shader == null)
+					{
+						throw new System.Exception($"FATAL ERROR: Brush '{desc.m_DurableName}' ShaderMaterial has no shader assigned");
+					}
+				}
+			}
+
 			GameObject line = Instantiate(desc.m_BrushPrefab);
 			line.transform.SetParent(parent);
 			Coords.AsLocal[line.transform] = TrTransform.identity;
 			line.name = desc.Description;
 
 			BaseBrushScript currentLine = line.GetComponent<BaseBrushScript>();
+
+			// FATAL: Check that brush script component exists
+			if (currentLine == null)
+			{
+				throw new System.Exception($"FATAL ERROR: Brush prefab for '{desc.m_DurableName}' has no BaseBrushScript component");
+			}
+
 			// TODO: pass this into InitBrush and do it there
 			currentLine.m_Color = color;
 			currentLine.m_BaseSize_PS = size_PS;
@@ -155,46 +183,19 @@ namespace TiltBrush
 			System.Type brushScriptType;
 			if (!BrushScriptMapping.TryGetValue(desc.m_DurableName, out brushScriptType))
 			{
-				// Fall back to QuadStripBrushStretchUV if not found
-				Debug.LogWarning($"No brush script mapping found for '{desc.m_DurableName}', using QuadStripBrushStretchUV");
-				brushScriptType = typeof(QuadStripBrushStretchUV);
+				// Log to file for batch fixing
+				System.IO.File.AppendAllText("/tmp/missing_brush_mappings.log", $"{desc.m_DurableName}\n");
+
+				// FATAL: Missing brush script mapping
+				throw new System.Exception($"FATAL ERROR: No brush script mapping found for '{desc.m_DurableName}'. Add it to BrushScriptMapping in BaseBrushScript.cs");
 			}
 
 			// Create an instance of the correct brush script type
 			var brushScript = (BaseBrushScript)System.Activator.CreateInstance(brushScriptType);
 			brushScript.Name = $"Brush_{desc.Description}";
 
-		// Apply prefab serialized field values
-		if (desc.PrefabFields != null && desc.PrefabFields.Count > 0)
-		{
-			var logMsg = $"[{desc.m_DurableName}] Applying {desc.PrefabFields.Count} prefab fields to {brushScriptType.Name}\n";
-			System.IO.File.AppendAllText("/tmp/prefab_fields.log", logMsg);
-
-			var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance;
-			foreach (var kvp in desc.PrefabFields)
-			{
-				var field = brushScriptType.GetField(kvp.Key, flags);
-				if (field != null)
-				{
-					try
-					{
-						field.SetValue(brushScript, kvp.Value);
-						logMsg = $"[{desc.m_DurableName}] Set {kvp.Key} = {kvp.Value}\n";
-						System.IO.File.AppendAllText("/tmp/prefab_fields.log", logMsg);
-					}
-					catch (Exception ex)
-					{
-						logMsg = $"[{desc.m_DurableName}] FAILED to set {kvp.Key}: {ex.Message}\n";
-						System.IO.File.AppendAllText("/tmp/prefab_fields.log", logMsg);
-					}
-				}
-				else
-				{
-					logMsg = $"[{desc.m_DurableName}] Field '{kvp.Key}' NOT FOUND on {brushScriptType.Name}\n";
-					System.IO.File.AppendAllText("/tmp/prefab_fields.log", logMsg);
-				}
-			}
-		}
+		// Note: Prefab fields are applied in InitBrush() instead of here
+		// to ensure they're set after Godot initialization
 
 			// Add a MeshInstance3D child for MeshFilter/Renderer to find
 			var meshInstance = new Godot.MeshInstance3D();
@@ -339,6 +340,28 @@ namespace TiltBrush
 		{
 			Debug.Assert(m_BaseSize_PS != 0, "Set size and color first");
 			m_Desc = desc;
+
+			// Apply prefab serialized field values HERE (after m_Desc is set)
+			if (desc.PrefabFields != null && desc.PrefabFields.Count > 0)
+			{
+				var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance;
+				var brushType = this.GetType();
+				foreach (var kvp in desc.PrefabFields)
+				{
+					var field = brushType.GetField(kvp.Key, flags);
+					if (field != null)
+					{
+						try
+						{
+							field.SetValue(this, kvp.Value);
+						}
+						catch (Exception ex)
+						{
+							Debug.LogWarning($"Failed to set prefab field {kvp.Key} on {desc.m_DurableName}: {ex.Message}");
+						}
+					}
+				}
+			}
 
 			var mat = m_Desc.Material;
 			GetComponent<Renderer>().material = mat;

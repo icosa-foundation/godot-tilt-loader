@@ -199,7 +199,11 @@ namespace TiltBrush
             }
             else
             {
-                System.IO.File.AppendAllText("/tmp/godot_materials.log", $"✗ FAILED: {m_DurableName} (tried {materialPath})\n");
+                // Log to file for batch fixing
+                System.IO.File.AppendAllText("/tmp/missing_materials.log", $"{m_DurableName} | Expected: {materialPath}\n");
+
+                // FATAL: Missing material file
+                throw new System.Exception($"FATAL ERROR: Could not load Godot material for brush '{m_DurableName}'. Expected at: {materialPath}");
             }
         }
 

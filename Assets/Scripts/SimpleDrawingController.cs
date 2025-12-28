@@ -26,7 +26,6 @@ public partial class SimpleDrawingController : MonoBehaviour
 
 	private bool _isDrawing = false;
 	private bool _moveMode = false;
-	private bool _mouseControlEnabled = true;
 	private float _time = 0;
 
 	// Predefined colors
@@ -47,6 +46,7 @@ public partial class SimpleDrawingController : MonoBehaviour
 	// Key press tracking to prevent repeat
 	private bool _leftArrowWasPressed = false;
 	private bool _rightArrowWasPressed = false;
+	private bool _mKeyWasPressed = false;
 
 	public override void Awake()
 	{
@@ -139,8 +139,7 @@ public partial class SimpleDrawingController : MonoBehaviour
 		Godot.GD.Print("  SPACE - Hold to draw");
 		Godot.GD.Print("  1-5 - Change color (Red/Green/Blue/Yellow/White)");
 		Godot.GD.Print("  LEFT/RIGHT ARROW - Cycle brushes");
-		Godot.GD.Print("  M - Toggle auto-movement");
-		Godot.GD.Print("  N - Stop auto-movement");
+		Godot.GD.Print("  M - Toggle auto-movement (adds torus knot offset to mouse)");
 		Godot.GD.Print("  R - Reset");
 		Godot.GD.Print("========================================");
 	}
@@ -157,7 +156,6 @@ public partial class SimpleDrawingController : MonoBehaviour
 		// Get input state
 		bool spacePressed = Godot.Input.IsPhysicalKeyPressed(Godot.Key.Space);
 		bool mPressed = Godot.Input.IsPhysicalKeyPressed(Godot.Key.M);
-		bool nPressed = Godot.Input.IsPhysicalKeyPressed(Godot.Key.N);
 		bool rPressed = Godot.Input.IsPhysicalKeyPressed(Godot.Key.R);
 
 		// Handle drawing toggle with SPACE (hold to draw)
@@ -170,42 +168,55 @@ public partial class SimpleDrawingController : MonoBehaviour
 			StopDrawing();
 		}
 
-		// Toggle move mode with M (one-time press)
-		if (mPressed && !_moveMode)
+		// Toggle move mode with M
+		if (mPressed && !_mKeyWasPressed)
 		{
-			_moveMode = true;
-			_mouseControlEnabled = false;
-			Godot.GD.Print("Move mode: ON - Pointer will move in a circle");
+			if (!_moveMode)
+			{
+				_moveMode = true;
+				_time = 0; // Reset time
+				Godot.GD.Print("Auto-movement: ON - Torus knot offset applied to mouse position");
+			}
+			else
+			{
+				_moveMode = false;
+				Godot.GD.Print("Auto-movement: OFF");
+			}
 		}
+		_mKeyWasPressed = mPressed;
 
-		// Turn off move mode with N
-		if (nPressed && _moveMode)
+		// Update pointer position from mouse
+		if (Camera != null)
 		{
-			_moveMode = false;
-			_mouseControlEnabled = true;
-			Godot.GD.Print("Move mode: OFF");
-		}
+			Vector3 mousePosition = GetMouseWorldPosition();
 
-		// Mouse control (only when not in auto-move mode)
-		if (_mouseControlEnabled && !_moveMode && Camera != null)
-		{
-			UpdatePointerFromMouse();
-		}
+			// If auto-movement is enabled, add torus knot offset
+			if (_moveMode)
+			{
+				_time += Time.deltaTime * MoveSpeed * 0.125f; // 12.5% speed
 
-		// Move pointer in circle if move mode is on
-		if (_moveMode)
-		{
-			_time += Time.deltaTime * MoveSpeed;
+				// Torus knot parameters (p, q) - (3, 2) creates a trefoil knot
+				int p = 3;
+				int q = 2;
+				float R = CircleRadius * 0.5f; // Major radius (50% of CircleRadius)
+				float r = CircleRadius * 0.5f * 0.4f; // Minor radius
 
-			float x = Mathf.Cos(_time) * CircleRadius;
-			float z = Mathf.Sin(_time) * CircleRadius;
-			float y = Mathf.Sin(_time * 2) * 0.5f; // Add vertical movement
+				float t = _time;
 
-			// Update the Node3D position directly
+				// Parametric equations for (p, q) torus knot
+				float x = (R + r * Mathf.Cos(q * t)) * Mathf.Cos(p * t);
+				float y = (R + r * Mathf.Cos(q * t)) * Mathf.Sin(p * t);
+				float z = r * Mathf.Sin(q * t);
+
+				Vector3 offset = new Vector3(x, y, z);
+				mousePosition += offset;
+			}
+
+			// Update pointer position
 			var pointerNode = Pointer as UnityEngine.MonoBehaviour;
 			if (pointerNode != null)
 			{
-				pointerNode.GlobalPosition = new UnityEngine.Vector3(x, y, z);
+				pointerNode.GlobalPosition = mousePosition;
 			}
 		}
 
@@ -252,7 +263,7 @@ public partial class SimpleDrawingController : MonoBehaviour
 		}
 	}
 
-	private void UpdatePointerFromMouse()
+	private Vector3 GetMouseWorldPosition()
 	{
 		var mousePos = GetViewport().GetMousePosition();
 
@@ -269,14 +280,10 @@ public partial class SimpleDrawingController : MonoBehaviour
 		{
 			float t = (DrawingPlaneZ - from.Z) / direction.Z;
 			var worldPos = from + direction * t;
-
-			// Update pointer position
-			var pointerNode = Pointer as UnityEngine.MonoBehaviour;
-			if (pointerNode != null)
-			{
-				pointerNode.GlobalPosition = new Vector3(worldPos.X, worldPos.Y, worldPos.Z);
-			}
+			return new Vector3(worldPos.X, worldPos.Y, worldPos.Z);
 		}
+
+		return Vector3.zero;
 	}
 
 	private void StartDrawing()

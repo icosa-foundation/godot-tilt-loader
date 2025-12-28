@@ -217,21 +217,79 @@ namespace TiltBrush
 		}
 
 		/// <summary>
+		/// Finds a prefab file by its Unity GUID.
+		/// </summary>
+		private static string FindPrefabByGuid(string guid, string searchPath)
+		{
+			var metaFiles = Directory.GetFiles(searchPath, "*.prefab.meta", SearchOption.AllDirectories);
+			foreach (var metaFile in metaFiles)
+			{
+				try
+				{
+					var lines = File.ReadAllLines(metaFile);
+					foreach (var line in lines)
+					{
+						if (line.StartsWith("guid:") && line.Contains(guid))
+						{
+							return metaFile.Substring(0, metaFile.Length - 5); // Remove ".meta"
+						}
+					}
+				}
+				catch { }
+			}
+			return null;
+		}
+
+		/// <summary>
 		/// Loads prefab serialized field values from the Unity prefab file.
 		/// </summary>
 		private static void LoadPrefabFields(BrushDescriptor descriptor, string assetFilePath)
 		{
-			// Find the prefab file in the same directory as the asset file
-			var assetDir = Path.GetDirectoryName(assetFilePath);
-			var prefabFiles = Directory.GetFiles(assetDir, "*.prefab", SearchOption.TopDirectoryOnly);
+			string prefabPath = null;
 
-			if (prefabFiles.Length == 0)
+			// First, try to find prefab via m_BrushPrefab GUID reference in the .asset file
+			var assetLines = File.ReadAllLines(assetFilePath);
+			foreach (var line in assetLines)
+			{
+				if (line.Contains("m_BrushPrefab:") && line.Contains("guid:"))
+				{
+					// Extract GUID: "m_BrushPrefab: {fileID: 100000, guid: 02c4483733486ec489655bc38e0aa393, type: 3}"
+					var guidStart = line.IndexOf("guid:") + 5;
+					var guidEnd = line.IndexOf(",", guidStart);
+					if (guidEnd == -1) guidEnd = line.IndexOf("}", guidStart);
+					if (guidStart > 0 && guidEnd > guidStart)
+					{
+						var guid = line.Substring(guidStart, guidEnd - guidStart).Trim();
+						// Search for .prefab.meta file with this GUID
+						var resourcesPath = Path.GetDirectoryName(Path.GetDirectoryName(assetFilePath));
+						while (resourcesPath != null && !resourcesPath.EndsWith("Resources"))
+						{
+							resourcesPath = Path.GetDirectoryName(resourcesPath);
+						}
+						if (resourcesPath != null)
+						{
+							prefabPath = FindPrefabByGuid(guid, resourcesPath);
+						}
+						break;
+					}
+				}
+			}
+
+			// Fall back to looking for .prefab file in same directory as .asset file
+			if (prefabPath == null)
+			{
+				var assetDir = Path.GetDirectoryName(assetFilePath);
+				var prefabFiles = Directory.GetFiles(assetDir, "*.prefab", SearchOption.TopDirectoryOnly);
+				if (prefabFiles.Length > 0)
+				{
+					prefabPath = prefabFiles[0];
+				}
+			}
+
+			if (prefabPath == null)
 			{
 				return; // No prefab file found
 			}
-
-			// Use the first prefab file found
-			var prefabPath = prefabFiles[0];
 
 			try
 			{
@@ -276,7 +334,7 @@ namespace TiltBrush
 						}
 						else if (trimmed.StartsWith("m_PointsInClosedCircle:"))
 						{
-							descriptor.PrefabFields["m_PointsInClosedCircle"] = (int)ParseFloatValue(trimmed);
+							descriptor.PrefabFields["m_PointsInClosedCircle"] = (ushort)(int)ParseFloatValue(trimmed);
 						}
 						else if (trimmed.StartsWith("m_CapAspect:"))
 						{
