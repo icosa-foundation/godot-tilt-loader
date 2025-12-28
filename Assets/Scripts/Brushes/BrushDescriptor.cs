@@ -43,6 +43,10 @@ namespace TiltBrush
         [DisabledProperty]
         public GameObject m_BrushPrefab;
 
+        // Prefab serialized field values (loaded from Unity prefab YAML)
+        [NonSerialized]
+        public Dictionary<string, object> PrefabFields = new Dictionary<string, object>();
+
         [Tooltip("A category that can be used to determine whether a brush will be included in the brush panel")]
         public List<string> m_Tags = new List<string> { "default" };
 
@@ -180,9 +184,17 @@ namespace TiltBrush
                 m_Material = new Material(duplicatedMaterial);
 
                 // Apply m_TileRate to UV scale (Godot-specific: Unity uses Material.mainTextureScale)
-                if (m_TileRate > 0 && duplicatedMaterial is Godot.StandardMaterial3D stdMat)
+                if (duplicatedMaterial is Godot.StandardMaterial3D stdMat)
                 {
-                    stdMat.Uv1Scale = new Godot.Vector3(m_TileRate, m_TileRate, 1.0f);
+                    if (m_TileRate > 0)
+                    {
+                        stdMat.Uv1Scale = new Godot.Vector3(m_TileRate, m_TileRate, 1.0f);
+                    }
+
+                    // Apply m_RenderBackfaces to cull mode (Godot-specific)
+                    stdMat.CullMode = m_RenderBackfaces
+                        ? Godot.BaseMaterial3D.CullModeEnum.Disabled  // Double-sided
+                        : Godot.BaseMaterial3D.CullModeEnum.Back;      // Single-sided (cull back faces)
                 }
             }
             else

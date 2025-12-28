@@ -159,6 +159,9 @@ namespace TiltBrush
 			if (descriptor.m_Guid != Guid.Empty && !string.IsNullOrEmpty(descriptor.m_DurableName))
 			{
 				Debug.Log($"Loaded brush: {descriptor.m_DurableName} ({descriptor.m_Guid})");
+
+			// Load prefab fields if the prefab file exists
+			LoadPrefabFields(descriptor, assetFilePath);
 				return descriptor;
 			}
 
@@ -214,6 +217,97 @@ namespace TiltBrush
 		}
 
 		/// <summary>
+		/// Loads prefab serialized field values from the Unity prefab file.
+		/// </summary>
+		private static void LoadPrefabFields(BrushDescriptor descriptor, string assetFilePath)
+		{
+			// Find the prefab file in the same directory as the asset file
+			var assetDir = Path.GetDirectoryName(assetFilePath);
+			var prefabFiles = Directory.GetFiles(assetDir, "*.prefab", SearchOption.TopDirectoryOnly);
+
+			if (prefabFiles.Length == 0)
+			{
+				return; // No prefab file found
+			}
+
+			// Use the first prefab file found
+			var prefabPath = prefabFiles[0];
+
+			try
+			{
+				var lines = File.ReadAllLines(prefabPath);
+				bool inBrushComponent = false;
+
+				foreach (var line in lines)
+				{
+					var trimmed = line.TrimStart();
+
+					// Look for MonoBehaviour component (brush script)
+					if (trimmed.StartsWith("MonoBehaviour:"))
+					{
+						inBrushComponent = true;
+						continue;
+					}
+
+					// Stop when we hit another component
+					if (inBrushComponent && trimmed.StartsWith("---"))
+					{
+						break;
+					}
+
+					if (inBrushComponent)
+					{
+						// Parse serialized fields
+						if (trimmed.StartsWith("m_ShapeModifier:"))
+						{
+							descriptor.PrefabFields["m_ShapeModifier"] = (int)ParseFloatValue(trimmed);
+						}
+						else if (trimmed.StartsWith("m_TaperScalar:"))
+						{
+							descriptor.PrefabFields["m_TaperScalar"] = ParseFloatValue(trimmed);
+						}
+						else if (trimmed.StartsWith("m_PetalDisplacementAmt:"))
+						{
+							descriptor.PrefabFields["m_PetalDisplacementAmt"] = ParseFloatValue(trimmed);
+						}
+						else if (trimmed.StartsWith("m_PetalDisplacementExp:"))
+						{
+							descriptor.PrefabFields["m_PetalDisplacementExp"] = ParseFloatValue(trimmed);
+						}
+						else if (trimmed.StartsWith("m_PointsInClosedCircle:"))
+						{
+							descriptor.PrefabFields["m_PointsInClosedCircle"] = (int)ParseFloatValue(trimmed);
+						}
+						else if (trimmed.StartsWith("m_CapAspect:"))
+						{
+							descriptor.PrefabFields["m_CapAspect"] = ParseFloatValue(trimmed);
+						}
+						else if (trimmed.StartsWith("m_EndCaps:"))
+						{
+							descriptor.PrefabFields["m_EndCaps"] = ParseBoolValue(trimmed);
+						}
+						else if (trimmed.StartsWith("m_HardEdges:"))
+						{
+							descriptor.PrefabFields["m_HardEdges"] = ParseBoolValue(trimmed);
+						}
+						else if (trimmed.StartsWith("m_uvStyle:"))
+						{
+							descriptor.PrefabFields["m_uvStyle"] = (int)ParseFloatValue(trimmed);
+						}
+						else if (trimmed.StartsWith("m_BreakAngleMultiplier:"))
+						{
+							descriptor.PrefabFields["m_BreakAngleMultiplier"] = ParseFloatValue(trimmed);
+						}
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.LogWarning($"Failed to load prefab fields from {prefabPath}: {ex.Message}");
+			}
+		}
+
+		/// <summary>
 		/// Gets the default brushes path relative to the project root.
 		/// </summary>
 		public static string GetDefaultBrushesPath()
@@ -222,5 +316,145 @@ namespace TiltBrush
 			var projectPath = Godot.ProjectSettings.GlobalizePath("res://");
 			return Path.Combine(projectPath, "Resources", "Brushes", "Basic");
 		}
+
+		/// <summary>
+		/// Loads a TiltBrushManifest from a Unity .asset file and resolves all brush references.
+		/// </summary>
+		public static TiltBrushManifest LoadManifest(string manifestPath)
+		{
+			var manifest = new TiltBrushManifest();
+			var brushDescriptors = new List<BrushDescriptor>();
+
+			if (!File.Exists(manifestPath))
+			{
+				Debug.LogError($"Manifest file not found: {manifestPath}");
+				return manifest;
+			}
+
+			var lines = File.ReadAllLines(manifestPath);
+			var brushGuids = new List<string>();
+
+			// Parse the manifest to extract brush GUIDs
+			bool inBrushesArray = false;
+			foreach (var line in lines)
+			{
+				var trimmed = line.Trim();
+
+				if (trimmed.StartsWith("Brushes:"))
+				{
+					inBrushesArray = true;
+					continue;
+				}
+
+				if (inBrushesArray)
+				{
+					// Check if we've left the Brushes array
+					if (trimmed.StartsWith("CompatibilityBrushes:") ||
+						(trimmed.Length > 0 && !trimmed.StartsWith("-") && !trimmed.StartsWith("{")))
+					{
+						break;
+					}
+
+					// Extract GUID from line like: "- {fileID: 11400000, guid: c80c2ea05a3d85e48858a322a18cf5bb, type: 2}"
+					if (trimmed.StartsWith("-") && trimmed.Contains("guid:"))
+					{
+						var guidStart = trimmed.IndexOf("guid:") + 5;
+						var guidEnd = trimmed.IndexOf(",", guidStart);
+						if (guidEnd == -1) guidEnd = trimmed.IndexOf("}", guidStart);
+						if (guidStart > 0 && guidEnd > guidStart)
+						{
+							var guid = trimmed.Substring(guidStart, guidEnd - guidStart).Trim();
+							brushGuids.Add(guid);
+						}
+					}
+				}
+			}
+
+
+		// Find and load each brush descriptor by GUID
+		var brushesPath = Path.GetDirectoryName(manifestPath);
+		var resourcesPaths = new[]
+		{
+			Path.Combine(brushesPath, "Resources", "Brushes"),
+			Path.Combine(brushesPath, "Resources", "X", "Brushes")
+		};
+
+		foreach (var guid in brushGuids)
+		{
+			string brushPath = null;
+			foreach (var searchPath in resourcesPaths)
+			{
+				brushPath = FindBrushByGuid(guid, searchPath, null);
+				if (brushPath != null) break;
+			}
+
+			if (brushPath != null)
+				{
+					try
+					{
+						var descriptor = LoadBrushDescriptor(brushPath);
+						if (descriptor != null)
+						{
+							brushDescriptors.Add(descriptor);
+						}
+					}
+					catch (Exception ex)
+					{
+						Debug.LogWarning($"Failed to load brush {guid}: {ex.Message}");
+					}
+				}
+				else
+				{
+					Debug.LogWarning($"Could not find brush with GUID {guid}");
+				}
+			}
+
+			manifest.Brushes = brushDescriptors.ToArray();
+			manifest.CompatibilityBrushes = new BrushDescriptor[0];
+
+			return manifest;
+		}
+
+	/// <summary>
+	/// Finds a brush descriptor .asset file by its Unity GUID.
+	/// </summary>
+	private static string FindBrushByGuid(string guid, string searchPath, string logPath = null)
+	{
+		if (!Directory.Exists(searchPath))
+		{
+			var msg = $"FindBrushByGuid: searchPath does not exist: {searchPath}";
+			Debug.LogWarning(msg);
+			if (logPath != null) File.AppendAllText(logPath, msg + "\n");
+			return null;
+		}
+
+		// Manifest GUIDs match Unity .meta file GUIDs (32 chars, no hyphens)
+		// Search .asset.meta files for "guid: {guid}"
+		var metaFiles = Directory.GetFiles(searchPath, "*.asset.meta", SearchOption.AllDirectories);
+		int filesChecked = 0;
+		foreach (var metaFile in metaFiles)
+		{
+			try
+			{
+				filesChecked++;
+				var lines = File.ReadAllLines(metaFile);
+				foreach (var line in lines)
+				{
+					// Look for "guid: c80c2ea05a3d85e48858a322a18cf5bb"
+					if (line.StartsWith("guid:") && line.Contains(guid))
+					{
+						// Return the .asset file path (remove .meta extension)
+						var assetFile = metaFile.Substring(0, metaFile.Length - 5); // Remove ".meta"
+						return assetFile;
+					}
+				}
+			}
+			catch
+			{
+			}
+		}
+
+		return null;
 	}
 }
+} // namespace TiltBrush

@@ -26,17 +26,23 @@ public partial class BrushSystemSetup : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Loads all brushes from the Resources/Brushes directory.
+	/// Loads brushes from manifest files.
 	/// </summary>
 	public void LoadBrushes()
 	{
-		var path = string.IsNullOrEmpty(BrushesPath)
-			? UnityAssetLoader.GetDefaultBrushesPath()
-			: BrushesPath;
 
-		Godot.GD.Print($"Loading brushes from: {path}");
+		var projectPath = Godot.ProjectSettings.GlobalizePath("res://");
+		var manifestPath = System.IO.Path.Combine(projectPath, "Manifest.asset");
 
-		_manifest = UnityAssetLoader.CreateManifestFromDirectory(path, includeSubdirectories: true);
+		_manifest = UnityAssetLoader.LoadManifest(manifestPath);
+
+		// Optionally merge experimental brushes
+		var experimentalPath = System.IO.Path.Combine(projectPath, "Manifest_Experimental.asset");
+		if (System.IO.File.Exists(experimentalPath))
+		{
+			var experimentalManifest = UnityAssetLoader.LoadManifest(experimentalPath);
+			_manifest.AppendFrom(experimentalManifest);
+		}
 
 		if (_manifest != null && _manifest.Brushes != null)
 		{

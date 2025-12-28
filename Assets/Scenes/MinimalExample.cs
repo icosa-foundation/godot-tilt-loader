@@ -66,10 +66,19 @@ public partial class MinimalExample : MonoBehaviour
 		}
 		else
 		{
-			// Fallback: Load brushes automatically
-			Godot.GD.Print("No BrushSystem assigned - loading brushes automatically");
-			var brushesPath = UnityAssetLoader.GetDefaultBrushesPath();
-			var manifest = UnityAssetLoader.CreateManifestFromDirectory(brushesPath);
+			// Fallback: Load brushes from manifest files
+			var projectPath = Godot.ProjectSettings.GlobalizePath("res://");
+			var manifestPath = System.IO.Path.Combine(projectPath, "Manifest.asset");
+			var manifest = UnityAssetLoader.LoadManifest(manifestPath);
+
+			// Optionally merge experimental brushes
+			var experimentalPath = System.IO.Path.Combine(projectPath, "Manifest_Experimental.asset");
+			if (System.IO.File.Exists(experimentalPath))
+			{
+				var experimentalManifest = UnityAssetLoader.LoadManifest(experimentalPath);
+				manifest.AppendFrom(experimentalManifest);
+			}
+
 			BrushCatalog.Init(manifest);
 			_runtimeBrush = manifest.Brushes?.FirstOrDefault();
 		}

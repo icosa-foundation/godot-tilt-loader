@@ -164,38 +164,6 @@ namespace TiltBrush
 			var brushScript = (BaseBrushScript)System.Activator.CreateInstance(brushScriptType);
 			brushScript.Name = $"Brush_{desc.Description}";
 
-		// Apply prefab serialized field values
-		if (desc.PrefabFields != null && desc.PrefabFields.Count > 0)
-		{
-			var logMsg = $"[{desc.m_DurableName}] Applying {desc.PrefabFields.Count} prefab fields to {brushScriptType.Name}\n";
-			System.IO.File.AppendAllText("/tmp/prefab_fields.log", logMsg);
-
-			var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance;
-			foreach (var kvp in desc.PrefabFields)
-			{
-				var field = brushScriptType.GetField(kvp.Key, flags);
-				if (field != null)
-				{
-					try
-					{
-						field.SetValue(brushScript, kvp.Value);
-						logMsg = $"[{desc.m_DurableName}] Set {kvp.Key} = {kvp.Value}\n";
-						System.IO.File.AppendAllText("/tmp/prefab_fields.log", logMsg);
-					}
-					catch (Exception ex)
-					{
-						logMsg = $"[{desc.m_DurableName}] FAILED to set {kvp.Key}: {ex.Message}\n";
-						System.IO.File.AppendAllText("/tmp/prefab_fields.log", logMsg);
-					}
-				}
-				else
-				{
-					logMsg = $"[{desc.m_DurableName}] Field '{kvp.Key}' NOT FOUND on {brushScriptType.Name}\n";
-					System.IO.File.AppendAllText("/tmp/prefab_fields.log", logMsg);
-				}
-			}
-		}
-
 			// Add a MeshInstance3D child for MeshFilter/Renderer to find
 			var meshInstance = new Godot.MeshInstance3D();
 			meshInstance.Name = "MeshInstance3D";
