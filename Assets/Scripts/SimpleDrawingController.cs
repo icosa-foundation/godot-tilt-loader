@@ -47,6 +47,7 @@ public partial class SimpleDrawingController : MonoBehaviour
 	private bool _leftArrowWasPressed = false;
 	private bool _rightArrowWasPressed = false;
 	private bool _mKeyWasPressed = false;
+	private bool _cKeyWasPressed = false;
 
 	public override void Awake()
 	{
@@ -140,6 +141,7 @@ public partial class SimpleDrawingController : MonoBehaviour
 		Godot.GD.Print("  1-5 - Change color (Red/Green/Blue/Yellow/White)");
 		Godot.GD.Print("  LEFT/RIGHT ARROW - Cycle brushes");
 		Godot.GD.Print("  M - Toggle auto-movement (adds torus knot offset to mouse)");
+		Godot.GD.Print("  C - Clear canvas (remove all strokes)");
 		Godot.GD.Print("  R - Reset");
 		Godot.GD.Print("========================================");
 	}
@@ -156,6 +158,7 @@ public partial class SimpleDrawingController : MonoBehaviour
 		// Get input state
 		bool spacePressed = Godot.Input.IsPhysicalKeyPressed(Godot.Key.Space);
 		bool mPressed = Godot.Input.IsPhysicalKeyPressed(Godot.Key.M);
+		bool cPressed = Godot.Input.IsPhysicalKeyPressed(Godot.Key.C);
 		bool rPressed = Godot.Input.IsPhysicalKeyPressed(Godot.Key.R);
 
 		// Handle drawing toggle with SPACE (hold to draw)
@@ -256,6 +259,13 @@ public partial class SimpleDrawingController : MonoBehaviour
 		_leftArrowWasPressed = leftArrowPressed;
 		_rightArrowWasPressed = rightArrowPressed;
 
+		// Clear canvas with C
+		if (cPressed && !_cKeyWasPressed)
+		{
+			ClearCanvas();
+		}
+		_cKeyWasPressed = cPressed;
+
 		// Reset with R
 		if (rPressed)
 		{
@@ -315,6 +325,18 @@ public partial class SimpleDrawingController : MonoBehaviour
 				int childCount = (canvas as UnityEngine.MonoBehaviour)?.GetChildCount() ?? 0;
 				Godot.GD.Print($"Canvas has {childCount} child nodes after drawing");
 			}
+		}
+	}
+
+	private void ClearCanvas()
+	{
+		if (Pointer != null && Pointer.Canvas != null)
+		{
+			Pointer.Canvas.ClearCanvas();
+		}
+		else
+		{
+			Godot.GD.PushWarning("Cannot clear canvas: Pointer or Canvas is null");
 		}
 	}
 

@@ -20,6 +20,26 @@ namespace TiltBrush
     public partial class CanvasScript : MonoBehaviour
     {
         public TrTransform Pose => Coords.AsGlobal[transform];
+
+        /// <summary>
+        /// Clears all strokes from the canvas by removing all child nodes
+        /// </summary>
+        public void ClearCanvas()
+        {
+            var node = this as UnityEngine.MonoBehaviour;
+            if (node != null)
+            {
+                int childCount = node.GetChildCount();
+                Godot.GD.Print($"Clearing canvas: removing {childCount} strokes");
+
+                // Remove all children (strokes)
+                for (int i = childCount - 1; i >= 0; i--)
+                {
+                    var child = node.GetChild(i);
+                    child.QueueFree();
+                }
+            }
+        }
     }
 
 } // namespace TiltBrush
