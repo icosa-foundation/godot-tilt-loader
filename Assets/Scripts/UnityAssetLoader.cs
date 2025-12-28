@@ -149,6 +149,10 @@ namespace TiltBrush
 				{
 					descriptor.m_PositionVariance = ParseFloatValue(trimmed);
 				}
+				else if (trimmed.StartsWith("m_SprayRateMultiplier:"))
+				{
+					descriptor.m_SprayRateMultiplier = ParseFloatValue(trimmed);
+				}
 			}
 
 			// Only return if we successfully parsed a GUID and name
