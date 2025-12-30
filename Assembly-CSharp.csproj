@@ -62,6 +62,7 @@
     <Compile Include="Assets/Scripts/TiltBrushManifest.cs" />
     <Compile Include="Assets/Scripts/Brushes/BaseBrushScript.cs" />
     <Compile Include="Assets/Scenes/MinimalExample.cs" />
+    <Compile Include="Assets/Scenes/MinimalXrExample.cs" />
     <Compile Include="Assets/Scripts/Brushes/MidpointPlusLifetimeSprayBrush.cs" />
     <Compile Include="Assets/Scripts/Brushes/TubeBrush.cs" />
     <Compile Include="Assets/Scripts/Brushes/BlocksBrushScript.cs" />
@@ -99,6 +100,7 @@
     <Compile Include="Assets/Scripts/MinimalExampleCore.cs" />
     <Compile Include="Assets/Scripts/Brushes/SliceBrush.cs" />
     <Compile Include="Assets/Scripts/App.cs" />
+    <Compile Include="Assets\Scenes\MinimalXrExample.cs" />
     <None Include="Assets/Resources/Brushes/Blocks/BlocksPaper/BlocksPaper.shader" />
     <None Include="Assets/Resources/Brushes/Basic/Smoke/Smoke.shader" />
     <None Include="Assets/Resources/Brushes/Shared/Shaders/StandardWireframe.shader" />
@@ -931,6 +933,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\Scenes\XrSampleScene.tscn" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

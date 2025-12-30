@@ -13,11 +13,28 @@
 // limitations under the License.
 
 using UnityEngine;
+using Godot;
 
 namespace TiltBrush
 {
 	public partial class App : MonoBehaviour
 	{
+		public override void _Ready()
+		{
+			// Initialize XR interface FIRST
+			var xrInterface = XRServer.FindInterface("OpenXR");
+			if (xrInterface != null && xrInterface.Initialize())
+			{
+				GD.Print("App: XR Interface initialized successfully");
+				GetViewport().UseXR = true;
+			}
+			else
+			{
+				GD.PushError("App: Failed to initialize XR interface");
+			}
+
+			base._Ready();
+		}
 		public const float METERS_TO_UNITS = 10f;
 		public const float UNITS_TO_METERS = .1f;
 
@@ -39,6 +56,6 @@ namespace TiltBrush
 			// For realtime sync, Time.time is probably the best thing to use.
 			// For postproduction sync, probably C# DateTime.
 			// If you change this, also modify SketchTimeToLevelLoadTime
-			Time.timeSinceLevelLoad - m_sketchTimeBase;
+			UnityEngine.Time.timeSinceLevelLoad - m_sketchTimeBase;
 	}
 }

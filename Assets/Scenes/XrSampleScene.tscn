@@ -1,0 +1,72 @@
+[gd_scene load_steps=6 format=3 uid="uid://d10ppiccm7bgp"]
+
+[ext_resource type="Script" uid="uid://bw0lxsjnb78o1" path="res://Scripts/App.cs" id="1_bdpsi"]
+[ext_resource type="Script" uid="uid://d27heaoa6p5d2" path="res://Scenes/MinimalXrExample.cs" id="1_xr"]
+[ext_resource type="Script" uid="uid://pglwkjx5l4fg" path="res://Scripts/PointerScript.cs" id="2_bdpsi"]
+[ext_resource type="Script" uid="uid://phvyh04cagl3" path="res://Scripts/BrushSystemSetup.cs" id="3_setup"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_pointer"]
+radius = 0.05
+height = 0.1
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
+size = Vector2(10, 10)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+albedo_color = Color(0.3, 0.3, 0.3, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pointer"]
+albedo_color = Color(0.2, 0.5, 1, 1)
+emission_enabled = true
+emission = Color(0.2, 0.5, 1, 1)
+emission_energy_multiplier = 2.0
+
+[node name="XrSampleScene" type="Node3D"]
+
+[node name="App" type="Node3D" parent="."]
+script = ExtResource("1_bdpsi")
+
+[node name="BrushSystemSetup" type="Node3D" parent="."]
+script = ExtResource("3_setup")
+
+[node name="Canvas" type="Node3D" parent="."]
+script = ExtResource("1_xr")
+BrushSystemPath = NodePath("../BrushSystemSetup")
+PointerPath = NodePath("../XROrigin3D/Pointer")
+LeftControllerPath = NodePath("../XROrigin3D/LeftController")
+RightControllerPath = NodePath("../XROrigin3D/RightController")
+
+[node name="XROrigin3D" type="XROrigin3D" parent="."]
+
+[node name="XRCamera3D" type="XRCamera3D" parent="XROrigin3D"]
+
+[node name="LeftController" type="XRController3D" parent="XROrigin3D"]
+tracker = &"left_hand"
+pose = &"aim"
+
+[node name="LeftControllerVisual" type="MeshInstance3D" parent="XROrigin3D/LeftController"]
+mesh = SubResource("SphereMesh_pointer")
+surface_material_override/0 = SubResource("StandardMaterial3D_pointer")
+
+[node name="RightController" type="XRController3D" parent="XROrigin3D"]
+tracker = &"right_hand"
+pose = &"aim"
+
+[node name="RightControllerVisual" type="MeshInstance3D" parent="XROrigin3D/RightController"]
+mesh = SubResource("SphereMesh_pointer")
+surface_material_override/0 = SubResource("StandardMaterial3D_pointer")
+
+[node name="Pointer" type="Node3D" parent="XROrigin3D"]
+script = ExtResource("2_bdpsi")
+
+[node name="PointerVisual" type="MeshInstance3D" parent="XROrigin3D/Pointer"]
+mesh = SubResource("SphereMesh_pointer")
+surface_material_override/0 = SubResource("StandardMaterial3D_pointer")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 3, 1)
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+mesh = SubResource("PlaneMesh_floor")
+surface_material_override/0 = SubResource("StandardMaterial3D_floor")
