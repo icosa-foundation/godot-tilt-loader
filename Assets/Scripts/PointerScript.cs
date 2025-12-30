@@ -91,9 +91,10 @@ namespace TiltBrush
 		{
 			base.Awake();
 			m_ControlPoints = new List<ControlPoint>();
-			m_CurrentBrushSize = 1.0f;
-			m_BrushSizeRange.x = 1.0f;
-			m_BrushSizeRange.y = 2.0f;
+			// GODOT: Scale brush size range by 0.1 for VR (Unity XR rig is 10x scaled, Godot is 1x)
+			m_CurrentBrushSize = 0.1f;
+			m_BrushSizeRange.x = 0.1f;
+			m_BrushSizeRange.y = 0.2f;
 			m_CurrentPressure = 1.0f;
 			m_CurrentColor = new Color(0.2f, 0.5f, 1.0f, 1f); // Initialize to mid blue
 		}
@@ -129,9 +130,13 @@ namespace TiltBrush
 		TrTransform GetTransformForLine(Transform line, TrTransform xf_RS)
 		{
 			var xfRoomFromLine = Coords.AsRoom[line];
-			xf_RS.translation += xf_RS.forward;
+			// GODOT-SPECIFIC FIX: In Unity, XR rig is scaled 10x so 1m in world = 0.1m in VR
+			// In Godot, XR rig is scale 1, so we need to scale the forward offset by 0.1
+			// Try SUBTRACTING instead of adding
+			xf_RS.translation -= xf_RS.forward * App.UNITS_TO_METERS;
 			xf_RS.scale = 1;
-			return TrTransform.InvMul(xfRoomFromLine, xf_RS);
+			var result = TrTransform.InvMul(xfRoomFromLine, xf_RS);
+			return result;
 		}
 
 		/// Non-playback case:
@@ -142,8 +147,8 @@ namespace TiltBrush
 		{
 			if (m_CurrentLine == null) return;
 
-
-			var xf_LS = GetTransformForLine(m_CurrentLine.transform, Coords.AsRoom[transform]);
+			var xf_RS = Coords.AsRoom[transform];
+			var xf_LS = GetTransformForLine(m_CurrentLine.transform, xf_RS);
 
 			bool bQuadCreated = m_CurrentLine.UpdatePosition_LS(xf_LS, m_CurrentPressure);
 
@@ -215,7 +220,6 @@ namespace TiltBrush
 				canvas.transform, xf_CS,
 				desc, m_CurrentColor, m_CurrentBrushSize);
 
-			Debug.Log($"CreateNewLine: Line created, node name='{m_CurrentLine?.Name}', IsInsideTree={m_CurrentLine?.IsInsideTree()}");
 		}
 
 		/// Like BeginLineFromMemory + EndLineFromMemory

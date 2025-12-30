@@ -141,7 +141,9 @@ namespace UnityEngine
 			}
 		}
 
-		public void SetParent(Transform parent, bool worldPositionStays = true)
+		// In Godot: default to worldPositionStays=false so scale inheritance works correctly
+		// Unity strokes are created in Canvas local space and should inherit Canvas scale
+		public void SetParent(Transform parent, bool worldPositionStays = false)
 		{
 			if (_node == null || parent?._node == null) return;
 

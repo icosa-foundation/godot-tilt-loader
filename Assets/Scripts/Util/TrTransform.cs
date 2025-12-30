@@ -218,7 +218,8 @@ namespace TiltBrush
 			}
 		}
 
-		public Vector3 forward => this.rotation * Vector3.forward;
+		// Unity uses +Z as forward (0,0,1), Godot uses -Z. Use Unity convention for compatibility.
+	public Vector3 forward => this.rotation * new Vector3(0, 0, 1);
 
 		public Vector3 up => this.rotation * Vector3.up;
 
