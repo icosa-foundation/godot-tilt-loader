@@ -9,10 +9,48 @@ namespace UnityEngine
 	// Debug logging wrapper
 	public static class Debug
 	{
-		public static void Log(object message) => GD.Print(message);
-		public static void LogWarning(object message) => GD.PushWarning(message?.ToString() ?? "null");
-		public static void LogError(object message) => GD.PushError(message?.ToString() ?? "null");
-		public static void LogException(Exception exception) => GD.PushError($"Exception: {exception}");
+		private static FileAccess _debugLogFile;
+
+		private static void WriteToFile(string message)
+		{
+			if (_debugLogFile == null)
+			{
+				_debugLogFile = FileAccess.Open("user://debug.log", FileAccess.ModeFlags.Write);
+			}
+			if (_debugLogFile != null)
+			{
+				_debugLogFile.StoreLine($"[{Time.timeSinceLevelLoad:F2}] {message}");
+				_debugLogFile.Flush();
+			}
+		}
+
+		public static void Log(object message)
+		{
+			var msg = message?.ToString() ?? "null";
+			GD.Print(msg);
+			WriteToFile(msg);
+		}
+
+		public static void LogWarning(object message)
+		{
+			var msg = message?.ToString() ?? "null";
+			GD.PushWarning(msg);
+			WriteToFile($"WARNING: {msg}");
+		}
+
+		public static void LogError(object message)
+		{
+			var msg = message?.ToString() ?? "null";
+			GD.PushError(msg);
+			WriteToFile($"ERROR: {msg}");
+		}
+
+		public static void LogException(Exception exception)
+		{
+			var msg = $"Exception: {exception}";
+			GD.PushError(msg);
+			WriteToFile(msg);
+		}
 
 		public static void LogFormat(string format, params object[] args) => GD.Print(string.Format(format, args));
 		public static void LogWarningFormat(string format, params object[] args) => GD.PushWarning(string.Format(format, args));
