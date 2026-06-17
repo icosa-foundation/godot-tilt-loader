@@ -25,7 +25,7 @@ static func init(manifest: TiltBrushManifest) -> void:
 		if key == "":
 			continue
 		if _guid_to_brush.has(key) and _guid_to_brush[key] != brush:
-			push_error("Guid collision: %s, %s" % [_guid_to_brush[key], brush])
+			push_warning("Guid collision: %s, %s" % [_guid_to_brush[key], brush])
 			continue
 		_guid_to_brush[key] = brush
 
