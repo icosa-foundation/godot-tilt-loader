@@ -201,7 +201,7 @@ func on_changed_make_geometry(knot_index: int) -> void:
 				if m_HardEdges:
 					edge_loop_start = cur.iVert + 1
 					edge_loop_end = cur.iVert
-				if m_Desc.m_TubeStoreRadiusInTexcoord0Z:
+				if _uses_vector3_uv0():
 					var u0v0 := m_geometry.m_Texcoord0.v3[edge_loop_start]
 					u0 = u0v0.x
 					v0 = u0v0.y
@@ -287,7 +287,7 @@ func modify_stretch_uvs_of_segment(initial_segment_knot: int) -> int:
 		var u := num_knots / float(total_num_knots)
 		for offset in range(cur.nVert):
 			var vert := cur.iVert + offset
-			if m_Desc.m_TubeStoreRadiusInTexcoord0Z:
+			if _uses_vector3_uv0():
 				var tmp := m_geometry.m_Texcoord0.v3[vert]
 				tmp.x = u
 				m_geometry.m_Texcoord0.v3[vert] = tmp
@@ -475,20 +475,22 @@ func append_vert(knot: Knot, position: Vector3, normal: Vector3, color_value: Co
 		m_geometry.m_Vertices.append(position)
 		m_geometry.m_Normals.append(normal)
 		m_geometry.m_Colors.append(color)
-		if m_Desc.m_TubeStoreRadiusInTexcoord0Z:
+		if _uses_vector3_uv0():
 			m_geometry.m_Texcoord0.v3.append(Vector3(uv.x, uv.y, radius))
 		else:
 			m_geometry.m_Texcoord0.v2.append(uv)
-		m_geometry.m_Tangents.append(tangent4)
+		if m_geometry.get_layout().bUseTangents:
+			m_geometry.m_Tangents.append(tangent4)
 	else:
 		m_geometry.m_Vertices[index] = position
 		m_geometry.m_Normals[index] = normal
 		m_geometry.m_Colors[index] = color
-		if m_Desc.m_TubeStoreRadiusInTexcoord0Z:
+		if _uses_vector3_uv0():
 			m_geometry.m_Texcoord0.v3[index] = Vector3(uv.x, uv.y, radius)
 		else:
 			m_geometry.m_Texcoord0.v2[index] = uv
-		m_geometry.m_Tangents[index] = tangent4
+		if m_geometry.get_layout().bUseTangents:
+			m_geometry.m_Tangents[index] = tangent4
 
 func append_tri(knot: Knot, t0: int, t1: int, t2: int) -> void:
 	var index := (knot.iTri + knot.nTri) * 3
@@ -516,3 +518,6 @@ static func _look_rotation(forward: Vector3, up: Vector3) -> Quaternion:
 	if absf(normalized_up.dot(normalized_forward)) > 0.99:
 		normalized_up = Vector3.UP if absf(Vector3.UP.dot(normalized_forward)) < 0.99 else Vector3.RIGHT
 	return Basis.looking_at(-normalized_forward, normalized_up).get_rotation_quaternion()
+
+func _uses_vector3_uv0() -> bool:
+	return m_geometry != null and m_geometry.get_layout().texcoord0.size == 3
