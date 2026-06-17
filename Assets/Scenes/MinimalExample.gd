@@ -13,11 +13,11 @@ var m_Canvas: CanvasScript
 var _runtimeBrush: BrushDescriptor
 
 func _ready() -> void:
-	if not BrushSystemPath.is_empty:
+	if not BrushSystemPath.is_empty():
 		BrushSystem = get_node_or_null(BrushSystemPath) as BrushSystemSetup
 		if BrushSystem == null:
 			push_error("MinimalExample: BrushSystemPath does not point to a BrushSystemSetup")
-	if not PointerPath.is_empty:
+	if not PointerPath.is_empty():
 		m_Pointer = get_node_or_null(PointerPath) as PointerScript
 		if m_Pointer == null:
 			push_error("MinimalExample: PointerPath does not point to a PointerScript")

@@ -40,13 +40,13 @@ func setup() -> void:
 	log_debug("XRDEBUG: MinimalXrExample ready")
 	log_debug("XRDEBUG: debug log file: %s" % ProjectSettings.globalize_path("user://xr_debug.log"))
 	log_debug("XRDEBUG: App.METERS_TO_UNITS = %.3f" % App.METERS_TO_UNITS)
-	if BrushSystem == null and not BrushSystemPath.is_empty:
+	if BrushSystem == null and not BrushSystemPath.is_empty():
 		BrushSystem = get_node_or_null(BrushSystemPath) as BrushSystemSetup
-	if m_Pointer == null and not PointerPath.is_empty:
+	if m_Pointer == null and not PointerPath.is_empty():
 		m_Pointer = get_node_or_null(PointerPath) as PointerScript
-	if _leftController == null and not LeftControllerPath.is_empty:
+	if _leftController == null and not LeftControllerPath.is_empty():
 		_leftController = get_node_or_null(LeftControllerPath) as XRController3D
-	if _rightController == null and not RightControllerPath.is_empty:
+	if _rightController == null and not RightControllerPath.is_empty():
 		_rightController = get_node_or_null(RightControllerPath) as XRController3D
 	if BrushSystem == null:
 		push_error("MinimalXrExample: BrushSystemPath does not point to a BrushSystemSetup")

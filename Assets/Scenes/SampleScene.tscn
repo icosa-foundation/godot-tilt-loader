@@ -1,10 +1,10 @@
 [gd_scene load_steps=7 format=3 uid="uid://dq3yiemvfngrt"]
 
-[ext_resource type="Script" uid="uid://bup6f8v03dflc" path="res://Scenes/MinimalExample.cs" id="1_8ve2m"]
-[ext_resource type="Script" uid="uid://bw0lxsjnb78o1" path="res://Scripts/App.cs" id="1_bdpsi"]
-[ext_resource type="Script" uid="uid://pglwkjx5l4fg" path="res://Scripts/PointerScript.cs" id="2_bdpsi"]
-[ext_resource type="Script" uid="uid://phvyh04cagl3" path="res://Scripts/BrushSystemSetup.cs" id="3_setup"]
-[ext_resource type="Script" uid="uid://djvtwrpe6ox2y" path="res://Scripts/SimpleDrawingController.cs" id="4_controller"]
+[ext_resource type="Script" uid="uid://dny6cx2m7vgq1" path="res://Scenes/MinimalExample.gd" id="1_8ve2m"]
+[ext_resource type="Script" uid="uid://bdtlvhay8i44y" path="res://Scripts/App.gd" id="1_bdpsi"]
+[ext_resource type="Script" uid="uid://yi7wbdx5wneo" path="res://Scripts/PointerScript.gd" id="2_bdpsi"]
+[ext_resource type="Script" uid="uid://bhhv5em3h48r4" path="res://Scripts/BrushSystemSetup.gd" id="3_setup"]
+[ext_resource type="Script" uid="uid://c3unio1n5imjk" path="res://Scripts/SimpleDrawingController.gd" id="4_controller"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_pointer"]
 radius = 0.1

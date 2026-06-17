@@ -1,9 +1,9 @@
 [gd_scene load_steps=6 format=3 uid="uid://d10ppiccm7bgp"]
 
-[ext_resource type="Script" uid="uid://bw0lxsjnb78o1" path="res://Scripts/App.cs" id="1_bdpsi"]
-[ext_resource type="Script" uid="uid://d27heaoa6p5d2" path="res://Scenes/MinimalXrExample.cs" id="1_xr"]
-[ext_resource type="Script" uid="uid://pglwkjx5l4fg" path="res://Scripts/PointerScript.cs" id="2_bdpsi"]
-[ext_resource type="Script" uid="uid://phvyh04cagl3" path="res://Scripts/BrushSystemSetup.cs" id="3_setup"]
+[ext_resource type="Script" uid="uid://bdtlvhay8i44y" path="res://Scripts/App.gd" id="1_bdpsi"]
+[ext_resource type="Script" uid="uid://br012buh1cb2h" path="res://Scenes/MinimalXrExample.gd" id="1_xr"]
+[ext_resource type="Script" uid="uid://yi7wbdx5wneo" path="res://Scripts/PointerScript.gd" id="2_bdpsi"]
+[ext_resource type="Script" uid="uid://bhhv5em3h48r4" path="res://Scripts/BrushSystemSetup.gd" id="3_setup"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_pointer"]
 radius = 0.05

@@ -29,9 +29,9 @@ var _mKeyWasPressed := false
 var _cKeyWasPressed := false
 
 func _ready() -> void:
-	if not PointerPath.is_empty:
+	if not PointerPath.is_empty():
 		Pointer = get_node_or_null(PointerPath) as PointerScript
-	if not CameraPath.is_empty:
+	if not CameraPath.is_empty():
 		Camera = get_node_or_null(CameraPath) as Camera3D
 	if Camera == null and get_viewport() != null:
 		Camera = get_viewport().get_camera_3d()
