@@ -1,0 +1,222 @@
+class_name HullBrush
+extends GeometryBrush
+
+const K_TOLERANCE_METERS_PS := 1e-6
+const K_VERTICES_PER_KNOT_POINT := 1
+const K_VERTICES_PER_KNOT_TETRAHEDRON := 4
+const K_DIRECTED_SPHERE_RING_POINTS := 4
+const K_DIRECTED_SPHERE_RINGS := 2
+const K_DIRECTED_SPHERE_RING_ANGLE_DEGREES := 45.0
+const K_VERTICES_PER_KNOT_DIRECTED_SPHERE := 1 + K_DIRECTED_SPHERE_RING_POINTS * K_DIRECTED_SPHERE_RINGS
+
+enum KnotConversion {
+	POINT,
+	TETRAHEDRON,
+	DIRECTED_SPHERE,
+}
+
+enum SimplifyMode {
+	DISABLED,
+	SIMPLIFY_AT_END,
+	SIMPLIFY_INTERACTIVELY,
+}
+
+var m_Faceted := false
+var m_TrackInterior := false
+var m_KnotConversion := KnotConversion.POINT
+var m_Simplification_PS := 0.0
+var m_SimplifyMode := SimplifyMode.DISABLED
+var m_AllVertices: Array[Dictionary] = []
+
+func _init() -> void:
+	setup_geometry_brush(true, 1, false)
+
+func should_current_line_end() -> bool:
+	return super.should_current_line_end()
+
+func init_brush(desc: BrushDescriptor, local_pointer_xf: TrTransform) -> void:
+	super.init_brush(desc, local_pointer_xf)
+	set_double_sided(desc)
+	m_geometry.set_layout(get_vertex_layout(desc))
+	create_vertices_from_knots(0)
+
+func get_spawn_interval(_pressure01: float) -> float:
+	return m_Desc.m_SolidMinLengthMeters_PS * pointer_to_local() * App.METERS_TO_UNITS
+
+func control_points_changed(knot_index: int) -> void:
+	on_changed_frame_knots(knot_index)
+	create_vertices_from_knots(knot_index)
+	on_changed_make_geometry()
+
+func reset_brush_for_preview(local_pointer_xf: TrTransform) -> void:
+	super.reset_brush_for_preview(local_pointer_xf)
+	create_vertices_from_knots(0)
+
+func resize_vertices(desired: int) -> void:
+	if m_AllVertices.size() > desired:
+		m_AllVertices = m_AllVertices.slice(0, desired)
+	else:
+		while m_AllVertices.size() < desired:
+			m_AllVertices.append({"position": Vector3.ZERO, "interior": false})
+
+func on_changed_frame_knots(knot_index: int) -> void:
+	var prev := m_knots[knot_index - 1]
+	for index in range(knot_index, m_knots.size()):
+		var cur := m_knots[index]
+		var move := cur.point.m_Pos - prev.point.m_Pos
+		var frame := BaseBrushScript.compute_surface_frame_new(prev.nRight, move.normalized(), cur.point.m_Orient)
+		cur.nRight = frame.right
+		cur.nSurface = frame.normal
+		m_knots[index] = cur
+		prev = cur
+
+func get_num_vertices_per_knot() -> int:
+	match m_KnotConversion:
+		KnotConversion.POINT:
+			return K_VERTICES_PER_KNOT_POINT
+		KnotConversion.TETRAHEDRON:
+			return K_VERTICES_PER_KNOT_TETRAHEDRON
+		KnotConversion.DIRECTED_SPHERE:
+			return K_VERTICES_PER_KNOT_DIRECTED_SPHERE
+		_:
+			return 0
+
+func create_vertices_from_knots(knot_index: int) -> void:
+	var vertices_per_knot := get_num_vertices_per_knot()
+	resize_vertices(m_knots.size() * vertices_per_knot)
+	match m_KnotConversion:
+		KnotConversion.POINT:
+			for index in range(knot_index, m_knots.size()):
+				_set_vertex(index, m_knots[index].point.m_Pos)
+		KnotConversion.TETRAHEDRON:
+			var half_width := m_BaseSize_PS / sqrt(3.0)
+			for index in range(knot_index, m_knots.size()):
+				var position := m_knots[index].point.m_Pos
+				var vertex0 := index * vertices_per_knot
+				_set_vertex(vertex0 + 0, position + Vector3(-half_width, -half_width, -half_width))
+				_set_vertex(vertex0 + 1, position + Vector3(+half_width, +half_width, -half_width))
+				_set_vertex(vertex0 + 2, position + Vector3(+half_width, -half_width, +half_width))
+				_set_vertex(vertex0 + 3, position + Vector3(-half_width, +half_width, +half_width))
+		KnotConversion.DIRECTED_SPHERE:
+			for index in range(knot_index, m_knots.size()):
+				var center := m_knots[index].point.m_Pos
+				var vertex0 := index * vertices_per_knot
+				if index == 0:
+					for offset in range(vertices_per_knot):
+						_set_vertex(vertex0 + offset, center)
+				else:
+					var pressure := m_knots[index].smoothedPressure if m_PreviewMode else m_knots[index].point.m_Pressure
+					var radius := pressured_size(pressure) * 0.5
+					var direction := (center - m_knots[index - 1].point.m_Pos).normalized()
+					var ortho := m_knots[index].nRight.normalized()
+					var point := direction * radius
+					_set_vertex(vertex0, center + point)
+					var q_phi := Quaternion(ortho, deg_to_rad(K_DIRECTED_SPHERE_RING_ANGLE_DEGREES))
+					var q_half_theta := Quaternion(direction, deg_to_rad(360.0 / K_DIRECTED_SPHERE_RING_POINTS / 2.0))
+					var q_theta := q_half_theta * q_half_theta
+					for ring in range(K_DIRECTED_SPHERE_RINGS):
+						point = q_phi * point
+						for ring_point in range(K_DIRECTED_SPHERE_RING_POINTS):
+							_set_vertex(vertex0 + 1 + ring * K_DIRECTED_SPHERE_RING_POINTS + ring_point, center + point)
+							point = q_theta * point
+
+func on_changed_make_geometry(_is_end: bool = false) -> void:
+	if m_knots.size() < 2:
+		return
+	var input: Array[Vector3] = []
+	for vertex in m_AllVertices:
+		if not bool(vertex.interior):
+			input.append(vertex.position)
+	var knot := m_knots[1]
+	knot.iVert = 0
+	knot.nVert = 0
+	knot.iTri = 0
+	knot.nTri = 0
+	m_geometry.m_Vertices.clear()
+	m_geometry.m_Normals.clear()
+	m_geometry.m_Colors.clear()
+	m_geometry.m_Texcoord0.v3.clear()
+	m_geometry.m_Tris.clear()
+
+	var hull := create_hull(input)
+	if bool(hull.ok):
+		if m_Faceted:
+			create_faceted_geometry(knot, hull)
+		else:
+			create_smooth_geometry(knot, hull)
+	m_knots[1] = knot
+
+func create_hull(input: Array[Vector3]) -> Dictionary:
+	if input.size() < 4:
+		return {"ok": false, "points": [], "faces": []}
+	return ConvexHullUtil.create(input)
+
+func create_faceted_geometry(knot: Knot, hull: Dictionary) -> void:
+	var points: Array = hull.points
+	for face in hull.faces:
+		var base_vertex := int(m_geometry.m_Vertices.size() / NS)
+		var normal: Vector3 = face.normal
+		for index in face.indices:
+			append_vert(knot, points[int(index)], normal)
+		var num_fan: int = face.indices.size() - 2
+		for fan in range(num_fan):
+			append_tri(knot, base_vertex, base_vertex + fan + 1, base_vertex + fan + 2)
+
+func create_smooth_geometry(knot: Knot, hull: Dictionary) -> void:
+	var points: Array = hull.points
+	var temp_normals: Array[Vector3] = []
+	ListUtils.set_count(temp_normals, points.size(), Vector3.ZERO)
+	for face in hull.faces:
+		var normal: Vector3 = face.normal
+		var indices: Array = face.indices
+		var count := indices.size()
+		for offset in range(count):
+			var prev: Vector3 = points[int(indices[(offset - 1 + count) % count])]
+			var next: Vector3 = points[int(indices[(offset + 1) % count])]
+			var cur: Vector3 = points[int(indices[offset])]
+			var angle := rad_to_deg((prev - cur).angle_to(next - cur))
+			temp_normals[int(indices[offset])] += normal * angle
+		var num_fan: int = indices.size() - 2
+		for fan in range(num_fan):
+			append_tri(knot, int(indices[0]), int(indices[fan + 1]), int(indices[fan + 2]))
+	for index in range(points.size()):
+		append_vert(knot, points[index], temp_normals[index].normalized())
+
+func get_vertex_layout(_desc: BrushDescriptor) -> GeometryPool.VertexLayout:
+	return GeometryPool.VertexLayout.create(
+		GeometryPool.TexcoordInfo.create(3, GeometryPool.Semantic.XY_IS_UV_Z_IS_DISTANCE),
+		GeometryPool.TexcoordInfo.create(),
+		null,
+		true,
+		true,
+		false
+	)
+
+func append_vert(knot: Knot, position: Vector3, normal: Vector3) -> void:
+	var uv := Vector3(0.0, 0.0, m_BaseSize_PS)
+	m_geometry.m_Vertices.append(position)
+	m_geometry.m_Normals.append(normal)
+	m_geometry.m_Colors.append(m_Color)
+	m_geometry.m_Texcoord0.v3.append(uv)
+	knot.nVert += 1
+	if m_bDoubleSided:
+		m_geometry.m_Vertices.append(position)
+		m_geometry.m_Normals.append(-normal)
+		m_geometry.m_Colors.append(m_Color)
+		m_geometry.m_Texcoord0.v3.append(uv)
+		knot.nVert += 1
+
+func append_tri(knot: Knot, vp0: int, vp1: int, vp2: int) -> void:
+	m_geometry.m_Tris.append(vp0 * NS)
+	m_geometry.m_Tris.append(vp1 * NS)
+	m_geometry.m_Tris.append(vp2 * NS)
+	knot.nTri += 1
+	if m_bDoubleSided:
+		m_geometry.m_Tris.append(vp0 * NS + 1)
+		m_geometry.m_Tris.append(vp2 * NS + 1)
+		m_geometry.m_Tris.append(vp1 * NS + 1)
+		knot.nTri += 1
+
+func _set_vertex(index: int, position: Vector3) -> void:
+	m_AllVertices[index].position = position
+	m_AllVertices[index].interior = false
