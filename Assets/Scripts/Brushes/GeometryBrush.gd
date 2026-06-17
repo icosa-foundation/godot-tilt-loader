@@ -265,6 +265,10 @@ func set_uv0(i_vert: int, vp: int, data: Variant) -> void:
 		m_geometry.m_Texcoord0.v2[i] = data
 		if m_bDoubleSided:
 			m_geometry.m_Texcoord0.v2[i + 1] = data
+	elif data is Vector3:
+		m_geometry.m_Texcoord0.v3[i] = data
+		if m_bDoubleSided:
+			m_geometry.m_Texcoord0.v3[i + 1] = data
 	elif data is Vector4:
 		m_geometry.m_Texcoord0.v4[i] = data
 		if m_bDoubleSided:
