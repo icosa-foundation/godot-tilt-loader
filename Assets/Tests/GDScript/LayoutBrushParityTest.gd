@@ -9,6 +9,7 @@ func _init() -> void:
 func _run() -> void:
 	_check_pbr_brush_layout()
 	_check_environment_brush_layouts()
+	_check_svg_brush_layout()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_LAYOUTBRUSHES: all checks passed")
 
@@ -46,6 +47,20 @@ func _check_environment_brush_layouts() -> void:
 	_expect_equal(layout_two.texcoord1.size, 2, "environment two uv1 size")
 	_expect_equal(layout_two.texcoord1.semantic, GeometryPool.Semantic.XY_IS_UV, "environment two uv1 semantic")
 	_check_noop_contract(brush, "environment")
+	brush.free()
+
+func _check_svg_brush_layout() -> void:
+	var desc := BrushDescriptor.new()
+	var brush := SvgBrushScript.new()
+	brush.m_BaseSize_PS = 1.0
+	brush.init_brush(desc, TrTransform.identity())
+	var layout := brush.get_vertex_layout(desc)
+	_expect_equal(layout.texcoord0.size, 2, "svg uv0 size")
+	_expect_equal(layout.texcoord0.semantic, GeometryPool.Semantic.XY_IS_UV, "svg uv0 semantic")
+	_expect(not layout.bUseNormals, "svg no normals")
+	_expect(layout.bUseColors, "svg colors")
+	_expect(not layout.bUseTangents, "svg no tangents")
+	_check_noop_contract(brush, "svg")
 	brush.free()
 
 func _check_noop_contract(brush: BaseBrushScript, label: String) -> void:
