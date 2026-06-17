@@ -209,3 +209,53 @@ static func compute_st(vertices: Array[Vector3], uvs: Array[Vector2], base_verte
 
 static func compute_s(vertices: Array[Vector3], uvs: Array[Vector2], base_vertex: int) -> Vector3:
 	return compute_st(vertices, uvs, base_vertex).s
+
+static func compute_tangent_space_for_quads(
+	vertices: Array[Vector3],
+	uvs: Array[Vector2],
+	normals: Array[Vector3],
+	tangents: Array[Vector4],
+	stride: int,
+	i_vert0: int,
+	i_vert1: int
+) -> void:
+	assert((i_vert1 - i_vert0) % stride == 0)
+	for i_cur in range(i_vert0, i_vert1, stride):
+		var n023 := normals[i_cur]
+		var n145 := normals[i_cur + 1]
+		var i_prev := i_cur - stride
+		var have_previous_quad := i_prev >= i_vert0
+		var have_next_quad := i_cur + stride < i_vert1
+		var v_s_012: Vector3
+		var v_t_012: Vector3
+		var w: float
+		if have_previous_quad:
+			v_s_012 = compute_s(vertices, uvs, i_cur)
+			w = tangents[i_prev].w
+		else:
+			var st := compute_st(vertices, uvs, i_cur)
+			v_s_012 = st.s
+			v_t_012 = st.t
+			w = -1.0 if n023.cross(v_s_012).dot(v_t_012) < 0.0 else 1.0
+		var v_s_345 := v_s_012
+
+		var t02 := v_s_012 - v_s_012.dot(n023) * n023
+		var t3 := v_s_345 - v_s_345.dot(n023) * n023
+		var tmp := (t02 + t3).normalized()
+		tangents[i_cur + 2] = Vector4(tmp.x, tmp.y, tmp.z, w)
+		tangents[i_cur + 3] = tangents[i_cur + 2]
+		t02 = t02.normalized()
+		tangents[i_cur] = Vector4(t02.x, t02.y, t02.z, w)
+		if have_previous_quad:
+			tangents[i_prev + 1] = tangents[i_cur]
+			tangents[i_prev + 4] = tangents[i_cur]
+			tangents[i_prev + 5] = tangents[i_cur + 2]
+
+		if not have_next_quad:
+			var t1 := v_s_012 - v_s_012.dot(n145) * n145
+			var t45 := v_s_345 - v_s_345.dot(n145) * n145
+			tmp = (t1 + t45).normalized()
+			tangents[i_cur + 1] = Vector4(tmp.x, tmp.y, tmp.z, w)
+			tangents[i_cur + 4] = tangents[i_cur + 1]
+			t45 = t45.normalized()
+			tangents[i_cur + 5] = Vector4(t45.x, t45.y, t45.z, w)
