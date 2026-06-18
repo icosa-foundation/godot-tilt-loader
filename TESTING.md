@@ -25,7 +25,7 @@ SampleScene (Node3D)
 
 ## Automated Validation
 
-Run the GDScript parity suite from the `Assets/` directory:
+Run the GDScript parity suite from the repository root:
 
 ```powershell
 $godot = 'C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe'

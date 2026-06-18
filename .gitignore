@@ -1,4 +1,4 @@
-# Godot 4+ .gitignore for C# projects
+# Godot 4+ GDScript project ignores
 
 # Godot-specific ignores
 .godot/
@@ -6,10 +6,12 @@
 export.cfg
 export_presets.cfg
 
-# Mono/C# specific ignores (BUILD OUTPUTS ONLY)
+# Build/cache outputs
 [Bb]in/
 [Oo]bj/
 [Ll]ogs/
+*.obj
+*.obj.import
 *.pdb
 *.mdb
 *.user
@@ -21,10 +23,6 @@ export_presets.cfg
 *.svd
 *.opendb
 *.VC.db
-
-# DO NOT ignore .csproj and .sln for Godot!
-# These files contain important project configuration and must be committed
-# (Unlike Unity, Godot doesn't auto-generate these)
 
 # IDE specific
 .vs/
@@ -38,12 +36,21 @@ export_presets.cfg
 # Claude Code
 .claude/
 
-# Third-party addons (cloned separately, see SETUP.md)
-Assets/addons/icosa/
+# Manifest-managed addon caches and local dependency payloads
+.plugged/
+.addons/
+.deps/
+addons/icosa/
 
 # Build outputs
 /[Bb]uild/
 /[Bb]uilds/
+/[Tt]emp/
+native/open_brush_hull/bin/
+native/open_brush_hull/.sconsign
+native/open_brush_hull/.sconsign.dblite
+native/open_brush_hull/src/.sconsign
+native/open_brush_hull/extension_api.json
 *.apk
 *.aab
 *.app

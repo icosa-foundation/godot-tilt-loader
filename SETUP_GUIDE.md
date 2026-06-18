@@ -5,15 +5,36 @@ This project is a GDScript-only Godot port of the Open Brush stroke generation r
 ## Requirements
 
 - Godot 4.5 or later.
+- git and gd-plug when installing local addon dependencies.
 - OpenXR runtime only when testing `Scenes/XrSampleScene.tscn`.
 
 ## Open The Project
 
 1. Launch Godot.
-2. Import or open the `Assets/` directory.
+2. Import or open the repository root.
 3. Use `Scenes/SampleScene.tscn` as the default desktop sample.
 
 No .NET SDK, C# solution generation, or C# build step is required.
+
+## Addon Dependencies
+
+Icosa `.tilt` loading and Open Brush brush shader/material support are provided by the separate Icosa Godot addon:
+
+```text
+C:\Users\andyb\Documents\icosa-godot-addon\addons\icosa
+```
+
+`plug.gd` points at the Icosa repository git URL and includes `addons/icosa` so the installed addon name stays `icosa`.
+
+This project uses gd-plug to install that addon into `addons/icosa` from `plug.gd`:
+
+```powershell
+cd "I:\Unity Projects\open-brush-stroke-gen-only"
+$godot = 'C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe'
+& $godot --headless --xr-mode off --path . --script res://plug.gd install
+```
+
+gd-plug runs through Godot and git. The installed addon folder is ignored by git, so the Icosa addon is not committed here.
 
 ## Scene Setup
 
@@ -48,7 +69,7 @@ SampleScene (Node3D)
 
 ## Validation
 
-Run all parity tests from the `Assets/` project directory:
+Run all parity tests from the repository root:
 
 ```powershell
 $godot = 'C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe'
