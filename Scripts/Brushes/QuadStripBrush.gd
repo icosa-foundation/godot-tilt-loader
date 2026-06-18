@@ -56,6 +56,7 @@ func reset_brush_for_preview(local_pointer_xf: TrTransform) -> void:
 
 func init_brush(desc: BrushDescriptor, local_pointer_xf: TrTransform) -> void:
 	super.init_brush(desc, local_pointer_xf)
+	MasterBrush.ensure_shared_pool()
 	m_Geometry = MasterBrush.shared_pool.get_instance()
 	m_Geometry.set_vertex_layout(get_vertex_layout(desc))
 	m_LastQuadRight = Vector3.ZERO
@@ -94,6 +95,7 @@ func finalize_solitary_brush() -> void:
 		mesh_data.uv0_v2.assign(m_Geometry.m_UVs.slice(0, used_verts))
 	mesh_data.colors.assign(m_Geometry.m_Colors.slice(0, used_verts))
 	mesh_data.tangents.assign(m_Geometry.m_Tangents.slice(0, used_verts))
+	MasterBrush.ensure_shared_pool()
 	MasterBrush.shared_pool.put(m_Geometry)
 	m_Geometry = null
 

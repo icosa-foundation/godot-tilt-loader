@@ -196,9 +196,14 @@ static func _load_prefab_fields(descriptor: BrushDescriptor, asset_file_path: St
 	var prefab_path := _find_prefab_path(asset_file_path, asset_lines)
 	if prefab_path == "":
 		return
+	descriptor.prefab_fields["prefab_path"] = prefab_path
 	var in_brush_component := false
 	for raw_line in _read_lines(prefab_path):
 		var trimmed := raw_line.strip_edges()
+		if trimmed.begins_with("m_Name:") and not descriptor.prefab_fields.has("prefab_name"):
+			descriptor.prefab_fields["prefab_name"] = _parse_string_value(trimmed)
+		elif trimmed.begins_with("m_Script:") and trimmed.contains("guid:"):
+			descriptor.prefab_fields["script_guid"] = _extract_guid_reference(trimmed)
 		if trimmed.begins_with("MonoBehaviour:"):
 			in_brush_component = true
 			continue
@@ -226,6 +231,20 @@ static func _load_prefab_fields(descriptor: BrushDescriptor, asset_file_path: St
 			descriptor.prefab_fields["m_uvStyle"] = int(_parse_float_value(trimmed))
 		elif trimmed.begins_with("m_BreakAngleMultiplier:"):
 			descriptor.prefab_fields["m_BreakAngleMultiplier"] = _parse_float_value(trimmed)
+		elif trimmed.begins_with("m_StoreWidthInTexcoord0Z:"):
+			descriptor.prefab_fields["m_StoreWidthInTexcoord0Z"] = _parse_bool_value(trimmed)
+		elif trimmed.begins_with("m_Faceted:"):
+			descriptor.prefab_fields["m_Faceted"] = _parse_bool_value(trimmed)
+		elif trimmed.begins_with("m_TrackInterior:"):
+			descriptor.prefab_fields["m_TrackInterior"] = _parse_bool_value(trimmed)
+		elif trimmed.begins_with("m_KnotsInHull:"):
+			descriptor.prefab_fields["m_KnotsInHull"] = int(_parse_float_value(trimmed))
+		elif trimmed.begins_with("m_KnotConversion:"):
+			descriptor.prefab_fields["m_KnotConversion"] = int(_parse_float_value(trimmed))
+		elif trimmed.begins_with("m_Simplification_PS:"):
+			descriptor.prefab_fields["m_Simplification_PS"] = _parse_float_value(trimmed)
+		elif trimmed.begins_with("m_SimplifyMode:"):
+			descriptor.prefab_fields["m_SimplifyMode"] = int(_parse_float_value(trimmed))
 
 static func _find_prefab_path(asset_file_path: String, asset_lines: PackedStringArray) -> String:
 	for line in asset_lines:

@@ -5,6 +5,10 @@ const K_ACTIVE_STROKE_QUADS := 1000
 
 static var shared_pool := Pool.create(func(): return MasterBrush.new())
 
+static func ensure_shared_pool() -> void:
+	if shared_pool == null:
+		shared_pool = Pool.create(func(): return MasterBrush.new())
+
 var m_NumVerts := 0
 var m_Vertices: Array[Vector3] = []
 var m_Tris: Array[int] = []
