@@ -10,7 +10,7 @@
 radius = 0.1
 height = 0.2
 
-[node name="SampleScene" type="Node3D"]
+[node name="StrokeDrawingTest" type="Node3D"]
 
 [node name="App" type="Node3D" parent="."]
 script = ExtResource("1_bdpsi")

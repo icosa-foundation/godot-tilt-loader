@@ -1,11 +1,11 @@
 # Testing Runtime Stroke Generation
 
-`Scenes/SampleScene.tscn` is configured for desktop stroke testing with GDScript scripts.
+`Scenes/StrokeDrawingTest.tscn` is configured for desktop stroke testing with GDScript scripts.
 
 ## Scene Structure
 
 ```text
-SampleScene (Node3D)
+StrokeDrawingTest (Node3D)
 ├── App (App.gd)
 ├── BrushSystemSetup (BrushSystemSetup.gd)
 ├── Canvas (MinimalExample.gd)

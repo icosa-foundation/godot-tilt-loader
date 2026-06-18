@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="open-brush-stroke-gen-godot"
-run/main_scene="uid://dq3yiemvfngrt"
+run/main_scene="res://Scenes/TiltEvidenceViewer.tscn"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
 

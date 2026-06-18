@@ -13,9 +13,10 @@ This Godot 4.5+ project ports the Open Brush/Tilt Brush stroke generation runtim
 ## Quick Start
 
 1. Open the repository root as the Godot project.
-2. Install addon dependencies with gd-plug if you need Icosa `.tilt` loading or brush materials.
-3. Run `Scenes/SampleScene.tscn` for desktop pointer testing.
-4. Run `Scenes/XrSampleScene.tscn` for XR testing when OpenXR is available.
+2. Install addon dependencies with gd-plug for Icosa `.tilt` loading and brush materials.
+3. Press Play to run `Scenes/TiltEvidenceViewer.tscn`.
+4. Run `Scenes/StrokeDrawingTest.tscn` for desktop pointer testing.
+5. Run `Scenes/XrStrokeDrawingTest.tscn` for XR testing when OpenXR is available.
 
 The project loads `Resources/BrushCatalog/brush_catalog.json`, a generated catalog containing the brush descriptor and prefab settings that used to come from Unity YAML assets.
 
@@ -70,8 +71,9 @@ Resources/
     └── brush_catalog.json
 
 Scenes/
-├── SampleScene.tscn
-├── XrSampleScene.tscn
+├── TiltEvidenceViewer.tscn
+├── StrokeDrawingTest.tscn
+├── XrStrokeDrawingTest.tscn
 ├── MinimalExample.gd
 └── MinimalXrExample.gd
 
