@@ -1,6 +1,11 @@
 class_name UnityAssetLoader
 extends RefCounted
 
+const BRUSH_CATALOG_PATH := "res://Resources/BrushCatalog/brush_catalog.json"
+
+static var _catalog_loaded := false
+static var _catalog: Dictionary = {}
+
 static func create_manifest_from_directory(directory_path: String, include_subdirectories: bool = true) -> TiltBrushManifest:
 	var manifest := TiltBrushManifest.new()
 	var brush_descriptors: Array[BrushDescriptor] = []
@@ -21,6 +26,10 @@ static func create_manifest_from_directory(directory_path: String, include_subdi
 	return manifest
 
 static func load_manifest(manifest_path: String) -> TiltBrushManifest:
+	var catalog_manifest := _load_manifest_from_catalog(manifest_path.get_file().get_basename())
+	if catalog_manifest != null:
+		return catalog_manifest
+
 	var manifest := TiltBrushManifest.new()
 	if not FileAccess.file_exists(manifest_path):
 		push_error("Manifest file not found: %s" % manifest_path)
@@ -62,6 +71,10 @@ static func load_manifest(manifest_path: String) -> TiltBrushManifest:
 	return manifest
 
 static func load_brush_descriptor(asset_file_path: String) -> BrushDescriptor:
+	var catalog_descriptor := _load_descriptor_from_catalog_path(asset_file_path)
+	if catalog_descriptor != null:
+		return catalog_descriptor
+
 	if not FileAccess.file_exists(asset_file_path):
 		return null
 
@@ -159,6 +172,132 @@ static func load_brush_descriptor(asset_file_path: String) -> BrushDescriptor:
 		_load_prefab_fields(descriptor, asset_file_path, lines)
 		return descriptor
 	return null
+
+static func _load_manifest_from_catalog(manifest_name: String) -> TiltBrushManifest:
+	var catalog := _load_catalog()
+	if catalog.is_empty():
+		return null
+	var manifests: Dictionary = catalog.get("manifests", {})
+	if not manifests.has(manifest_name):
+		return null
+	var manifest_data: Dictionary = manifests[manifest_name]
+	var manifest := TiltBrushManifest.new()
+	manifest.Brushes = _load_descriptors_from_catalog_guids(manifest_data.get("brushes", []))
+	manifest.CompatibilityBrushes = _load_descriptors_from_catalog_guids(manifest_data.get("compatibility_brushes", []))
+	return manifest
+
+static func _load_descriptors_from_catalog_guids(guids: Array) -> Array[BrushDescriptor]:
+	var output: Array[BrushDescriptor] = []
+	for guid_value in guids:
+		var descriptor := _load_descriptor_from_catalog_guid(String(guid_value))
+		if descriptor != null:
+			output.append(descriptor)
+		else:
+			push_warning("Could not find brush with GUID %s" % String(guid_value))
+	return output
+
+static func _load_descriptor_from_catalog_path(asset_file_path: String) -> BrushDescriptor:
+	var catalog := _load_catalog()
+	if catalog.is_empty():
+		return null
+	var normalized_path := _resource_relative_path(asset_file_path)
+	var brushes: Dictionary = catalog.get("brushes", {})
+	for data in brushes.values():
+		if not data is Dictionary:
+			continue
+		if _resource_relative_path(String(data.get("source_path", ""))) == normalized_path:
+			return _descriptor_from_catalog_data(data)
+	return null
+
+static func _load_descriptor_from_catalog_guid(guid: String) -> BrushDescriptor:
+	var catalog := _load_catalog()
+	if catalog.is_empty():
+		return null
+	var brushes: Dictionary = catalog.get("brushes", {})
+	var key := guid.strip_edges().to_lower().replace("-", "")
+	if not brushes.has(key):
+		return null
+	var data = brushes[key]
+	if not data is Dictionary:
+		return null
+	return _descriptor_from_catalog_data(data)
+
+static func _descriptor_from_catalog_data(data: Dictionary) -> BrushDescriptor:
+	var descriptor := BrushDescriptor.new()
+	descriptor.name = String(data.get("name", ""))
+	descriptor.m_Guid = String(data.get("m_Guid", ""))
+	descriptor.m_DurableName = String(data.get("m_DurableName", ""))
+	descriptor.m_CreationVersion = String(data.get("m_CreationVersion", ""))
+	descriptor.m_ShaderVersion = String(data.get("m_ShaderVersion", descriptor.m_ShaderVersion))
+	descriptor.m_Tags = _string_array(data.get("m_Tags", descriptor.m_Tags))
+	descriptor.m_Nondeterministic = bool(data.get("m_Nondeterministic", descriptor.m_Nondeterministic))
+	descriptor.m_LooksIdentical = bool(data.get("m_LooksIdentical", descriptor.m_LooksIdentical))
+	descriptor.m_DescriptionExtra = String(data.get("m_DescriptionExtra", descriptor.m_DescriptionExtra))
+	descriptor.m_TextureAtlasV = int(data.get("m_TextureAtlasV", descriptor.m_TextureAtlasV))
+	descriptor.m_TileRate = float(data.get("m_TileRate", descriptor.m_TileRate))
+	descriptor.m_BrushSizeRange = _vector2(data.get("m_BrushSizeRange", descriptor.m_BrushSizeRange))
+	descriptor.m_PressureSizeRange = _vector2(data.get("m_PressureSizeRange", descriptor.m_PressureSizeRange))
+	descriptor.m_SizeVariance = float(data.get("m_SizeVariance", descriptor.m_SizeVariance))
+	descriptor.m_PreviewPressureSizeMin = float(data.get("m_PreviewPressureSizeMin", descriptor.m_PreviewPressureSizeMin))
+	descriptor.m_Opacity = float(data.get("m_Opacity", descriptor.m_Opacity))
+	descriptor.m_PressureOpacityRange = _vector2(data.get("m_PressureOpacityRange", descriptor.m_PressureOpacityRange))
+	descriptor.m_ColorLuminanceMin = float(data.get("m_ColorLuminanceMin", descriptor.m_ColorLuminanceMin))
+	descriptor.m_ColorSaturationMax = float(data.get("m_ColorSaturationMax", descriptor.m_ColorSaturationMax))
+	descriptor.m_ParticleSpeed = float(data.get("m_ParticleSpeed", descriptor.m_ParticleSpeed))
+	descriptor.m_ParticleRate = float(data.get("m_ParticleRate", descriptor.m_ParticleRate))
+	descriptor.m_ParticleInitialRotationRange = float(data.get("m_ParticleInitialRotationRange", descriptor.m_ParticleInitialRotationRange))
+	descriptor.m_RandomizeAlpha = bool(data.get("m_RandomizeAlpha", descriptor.m_RandomizeAlpha))
+	descriptor.m_SprayRateMultiplier = float(data.get("m_SprayRateMultiplier", descriptor.m_SprayRateMultiplier))
+	descriptor.m_RotationVariance = float(data.get("m_RotationVariance", descriptor.m_RotationVariance))
+	descriptor.m_PositionVariance = float(data.get("m_PositionVariance", descriptor.m_PositionVariance))
+	descriptor.m_SizeRatio = _vector2(data.get("m_SizeRatio", descriptor.m_SizeRatio))
+	descriptor.m_M11Compatibility = bool(data.get("m_M11Compatibility", descriptor.m_M11Compatibility))
+	descriptor.m_SolidMinLengthMeters_PS = float(data.get("m_SolidMinLengthMeters_PS", descriptor.m_SolidMinLengthMeters_PS))
+	descriptor.m_TubeStoreRadiusInTexcoord0Z = bool(data.get("m_TubeStoreRadiusInTexcoord0Z", descriptor.m_TubeStoreRadiusInTexcoord0Z))
+	descriptor.m_RenderBackfaces = bool(data.get("m_RenderBackfaces", descriptor.m_RenderBackfaces))
+	descriptor.m_BackIsInvisible = bool(data.get("m_BackIsInvisible", descriptor.m_BackIsInvisible))
+	descriptor.m_BackfaceHueShift = float(data.get("m_BackfaceHueShift", descriptor.m_BackfaceHueShift))
+	descriptor.m_BoundsPadding = float(data.get("m_BoundsPadding", descriptor.m_BoundsPadding))
+	descriptor.prefab_fields = data.get("prefab_fields", {})
+	return descriptor
+
+static func _load_catalog() -> Dictionary:
+	if _catalog_loaded:
+		return _catalog
+	_catalog_loaded = true
+	if not FileAccess.file_exists(BRUSH_CATALOG_PATH):
+		return {}
+	var text := FileAccess.get_file_as_string(BRUSH_CATALOG_PATH)
+	var parsed = JSON.parse_string(text)
+	if not parsed is Dictionary:
+		push_error("Brush catalog JSON is invalid: %s" % BRUSH_CATALOG_PATH)
+		return {}
+	_catalog = parsed
+	return _catalog
+
+static func _string_array(value) -> Array[String]:
+	var output: Array[String] = []
+	if value is Array:
+		for item in value:
+			output.append(String(item))
+	return output
+
+static func _vector2(value) -> Vector2:
+	if value is Vector2:
+		return value
+	if value is Array and value.size() >= 2:
+		return Vector2(float(value[0]), float(value[1]))
+	return Vector2.ZERO
+
+static func _resource_relative_path(path: String) -> String:
+	var normalized := path.replace("\\", "/")
+	var project_path := ProjectSettings.globalize_path("res://").replace("\\", "/")
+	if normalized.begins_with(project_path):
+		normalized = normalized.substr(project_path.length())
+	var resources_index := normalized.find("Resources/")
+	if resources_index >= 0:
+		normalized = normalized.substr(resources_index)
+	return normalized
 
 static func get_default_brushes_path() -> String:
 	return ProjectSettings.globalize_path("res://").path_join("Resources").path_join("Brushes").path_join("Basic")

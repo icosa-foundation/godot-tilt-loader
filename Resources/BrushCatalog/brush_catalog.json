@@ -1,0 +1,6535 @@
+{
+  "version": 1,
+  "generated_from": "Unity YAML brush descriptors and prefabs",
+  "manifests": {
+    "Manifest": {
+      "brushes": [
+        "c80c2ea05a3d85e48858a322a18cf5bb",
+        "816add3f326839c4cafce8bfc4a7e26b",
+        "7a3a9d5ee2e492c49b1146ed03806398",
+        "a3243d2ad2f1f144d8c096c7a7f080f0",
+        "79aad858cfe754d4bad6bb41091669d5",
+        "4fff8e60f5ea7a843b57a7e35501241a",
+        "4e0276a2779e02649886e0eabd8cc6f0",
+        "dcc92c1f4cbe8b8408027df56e38a838",
+        "f2a3ea577216f00419871f50d71cc885",
+        "d7e129b9879e8b3499ccc4d81ca68ee2",
+        "cda3391ff768d1b49ab892abdcbe3c56",
+        "bac1fa1f07e59644b935b9e3b2647421",
+        "b802f6ef146800b4bb78e9c705622cad",
+        "d7a4edd7b40a3ad47918b4d6868e30af",
+        "ebea59c8451485a4fa398d5c45688a1a",
+        "5c998fe180ae6e147990ad3586897e35",
+        "2be0ab3685124a24ab6666cd66a7d0e7",
+        "6faa0b9ee9bc6c349a8651b00f161161",
+        "5d951be2a6eef8948b26abcf9f2a4456",
+        "b0da087bf95190d43aa3cc44ed2bc009",
+        "7811dc4b8e48ae745be1ddf9401e4aa4",
+        "695c0f01b9a7e91449b541ab1b30fc4f",
+        "c969cee8911aa4d4293ee395f822a70c",
+        "b477bd8a0ed72b643833f1c162ac6d0a",
+        "659158fcdc71ae74c95d543604d4e9a2",
+        "eb608f68fb3036b47be357a021ed7618",
+        "f6a32da0f64c45847a73dffe57f213c1",
+        "f45e726a3d60b0f42804a2d5efb2c868",
+        "b3384ba6cddfeb64ba4b7d4abed9a3e8",
+        "f15499e689c21834283473d09b16eb4a",
+        "2264f93e06f07674bb5327af480f9ffb",
+        "700f3aa89a7c23848b8aea028905dd8c",
+        "022499c12baee6c40bc9a6866e164351",
+        "2b446bb08278e5440a49b5e6cf6abdee",
+        "33e508d3a4797de4c85b68342b174163",
+        "07c0ab5926b4f8e429ab3e9033e65ee3",
+        "e0abbc800f80e85449708924a0863dcc",
+        "2f212815f4d3c1a4681afeeaf9c6dc37",
+        "5061d2801862f4be9b0a635f8c7c8535",
+        "991f6df195c83734f927996b42c074cb",
+        "cf7f00597aeb53a42b67c83d863a9ffa",
+        "2bb4873d12aa1c64e804d4ac1cd5ea9f",
+        "38318c20b5172439fa13885f1fdd14f0",
+        "1caa6d7df0153f543a4b8b5354d39f81",
+        "922fa490bfe22b54b887e9fd98ebdcc5",
+        "9c8daf06e47430c47a2e2d1a4d27b04f",
+        "939e4b3f7e611954da1a1d3925c27d9b",
+        "cd3afa141c6aeec4ebd43bb3042d14a2"
+      ],
+      "compatibility_brushes": [
+        "9d74e4f2898082d48885a67bc6f6e97d",
+        "552a6b22c41f6514fbf6de142245a2ae",
+        "1f21613e11c369544b6b6515aa112234",
+        "0ed9d7bd0d4b1424eaa647281a7bb738",
+        "510688aabb25f344daa830c8b8f5af16",
+        "e617036dc63ede649a1c716ac255dd88",
+        "d6c87eafa4cdba042933c1b4f6da46f7",
+        "ba0e0f27d49da824aa74ab60edd90a56",
+        "0e87b49c65463a343a448a556d7d6c3e",
+        "987198ed6dc42fb48861ac40965edb58",
+        "84463df8784ac6646ab814a16602c250",
+        "c0393f9ef118b8b4eac658e169ac8497",
+        "1928962e383e7f04696634b06de5ff25",
+        "2c424631fdf55254282d1aa5405ad63a"
+      ]
+    },
+    "Manifest_Experimental": {
+      "brushes": [
+        "b24b145ee272a9345b7f0142039120ea",
+        "daece1ae471373c41bd0ebe7f9e9ce4f",
+        "03a529e1f5193dd4582d2d5cd92c3f4f",
+        "725f4c6a6427652429abda371924adab",
+        "ddda87454bb5ac5488b6d1480370583e",
+        "50e99447386105f4697da1b96e771b98",
+        "7136a7291aabbd24f8b2ca88b6adfb67",
+        "a8147ce1005eabe488e809a1eaadcc89",
+        "9568870f859460f41b20dfbc8a5eac0e",
+        "5e39288156c19964db2b1d02745c4c26",
+        "37ebcef2eed5d744a8e0eec3d0302f56",
+        "008dba3a178e2494582a3e1e6ad2613a",
+        "81969b4d6dd64af488d0ddece18329d8",
+        "b72ff267ccfa05a4d81f9da0e9e07539",
+        "731681c2cdd050b478219dc6153f2a5c",
+        "0eecc41a00bac3044a9c10591d311f06",
+        "678ca30d0821b1d48a8b049a923282e6",
+        "148ff4fdcb9632c4c81864f50137407a",
+        "b62a217e510d7294ca1765932cf9b22a",
+        "2cd13d8654fe24fd3a21d51094c6dcbf",
+        "552a6b22c41f6514fbf6de142245a2ae",
+        "513f6e3cc725f4f45a46c2929f860264",
+        "e617036dc63ede649a1c716ac255dd88",
+        "1f21613e11c369544b6b6515aa112234",
+        "be51e4092183f804eb6b1e65db7707ad",
+        "e30874b8e32da4030935a5a052df4e3f",
+        "c44d6ade320d5ac4f923d6ea4ad14d17",
+        "3aab754bd56f8354cab05641f2823048",
+        "608710cce8998e64b9f5c6eacb6122f6",
+        "2ac14128061517f47a61f3c85ce26dfa",
+        "4f5a2e7cd437cb940a21cc79b124c479",
+        "b6aa7d588ee0979499aa1a45ba82fcbe",
+        "03fbe7f5640d4c444aa1e952a4ed6cac",
+        "84d5bbb266348434f8a7681b576b4664",
+        "3d9755da56c772949b1d5ec349975f52",
+        "4fae3eb8ba0cca944ab3b9d336ae2444",
+        "c86c058d1bda2e9408dbf3d6a96ac4a1",
+        "fde6e7780f7ae58438d689d44cee59f6",
+        "5590203f3eebd904caef73b167578304",
+        "c5da2e70a6e463a4898c5cfedef09c97",
+        "62fef968e84232244a0e1fdb7cfb745c",
+        "9747a74990661134cbd6634f0c139368",
+        "ac0084fece9b5c94fa23e67c2f6158ef",
+        "cf17a34d70dd8c44fbb5048009fe4c7d",
+        "7f08fe94303d35248b4d5bca2f6e6318",
+        "2deaec86711e9734e8926632a3648448",
+        "2d79c7b32429daa4485f21552c31fa4b",
+        "7259cce541c1ec74c88578af28a31d95",
+        "7c972c27d3c28af47bf85d9db8f0b7bb",
+        "4f5a2e7cd437cb940a21cc79b124c479",
+        "2ac14128061517f47a61f3c85ce26dfa",
+        "95219c84db13d7c49b0bae92b5f8dc9c",
+        "b9280b7e789abdd49bd5d85c5554afd3",
+        "69fc4ed00cead5b47b3dd3fb4d6096c9",
+        "d25091db0e878ba458b54227b23cad57"
+      ],
+      "compatibility_brushes": []
+    }
+  },
+  "brushes": {
+    "f15499e689c21834283473d09b16eb4a": {
+      "source_path": "Resources/Brushes/Basic/Bubbles/Bubbles.asset",
+      "name": "Bubbles",
+      "m_Guid": "89d104cd-d012-426b-b5b3-bbaee63ac43c",
+      "m_DurableName": "Bubbles",
+      "m_CreationVersion": "10.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": true,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.075,
+        0.15
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.65,
+      "m_ParticleRate": 0.15,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": true,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "particle"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Particles/GeniusParticle.prefab",
+        "prefab_name": "GeniusParticle",
+        "script_guid": "09c06cd923471b340bfa3b0a18b91e03"
+      }
+    },
+    "700f3aa89a7c23848b8aea028905dd8c": {
+      "source_path": "Resources/Brushes/Basic/CelVinyl/CelVinyl.asset",
+      "name": "CelVinyl",
+      "m_Guid": "700f3aa8-9a7c-2384-8b8a-ea028905dd8c",
+      "m_DurableName": "CelVinyl",
+      "m_CreationVersion": "16.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.2,
+      "m_BrushSizeRange": [
+        0.1,
+        1.5
+      ],
+      "m_PressureSizeRange": [
+        0.5,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "whiteboard",
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "33e508d3a4797de4c85b68342b174163": {
+      "source_path": "Resources/Brushes/Basic/ChromaticWave/ChromaticWave.asset",
+      "name": "ChromaticWave",
+      "m_Guid": "0f0ff7b2-a677-45eb-a7d6-0cd7206f4816",
+      "m_DurableName": "ChromaticWave",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.1,
+      "m_BrushSizeRange": [
+        0.1,
+        0.3
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.372,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 0.98,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": true,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/TubeDistanceUV.prefab",
+        "prefab_name": "TubeDistanceUV",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 0,
+        "m_ShapeModifier": 0,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "659158fcdc71ae74c95d543604d4e9a2": {
+      "source_path": "Resources/Brushes/Basic/CoarseBristles/CoarseBristles.asset",
+      "name": "CoarseBristles",
+      "m_Guid": "1161af82-50cf-47db-9706-0c3576d43c43",
+      "m_DurableName": "CoarseBristles",
+      "m_CreationVersion": "15.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": true,
+      "m_LooksIdentical": true,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 4,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.1,
+        2.0
+      ],
+      "m_PressureSizeRange": [
+        0.5,
+        1.0
+      ],
+      "m_SizeVariance": 0.3,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 2.0,
+      "m_RotationVariance": 5.0,
+      "m_PositionVariance": 0.05,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/Spray.prefab",
+        "prefab_name": "Spray",
+        "script_guid": "79687cd93bc3e47a3ba7d94416f732b9"
+      }
+    },
+    "1caa6d7df0153f543a4b8b5354d39f81": {
+      "source_path": "Resources/Brushes/Basic/Comet/Comet.asset",
+      "name": "Comet",
+      "m_Guid": "1caa6d7d-f015-3f54-3a4b-8b5354d39f81",
+      "m_DurableName": "Comet",
+      "m_CreationVersion": "16.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.1,
+        1.5
+      ],
+      "m_PressureSizeRange": [
+        0.4,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/Brushes/Basic/Comet/TubeBrush_Comet.prefab",
+        "prefab_name": "TubeBrush_Comet",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.1,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 1,
+        "m_ShapeModifier": 3,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "95219c84db13d7c49b0bae92b5f8dc9c": {
+      "source_path": "Resources/Brushes/Basic/ConcaveHull/ConcaveHull.asset",
+      "name": "ConcaveHull",
+      "m_Guid": "7ae1f880-a517-44a0-99f9-1cab654498c6",
+      "m_DurableName": "ConcaveHull",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.01,
+      "m_BrushSizeRange": [
+        0.005,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": true,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/Brushes/Basic/ConcaveHull/ConcaveHullPrefab.prefab",
+        "prefab_name": "ConcaveHullPrefab",
+        "script_guid": "0254597c4835bdf4baeddef2c5ce394b",
+        "m_KnotsInHull": 5,
+        "m_Faceted": true,
+        "m_KnotConversion": 1
+      }
+    },
+    "c44d6ade320d5ac4f923d6ea4ad14d17": {
+      "source_path": "Resources/Brushes/Basic/DanceFloor/DanceFloor.asset",
+      "name": "DanceFloor",
+      "m_Guid": "6a1cf9f9-032c-45ec-311e-a6680bee32e9",
+      "m_DurableName": "DanceFloor",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.2,
+        0.2
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 0.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 0.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/MiddpointPlusLifetimeGeomSpray.prefab",
+        "prefab_name": "MiddpointPlusLifetimeGeomSpray",
+        "script_guid": "3fbb59e9361bbac41a6408f8ce77d733"
+      }
+    },
+    "cd3afa141c6aeec4ebd43bb3042d14a2": {
+      "source_path": "Resources/Brushes/Basic/DiamondHull/DiamondHull.asset",
+      "name": "DiamondHull",
+      "m_Guid": "c8313697-2563-47fc-832e-290f4c04b901",
+      "m_DurableName": "DiamondHull",
+      "m_CreationVersion": "16.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.01,
+      "m_BrushSizeRange": [
+        0.005,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": true,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "hull"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/Brushes/Basic/MatteHull/HullPrefab.prefab",
+        "prefab_name": "HullPrefab",
+        "script_guid": "05481b74b9f47ad45a3f71a4890c7f63",
+        "m_Faceted": true,
+        "m_TrackInterior": true,
+        "m_KnotConversion": 2,
+        "m_Simplification_PS": 0.001,
+        "m_SimplifyMode": 0
+      }
+    },
+    "38318c20b5172439fa13885f1fdd14f0": {
+      "source_path": "Resources/Brushes/Basic/Disco/Disco.asset",
+      "name": "Disco",
+      "m_Guid": "4391aaaa-df73-4396-9e33-31e4e4930b27",
+      "m_DurableName": "Disco",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.15,
+      "m_BrushSizeRange": [
+        0.02,
+        0.5
+      ],
+      "m_PressureSizeRange": [
+        0.5,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.24,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": true,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/TubeDistanceUV.prefab",
+        "prefab_name": "TubeDistanceUV",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 0,
+        "m_ShapeModifier": 0,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "552a6b22c41f6514fbf6de142245a2ae": {
+      "source_path": "Resources/Brushes/Basic/DotMarker/DotMarker.asset",
+      "name": "DotMarker",
+      "m_Guid": "d1d991f2-e7a0-4cf1-b328-f57e915e6260",
+      "m_DurableName": "DotMarker",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": true,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.05,
+        2.0
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 3.0,
+      "m_RotationVariance": 0.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/Spray.prefab",
+        "prefab_name": "Spray",
+        "script_guid": "79687cd93bc3e47a3ba7d94416f732b9"
+      }
+    },
+    "07c0ab5926b4f8e429ab3e9033e65ee3": {
+      "source_path": "Resources/Brushes/Basic/Dots/Dots.asset",
+      "name": "Dots",
+      "m_Guid": "6a1cf9f9-032c-45ec-9b1d-a6680bee30f7",
+      "m_DurableName": "Dots",
+      "m_CreationVersion": "10.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": true,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.4,
+        0.8
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 0.1,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": true,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "whiteboard",
+        "default",
+        "audioreactive",
+        "particle"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Particles/GeniusParticle.prefab",
+        "prefab_name": "GeniusParticle",
+        "script_guid": "09c06cd923471b340bfa3b0a18b91e03"
+      }
+    },
+    "cda3391ff768d1b49ab892abdcbe3c56": {
+      "source_path": "Resources/Brushes/Basic/DoubleTaperedFlat/DoubleTaperedFlat.asset",
+      "name": "DoubleTaperedFlat",
+      "m_Guid": "0d3889f3-3ede-470c-8af4-f44813306126",
+      "m_DurableName": "DoubleTaperedFlat",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.1,
+      "m_BrushSizeRange": [
+        0.025,
+        3.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": true,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/MidpointPlusOffset.prefab",
+        "prefab_name": "MidpointPlusOffset",
+        "script_guid": "6e9fc06b6930627419225b72afd6d948",
+        "m_uvStyle": 1
+      }
+    },
+    "4e0276a2779e02649886e0eabd8cc6f0": {
+      "source_path": "Resources/Brushes/Basic/DoubleTaperedMarker/DoubleTaperedMarker.asset",
+      "name": "DoubleTaperedMarker",
+      "m_Guid": "0d3889f3-3ede-470c-8af4-de4813306126",
+      "m_DurableName": "DoubleTaperedMarker",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.1,
+      "m_BrushSizeRange": [
+        0.025,
+        2.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": true,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/MidpointPlusOffset.prefab",
+        "prefab_name": "MidpointPlusOffset",
+        "script_guid": "6e9fc06b6930627419225b72afd6d948",
+        "m_uvStyle": 1
+      }
+    },
+    "c969cee8911aa4d4293ee395f822a70c": {
+      "source_path": "Resources/Brushes/Basic/DuctTape/DuctTape.asset",
+      "name": "DuctTape",
+      "m_Guid": "d0262945-853c-4481-9cbd-88586bed93cb",
+      "m_DurableName": "DuctTape",
+      "m_CreationVersion": "15.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": true,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.6,
+      "m_BrushSizeRange": [
+        0.05,
+        1.25
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "f6a32da0f64c45847a73dffe57f213c1": {
+      "source_path": "Resources/Brushes/Basic/Electricity/Electricity.asset",
+      "name": "Electricity",
+      "m_Guid": "f6e85de3-6dcc-4e7f-87fd-cee8c3d25d51",
+      "m_DurableName": "Electricity",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.1,
+      "m_BrushSizeRange": [
+        0.02,
+        0.05
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": true,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/MidpointPlusOffset.prefab",
+        "prefab_name": "MidpointPlusOffset",
+        "script_guid": "6e9fc06b6930627419225b72afd6d948",
+        "m_uvStyle": 1
+      }
+    },
+    "ebea59c8451485a4fa398d5c45688a1a": {
+      "source_path": "Resources/Brushes/Basic/Embers/Embers.asset",
+      "name": "Embers",
+      "m_Guid": "02ffb866-7fb2-4d15-b761-1012cefb1360",
+      "m_DurableName": "Embers",
+      "m_CreationVersion": "10.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": true,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.025,
+        0.075
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 0.35,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": true,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.63,
+      "m_Tags": [
+        "default",
+        "audioreactive",
+        "particle"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Particles/GeniusParticle.prefab",
+        "prefab_name": "GeniusParticle",
+        "script_guid": "09c06cd923471b340bfa3b0a18b91e03"
+      }
+    },
+    "513f6e3cc725f4f45a46c2929f860264": {
+      "source_path": "Resources/Brushes/Basic/FacetedTube/FacetedTube.asset",
+      "name": "FacetedTube",
+      "m_Guid": "4391ffaa-df73-4396-9e33-31e4e4930b27",
+      "m_DurableName": "FacetedTube",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.15,
+      "m_BrushSizeRange": [
+        0.02,
+        0.5
+      ],
+      "m_PressureSizeRange": [
+        0.5,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/TubeDistanceUV.prefab",
+        "prefab_name": "TubeDistanceUV",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 0,
+        "m_ShapeModifier": 0,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "d7a4edd7b40a3ad47918b4d6868e30af": {
+      "source_path": "Resources/Brushes/Basic/Fire/Fire.asset",
+      "name": "Fire",
+      "m_Guid": "cb92b597-94ca-4255-b017-0e3f42f12f9e",
+      "m_DurableName": "Fire",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 3.0,
+      "m_BrushSizeRange": [
+        0.1,
+        2.0
+      ],
+      "m_PressureSizeRange": [
+        0.5,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "f2a3ea577216f00419871f50d71cc885": {
+      "source_path": "Resources/Brushes/Basic/Flat/Flat.asset",
+      "name": "Flat",
+      "m_Guid": "2d35bcf0-e4d8-452c-97b1-3311be063130",
+      "m_DurableName": "Flat",
+      "m_CreationVersion": "15.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": true,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.025,
+        3.0
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "510688aabb25f344daa830c8b8f5af16": {
+      "source_path": "Resources/Brushes/Basic/FlatDeprecated/FlatDeprecated.asset",
+      "name": "FlatDeprecated",
+      "m_Guid": "55303bc4-c749-4a72-98d9-d23e68e76e18",
+      "m_DurableName": "FlatDeprecated",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "Deprecated compat brush",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.05,
+        3.0
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "dcc92c1f4cbe8b8408027df56e38a838": {
+      "source_path": "Resources/Brushes/Basic/Highlighter/Highlighter.asset",
+      "name": "Highlighter",
+      "m_Guid": "cf019139-d41c-4eb0-a1d0-5cf54b0a42f3",
+      "m_DurableName": "Highlighter",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.025,
+        0.5
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 0.98,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "022499c12baee6c40bc9a6866e164351": {
+      "source_path": "Resources/Brushes/Basic/HyperGrid/HyperGrid.asset",
+      "name": "HyperGrid",
+      "m_Guid": "6a1cf9f9-032c-45ec-9b6e-a6680bee32e9",
+      "m_DurableName": "HyperGrid",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.1,
+        0.2
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 1.0,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 0.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 0.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/MiddpointPlusLifetimeGeomSpray.prefab",
+        "prefab_name": "MiddpointPlusLifetimeGeomSpray",
+        "script_guid": "3fbb59e9361bbac41a6408f8ce77d733"
+      }
+    },
+    "b3384ba6cddfeb64ba4b7d4abed9a3e8": {
+      "source_path": "Resources/Brushes/Basic/Hypercolor/Hypercolor.asset",
+      "name": "Hypercolor",
+      "m_Guid": "dce872c2-7b49-4684-b59b-c45387949c5c",
+      "m_DurableName": "Hypercolor",
+      "m_CreationVersion": "15.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": true,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.2,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 0.98,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/LineWithWidth.prefab",
+        "prefab_name": "LineWithWidth",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": true
+      }
+    },
+    "2f212815f4d3c1a4681afeeaf9c6dc37": {
+      "source_path": "Resources/Brushes/Basic/Icing/Icing.asset",
+      "name": "Icing",
+      "m_Guid": "2f212815-f4d3-c1a4-681a-feeaf9c6dc37",
+      "m_DurableName": "Icing",
+      "m_CreationVersion": "16.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.25,
+      "m_BrushSizeRange": [
+        0.025,
+        0.5
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "whiteboard",
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/TubeDistanceUV.prefab",
+        "prefab_name": "TubeDistanceUV",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 0,
+        "m_ShapeModifier": 0,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "816add3f326839c4cafce8bfc4a7e26b": {
+      "source_path": "Resources/Brushes/Basic/Ink/Ink.asset",
+      "name": "Ink",
+      "m_Guid": "f5c336cf-5108-4b40-ade9-c687504385ab",
+      "m_DurableName": "Ink",
+      "m_CreationVersion": "15.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": true,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 4,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.05,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.2,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "9d74e4f2898082d48885a67bc6f6e97d": {
+      "source_path": "Resources/Brushes/Basic/Leaves/LeavesSingleSided.asset",
+      "name": "LeavesSingleSided",
+      "m_Guid": "ea19de07-d0c0-4484-9198-18489a3c1487",
+      "m_DurableName": "Leaves",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": true,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 4,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.7,
+        1.5
+      ],
+      "m_PressureSizeRange": [
+        0.5,
+        1.0
+      ],
+      "m_SizeVariance": 0.3,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 2.0,
+      "m_RotationVariance": 20.0,
+      "m_PositionVariance": 0.15,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/Spray.prefab",
+        "prefab_name": "Spray",
+        "script_guid": "79687cd93bc3e47a3ba7d94416f732b9"
+      }
+    },
+    "b802f6ef146800b4bb78e9c705622cad": {
+      "source_path": "Resources/Brushes/Basic/Light/Light.asset",
+      "name": "Light",
+      "m_Guid": "2241cd32-8ba2-48a5-9ee7-2caef7e9ed62",
+      "m_DurableName": "Light",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.05,
+        0.2
+      ],
+      "m_PressureSizeRange": [
+        0.15,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        0.5,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "2b446bb08278e5440a49b5e6cf6abdee": {
+      "source_path": "Resources/Brushes/Basic/LightWire/LightWire.asset",
+      "name": "LightWire",
+      "m_Guid": "4391aaaa-df81-4396-9e33-31e4e4930b27",
+      "m_DurableName": "LightWire",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.06,
+      "m_BrushSizeRange": [
+        0.02,
+        0.1
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.25,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 0.98,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/TubeDistanceUV.prefab",
+        "prefab_name": "TubeDistanceUV",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 0,
+        "m_ShapeModifier": 0,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "2bb4873d12aa1c64e804d4ac1cd5ea9f": {
+      "source_path": "Resources/Brushes/Basic/Lofted/Lofted.asset",
+      "name": "Lofted",
+      "m_Guid": "d381e0f5-3def-4a0d-8853-31e9200bcbda",
+      "m_DurableName": "Lofted",
+      "m_CreationVersion": "16.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.2,
+      "m_BrushSizeRange": [
+        0.02,
+        0.5
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/Brushes/Basic/Lofted/Lofted.prefab",
+        "prefab_name": "Lofted",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.0,
+        "m_PointsInClosedCircle": 4,
+        "m_EndCaps": false,
+        "m_HardEdges": true,
+        "m_uvStyle": 1,
+        "m_ShapeModifier": 1,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 4.0
+      }
+    },
+    "79aad858cfe754d4bad6bb41091669d5": {
+      "source_path": "Resources/Brushes/Basic/Marker/Marker.asset",
+      "name": "Marker",
+      "m_Guid": "429ed64a-4e97-4466-84d3-145a861ef684",
+      "m_DurableName": "Marker",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.15,
+      "m_BrushSizeRange": [
+        0.05,
+        3.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "whiteboard",
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "9c8daf06e47430c47a2e2d1a4d27b04f": {
+      "source_path": "Resources/Brushes/Basic/MatteHull/MatteHull.asset",
+      "name": "MatteHull",
+      "m_Guid": "79348357-432d-4746-8e29-0e25c112e3aa",
+      "m_DurableName": "MatteHull",
+      "m_CreationVersion": "16.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.01,
+      "m_BrushSizeRange": [
+        0.005,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": true,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "whiteboard",
+        "default",
+        "hull"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/Brushes/Basic/MatteHull/HullPrefab.prefab",
+        "prefab_name": "HullPrefab",
+        "script_guid": "05481b74b9f47ad45a3f71a4890c7f63",
+        "m_Faceted": true,
+        "m_TrackInterior": true,
+        "m_KnotConversion": 2,
+        "m_Simplification_PS": 0.001,
+        "m_SimplifyMode": 0
+      }
+    },
+    "c80c2ea05a3d85e48858a322a18cf5bb": {
+      "source_path": "Resources/Brushes/Basic/OilPaint/OilPaint.asset",
+      "name": "OilPaint",
+      "m_Guid": "f72ec0e7-a844-4e38-82e3-140c44772699",
+      "m_DurableName": "OilPaint",
+      "m_CreationVersion": "15.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": true,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 4,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.05,
+        1.5
+      ],
+      "m_PressureSizeRange": [
+        0.2,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "b477bd8a0ed72b643833f1c162ac6d0a": {
+      "source_path": "Resources/Brushes/Basic/Paper/Paper.asset",
+      "name": "Paper",
+      "m_Guid": "f1114e2e-eb8d-4fde-915a-6e653b54e9f5",
+      "m_DurableName": "Paper",
+      "m_CreationVersion": "15.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": true,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.15,
+      "m_BrushSizeRange": [
+        0.05,
+        1.5
+      ],
+      "m_PressureSizeRange": [
+        0.2,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "e0abbc800f80e85449708924a0863dcc": {
+      "source_path": "Resources/Brushes/Basic/Petal/Petal.asset",
+      "name": "Petal",
+      "m_Guid": "e0abbc80-0f80-e854-4970-8924a0863dcc",
+      "m_DurableName": "Petal",
+      "m_CreationVersion": "16.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 1.0,
+      "m_ParticleRate": 0.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/Brushes/Basic/Petal/Tube_Petal.prefab",
+        "prefab_name": "Tube_Petal",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 5,
+        "m_EndCaps": false,
+        "m_HardEdges": true,
+        "m_uvStyle": 1,
+        "m_ShapeModifier": 5,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 1.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "1f21613e11c369544b6b6515aa112234": {
+      "source_path": "Resources/Brushes/Basic/Plasma/Plasma.asset",
+      "name": "Plasma",
+      "m_Guid": "c33714d1-b2f9-412e-bd50-1884c9d46336",
+      "m_DurableName": "Plasma",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.5,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "6faa0b9ee9bc6c349a8651b00f161161": {
+      "source_path": "Resources/Brushes/Basic/Rainbow/Rainbow.asset",
+      "name": "Rainbow",
+      "m_Guid": "ad1ad437-76e2-450d-a23a-e17f8310b960",
+      "m_DurableName": "Rainbow",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.2,
+      "m_BrushSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "922fa490bfe22b54b887e9fd98ebdcc5": {
+      "source_path": "Resources/Brushes/Basic/ShinyHull/ShinyHull.asset",
+      "name": "ShinyHull",
+      "m_Guid": "faaa4d44-fcfb-4177-96be-753ac0421ba3",
+      "m_DurableName": "ShinyHull",
+      "m_CreationVersion": "16.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.01,
+      "m_BrushSizeRange": [
+        0.005,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": true,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "whiteboard",
+        "default",
+        "hull"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/Brushes/Basic/MatteHull/HullPrefab.prefab",
+        "prefab_name": "HullPrefab",
+        "script_guid": "05481b74b9f47ad45a3f71a4890c7f63",
+        "m_Faceted": true,
+        "m_TrackInterior": true,
+        "m_KnotConversion": 2,
+        "m_Simplification_PS": 0.001,
+        "m_SimplifyMode": 0
+      }
+    },
+    "5c998fe180ae6e147990ad3586897e35": {
+      "source_path": "Resources/Brushes/Basic/Smoke/Smoke.asset",
+      "name": "Smoke",
+      "m_Guid": "70d79cca-b159-4f35-990c-f02193947fe8",
+      "m_DurableName": "Smoke",
+      "m_CreationVersion": "10.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": true,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 4,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        1.0,
+        2.0
+      ],
+      "m_PressureSizeRange": [
+        0.2,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.1,
+      "m_ParticleRate": 0.05,
+      "m_ParticleInitialRotationRange": 360.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "particle"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Particles/GeniusParticle.prefab",
+        "prefab_name": "GeniusParticle",
+        "script_guid": "09c06cd923471b340bfa3b0a18b91e03"
+      }
+    },
+    "2be0ab3685124a24ab6666cd66a7d0e7": {
+      "source_path": "Resources/Brushes/Basic/Snow/Snow.asset",
+      "name": "Snow",
+      "m_Guid": "d902ed8b-d0d1-476c-a8de-878a79e3a34c",
+      "m_DurableName": "Snow",
+      "m_CreationVersion": "10.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": true,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.025,
+        0.15
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 1.0,
+      "m_ParticleRate": 0.35,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": true,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.31,
+      "m_Tags": [
+        "default",
+        "audioreactive",
+        "particle"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Particles/GeniusParticle.prefab",
+        "prefab_name": "GeniusParticle",
+        "script_guid": "09c06cd923471b340bfa3b0a18b91e03"
+      }
+    },
+    "bac1fa1f07e59644b935b9e3b2647421": {
+      "source_path": "Resources/Brushes/Basic/SoftHighlighter/SoftHighlighter.asset",
+      "name": "SoftHighlighter",
+      "m_Guid": "accb32f5-4509-454f-93f8-1df3fd31df1b",
+      "m_DurableName": "SoftHighlighter",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.025,
+        2.0
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "whiteboard",
+        "default",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "cf7f00597aeb53a42b67c83d863a9ffa": {
+      "source_path": "Resources/Brushes/Basic/Spikes/Spikes.asset",
+      "name": "Spikes",
+      "m_Guid": "cf7f0059-7aeb-53a4-2b67-c83d863a9ffa",
+      "m_DurableName": "Spikes",
+      "m_CreationVersion": "16.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.05,
+        2.0
+      ],
+      "m_PressureSizeRange": [
+        0.5,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.661,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/Brushes/Basic/Spikes/Tube_Spikes.prefab",
+        "prefab_name": "Tube_Spikes",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.0,
+        "m_PointsInClosedCircle": 3,
+        "m_EndCaps": true,
+        "m_HardEdges": true,
+        "m_uvStyle": 1,
+        "m_ShapeModifier": 4,
+        "m_TaperScalar": 1.1,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "695c0f01b9a7e91449b541ab1b30fc4f": {
+      "source_path": "Resources/Brushes/Basic/Splatter/Splatter.asset",
+      "name": "Splatter",
+      "m_Guid": "8dc4a70c-d558-4efd-a5ed-d4e860f40dc3",
+      "m_DurableName": "Splatter",
+      "m_CreationVersion": "15.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": true,
+      "m_LooksIdentical": true,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 4,
+      "m_TileRate": 0.2,
+      "m_BrushSizeRange": [
+        0.1,
+        0.5
+      ],
+      "m_PressureSizeRange": [
+        0.2,
+        1.0
+      ],
+      "m_SizeVariance": 0.5,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 3.0,
+      "m_RotationVariance": 180.0,
+      "m_PositionVariance": 0.05,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/Spray.prefab",
+        "prefab_name": "Spray",
+        "script_guid": "79687cd93bc3e47a3ba7d94416f732b9"
+      }
+    },
+    "b9280b7e789abdd49bd5d85c5554afd3": {
+      "source_path": "Resources/Brushes/Basic/Square3DPrintBrush/Square3DPrintBrush.asset",
+      "name": "Square3DPrintBrush",
+      "m_Guid": "d3f3b18a-da03-f694-b838-28ba8e749a98",
+      "m_DurableName": "3D Printing Brush",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.15,
+      "m_BrushSizeRange": [
+        0.05,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.9,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.5,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": true,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/Brushes/Basic/Square3DPrintBrush/Square3DPrintBrush.prefab",
+        "prefab_name": "Square3DPrintBrush",
+        "script_guid": "fbe2e19acdf69c84088c3e7f5588a586"
+      }
+    },
+    "5d951be2a6eef8948b26abcf9f2a4456": {
+      "source_path": "Resources/Brushes/Basic/Stars/Stars.asset",
+      "name": "Stars",
+      "m_Guid": "0eb4db27-3f82-408d-b5a1-19ebd7d5b711",
+      "m_DurableName": "Stars",
+      "m_CreationVersion": "10.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": true,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 4,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.075,
+        0.15
+      ],
+      "m_PressureSizeRange": [
+        0.2,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.65,
+      "m_ParticleRate": 0.3,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": true,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "audioreactive",
+        "particle"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Particles/GeniusParticle.prefab",
+        "prefab_name": "GeniusParticle",
+        "script_guid": "09c06cd923471b340bfa3b0a18b91e03"
+      }
+    },
+    "f45e726a3d60b0f42804a2d5efb2c868": {
+      "source_path": "Resources/Brushes/Basic/Streamers/Streamers.asset",
+      "name": "Streamers",
+      "m_Guid": "44bb800a-fbc3-4592-8426-94ecb05ddec3",
+      "m_DurableName": "Streamers",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.5,
+      "m_BrushSizeRange": [
+        0.1,
+        2.0
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        0.4,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "0ed9d7bd0d4b1424eaa647281a7bb738": {
+      "source_path": "Resources/Brushes/Basic/Taffy/Taffy.asset",
+      "name": "Taffy",
+      "m_Guid": "0077f88c-d93a-42f3-b59b-b31c50cdb414",
+      "m_DurableName": "Taffy",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 4,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.2,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.2,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "d7e129b9879e8b3499ccc4d81ca68ee2": {
+      "source_path": "Resources/Brushes/Basic/TaperedFlat/TaperedFlat.asset",
+      "name": "TaperedFlat",
+      "m_Guid": "b468c1fb-f254-41ed-8ec9-57030bc5660c",
+      "m_DurableName": "TaperedFlat",
+      "m_CreationVersion": "15.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": true,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.025,
+        3.0
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "4fff8e60f5ea7a843b57a7e35501241a": {
+      "source_path": "Resources/Brushes/Basic/TaperedMarker/TaperedMarker.asset",
+      "name": "TaperedMarker",
+      "m_Guid": "d90c6ad8-af0f-4b54-b422-e0f92abe1b3c",
+      "m_DurableName": "TaperedMarker",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.15,
+      "m_BrushSizeRange": [
+        0.025,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "whiteboard",
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "e617036dc63ede649a1c716ac255dd88": {
+      "source_path": "Resources/Brushes/Basic/TaperedMarker/TaperedMarker_Flat.asset",
+      "name": "TaperedMarker_Flat",
+      "m_Guid": "1a26b8c0-8a07-4f8a-9fac-d2ef36e0cad0",
+      "m_DurableName": "TaperedMarker_Flat",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "Geometry",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.15,
+      "m_BrushSizeRange": [
+        0.025,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/FlatStretch.prefab",
+        "prefab_name": "FlatStretch",
+        "script_guid": "6e9fc06b6930627419225b72afd6d948",
+        "m_uvStyle": 1
+      }
+    },
+    "7a3a9d5ee2e492c49b1146ed03806398": {
+      "source_path": "Resources/Brushes/Basic/ThickPaint/ThickPaint.asset",
+      "name": "ThickPaint",
+      "m_Guid": "75b32cf0-fdd6-4d89-a64b-e2a00b247b0f",
+      "m_DurableName": "ThickPaint",
+      "m_CreationVersion": "15.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": true,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.2,
+      "m_BrushSizeRange": [
+        0.05,
+        1.5
+      ],
+      "m_PressureSizeRange": [
+        0.2,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "5061d2801862f4be9b0a635f8c7c8535": {
+      "source_path": "Resources/Brushes/Basic/Toon/Toon.asset",
+      "name": "Toon",
+      "m_Guid": "4391385a-df73-4396-9e33-31e4e4930b27",
+      "m_DurableName": "Toon",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.15,
+      "m_BrushSizeRange": [
+        0.02,
+        0.5
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": true,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "whiteboard",
+        "default",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/TubeDistanceUV.prefab",
+        "prefab_name": "TubeDistanceUV",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 0,
+        "m_ShapeModifier": 0,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "2cd13d8654fe24fd3a21d51094c6dcbf": {
+      "source_path": "Resources/Brushes/Basic/TubeToonInverted/TubeToonInverted.asset",
+      "name": "TubeToonInverted",
+      "m_Guid": "9871385a-df73-4396-9e33-31e4e4930b27",
+      "m_DurableName": "TubeToonInverted",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.15,
+      "m_BrushSizeRange": [
+        0.02,
+        0.5
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/TubeDistanceUV.prefab",
+        "prefab_name": "TubeDistanceUV",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 0,
+        "m_ShapeModifier": 0,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "939e4b3f7e611954da1a1d3925c27d9b": {
+      "source_path": "Resources/Brushes/Basic/UnlitHull/UnlitHull.asset",
+      "name": "UnlitHull",
+      "m_Guid": "a8fea537-da7c-4d4b-817f-24f074725d6d",
+      "m_DurableName": "UnlitHull",
+      "m_CreationVersion": "16.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.01,
+      "m_BrushSizeRange": [
+        0.005,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": true,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "whiteboard",
+        "default",
+        "hull"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/Brushes/Basic/MatteHull/HullPrefab.prefab",
+        "prefab_name": "HullPrefab",
+        "script_guid": "05481b74b9f47ad45a3f71a4890c7f63",
+        "m_Faceted": true,
+        "m_TrackInterior": true,
+        "m_KnotConversion": 2,
+        "m_Simplification_PS": 0.001,
+        "m_SimplifyMode": 0
+      }
+    },
+    "b0da087bf95190d43aa3cc44ed2bc009": {
+      "source_path": "Resources/Brushes/Basic/VelvetInk/VelvetInk.asset",
+      "name": "VelvetInk",
+      "m_Guid": "d229d335-c334-495a-a801-660ac8a87360",
+      "m_DurableName": "VelvetInk",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 4,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.025,
+        0.4
+      ],
+      "m_PressureSizeRange": [
+        0.15,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 0.98,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": true,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "7811dc4b8e48ae745be1ddf9401e4aa4": {
+      "source_path": "Resources/Brushes/Basic/Waveform/Waveform.asset",
+      "name": "Waveform",
+      "m_Guid": "10201aa3-ebc2-42d8-84b7-2e63f6eeb8ab",
+      "m_DurableName": "Waveform",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.5,
+      "m_BrushSizeRange": [
+        0.2,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 0.98,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "9747a74990661134cbd6634f0c139368": {
+      "source_path": "Resources/Brushes/Basic/WaveformFFT/WaveformFFT.asset",
+      "name": "WaveformFFT",
+      "m_Guid": "d120944d-772f-4062-99c6-46a6f219eeaf",
+      "m_DurableName": "WaveformFFT",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.5,
+      "m_BrushSizeRange": [
+        0.2,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 0.98,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "be51e4092183f804eb6b1e65db7707ad": {
+      "source_path": "Resources/Brushes/Basic/WaveformParticles/WaveformParticles.asset",
+      "name": "WaveformParticles",
+      "m_Guid": "6a1cf9f9-032c-45ec-9b6e-a6680bee30f7",
+      "m_DurableName": "WaveformParticles",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": true,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.1,
+        0.1
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 0.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 4.0,
+      "m_RotationVariance": 0.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/MiddpointPlusLifetimeGeomSpray.prefab",
+        "prefab_name": "MiddpointPlusLifetimeGeomSpray",
+        "script_guid": "3fbb59e9361bbac41a6408f8ce77d733"
+      }
+    },
+    "2264f93e06f07674bb5327af480f9ffb": {
+      "source_path": "Resources/Brushes/Basic/WaveformPulse/NeonPulse.asset",
+      "name": "NeonPulse",
+      "m_Guid": "b2ffef01-eaaa-4ab5-aa64-95a2c4f5dbc6",
+      "m_DurableName": "NeonPulse",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.01,
+      "m_BrushSizeRange": [
+        0.025,
+        0.15
+      ],
+      "m_PressureSizeRange": [
+        0.2,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 1.0,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 0.98,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": true,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/TubeDistanceUV.prefab",
+        "prefab_name": "TubeDistanceUV",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 0,
+        "m_ShapeModifier": 0,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "3aab754bd56f8354cab05641f2823048": {
+      "source_path": "Resources/Brushes/Basic/WaveformTube/WaveformTube.asset",
+      "name": "WaveformTube",
+      "m_Guid": "0f5820df-cb6b-4a6c-960e-56e4c8000eda",
+      "m_DurableName": "WaveformTube",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.5,
+      "m_BrushSizeRange": [
+        0.1,
+        0.3
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/TubeDistanceUV.prefab",
+        "prefab_name": "TubeDistanceUV",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 0,
+        "m_ShapeModifier": 0,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "a3243d2ad2f1f144d8c096c7a7f080f0": {
+      "source_path": "Resources/Brushes/Basic/WetPaint/WetPaint.asset",
+      "name": "WetPaint",
+      "m_Guid": "b67c0e81-ce6d-40a8-aeb0-ef036b081aa3",
+      "m_DurableName": "WetPaint",
+      "m_CreationVersion": "16.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": true,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 4,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.01,
+        1.25
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 1.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": true,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.25,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "eb608f68fb3036b47be357a021ed7618": {
+      "source_path": "Resources/Brushes/Basic/WigglyGraphite/WigglyGraphite.asset",
+      "name": "WigglyGraphite",
+      "m_Guid": "5347acf0-a8e2-47b6-8346-30c70719d763",
+      "m_DurableName": "WigglyGraphite",
+      "m_CreationVersion": "16.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": true,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 4,
+      "m_TileRate": 0.1,
+      "m_BrushSizeRange": [
+        0.05,
+        1.5
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 1.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        0.01,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.5,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "default",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "991f6df195c83734f927996b42c074cb": {
+      "source_path": "Resources/Brushes/Basic/Wire/Wire.asset",
+      "name": "Wire",
+      "m_Guid": "4391385a-cf83-4396-9e33-31e4e4930b27",
+      "m_DurableName": "Wire",
+      "m_CreationVersion": "0.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.15,
+      "m_BrushSizeRange": [
+        0.025,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": true,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "whiteboard",
+        "default"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/TubeDistanceUV.prefab",
+        "prefab_name": "TubeDistanceUV",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 0,
+        "m_ShapeModifier": 0,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "008dba3a178e2494582a3e1e6ad2613a": {
+      "source_path": "Resources/Brushes/Basic/Wireframe/Wireframe.asset",
+      "name": "Wireframe",
+      "m_Guid": "2c1a6a63-6552-4d23-86d7-58f6fba8581b",
+      "m_DurableName": "Wireframe",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.05,
+        2.0
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/UnitizedUV.prefab",
+        "prefab_name": "UnitizedUV",
+        "script_guid": "0012bafc70aa45e40a51fda26f9f586f"
+      }
+    },
+    "d6c87eafa4cdba042933c1b4f6da46f7": {
+      "source_path": "Resources/Brushes/Blocks/BlocksGem/BlocksGem.asset",
+      "name": "BlocksGem",
+      "m_Guid": "232998f8-d357-47a2-993a-53415df9be10",
+      "m_DurableName": "BlocksGem",
+      "m_CreationVersion": "14.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 0,
+      "m_TileRate": 0.0,
+      "m_BrushSizeRange": [
+        0.0,
+        0.0
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        0.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 0.0,
+      "m_PressureOpacityRange": [
+        0.0,
+        0.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 0.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 0.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 0.0,
+      "m_RotationVariance": 0.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        0.0,
+        0.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/BlocksFakeBrush.prefab",
+        "prefab_name": "BlocksFakeBrush",
+        "script_guid": "a852e2c449d624d46a872afa67d778a0"
+      }
+    },
+    "ba0e0f27d49da824aa74ab60edd90a56": {
+      "source_path": "Resources/Brushes/Blocks/BlocksGlass/BlocksGlass.asset",
+      "name": "BlocksGlass",
+      "m_Guid": "3d813d82-5839-4450-8ddc-8e889ecd96c7",
+      "m_DurableName": "BlocksGlass",
+      "m_CreationVersion": "14.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 0,
+      "m_TileRate": 0.0,
+      "m_BrushSizeRange": [
+        0.0,
+        0.0
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        0.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 0.0,
+      "m_PressureOpacityRange": [
+        0.0,
+        0.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 0.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 0.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 0.0,
+      "m_RotationVariance": 0.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        0.0,
+        0.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/BlocksFakeBrush.prefab",
+        "prefab_name": "BlocksFakeBrush",
+        "script_guid": "a852e2c449d624d46a872afa67d778a0"
+      }
+    },
+    "0e87b49c65463a343a448a556d7d6c3e": {
+      "source_path": "Resources/Brushes/Blocks/BlocksPaper/BlocksPaper.asset",
+      "name": "BlocksPaper",
+      "m_Guid": "0e87b49c-6546-3a34-3a44-8a556d7d6c3e",
+      "m_DurableName": "BlocksBasic",
+      "m_CreationVersion": "14.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 0,
+      "m_TileRate": 0.0,
+      "m_BrushSizeRange": [
+        0.0,
+        0.0
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        0.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 0.0,
+      "m_PressureOpacityRange": [
+        0.0,
+        0.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 0.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 0.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 0.0,
+      "m_RotationVariance": 0.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        0.0,
+        0.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/BlocksFakeBrush.prefab",
+        "prefab_name": "BlocksFakeBrush",
+        "script_guid": "a852e2c449d624d46a872afa67d778a0"
+      }
+    },
+    "c0393f9ef118b8b4eac658e169ac8497": {
+      "source_path": "Resources/Brushes/Poly/Environments/EnvironmentDiffuse.asset",
+      "name": "EnvironmentDiffuse",
+      "m_Guid": "0ad58bbd-42bc-484e-ad9a-b61036ff4ce7",
+      "m_DurableName": "EnvironmentDiffuse",
+      "m_CreationVersion": "16.0",
+      "m_ShaderVersion": "1.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 0,
+      "m_TileRate": 0.0,
+      "m_BrushSizeRange": [
+        0.0,
+        0.0
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        0.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 0.0,
+      "m_PressureOpacityRange": [
+        0.0,
+        0.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 0.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 0.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 0.0,
+      "m_RotationVariance": 0.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        0.0,
+        0.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/EnvironmentFakeBrush.prefab",
+        "prefab_name": "EnvironmentFakeBrush",
+        "script_guid": "db43d6c817f6ebf40832ba4d6bd4b97c"
+      }
+    },
+    "1928962e383e7f04696634b06de5ff25": {
+      "source_path": "Resources/Brushes/Poly/Environments/EnvironmentDiffuseLightMap.asset",
+      "name": "EnvironmentDiffuseLightMap",
+      "m_Guid": "d01d9d6c-9a61-4aba-8146-5891fafb013b",
+      "m_DurableName": "EnvironmentDiffuseLightMap",
+      "m_CreationVersion": "16.0",
+      "m_ShaderVersion": "1.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 0,
+      "m_TileRate": 0.0,
+      "m_BrushSizeRange": [
+        0.0,
+        0.0
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        0.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 0.0,
+      "m_PressureOpacityRange": [
+        0.0,
+        0.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 0.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 0.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 0.0,
+      "m_RotationVariance": 0.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        0.0,
+        0.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/EnvironmentLightmapFakeBrush.prefab",
+        "prefab_name": "EnvironmentLightmapFakeBrush",
+        "script_guid": "db43d6c817f6ebf40832ba4d6bd4b97c"
+      }
+    },
+    "987198ed6dc42fb48861ac40965edb58": {
+      "source_path": "Resources/Brushes/Poly/Pbr/PbrTemplate.asset",
+      "name": "PbrTemplate",
+      "m_Guid": "f86a096c-2f4f-4f9d-ae19-81b99f2944e0",
+      "m_DurableName": "PbrTemplate",
+      "m_CreationVersion": "15.0",
+      "m_ShaderVersion": "1.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 0,
+      "m_TileRate": 0.0,
+      "m_BrushSizeRange": [
+        0.0,
+        0.0
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        0.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 0.0,
+      "m_PressureOpacityRange": [
+        0.0,
+        0.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 0.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 0.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 0.0,
+      "m_RotationVariance": 0.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        0.0,
+        0.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/PbrFakeBrush.prefab",
+        "prefab_name": "PbrFakeBrush",
+        "script_guid": "49e177688679ec040bf2046b876a02ab"
+      }
+    },
+    "84463df8784ac6646ab814a16602c250": {
+      "source_path": "Resources/Brushes/Poly/Pbr/PbrTransparentTemplate.asset",
+      "name": "PbrTransparentTemplate",
+      "m_Guid": "19826f62-42ac-4a9e-8b77-4231fbd0cfbf",
+      "m_DurableName": "PbrTransparentTemplate",
+      "m_CreationVersion": "15.0",
+      "m_ShaderVersion": "1.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 0,
+      "m_TileRate": 0.0,
+      "m_BrushSizeRange": [
+        0.0,
+        0.0
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        0.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 0.0,
+      "m_PressureOpacityRange": [
+        0.0,
+        0.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 0.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 0.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 0.0,
+      "m_RotationVariance": 0.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        0.0,
+        0.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/PbrFakeBrush.prefab",
+        "prefab_name": "PbrFakeBrush",
+        "script_guid": "49e177688679ec040bf2046b876a02ab"
+      }
+    },
+    "2c424631fdf55254282d1aa5405ad63a": {
+      "source_path": "Resources/Brushes/Poly/Pbr/SvgTemplate.asset",
+      "name": "SvgTemplate",
+      "m_Guid": "cf3401b3-4ada-4877-995a-1aa64e7b604a",
+      "m_DurableName": "SvgTemplate",
+      "m_CreationVersion": "15.0",
+      "m_ShaderVersion": "1.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 0,
+      "m_TileRate": 0.0,
+      "m_BrushSizeRange": [
+        0.0,
+        0.0
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        0.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 0.0,
+      "m_PressureOpacityRange": [
+        0.0,
+        0.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 0.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 0.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 0.0,
+      "m_RotationVariance": 0.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        0.0,
+        0.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/SvgFakeBrush.prefab",
+        "prefab_name": "SvgFakeBrush",
+        "script_guid": "4e815311d0364c0982fbd4c25d760bcb"
+      }
+    },
+    "e30874b8e32da4030935a5a052df4e3f": {
+      "source_path": "Resources/X/Brushes/BubbleWand/BubbleWand.asset",
+      "name": "BubbleWand",
+      "m_Guid": "EBA3F993-F9A1-4D35-B84E-BB08F48981A4",
+      "m_DurableName": "BubbleWand",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": true,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.15,
+      "m_BrushSizeRange": [
+        0.08,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.25,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/TubeStretchUV.prefab",
+        "prefab_name": "TubeStretchUV",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 1,
+        "m_ShapeModifier": 0,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "fde6e7780f7ae58438d689d44cee59f6": {
+      "source_path": "Resources/X/Brushes/Charcoal/Charcoal.asset",
+      "name": "Charcoal",
+      "m_Guid": "fde6e778-0f7a-e584-38d6-89d44cee59f6",
+      "m_DurableName": "Charcoal",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.6,
+      "m_BrushSizeRange": [
+        0.02,
+        2.5
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.001,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "7f08fe94303d35248b4d5bca2f6e6318": {
+      "source_path": "Resources/X/Brushes/Digital/Digital.asset",
+      "name": "Digital",
+      "m_Guid": "30cb9af6-be41-4872-8f3e-cbff63fe3db8",
+      "m_DurableName": "Digital",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.2,
+      "m_BrushSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental",
+        "audioreactive",
+        "broken"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "4f5a2e7cd437cb940a21cc79b124c479": {
+      "source_path": "Resources/X/Brushes/DoubleFlat/DoubleFlat.asset",
+      "name": "DoubleFlat",
+      "m_Guid": "f4a0550c-332a-4e1a-9793-b71508f4a454",
+      "m_DurableName": "DoubleFlat",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.025,
+        3.0
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 120.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "608710cce8998e64b9f5c6eacb6122f6": {
+      "source_path": "Resources/X/Brushes/Drafting/Drafting.asset",
+      "name": "Drafting",
+      "m_Guid": "492b36ff-b337-436a-ba5f-1e87ee86747e",
+      "m_DurableName": "Drafting",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.025,
+        0.2
+      ],
+      "m_PressureSizeRange": [
+        0.15,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 0.98,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "725f4c6a6427652429abda371924adab": {
+      "source_path": "Resources/X/Brushes/DryBrush/DryBrush.asset",
+      "name": "DryBrush",
+      "m_Guid": "725f4c6a-6427-6524-29ab-da371924adab",
+      "m_DurableName": "DryBrush",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 4,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.01,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 1.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "84d5bbb266348434f8a7681b576b4664": {
+      "source_path": "Resources/X/Brushes/DuctTapeGeometry/DuctTapeGeometry.asset",
+      "name": "DuctTapeGeometry",
+      "m_Guid": "84d5bbb2-6634-8434-f8a7-681b576b4664",
+      "m_DurableName": "DuctTapeGeometry",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.6,
+      "m_BrushSizeRange": [
+        0.05,
+        1.25
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/FlatDistance.prefab",
+        "prefab_name": "FlatDistance",
+        "script_guid": "6e9fc06b6930627419225b72afd6d948",
+        "m_uvStyle": 0
+      }
+    },
+    "ac0084fece9b5c94fa23e67c2f6158ef": {
+      "source_path": "Resources/X/Brushes/Fairy/Fairy.asset",
+      "name": "Fairy",
+      "m_Guid": "d9cc5e99-ace1-4d12-96e0-4a7c18c99cfc",
+      "m_DurableName": "Fairy",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.2,
+      "m_BrushSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "03fbe7f5640d4c444aa1e952a4ed6cac": {
+      "source_path": "Resources/X/Brushes/Feather/Feather.asset",
+      "name": "Feather",
+      "m_Guid": "a555b809-2017-46cb-ac26-e63173d8f45e",
+      "m_DurableName": "Feather",
+      "m_CreationVersion": "9.0b",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.025,
+        1.5
+      ],
+      "m_PressureSizeRange": [
+        0.025,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        0.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "b62a217e510d7294ca1765932cf9b22a": {
+      "source_path": "Resources/X/Brushes/Fire 2/Fire2.asset",
+      "name": "Fire2",
+      "m_Guid": "53d753ef-083c-45e1-98e7-4459b4471219",
+      "m_DurableName": "Fire2",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 3.0,
+      "m_BrushSizeRange": [
+        0.1,
+        2.0
+      ],
+      "m_PressureSizeRange": [
+        0.5,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "b24b145ee272a9345b7f0142039120ea": {
+      "source_path": "Resources/X/Brushes/Gouache/Gouache.asset",
+      "name": "Gouache",
+      "m_Guid": "1b897b7e-9b76-425a-b031-a867c48df409",
+      "m_DurableName": "Gouache",
+      "m_CreationVersion": "16.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": true,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 4,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.05,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.01,
+        1.0
+      ],
+      "m_SizeVariance": 1.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": true,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "148ff4fdcb9632c4c81864f50137407a": {
+      "source_path": "Resources/X/Brushes/Guts/Guts.asset",
+      "name": "Guts",
+      "m_Guid": "99aafe96-1645-44cd-99bd-979bc6ef37c5",
+      "m_DurableName": "Guts",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 4,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.01,
+        1.25
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 1.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": true,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.25,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/TubeDistanceUV.prefab",
+        "prefab_name": "TubeDistanceUV",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 0,
+        "m_ShapeModifier": 0,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "7c972c27d3c28af47bf85d9db8f0b7bb": {
+      "source_path": "Resources/X/Brushes/InkGeometry/InkGeometry.asset",
+      "name": "InkGeometry",
+      "m_Guid": "7c972c27-d3c2-8af4-7bf8-5d9db8f0b7bb",
+      "m_DurableName": "InkGeometry",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 4,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.05,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.2,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/FlatStretch.prefab",
+        "prefab_name": "FlatStretch",
+        "script_guid": "6e9fc06b6930627419225b72afd6d948",
+        "m_uvStyle": 1
+      }
+    },
+    "5590203f3eebd904caef73b167578304": {
+      "source_path": "Resources/X/Brushes/KeijiroTube/KeijiroTube.asset",
+      "name": "KeijiroTube",
+      "m_Guid": "f8ba3d18-01fc-4d7b-b2d9-b99d10b8e7cf",
+      "m_DurableName": "KeijiroTube",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.15,
+      "m_BrushSizeRange": [
+        0.025,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        0.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/TubeDistanceUV.prefab",
+        "prefab_name": "TubeDistanceUV",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 0,
+        "m_ShapeModifier": 0,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "4fae3eb8ba0cca944ab3b9d336ae2444": {
+      "source_path": "Resources/X/Brushes/Lacewing/Lacewing.asset",
+      "name": "Lacewing",
+      "m_Guid": "1cf94f63-f57a-4a1a-ad14-295af4f5ab5c",
+      "m_DurableName": "Lacewing",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.2,
+      "m_BrushSizeRange": [
+        0.05,
+        1.5
+      ],
+      "m_PressureSizeRange": [
+        0.2,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        0.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "ddda87454bb5ac5488b6d1480370583e": {
+      "source_path": "Resources/X/Brushes/LeakyPen/LeakyPen.asset",
+      "name": "LeakyPen",
+      "m_Guid": "ddda8745-4bb5-ac54-88b6-d1480370583e",
+      "m_DurableName": "LeakyPen",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.15,
+      "m_BrushSizeRange": [
+        0.1,
+        0.7
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 1.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": true,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "62fef968e84232244a0e1fdb7cfb745c": {
+      "source_path": "Resources/X/Brushes/LitWire/LitWire.asset",
+      "name": "LitWire",
+      "m_Guid": "62fef968-e842-3224-4a0e-1fdb7cfb745c",
+      "m_DurableName": "Wire (Lit)",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.01,
+        1.5
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/TubeDistanceUV.prefab",
+        "prefab_name": "TubeDistanceUV",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 0,
+        "m_ShapeModifier": 0,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "c5da2e70a6e463a4898c5cfedef09c97": {
+      "source_path": "Resources/X/Brushes/LoftedHueShift/LoftedHueShift.asset",
+      "name": "LoftedHueShift",
+      "m_Guid": "c5da2e70-a6e4-63a4-898c-5cfedef09c97",
+      "m_DurableName": "Lofted (Hue Shift)",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.2,
+      "m_BrushSizeRange": [
+        0.02,
+        0.5
+      ],
+      "m_PressureSizeRange": [
+        0.5,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/X/Brushes/LoftedHueShift/LoftedHueShift.prefab",
+        "prefab_name": "LoftedHueShift",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 1,
+        "m_ShapeModifier": 1,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "c86c058d1bda2e9408dbf3d6a96ac4a1": {
+      "source_path": "Resources/X/Brushes/MarbledRainbow/MarbledRainbow.asset",
+      "name": "MarbledRainbow",
+      "m_Guid": "c86c058d-1bda-2e94-08db-f3d6a96ac4a1",
+      "m_DurableName": "Marbled Rainbow",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.2,
+      "m_BrushSizeRange": [
+        0.01,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "678ca30d0821b1d48a8b049a923282e6": {
+      "source_path": "Resources/X/Brushes/Muscle/Muscle.asset",
+      "name": "Muscle",
+      "m_Guid": "f28c395c-a57d-464b-8f0b-558c59478fa3",
+      "m_DurableName": "Muscle",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 4,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.01,
+        1.25
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 1.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": true,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.25,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/TubeDistanceUVSin.prefab",
+        "prefab_name": "TubeDistanceUVSin",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.0,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 0,
+        "m_ShapeModifier": 2,
+        "m_TaperScalar": 0.1,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "daece1ae471373c41bd0ebe7f9e9ce4f": {
+      "source_path": "Resources/X/Brushes/MylarTube/MylarTube.asset",
+      "name": "MylarTube",
+      "m_Guid": "8e58ceea-7830-49b4-aba9-6215104ab52a",
+      "m_DurableName": "MylarTube",
+      "m_CreationVersion": "16.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": true,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.15,
+      "m_BrushSizeRange": [
+        0.08,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.25,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/TubeStretchUV.prefab",
+        "prefab_name": "TubeStretchUV",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 1,
+        "m_ShapeModifier": 0,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "d25091db0e878ba458b54227b23cad57": {
+      "source_path": "Resources/X/Brushes/PassthroughHull/PassthroughHull.asset",
+      "name": "PassthroughHull",
+      "m_Guid": "cc131ff8-0d17-4677-93e0-d7cd19fea9ac",
+      "m_DurableName": "PassthroughHull",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.01,
+      "m_BrushSizeRange": [
+        0.005,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": true,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental",
+        "hull",
+        "passthrough"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/X/Brushes/PassthroughHull/HullPrefabPassthrough.prefab",
+        "prefab_name": "HullPrefabPassthrough",
+        "script_guid": "05481b74b9f47ad45a3f71a4890c7f63",
+        "m_Faceted": true,
+        "m_TrackInterior": true,
+        "m_KnotConversion": 2,
+        "m_Simplification_PS": 0.001,
+        "m_SimplifyMode": 0
+      }
+    },
+    "2deaec86711e9734e8926632a3648448": {
+      "source_path": "Resources/X/Brushes/Race/Race.asset",
+      "name": "Race",
+      "m_Guid": "abfbb2aa-70b4-4a5c-8126-8eedda2b3628",
+      "m_DurableName": "Race",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.2,
+      "m_BrushSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental",
+        "audioreactive",
+        "broken"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "03a529e1f5193dd4582d2d5cd92c3f4f": {
+      "source_path": "Resources/X/Brushes/Rain/Rain.asset",
+      "name": "Rain",
+      "m_Guid": "03a529e1-f519-3dd4-582d-2d5cd92c3f4f",
+      "m_DurableName": "Rain",
+      "m_CreationVersion": "16.0",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.08,
+        0.25
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        0.4,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/X/Brushes/Rain/Tube_Rain.prefab",
+        "prefab_name": "Tube_Rain",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 6,
+        "m_EndCaps": false,
+        "m_HardEdges": true,
+        "m_uvStyle": 1,
+        "m_ShapeModifier": 0,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "a8147ce1005eabe488e809a1eaadcc89": {
+      "source_path": "Resources/X/Brushes/RisingBubbles/RisingBubbles.asset",
+      "name": "RisingBubbles",
+      "m_Guid": "a8147ce1-005e-abe4-88e8-09a1eaadcc89",
+      "m_DurableName": "Rising Bubbles",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.15,
+        0.15
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.05,
+      "m_ParticleRate": 0.35,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": true,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental",
+        "particle"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Particles/GeniusParticle.prefab",
+        "prefab_name": "GeniusParticle",
+        "script_guid": "09c06cd923471b340bfa3b0a18b91e03"
+      }
+    },
+    "2ac14128061517f47a61f3c85ce26dfa": {
+      "source_path": "Resources/X/Brushes/SingleSided/SingleSided.asset",
+      "name": "SingleSided",
+      "m_Guid": "f0a2298a-be80-432c-9fee-a86dcc06f4f9",
+      "m_DurableName": "SingleSided",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.05,
+        3.0
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": true,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "69fc4ed00cead5b47b3dd3fb4d6096c9": {
+      "source_path": "Resources/X/Brushes/Slice/Slice.asset",
+      "name": "Slice",
+      "m_Guid": "8d1510b2-1fc5-4c90-8db7-4c07eecfd849",
+      "m_DurableName": "Slice",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.25,
+        0.65
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Experimental/Slice.prefab",
+        "prefab_name": "Slice",
+        "script_guid": "389621adc3e404556a7aa70b5d39cd3d"
+      }
+    },
+    "2d79c7b32429daa4485f21552c31fa4b": {
+      "source_path": "Resources/X/Brushes/SmoothHull/SmoothHull.asset",
+      "name": "SmoothHull",
+      "m_Guid": "355b3579-bf1d-4ff5-a200-704437fe684b",
+      "m_DurableName": "SmoothHull",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.01,
+      "m_BrushSizeRange": [
+        0.005,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": true,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental",
+        "hull"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/X/Brushes/SmoothHull/HullPrefabSmooth.prefab",
+        "prefab_name": "HullPrefabSmooth",
+        "script_guid": "05481b74b9f47ad45a3f71a4890c7f63",
+        "m_Faceted": false,
+        "m_TrackInterior": true,
+        "m_KnotConversion": 2,
+        "m_Simplification_PS": 0.001,
+        "m_SimplifyMode": 0
+      }
+    },
+    "cf17a34d70dd8c44fbb5048009fe4c7d": {
+      "source_path": "Resources/X/Brushes/Space/Space.asset",
+      "name": "Space",
+      "m_Guid": "bdf65db2-1fb7-4202-b5e0-c6b5e3ea851e",
+      "m_DurableName": "Space",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.2,
+      "m_BrushSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_PressureSizeRange": [
+        0.1,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    },
+    "50e99447386105f4697da1b96e771b98": {
+      "source_path": "Resources/X/Brushes/Sparks/Sparks.asset",
+      "name": "Sparks",
+      "m_Guid": "50e99447-3861-05f4-697d-a1b96e771b98",
+      "m_DurableName": "Sparks",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.1,
+        1.5
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/X/Brushes/Sparks/Tube_Sparks.prefab",
+        "prefab_name": "Tube_Sparks",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 1,
+        "m_ShapeModifier": 3,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "5e39288156c19964db2b1d02745c4c26": {
+      "source_path": "Resources/X/Brushes/Square/SquarePaper.asset",
+      "name": "SquarePaper",
+      "m_Guid": "2e03b1bf-3ebd-4609-9d7e-f4cafadc4dfa",
+      "m_DurableName": "SquarePaper",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.15,
+      "m_BrushSizeRange": [
+        0.5,
+        1.5
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Experimental/SquareBrush_prefab.prefab",
+        "prefab_name": "SquareBrush_prefab",
+        "script_guid": "f6ae2e13f9378514b82ca0e3165fe949"
+      }
+    },
+    "3d9755da56c772949b1d5ec349975f52": {
+      "source_path": "Resources/X/Brushes/TaperedHueShift/TaperedHueShift.asset",
+      "name": "TaperedHueShift",
+      "m_Guid": "3d9755da-56c7-7294-9b1d-5ec349975f52",
+      "m_DurableName": "TaperedHueShift",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.15,
+      "m_BrushSizeRange": [
+        0.025,
+        2.0
+      ],
+      "m_PressureSizeRange": [
+        0.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.25,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.4,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": true,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental",
+        "audioreactive"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line.prefab",
+        "prefab_name": "Line",
+        "script_guid": "bd9c108226b1b0d4898406c9d276fd08",
+        "m_StoreWidthInTexcoord0Z": false
+      }
+    },
+    "9568870f859460f41b20dfbc8a5eac0e": {
+      "source_path": "Resources/X/Brushes/TaperedWire/TaperedWire.asset",
+      "name": "TaperedWire",
+      "m_Guid": "9568870f-8594-60f4-1b20-dfbc8a5eac0e",
+      "m_DurableName": "TaperedWire",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.01,
+        2.0
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/X/Brushes/TaperedWire/Tube_Tapered.prefab",
+        "prefab_name": "Tube_Tapered",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 1,
+        "m_ShapeModifier": 4,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "7259cce541c1ec74c88578af28a31d95": {
+      "source_path": "Resources/X/Brushes/Test/Leaves2.asset",
+      "name": "Leaves2",
+      "m_Guid": "7259cce5-41c1-ec74-c885-78af28a31d95",
+      "m_DurableName": "Leaves2",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": true,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 4,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.7,
+        1.5
+      ],
+      "m_PressureSizeRange": [
+        0.5,
+        1.0
+      ],
+      "m_SizeVariance": 0.3,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 2.0,
+      "m_RotationVariance": 20.0,
+      "m_PositionVariance": 0.15,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/Spray.prefab",
+        "prefab_name": "Spray",
+        "script_guid": "79687cd93bc3e47a3ba7d94416f732b9"
+      }
+    },
+    "37ebcef2eed5d744a8e0eec3d0302f56": {
+      "source_path": "Resources/X/Brushes/Test/ThickGeometry.asset",
+      "name": "ThickGeometry",
+      "m_Guid": "39ee7377-7a9e-47a7-a0f8-0c77712f75d3",
+      "m_DurableName": "ThickGeometry",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.6,
+      "m_BrushSizeRange": [
+        0.5,
+        1.25
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.0,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Experimental/ThickDistance.prefab",
+        "prefab_name": "ThickDistance",
+        "script_guid": "f05c5620128b9874a96733d64dad4f30",
+        "m_uvStyle": 0
+      }
+    },
+    "b6aa7d588ee0979499aa1a45ba82fcbe": {
+      "source_path": "Resources/X/Brushes/Test/TubeAdditive.asset",
+      "name": "TubeAdditive",
+      "m_Guid": "c1c9b26d-673a-4dc6-b373-51715654ab96",
+      "m_DurableName": "TubeAdditive",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 1.0,
+      "m_BrushSizeRange": [
+        0.08,
+        0.5
+      ],
+      "m_PressureSizeRange": [
+        0.25,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 0.98,
+      "m_ParticleSpeed": 0.0,
+      "m_ParticleRate": 1.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": true,
+      "m_RenderBackfaces": false,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Geom/TubeDistanceUV.prefab",
+        "prefab_name": "TubeDistanceUV",
+        "script_guid": "14daa339d03c7c241b1dd7249ca94f6d",
+        "m_CapAspect": 0.8,
+        "m_PointsInClosedCircle": 8,
+        "m_EndCaps": true,
+        "m_HardEdges": false,
+        "m_uvStyle": 0,
+        "m_ShapeModifier": 0,
+        "m_TaperScalar": 1.0,
+        "m_PetalDisplacementAmt": 0.5,
+        "m_PetalDisplacementExp": 3.0,
+        "m_BreakAngleMultiplier": 8.0
+      }
+    },
+    "7136a7291aabbd24f8b2ca88b6adfb67": {
+      "source_path": "Resources/X/Brushes/Wind/Wind.asset",
+      "name": "Wind",
+      "m_Guid": "7136a729-1aab-bd24-f8b2-ca88b6adfb67",
+      "m_DurableName": "Wind",
+      "m_CreationVersion": "",
+      "m_ShaderVersion": "10.0",
+      "m_Nondeterministic": false,
+      "m_LooksIdentical": false,
+      "m_DescriptionExtra": "",
+      "m_TextureAtlasV": 1,
+      "m_TileRate": 0.4,
+      "m_BrushSizeRange": [
+        0.2,
+        2.0
+      ],
+      "m_PressureSizeRange": [
+        1.0,
+        1.0
+      ],
+      "m_SizeVariance": 0.0,
+      "m_PreviewPressureSizeMin": 0.001,
+      "m_Opacity": 1.0,
+      "m_PressureOpacityRange": [
+        1.0,
+        1.0
+      ],
+      "m_ColorLuminanceMin": 0.04,
+      "m_ColorSaturationMax": 1.0,
+      "m_ParticleSpeed": 1.0,
+      "m_ParticleRate": 0.0,
+      "m_ParticleInitialRotationRange": 0.0,
+      "m_RandomizeAlpha": false,
+      "m_SprayRateMultiplier": 1.0,
+      "m_RotationVariance": 360.0,
+      "m_PositionVariance": 0.0,
+      "m_SizeRatio": [
+        1.0,
+        1.0
+      ],
+      "m_M11Compatibility": false,
+      "m_SolidMinLengthMeters_PS": 0.002,
+      "m_TubeStoreRadiusInTexcoord0Z": false,
+      "m_RenderBackfaces": true,
+      "m_BackIsInvisible": false,
+      "m_BackfaceHueShift": 0.0,
+      "m_BoundsPadding": 0.0,
+      "m_Tags": [
+        "experimental"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/BrushPrefabs/Line/DistanceUV.prefab",
+        "prefab_name": "DistanceUV",
+        "script_guid": "cd21e16b7f726c74ba3db882e4abeed3"
+      }
+    }
+  }
+}

@@ -17,7 +17,7 @@ This Godot 4.5+ project ports the Open Brush/Tilt Brush stroke generation runtim
 3. Run `Scenes/SampleScene.tscn` for desktop pointer testing.
 4. Run `Scenes/XrSampleScene.tscn` for XR testing when OpenXR is available.
 
-The project loads the included brush manifests and Unity `.asset` brush descriptors directly at runtime.
+The project loads `Resources/BrushCatalog/brush_catalog.json`, a generated catalog containing the brush descriptor and prefab settings that used to come from Unity YAML assets.
 
 ## Addon Dependencies
 
@@ -64,6 +64,10 @@ Scripts/
 ├── Brushes/
 ├── Util/
 └── UnityAssetLoader.gd
+
+Resources/
+└── BrushCatalog/
+    └── brush_catalog.json
 
 Scenes/
 ├── SampleScene.tscn

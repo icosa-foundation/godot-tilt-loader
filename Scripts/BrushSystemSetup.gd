@@ -16,9 +16,8 @@ func load_brushes() -> void:
 	manifest = UnityAssetLoader.load_manifest(manifest_path)
 
 	var experimental_path := project_path.path_join("Manifest_Experimental.asset")
-	if FileAccess.file_exists(experimental_path):
-		var experimental_manifest := UnityAssetLoader.load_manifest(experimental_path)
-		manifest.append_from(experimental_manifest)
+	var experimental_manifest := UnityAssetLoader.load_manifest(experimental_path)
+	manifest.append_from(experimental_manifest)
 
 	if manifest != null and manifest.Brushes != null:
 		BrushCatalog.init(manifest)

@@ -51,7 +51,7 @@ SampleScene (Node3D)
 └── DirectionalLight3D
 ```
 
-`BrushSystemSetup.gd` loads the standard and experimental manifests, then initializes `BrushCatalog.gd`.
+`BrushSystemSetup.gd` loads the standard and experimental brush lists from `Resources/BrushCatalog/brush_catalog.json`, then initializes `BrushCatalog.gd`.
 
 ## Controls
 
@@ -63,7 +63,7 @@ SampleScene (Node3D)
 
 ## Troubleshooting
 
-- If no brushes load, check that `Manifest.asset`, `Manifest_Experimental.asset`, and brush resource files are present under the project.
+- If no brushes load, check that `Resources/BrushCatalog/brush_catalog.json` is present under the project.
 - If XR setup fails in headless or desktop mode, use `--xr-mode off` for non-XR validation.
 - For XR diagnostics, inspect `user://xr_debug.log`.
 
