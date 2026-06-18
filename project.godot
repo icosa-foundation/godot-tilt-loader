@@ -16,14 +16,17 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 config/name="open-brush-stroke-gen-godot"
 run/main_scene="uid://dq3yiemvfngrt"
-config/features=PackedStringArray("4.5", "Mobile")
+config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
 
 [display]
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
-window/size/resizable=true
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/icosa/plugin.cfg", "res://addons/open_brush_stroke_integration/plugin.cfg")
 
 [rendering]
 
