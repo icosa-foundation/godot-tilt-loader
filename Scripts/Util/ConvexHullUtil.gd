@@ -2,65 +2,104 @@ class_name ConvexHullUtil
 extends RefCounted
 
 const EPSILON := 1e-5
+const DEFAULT_TOLERANCE := 1e-5
 
-static func create(points: Array[Vector3]) -> Dictionary:
+static var _native_checked := false
+static var _native_util: Object = null
+
+static func create(points: Array[Vector3], tolerance: float = DEFAULT_TOLERANCE) -> Dictionary:
+	var native_result := _create_native(points, tolerance)
+	if bool(native_result.get("attempted", false)):
+		return native_result.result
+
 	var unique_points := _unique_points(points)
 	if unique_points.size() < 4:
 		return {"ok": false, "points": [], "faces": []}
-	var center := Vector3.ZERO
-	for point in unique_points:
-		center += point
-	center /= float(unique_points.size())
 
-	var plane_faces := {}
-	var count := unique_points.size()
-	for i in range(count - 2):
-		for j in range(i + 1, count - 1):
-			for k in range(j + 1, count):
-				var a := unique_points[i]
-				var b := unique_points[j]
-				var c := unique_points[k]
-				var normal := (b - a).cross(c - a)
-				if normal.length_squared() < EPSILON * EPSILON:
-					continue
-				normal = normal.normalized()
-				var positive := 0
-				var negative := 0
-				var d := normal.dot(a)
-				for point in unique_points:
-					var distance := normal.dot(point) - d
-					if distance > EPSILON:
-						positive += 1
-					elif distance < -EPSILON:
-						negative += 1
-				if positive > 0 and negative > 0:
-					continue
-				if positive > 0:
-					normal = -normal
-					d = -d
-				if normal.dot(((a + b + c) / 3.0) - center) < 0.0:
-					normal = -normal
-					d = -d
-				var key := _plane_key(normal, d)
-				if not plane_faces.has(key):
-					var plane_indices: Array[int] = []
-					for point_index in range(count):
-						if absf(normal.dot(unique_points[point_index]) - d) <= EPSILON * 4.0:
-							plane_indices.append(point_index)
-					plane_faces[key] = {
-						"normal": normal,
-						"indices": plane_indices,
-					}
+	var tetra := _find_initial_tetrahedron(unique_points)
+	if tetra.is_empty():
+		return {"ok": false, "points": [], "faces": []}
 
-	var faces: Array = []
-	for face_data in plane_faces.values():
-		var indices: Array[int] = face_data.indices
-		if indices.size() < 3:
+	var inside_point := (
+		unique_points[int(tetra[0])] +
+		unique_points[int(tetra[1])] +
+		unique_points[int(tetra[2])] +
+		unique_points[int(tetra[3])]
+	) * 0.25
+
+	var faces := [
+		_make_face(int(tetra[0]), int(tetra[1]), int(tetra[2]), unique_points, inside_point),
+		_make_face(int(tetra[0]), int(tetra[3]), int(tetra[1]), unique_points, inside_point),
+		_make_face(int(tetra[0]), int(tetra[2]), int(tetra[3]), unique_points, inside_point),
+		_make_face(int(tetra[1]), int(tetra[3]), int(tetra[2]), unique_points, inside_point),
+	]
+	faces = faces.filter(func(face: Dictionary) -> bool: return bool(face.valid))
+	faces = _dedupe_faces(faces)
+
+	var initial := {}
+	for index in tetra:
+		initial[int(index)] = true
+
+	for point_index in range(unique_points.size()):
+		if initial.has(point_index):
 			continue
-		var sorted_indices := _sort_face_indices(unique_points, indices, face_data.normal)
-		if sorted_indices.size() >= 3:
-			faces.append({"indices": sorted_indices, "normal": face_data.normal})
-	return {"ok": not faces.is_empty(), "points": unique_points, "faces": faces}
+		var point := unique_points[point_index]
+		var visible_faces: Array[int] = []
+		for face_index in range(faces.size()):
+			var face: Dictionary = faces[face_index]
+			if _signed_distance(face, point, unique_points) > EPSILON:
+				visible_faces.append(face_index)
+		if visible_faces.is_empty():
+			continue
+
+		var visible_lookup := {}
+		for face_index in visible_faces:
+			visible_lookup[face_index] = true
+
+		var horizon_edges: Dictionary = {}
+		for face_index in visible_faces:
+			var face: Dictionary = faces[face_index]
+			_add_horizon_edge(horizon_edges, int(face.a), int(face.b))
+			_add_horizon_edge(horizon_edges, int(face.b), int(face.c))
+			_add_horizon_edge(horizon_edges, int(face.c), int(face.a))
+
+		var kept_faces: Array[Dictionary] = []
+		for face_index in range(faces.size()):
+			if not visible_lookup.has(face_index):
+				kept_faces.append(faces[face_index])
+		faces = kept_faces
+		var face_keys := {}
+		for face in faces:
+			face_keys[_face_key(face)] = true
+
+		for edge_info in horizon_edges.values():
+			if int(edge_info.count) != 1:
+				continue
+			var edge: Array = edge_info.edge
+			var new_face := _make_face(int(edge[0]), int(edge[1]), point_index, unique_points, inside_point)
+			var new_key := _face_key(new_face)
+			if bool(new_face.valid) and not face_keys.has(new_key):
+				faces.append(new_face)
+				face_keys[new_key] = true
+
+	if faces.is_empty():
+		return {"ok": false, "points": [], "faces": []}
+
+	return _compact_result(unique_points, faces)
+
+
+static func _create_native(points: Array[Vector3], tolerance: float) -> Dictionary:
+	if not _native_checked:
+		_native_checked = true
+		load("res://native/open_brush_hull/open_brush_hull.gdextension")
+		if ClassDB.class_exists("NativeConvexHullUtil"):
+			_native_util = ClassDB.instantiate("NativeConvexHullUtil")
+	if _native_util == null:
+		return {"attempted": false}
+	var packed := PackedVector3Array(points)
+	var result: Dictionary = _native_util.call("create", packed, tolerance)
+	return {"attempted": true, "result": result}
+
 
 static func _unique_points(points: Array[Vector3]) -> Array[Vector3]:
 	var unique: Array[Vector3] = []
@@ -74,40 +113,125 @@ static func _unique_points(points: Array[Vector3]) -> Array[Vector3]:
 			unique.append(point)
 	return unique
 
-static func _plane_key(normal: Vector3, d: float) -> String:
-	return "%d:%d:%d:%d" % [
-		roundi(normal.x / EPSILON),
-		roundi(normal.y / EPSILON),
-		roundi(normal.z / EPSILON),
-		roundi(d / EPSILON),
-	]
 
-static func _sort_face_indices(points: Array[Vector3], indices: Array[int], normal: Vector3) -> Array[int]:
-	var face_center := Vector3.ZERO
-	for index in indices:
-		face_center += points[index]
-	face_center /= float(indices.size())
-	var axis_u := normal.cross(Vector3.UP)
-	if axis_u.length_squared() < EPSILON * EPSILON:
-		axis_u = normal.cross(Vector3.RIGHT)
-	axis_u = axis_u.normalized()
-	var axis_v := normal.cross(axis_u).normalized()
-	var sortable: Array = []
-	for index in indices:
-		var offset := points[index] - face_center
-		sortable.append({
-			"index": index,
-			"angle": atan2(offset.dot(axis_v), offset.dot(axis_u)),
+static func _find_initial_tetrahedron(points: Array[Vector3]) -> Array[int]:
+	var min_x := 0
+	var max_x := 0
+	for index in range(1, points.size()):
+		if points[index].x < points[min_x].x:
+			min_x = index
+		if points[index].x > points[max_x].x:
+			max_x = index
+	if points[min_x].distance_to(points[max_x]) <= EPSILON:
+		return []
+
+	var line := points[max_x] - points[min_x]
+	var third := -1
+	var best_line_distance := 0.0
+	for index in range(points.size()):
+		if index == min_x or index == max_x:
+			continue
+		var distance := line.cross(points[index] - points[min_x]).length_squared()
+		if distance > best_line_distance:
+			best_line_distance = distance
+			third = index
+	if third < 0 or best_line_distance <= EPSILON * EPSILON:
+		return []
+
+	var normal := (points[max_x] - points[min_x]).cross(points[third] - points[min_x])
+	var fourth := -1
+	var best_plane_distance := 0.0
+	for index in range(points.size()):
+		if index == min_x or index == max_x or index == third:
+			continue
+		var distance := absf(normal.dot(points[index] - points[min_x]))
+		if distance > best_plane_distance:
+			best_plane_distance = distance
+			fourth = index
+	if fourth < 0 or best_plane_distance <= EPSILON:
+		return []
+
+	return [min_x, max_x, third, fourth]
+
+
+static func _make_face(a: int, b: int, c: int, points: Array[Vector3], inside_point: Vector3) -> Dictionary:
+	var normal := (points[b] - points[a]).cross(points[c] - points[a])
+	var length := normal.length()
+	if length <= EPSILON:
+		return {"valid": false}
+	normal /= length
+	if normal.dot(inside_point - points[a]) > 0.0:
+		var tmp := b
+		b = c
+		c = tmp
+		normal = -normal
+	return {
+		"valid": true,
+		"a": a,
+		"b": b,
+		"c": c,
+		"indices": [a, b, c],
+		"normal": normal,
+	}
+
+
+static func _signed_distance(face: Dictionary, point: Vector3, points: Array[Vector3]) -> float:
+	return (face.normal as Vector3).dot(point - points[int(face.a)])
+
+
+static func _add_horizon_edge(edges: Dictionary, a: int, b: int) -> void:
+	var low := mini(a, b)
+	var high := maxi(a, b)
+	var key := "%d:%d" % [low, high]
+	if edges.has(key):
+		edges[key].count = int(edges[key].count) + 1
+	else:
+		edges[key] = {"count": 1, "edge": [a, b]}
+
+
+static func _compact_result(points: Array[Vector3], faces: Array) -> Dictionary:
+	var used := {}
+	for face in faces:
+		used[int(face.a)] = true
+		used[int(face.b)] = true
+		used[int(face.c)] = true
+
+	var remap := {}
+	var hull_points: Array[Vector3] = []
+	for original_index in used.keys():
+		remap[int(original_index)] = hull_points.size()
+		hull_points.append(points[int(original_index)])
+
+	var compact_faces: Array = []
+	for face in faces:
+		var indices: Array[int] = [
+			int(remap[int(face.a)]),
+			int(remap[int(face.b)]),
+			int(remap[int(face.c)]),
+		]
+		compact_faces.append({
+			"indices": indices,
+			"normal": face.normal,
 		})
-	sortable.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a.angle) < float(b.angle))
-	var sorted_indices: Array[int] = []
-	for item in sortable:
-		sorted_indices.append(int(item.index))
-	if sorted_indices.size() >= 3:
-		var p0 := points[sorted_indices[0]]
-		var p1 := points[sorted_indices[1]]
-		var p2 := points[sorted_indices[2]]
-		var winding_normal := (p1 - p0).cross(p2 - p0)
-		if winding_normal.dot(normal) < 0.0:
-			sorted_indices.reverse()
-	return sorted_indices
+
+	return {"ok": not compact_faces.is_empty(), "points": hull_points, "faces": compact_faces}
+
+
+static func _dedupe_faces(faces: Array) -> Array:
+	var result: Array[Dictionary] = []
+	var keys := {}
+	for face in faces:
+		var key := _face_key(face)
+		if keys.has(key):
+			continue
+		keys[key] = true
+		result.append(face)
+	return result
+
+
+static func _face_key(face: Dictionary) -> String:
+	if not bool(face.get("valid", true)):
+		return ""
+	var indices := [int(face.a), int(face.b), int(face.c)]
+	indices.sort()
+	return "%d:%d:%d" % [indices[0], indices[1], indices[2]]

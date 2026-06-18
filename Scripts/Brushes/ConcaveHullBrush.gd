@@ -1,6 +1,7 @@
 class_name ConcaveHullBrush
 extends GeometryBrush
 
+const K_TOLERANCE_METERS_PS := 1e-6
 const K_VERTICES_PER_KNOT_RAPIDOGRAPH := 1
 const K_VERTICES_PER_KNOT_QUILL_PEN := 2
 const K_VERTICES_PER_KNOT_TETRAHEDRON := 4
@@ -158,7 +159,7 @@ func on_changed_make_geometry(knot_index: int) -> void:
 func create_hull(input: Array[Vector3]) -> Dictionary:
 	if input.size() < 4:
 		return {"ok": false, "points": [], "faces": []}
-	return ConvexHullUtil.create(input)
+	return ConvexHullUtil.create(input, K_TOLERANCE_METERS_PS * App.METERS_TO_UNITS * pointer_to_local())
 
 func create_faceted_geometry(knot: Knot, hull: Dictionary) -> void:
 	m_geometry.set_num_verts(knot.iVert)

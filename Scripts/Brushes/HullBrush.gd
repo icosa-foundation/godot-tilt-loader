@@ -26,6 +26,7 @@ var m_TrackInterior := false
 var m_KnotConversion := KnotConversion.POINT
 var m_Simplification_PS := 0.0
 var m_SimplifyMode := SimplifyMode.DISABLED
+var m_LastHullInputCount := 0
 var m_AllVertices: Array[Dictionary] = []
 
 func _init() -> void:
@@ -107,8 +108,18 @@ func create_vertices_from_knots(knot_index: int) -> void:
 				else:
 					var pressure := m_knots[index].smoothedPressure if m_PreviewMode else m_knots[index].point.m_Pressure
 					var radius := pressured_size(pressure) * 0.5
-					var direction := (center - m_knots[index - 1].point.m_Pos).normalized()
+					var move := center - m_knots[index - 1].point.m_Pos
+					if move.length_squared() <= 1e-12:
+						for offset in range(vertices_per_knot):
+							_set_vertex(vertex0 + offset, center)
+						continue
+					var direction := move.normalized()
 					var ortho := m_knots[index].nRight.normalized()
+					if ortho.length_squared() <= 1e-12:
+						ortho = direction.cross(Vector3.UP)
+						if ortho.length_squared() <= 1e-12:
+							ortho = direction.cross(Vector3.RIGHT)
+						ortho = ortho.normalized()
 					var point := direction * radius
 					_set_vertex(vertex0, center + point)
 					var q_phi := Quaternion(ortho, deg_to_rad(K_DIRECTED_SPHERE_RING_ANGLE_DEGREES))
@@ -124,9 +135,16 @@ func on_changed_make_geometry(_is_end: bool = false) -> void:
 	if m_knots.size() < 2:
 		return
 	var input: Array[Vector3] = []
-	for vertex in m_AllVertices:
+	var input_vertex_count := m_AllVertices.size()
+	if m_TrackInterior and m_knots.size() >= 2:
+		var last := m_knots.size() - 1
+		if m_knots[last].point.m_Pos == m_knots[last - 1].point.m_Pos:
+			input_vertex_count = maxi(0, input_vertex_count - get_num_vertices_per_knot())
+	for vertex_index in range(input_vertex_count):
+		var vertex := m_AllVertices[vertex_index]
 		if not bool(vertex.interior):
 			input.append(vertex.position)
+	m_LastHullInputCount = input.size()
 	var knot := m_knots[1]
 	knot.iVert = 0
 	knot.nVert = 0
@@ -149,7 +167,7 @@ func on_changed_make_geometry(_is_end: bool = false) -> void:
 func create_hull(input: Array[Vector3]) -> Dictionary:
 	if input.size() < 4:
 		return {"ok": false, "points": [], "faces": []}
-	return ConvexHullUtil.create(input)
+	return ConvexHullUtil.create(input, K_TOLERANCE_METERS_PS * App.METERS_TO_UNITS * pointer_to_local())
 
 func create_faceted_geometry(knot: Knot, hull: Dictionary) -> void:
 	var points: Array = hull.points

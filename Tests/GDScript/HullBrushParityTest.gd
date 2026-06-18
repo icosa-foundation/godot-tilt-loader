@@ -8,6 +8,7 @@ func _init() -> void:
 
 func _run() -> void:
 	_check_convex_hull_helper_tetrahedron()
+	_check_convex_hull_helper_cube()
 	_check_hull_brush_tetrahedron_conversion()
 	_check_hull_brush_double_sided_geometry()
 	if _failures == 0:
@@ -26,6 +27,22 @@ func _check_convex_hull_helper_tetrahedron() -> void:
 	for face in hull.faces:
 		_expect_equal(face.indices.size(), 3, "convex helper tetra triangular face")
 		_expect_close(face.normal.length(), 1.0, "convex helper normal length")
+
+func _check_convex_hull_helper_cube() -> void:
+	var input: Array[Vector3] = []
+	for x in [-1.0, 1.0]:
+		for y in [-1.0, 1.0]:
+			for z in [-1.0, 1.0]:
+				input.append(Vector3(x, y, z))
+	input.append(Vector3.ZERO)
+
+	var hull := ConvexHullUtil.create(input)
+	_expect(hull.ok, "convex helper creates cube hull")
+	_expect_equal(hull.points.size(), 8, "convex helper cube hull point count")
+	_expect_equal(hull.faces.size(), 12, "convex helper cube triangular face count")
+	for face in hull.faces:
+		_expect_equal(face.indices.size(), 3, "convex helper cube triangular face")
+		_expect_close(face.normal.length(), 1.0, "convex helper cube normal length")
 
 func _check_hull_brush_tetrahedron_conversion() -> void:
 	var brush := _make_hull_brush(false)
