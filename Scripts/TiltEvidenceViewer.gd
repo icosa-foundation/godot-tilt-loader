@@ -5,13 +5,36 @@ extends Node3D
 @export var RenderOutputPath := "user://tilt_accurate_render.png"
 @export var ThumbnailOutputPath := "user://tilt_reference_thumbnail.png"
 @export var LogPath := "user://tilt_accurate_render.log"
-@export var CameraMode := "auto"
+@export var CameraMode := "cafe"
 @export var AutoOrbit := true
 @export var OnlyBrushes := PackedStringArray()
 @export var ForceDoubleSided := false
+@export var NormalizeOpaqueHullMaterials := true
 
 const TILT_IMPORTER_PATH := "res://addons/icosa/open_brush/open_brush_scene.gd"
 const TILT_READER_PATH := "res://addons/icosa/open_brush/open_brush_tilt_reader.gd"
+const OPAQUE_HULL_MATERIALS := {
+	"MatteHull": true,
+	"ConcaveHull": true,
+}
+const OPAQUE_HULL_SHADER_CODE := """
+shader_type spatial;
+render_mode depth_draw_opaque, cull_disabled, diffuse_lambert, specular_disabled;
+
+uniform vec4 u_Color : source_color = vec4(1.0);
+uniform float u_Cutoff = 0.5;
+
+void fragment() {
+	vec4 color = u_Color * COLOR;
+	if (color.a < u_Cutoff) {
+		discard;
+	}
+
+	NORMAL = FRONT_FACING ? NORMAL : -NORMAL;
+	ALBEDO = color.rgb;
+	ROUGHNESS = 1.0;
+}
+"""
 
 var _scene_root: Node3D = null
 var _quit_after_screenshot := false
@@ -50,6 +73,8 @@ func _ready() -> void:
 	_scene_root.name = "ImportedTiltScene"
 	add_child(_scene_root)
 	_apply_brush_filter(_scene_root)
+	if NormalizeOpaqueHullMaterials:
+		_normalize_opaque_hull_materials(_scene_root)
 	if ForceDoubleSided:
 		_force_double_sided(_scene_root)
 
@@ -110,6 +135,8 @@ func _apply_command_line_args() -> void:
 				OnlyBrushes.append(brush_name.strip_edges())
 		elif arg == "--force-double-sided":
 			ForceDoubleSided = true
+		elif arg == "--no-normalize-hull-materials":
+			NormalizeOpaqueHullMaterials = false
 
 func _apply_brush_filter(root: Node) -> void:
 	if OnlyBrushes.is_empty():
@@ -138,6 +165,40 @@ func _force_double_sided_recursive(node: Node) -> void:
 				mesh.surface_set_material(surface_index, copy)
 	for child in node.get_children():
 		_force_double_sided_recursive(child)
+
+func _normalize_opaque_hull_materials(root: Node) -> void:
+	var normalized := _normalize_opaque_hull_materials_recursive(root)
+	if normalized > 0:
+		_log("TILT_EVIDENCE: normalized opaque hull materials=%d" % normalized)
+
+func _normalize_opaque_hull_materials_recursive(node: Node) -> int:
+	var normalized := 0
+	if node is MeshInstance3D and node.mesh != null:
+		var mesh: Mesh = node.mesh
+		for surface_index in range(mesh.get_surface_count()):
+			var material := mesh.surface_get_material(surface_index)
+			if material == null or not OPAQUE_HULL_MATERIALS.has(material.resource_name):
+				continue
+			mesh.surface_set_material(surface_index, _opaque_hull_material_from(material))
+			normalized += 1
+	for child in node.get_children():
+		normalized += _normalize_opaque_hull_materials_recursive(child)
+	return normalized
+
+func _opaque_hull_material_from(source: Material) -> ShaderMaterial:
+	var shader := Shader.new()
+	shader.code = OPAQUE_HULL_SHADER_CODE
+	var material := ShaderMaterial.new()
+	material.resource_name = source.resource_name
+	material.shader = shader
+	if source is ShaderMaterial:
+		var color = source.get_shader_parameter("u_Color")
+		if color is Color:
+			material.set_shader_parameter("u_Color", color)
+		var cutoff = source.get_shader_parameter("u_Cutoff")
+		if cutoff is float:
+			material.set_shader_parameter("u_Cutoff", cutoff)
+	return material
 
 func _save_thumbnail(bytes: PackedByteArray) -> void:
 	if bytes.is_empty():
@@ -218,15 +279,22 @@ func _add_camera(bounds: Dictionary) -> void:
 	var effective_mode := CameraMode
 	if effective_mode == "auto":
 		effective_mode = "overview" if not OnlyBrushes.is_empty() else "detail"
+	var camera_direction := Vector3(0.7, 0.45, 1.0).normalized()
 	if effective_mode == "detail":
 		_camera_target = Vector3(-7.0, 0.8, -2.0)
 		camera.size = 7.0
 		_camera_distance = 11.0
+		camera_direction = Vector3(0.55, 0.85, 0.8).normalized()
+	elif effective_mode == "cafe":
+		_camera_target = Vector3(-9.5, 0.5, -1.6)
+		camera.size = 10.0
+		_camera_distance = 14.0
+		camera_direction = Vector3(0.55, 0.9, 0.8).normalized()
 	else:
 		_camera_target = center
 		camera.size = maxf(max_span * 1.2, 1.0)
 		_camera_distance = maxf(max_span * 2.0, 2.0)
-	camera.position = _camera_target + Vector3(0.7, 0.45, 1.0).normalized() * _camera_distance
+	camera.position = _camera_target + camera_direction * _camera_distance
 	add_child(camera)
 	camera.look_at(_camera_target, Vector3.UP)
 	_camera = camera

@@ -8,6 +8,7 @@ const K_DIRECTED_SPHERE_RING_POINTS := 4
 const K_DIRECTED_SPHERE_RINGS := 2
 const K_DIRECTED_SPHERE_RING_ANGLE_DEGREES := 45.0
 const K_VERTICES_PER_KNOT_DIRECTED_SPHERE := 1 + K_DIRECTED_SPHERE_RING_POINTS * K_DIRECTED_SPHERE_RINGS
+const K_FACETED_FACE_NORMAL_DOT := 0.985
 
 enum KnotConversion {
 	POINT,
@@ -135,15 +136,19 @@ func on_changed_make_geometry(_is_end: bool = false) -> void:
 	if m_knots.size() < 2:
 		return
 	var input: Array[Vector3] = []
+	var input_indices: Array[int] = []
 	var input_vertex_count := m_AllVertices.size()
+	var record_interior := false
 	if m_TrackInterior and m_knots.size() >= 2:
 		var last := m_knots.size() - 1
 		if m_knots[last].point.m_Pos == m_knots[last - 1].point.m_Pos:
+			record_interior = true
 			input_vertex_count = maxi(0, input_vertex_count - get_num_vertices_per_knot())
 	for vertex_index in range(input_vertex_count):
 		var vertex := m_AllVertices[vertex_index]
 		if not bool(vertex.interior):
 			input.append(vertex.position)
+			input_indices.append(vertex_index)
 	m_LastHullInputCount = input.size()
 	var knot := m_knots[1]
 	knot.iVert = 0
@@ -158,7 +163,10 @@ func on_changed_make_geometry(_is_end: bool = false) -> void:
 
 	var hull := create_hull(input)
 	if bool(hull.ok):
+		if record_interior:
+			record_interior_vertices(input_indices, hull.points)
 		if m_Faceted:
+			hull = merge_similar_faceted_faces(hull)
 			create_faceted_geometry(knot, hull)
 		else:
 			create_smooth_geometry(knot, hull)
@@ -169,13 +177,150 @@ func create_hull(input: Array[Vector3]) -> Dictionary:
 		return {"ok": false, "points": [], "faces": []}
 	return ConvexHullUtil.create(input, K_TOLERANCE_METERS_PS * App.METERS_TO_UNITS * pointer_to_local())
 
+func record_interior_vertices(input_indices: Array[int], hull_points: Array) -> void:
+	var hull_lookup := {}
+	for point in hull_points:
+		hull_lookup[_point_key(point)] = true
+	for vertex_index in input_indices:
+		var vertex := m_AllVertices[vertex_index]
+		vertex.interior = not hull_lookup.has(_point_key(vertex.position))
+		m_AllVertices[vertex_index] = vertex
+
+func _point_key(point: Vector3) -> String:
+	return "%d:%d:%d" % [
+		roundi(point.x / K_TOLERANCE_METERS_PS),
+		roundi(point.y / K_TOLERANCE_METERS_PS),
+		roundi(point.z / K_TOLERANCE_METERS_PS),
+	]
+
+func merge_similar_faceted_faces(hull: Dictionary) -> Dictionary:
+	var points: Array = hull.points
+	var groups: Array[Dictionary] = []
+	for face in hull.faces:
+		var normal: Vector3 = face.normal
+		var group := _find_similar_face_group(groups, normal)
+		if group.is_empty():
+			group = {
+				"normal_sum": Vector3.ZERO,
+				"normal": normal,
+				"indices": {},
+			}
+			groups.append(group)
+		group.normal_sum += normal
+		group.normal = (group.normal_sum as Vector3).normalized()
+		for index in face.indices:
+			group.indices[int(index)] = true
+
+	var faces: Array = []
+	for group in groups:
+		var indices: Array[int] = []
+		for index in group.indices.keys():
+			indices.append(int(index))
+		if indices.size() < 3:
+			continue
+		var normal: Vector3 = group.normal
+		var boundary := _convex_face_boundary(points, indices, normal)
+		if boundary.size() >= 3:
+			faces.append({
+				"indices": boundary,
+				"normal": normal,
+				"vertices": _project_face_vertices(points, boundary, normal),
+			})
+
+	if faces.is_empty():
+		return hull
+	return {"ok": true, "points": points, "faces": faces}
+
+func _find_similar_face_group(groups: Array[Dictionary], normal: Vector3) -> Dictionary:
+	for group in groups:
+		var group_normal: Vector3 = group.normal
+		if group_normal.dot(normal) >= K_FACETED_FACE_NORMAL_DOT:
+			return group
+	return {}
+
+func _convex_face_boundary(points: Array, indices: Array[int], normal: Vector3) -> Array[int]:
+	var center := Vector3.ZERO
+	for index in indices:
+		center += points[index]
+	center /= float(indices.size())
+	var axis_u := normal.cross(Vector3.UP)
+	if axis_u.length_squared() <= 1e-12:
+		axis_u = normal.cross(Vector3.RIGHT)
+	axis_u = axis_u.normalized()
+	var axis_v := normal.cross(axis_u).normalized()
+
+	var projected: Array[Dictionary] = []
+	for index in indices:
+		var offset: Vector3 = points[index] - center
+		projected.append({
+			"index": index,
+			"uv": Vector2(offset.dot(axis_u), offset.dot(axis_v)),
+		})
+	var boundary := _convex_hull_2d(projected)
+	if boundary.size() >= 3:
+		var p0: Vector3 = points[boundary[0]]
+		var p1: Vector3 = points[boundary[1]]
+		var p2: Vector3 = points[boundary[2]]
+		if (p1 - p0).cross(p2 - p0).dot(normal) < 0.0:
+			boundary.reverse()
+	return boundary
+
+func _project_face_vertices(points: Array, indices: Array[int], normal: Vector3) -> Array[Vector3]:
+	var support_distance := -INF
+	for index in indices:
+		support_distance = maxf(support_distance, normal.dot(points[index]))
+	var vertices: Array[Vector3] = []
+	for index in indices:
+		var point: Vector3 = points[index]
+		vertices.append(point + normal * (support_distance - normal.dot(point)))
+	return vertices
+
+func _convex_hull_2d(projected: Array[Dictionary]) -> Array[int]:
+	projected.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var auv: Vector2 = a.uv
+		var buv: Vector2 = b.uv
+		if not is_equal_approx(auv.x, buv.x):
+			return auv.x < buv.x
+		return auv.y < buv.y
+	)
+
+	var lower: Array[Dictionary] = []
+	for item in projected:
+		while lower.size() >= 2 and _cross_2d(lower[lower.size() - 2].uv, lower[lower.size() - 1].uv, item.uv) <= 0.0:
+			lower.pop_back()
+		lower.append(item)
+
+	var upper: Array[Dictionary] = []
+	for reverse_index in range(projected.size() - 1, -1, -1):
+		var item := projected[reverse_index]
+		while upper.size() >= 2 and _cross_2d(upper[upper.size() - 2].uv, upper[upper.size() - 1].uv, item.uv) <= 0.0:
+			upper.pop_back()
+		upper.append(item)
+
+	lower.pop_back()
+	upper.pop_back()
+	var boundary: Array[int] = []
+	for item in lower:
+		boundary.append(int(item.index))
+	for item in upper:
+		boundary.append(int(item.index))
+	return boundary
+
+func _cross_2d(a: Vector2, b: Vector2, c: Vector2) -> float:
+	return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
+
 func create_faceted_geometry(knot: Knot, hull: Dictionary) -> void:
 	var points: Array = hull.points
 	for face in hull.faces:
 		var base_vertex := int(m_geometry.m_Vertices.size() / NS)
 		var normal: Vector3 = face.normal
-		for index in face.indices:
-			append_vert(knot, points[int(index)], normal)
+		var face_vertices: Array = face.get("vertices", [])
+		if face_vertices.is_empty():
+			for index in face.indices:
+				append_vert(knot, points[int(index)], normal)
+		else:
+			for position in face_vertices:
+				append_vert(knot, position, normal)
 		var num_fan: int = face.indices.size() - 2
 		for fan in range(num_fan):
 			append_tri(knot, base_vertex, base_vertex + fan + 1, base_vertex + fan + 2)
