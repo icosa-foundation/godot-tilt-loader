@@ -40,12 +40,12 @@ func _init() -> void:
 	quit(1 if _failures > 0 else 0)
 
 func _run() -> void:
-	BaseBrushScript.register_brush_type("PointerTest", func() -> BaseBrushScript: return PointerTestBrush.new())
+	BaseBrushScript.register_brush_type("PointerTest", func(_desc: BrushDescriptor) -> BaseBrushScript: return PointerTestBrush.new())
 	_check_brush_size_mapping()
 	_check_control_point_replacement()
 	_check_line_lifecycle()
 	_check_recreate_line_from_memory()
-	BaseBrushScript._brush_type_registry.clear()
+	BaseBrushScript.clear_brush_types()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_POINTERSCRIPT: all checks passed")
 

@@ -1,6 +1,8 @@
 class_name BrushSystemSetup
 extends Node3D
 
+const BrushRuntimeRegistryScript := preload("res://Scripts/Brushes/BrushRuntimeRegistry.gd")
+
 @export var auto_load_brushes := true
 @export var brushes_path := ""
 
@@ -21,6 +23,7 @@ func load_brushes() -> void:
 
 	if manifest != null and manifest.Brushes != null:
 		BrushCatalog.init(manifest)
+		BrushRuntimeRegistryScript.register_supported_brushes(manifest)
 		print("Brush system initialized with %d brushes" % manifest.Brushes.size())
 	else:
 		push_error("Failed to load brush manifest")

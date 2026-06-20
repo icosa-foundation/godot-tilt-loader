@@ -95,6 +95,7 @@ func finalize_solitary_brush() -> void:
 		mesh_data.uv0_v2.assign(m_Geometry.m_UVs.slice(0, used_verts))
 	mesh_data.colors.assign(m_Geometry.m_Colors.slice(0, used_verts))
 	mesh_data.tangents.assign(m_Geometry.m_Tangents.slice(0, used_verts))
+	update_visible_mesh()
 	MasterBrush.ensure_shared_pool()
 	MasterBrush.shared_pool.put(m_Geometry)
 	m_Geometry = null
@@ -215,6 +216,7 @@ func apply_changes_to_visuals() -> void:
 	mesh_data.colors.assign(m_Geometry.m_Colors)
 	mesh_data.uv0_v2.assign(m_Geometry.m_UVs)
 	mesh_data.tangents.assign(m_Geometry.m_Tangents)
+	update_visible_mesh()
 
 func update_position_impl(position: Vector3, orientation: Quaternion, pressure: float) -> bool:
 	var smoothed_pressure := get_smoothed_pressure(pressure, position)

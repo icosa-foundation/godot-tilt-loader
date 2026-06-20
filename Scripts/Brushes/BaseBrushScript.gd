@@ -14,18 +14,28 @@ var m_BaseSize_PS := 0.0
 var m_rng := StatelessRng.create(0)
 var stroke: Stroke
 var mesh_data := MeshData.new()
+var _mesh_instance: MeshInstance3D
 
 static var _brush_type_registry := {}
 
 static func register_brush_type(durable_name: String, factory: Callable) -> void:
 	_brush_type_registry[durable_name] = factory
 
+static func clear_brush_types() -> void:
+	_brush_type_registry.clear()
+
+static func has_brush_type(durable_name: String) -> bool:
+	return _brush_type_registry.has(durable_name)
+
+static func registered_brush_count() -> int:
+	return _brush_type_registry.size()
+
 static func create_brush(parent: Node, xf_in_parent_space: TrTransform, desc: BrushDescriptor, color: Color, size_ps: float) -> BaseBrushScript:
 	var factory: Callable = _brush_type_registry.get(desc.m_DurableName, Callable())
 	if not factory.is_valid():
 		push_error("No brush script mapping found for '%s'" % desc.m_DurableName)
 		return null
-	var line: BaseBrushScript = factory.call()
+	var line: BaseBrushScript = factory.call(desc)
 	line.name = desc.description()
 	parent.add_child(line)
 	Coords.apply_local(line, TrTransform.identity())
@@ -79,6 +89,8 @@ func set_preview_properties(color: Color, size: float) -> void:
 
 func destroy_mesh() -> void:
 	mesh_data.clear()
+	if _mesh_instance != null:
+		_mesh_instance.mesh = null
 
 func init_brush(desc: BrushDescriptor, local_pointer_xf: TrTransform) -> void:
 	assert(m_BaseSize_PS != 0.0)
@@ -134,6 +146,22 @@ func debug_get_geometry() -> Dictionary:
 
 func finalize_solitary_brush() -> void:
 	pass
+
+func update_visible_mesh() -> void:
+	if _mesh_instance == null:
+		_mesh_instance = MeshInstance3D.new()
+		_mesh_instance.name = "GeneratedMesh"
+		add_child(_mesh_instance)
+	_mesh_instance.mesh = mesh_data.to_array_mesh()
+	if _mesh_instance.mesh != null and _mesh_instance.mesh.get_surface_count() > 0:
+		_mesh_instance.mesh.surface_set_material(0, _make_runtime_material())
+
+func _make_runtime_material() -> Material:
+	var material := StandardMaterial3D.new()
+	material.vertex_color_use_as_albedo = true
+	material.albedo_color = m_Color
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED if m_EnableBackfaces else BaseMaterial3D.CULL_BACK
+	return material
 
 func pressured_size(pressure01: float) -> float:
 	var multiplier := lerpf(m_Desc.pressure_size_min(m_PreviewMode), 1.0, pressure01)

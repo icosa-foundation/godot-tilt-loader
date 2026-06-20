@@ -40,10 +40,10 @@ func _init() -> void:
 	quit(1 if _failures > 0 else 0)
 
 func _run() -> void:
-	BaseBrushScript.register_brush_type("MinimalTest", func() -> BaseBrushScript: return MinimalTestBrush.new())
+	BaseBrushScript.register_brush_type("MinimalTest", func(_desc: BrushDescriptor) -> BaseBrushScript: return MinimalTestBrush.new())
 	_check_minimal_example_setup_and_draw()
 	_check_minimal_xr_setup_without_runtime()
-	BaseBrushScript._brush_type_registry.clear()
+	BaseBrushScript.clear_brush_types()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_MINIMALEXAMPLES: all checks passed")
 

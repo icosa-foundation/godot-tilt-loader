@@ -1,6 +1,8 @@
 class_name MinimalXrExample
 extends Node3D
 
+const BrushRuntimeRegistryScript := preload("res://Scripts/Brushes/BrushRuntimeRegistry.gd")
+
 @export var BrushSystemPath: NodePath
 @export var PointerPath: NodePath
 @export var LeftControllerPath: NodePath
@@ -56,12 +58,14 @@ func setup() -> void:
 		push_error("MinimalXrExample: RightControllerPath does not point to an XRController3D")
 	if BrushSystem != null:
 		_runtimeBrush = BrushSystem.get_brush_by_name("Ink")
-		if _runtimeBrush == null:
-			_runtimeBrush = BrushSystem.get_default_brush()
+		if not BrushRuntimeRegistryScript.is_supported(_runtimeBrush):
+			_runtimeBrush = _first_supported_brush()
 		if BrushSystem.manifest != null and BrushSystem.manifest.Brushes != null:
 			_currentBrushIndex = BrushSystem.manifest.Brushes.find(_runtimeBrush)
 			if _currentBrushIndex < 0:
 				_currentBrushIndex = 0
+	if _runtimeBrush != null:
+		log_debug("XRDEBUG: Active brush %s" % _runtimeBrush.m_DurableName)
 	var xr_origin := get_node_or_null("../XROrigin3D") as XROrigin3D
 	if xr_origin == null:
 		xr_origin = get_parent() as XROrigin3D
@@ -123,10 +127,16 @@ func handle_left_thumbstick() -> void:
 	if abs_thumbstick >= THUMBSTICK_DEADZONE and not _leftThumbstickTriggered:
 		_leftThumbstickTriggered = true
 		var brush_count := BrushSystem.manifest.Brushes.size()
-		_currentBrushIndex = (_currentBrushIndex + (1 if thumbstick_x > 0.0 else -1) + brush_count) % brush_count
-		_runtimeBrush = BrushSystem.manifest.Brushes[_currentBrushIndex]
-		m_Pointer.m_CurrentBrush = _runtimeBrush
-		m_Pointer.BrushSize01 = DefaultBrushSize
+		var direction := 1 if thumbstick_x > 0.0 else -1
+		for _attempt in range(brush_count):
+			_currentBrushIndex = (_currentBrushIndex + direction + brush_count) % brush_count
+			var candidate: BrushDescriptor = BrushSystem.manifest.Brushes[_currentBrushIndex]
+			if BrushRuntimeRegistryScript.is_supported(candidate):
+				_runtimeBrush = candidate
+				m_Pointer.m_CurrentBrush = _runtimeBrush
+				m_Pointer.BrushSize01 = DefaultBrushSize
+				log_debug("XRDEBUG: Selected brush %s" % _runtimeBrush.m_DurableName)
+				break
 	elif abs_thumbstick < THUMBSTICK_DEADZONE:
 		_leftThumbstickTriggered = false
 	_lastLeftThumbstickX = thumbstick_x
@@ -139,3 +149,11 @@ func handle_right_thumbstick(delta: float) -> void:
 	if absf(thumbstick_x) > THUMBSTICK_DEADZONE:
 		var size_change := thumbstick_x * BrushSizeChangeSpeed * delta
 		m_Pointer.BrushSize01 = clampf(m_Pointer.BrushSize01 + size_change, 0.0, 1.0)
+
+func _first_supported_brush() -> BrushDescriptor:
+	if BrushSystem == null or BrushSystem.manifest == null:
+		return null
+	for brush in BrushSystem.manifest.Brushes:
+		if BrushRuntimeRegistryScript.is_supported(brush):
+			return brush
+	return null

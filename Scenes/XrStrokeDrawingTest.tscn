@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://d10ppiccm7bgp"]
+[gd_scene load_steps=10 format=3 uid="uid://d10ppiccm7bgp"]
 
 [ext_resource type="Script" uid="uid://bdtlvhay8i44y" path="res://Scripts/App.gd" id="1_bdpsi"]
 [ext_resource type="Script" uid="uid://br012buh1cb2h" path="res://Scenes/MinimalXrExample.gd" id="1_xr"]
@@ -6,20 +6,48 @@
 [ext_resource type="Script" uid="uid://bhhv5em3h48r4" path="res://Scripts/BrushSystemSetup.gd" id="3_setup"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_pointer"]
-radius = 0.05
-height = 0.1
+radius = 0.09
+height = 0.18
+
+[sub_resource type="BoxMesh" id="BoxMesh_pointer_ray"]
+size = Vector3(0.025, 0.025, 0.65)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
-size = Vector2(10, 10)
+size = Vector2(20, 20)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
-albedo_color = Color(0.3, 0.3, 0.3, 1)
+albedo_color = Color(0.18, 0.22, 0.26, 1)
+
+[sub_resource type="Environment" id="Environment_xr_debug"]
+background_mode = 1
+background_color = Color(0.45, 0.62, 0.85, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.85, 0.9, 1, 1)
+ambient_light_energy = 1.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_reference"]
+size = Vector3(0.25, 0.25, 0.25)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pointer"]
 albedo_color = Color(0.2, 0.5, 1, 1)
 emission_enabled = true
 emission = Color(0.2, 0.5, 1, 1)
 emission_energy_multiplier = 2.0
+shading_mode = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_left_pointer"]
+albedo_color = Color(0.1, 1, 0.35, 1)
+emission_enabled = true
+emission = Color(0.1, 1, 0.35, 1)
+emission_energy_multiplier = 2.0
+shading_mode = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_reference"]
+albedo_color = Color(1, 0.85, 0.15, 1)
+emission_enabled = true
+emission = Color(1, 0.6, 0.05, 1)
+emission_energy_multiplier = 1.2
+shading_mode = 0
 
 [node name="XrStrokeDrawingTest" type="Node3D"]
 
@@ -40,6 +68,7 @@ RightControllerPath = NodePath("../XROrigin3D/RightController")
 [node name="XROrigin3D" type="XROrigin3D" parent="."]
 
 [node name="XRCamera3D" type="XRCamera3D" parent="XROrigin3D"]
+current = true
 
 [node name="LeftController" type="XRController3D" parent="XROrigin3D"]
 tracker = &"left_hand"
@@ -47,7 +76,12 @@ pose = &"aim"
 
 [node name="LeftControllerVisual" type="MeshInstance3D" parent="XROrigin3D/LeftController"]
 mesh = SubResource("SphereMesh_pointer")
-surface_material_override/0 = SubResource("StandardMaterial3D_pointer")
+surface_material_override/0 = SubResource("StandardMaterial3D_left_pointer")
+
+[node name="LeftControllerRay" type="MeshInstance3D" parent="XROrigin3D/LeftController"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.35)
+mesh = SubResource("BoxMesh_pointer_ray")
+surface_material_override/0 = SubResource("StandardMaterial3D_left_pointer")
 
 [node name="RightController" type="XRController3D" parent="XROrigin3D"]
 tracker = &"right_hand"
@@ -57,6 +91,11 @@ pose = &"aim"
 mesh = SubResource("SphereMesh_pointer")
 surface_material_override/0 = SubResource("StandardMaterial3D_pointer")
 
+[node name="RightControllerRay" type="MeshInstance3D" parent="XROrigin3D/RightController"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.35)
+mesh = SubResource("BoxMesh_pointer_ray")
+surface_material_override/0 = SubResource("StandardMaterial3D_pointer")
+
 [node name="Pointer" type="Node3D" parent="XROrigin3D"]
 script = ExtResource("2_bdpsi")
 
@@ -64,10 +103,33 @@ script = ExtResource("2_bdpsi")
 mesh = SubResource("SphereMesh_pointer")
 surface_material_override/0 = SubResource("StandardMaterial3D_pointer")
 
+[node name="PointerRay" type="MeshInstance3D" parent="XROrigin3D/Pointer"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.35)
+mesh = SubResource("BoxMesh_pointer_ray")
+surface_material_override/0 = SubResource("StandardMaterial3D_pointer")
+
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 3, 1)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_xr_debug")
 
 [node name="Floor" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
 mesh = SubResource("PlaneMesh_floor")
 surface_material_override/0 = SubResource("StandardMaterial3D_floor")
+
+[node name="ReferenceCubeForward" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -2)
+mesh = SubResource("BoxMesh_reference")
+surface_material_override/0 = SubResource("StandardMaterial3D_reference")
+
+[node name="ReferenceCubeLeft" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, -1.2)
+mesh = SubResource("BoxMesh_reference")
+surface_material_override/0 = SubResource("StandardMaterial3D_left_pointer")
+
+[node name="ReferenceCubeRight" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, -1.2)
+mesh = SubResource("BoxMesh_reference")
+surface_material_override/0 = SubResource("StandardMaterial3D_pointer")

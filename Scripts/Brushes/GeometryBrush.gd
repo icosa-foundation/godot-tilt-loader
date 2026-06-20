@@ -183,6 +183,7 @@ func finalize_solitary_brush() -> void:
 	m_CachedNumTris = num_tris()
 	GeometryPool.release(m_geometry)
 	m_geometry = null
+	update_visible_mesh()
 
 func apply_changes_to_visuals() -> void:
 	if m_geometry == null or not m_geometry.verify_sizes():
@@ -191,6 +192,7 @@ func apply_changes_to_visuals() -> void:
 		control_points_changed(int(m_FirstChangedControlPoint))
 		m_FirstChangedControlPoint = null
 	m_geometry.copy_to_mesh_data(mesh_data)
+	update_visible_mesh()
 
 func update_position_impl(position: Vector3, orientation: Quaternion, pressure: float) -> bool:
 	assert(m_knots.size() >= 2)
