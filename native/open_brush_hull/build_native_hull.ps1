@@ -26,11 +26,13 @@ function Ensure-GitDependency {
         [string] $Commit
     )
 
+    $NeedsCheckout = $false
     if (-not (Test-Path $Path)) {
         git clone --no-checkout $Repo $Path
         if ($LASTEXITCODE -ne 0) {
             throw "git clone failed for $Repo with exit code $LASTEXITCODE"
         }
+        $NeedsCheckout = $true
     }
 
     Push-Location $Path
@@ -41,6 +43,9 @@ function Ensure-GitDependency {
             if ($LASTEXITCODE -ne 0) {
                 throw "git fetch failed for $Repo commit $Commit with exit code $LASTEXITCODE"
             }
+            $NeedsCheckout = $true
+        }
+        if ($NeedsCheckout) {
             git checkout --detach $Commit
             if ($LASTEXITCODE -ne 0) {
                 throw "git checkout failed for $Repo commit $Commit with exit code $LASTEXITCODE"

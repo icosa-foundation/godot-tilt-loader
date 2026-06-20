@@ -17,7 +17,7 @@ const CASES := [
 ]
 
 const KNOWN_MISMATCHES := [
-	{"name": "concave_095", "csv": "concave_compare_current_095.csv", "tolerance": 0.000007726552, "points": 6, "faces": 8, "native_points": 8, "native_faces": 12},
+	{"name": "concave_095", "csv": "concave_compare_current_095.csv", "tolerance": 0.000007726552, "points": 6, "faces": 8, "native_points": 8, "native_triangles": 12},
 ]
 
 func _init() -> void:
@@ -52,28 +52,38 @@ func _check_case(util: Object, test_case: Dictionary, known_mismatch: bool) -> b
 	var result: Dictionary = util.call("create", points, float(test_case.tolerance))
 	var point_count: int = result.get("points", []).size()
 	var face_count: int = result.get("faces", []).size()
+	var triangle_count := _fan_triangle_count(result.get("faces", []))
 	if known_mismatch:
-		var expected_mismatch: bool = point_count == int(test_case.native_points) and face_count == int(test_case.native_faces)
-		print("NATIVE_HULL_PARITY: known_mismatch name=%s unity=%d/%d native=%d/%d expected_native=%s" % [
+		var expected_mismatch: bool = point_count == int(test_case.native_points) and triangle_count == int(test_case.native_triangles)
+		print("NATIVE_HULL_PARITY: known_mismatch name=%s unity=%d/%d native=%d/%d faces=%d expected_native=%s" % [
 			test_case.name,
 			int(test_case.points),
 			int(test_case.faces),
 			point_count,
+			triangle_count,
 			face_count,
 			str(expected_mismatch),
 		])
 		return expected_mismatch
-	var ok: bool = bool(result.get("ok", false)) and point_count == int(test_case.points) and face_count == int(test_case.faces)
-	print("NATIVE_HULL_PARITY: case=%s ok=%s input=%d points=%d/%d faces=%d/%d" % [
+	var ok: bool = bool(result.get("ok", false)) and point_count == int(test_case.points) and triangle_count == int(test_case.faces)
+	print("NATIVE_HULL_PARITY: case=%s ok=%s input=%d points=%d/%d triangles=%d/%d faces=%d" % [
 		test_case.name,
 		str(ok),
 		points.size(),
 		point_count,
 		int(test_case.points),
-		face_count,
+		triangle_count,
 		int(test_case.faces),
+		face_count,
 	])
 	return ok
+
+
+func _fan_triangle_count(faces: Array) -> int:
+	var triangles := 0
+	for face in faces:
+		triangles += maxi(0, face.get("indices", []).size() - 2)
+	return triangles
 
 
 func _read_csv_points(csv_path: String) -> PackedVector3Array:

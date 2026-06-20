@@ -11,6 +11,8 @@ func _run() -> void:
 	_check_convex_hull_helper_cube()
 	_check_hull_brush_tetrahedron_conversion()
 	_check_hull_brush_double_sided_geometry()
+	_check_hull_brush_faceted_cube_native_polygon_faces()
+	_check_hull_brush_track_interior_keeps_boundary()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_HULLBRUSH: all checks passed")
 
@@ -39,10 +41,12 @@ func _check_convex_hull_helper_cube() -> void:
 	var hull := ConvexHullUtil.create(input)
 	_expect(hull.ok, "convex helper creates cube hull")
 	_expect_equal(hull.points.size(), 8, "convex helper cube hull point count")
-	_expect_equal(hull.faces.size(), 12, "convex helper cube triangular face count")
+	var fan_triangle_count := 0
 	for face in hull.faces:
-		_expect_equal(face.indices.size(), 3, "convex helper cube triangular face")
+		_expect(face.indices.size() >= 3, "convex helper cube face has polygon")
+		fan_triangle_count += face.indices.size() - 2
 		_expect_close(face.normal.length(), 1.0, "convex helper cube normal length")
+	_expect_equal(fan_triangle_count, 12, "convex helper cube fan triangle count")
 
 func _check_hull_brush_tetrahedron_conversion() -> void:
 	var brush := _make_hull_brush(false)
@@ -80,6 +84,69 @@ func _check_hull_brush_double_sided_geometry() -> void:
 	_expect_vec3_close(brush.m_geometry.m_Vertices[0], brush.m_geometry.m_Vertices[1], "hull doubled vertex position")
 	_expect_vec3_close(brush.m_geometry.m_Normals[0], -brush.m_geometry.m_Normals[1], "hull doubled normal")
 	brush.free()
+
+func _check_hull_brush_faceted_cube_native_polygon_faces() -> void:
+	var input: Array[Vector3] = []
+	for x in [-1.0, 1.0]:
+		for y in [-1.0, 1.0]:
+			for z in [-1.0, 1.0]:
+				input.append(Vector3(x, y, z))
+	var hull := ConvexHullUtil.create(input)
+	if not ClassDB.class_exists("NativeConvexHullUtil"):
+		_expect(hull.ok, "hull faceted fallback creates cube hull")
+		return
+	_expect(hull.ok, "hull faceted native creates cube hull")
+	_expect_equal(hull.faces.size(), 6, "hull faceted native cube polygon faces")
+
+	var brush := _make_hull_brush(false)
+	brush.m_Faceted = true
+	brush.init_brush(_make_desc(false), TrTransform.identity())
+	brush.m_geometry.m_Vertices.clear()
+	brush.m_geometry.m_Normals.clear()
+	brush.m_geometry.m_Colors.clear()
+	brush.m_geometry.m_Texcoord0.v3.clear()
+	brush.m_geometry.m_Tris.clear()
+	var knot := GeometryBrush.Knot.new()
+	brush.create_faceted_geometry(knot, hull)
+
+	_expect_equal(knot.nVert, 24, "hull faceted native cube vertex fan count")
+	_expect_equal(knot.nTri, 12, "hull faceted native cube triangle fan count")
+	_expect_equal(brush.m_geometry.m_Tris.size(), 36, "hull faceted native cube index count")
+	_expect_equal(_unique_normal_count(brush.m_geometry.m_Normals), 6, "hull faceted native cube planar normals")
+	brush.free()
+
+func _check_hull_brush_track_interior_keeps_boundary() -> void:
+	var brush := _make_hull_brush(false)
+	brush.m_TrackInterior = true
+	brush.resize_vertices(9)
+	var input: Array[Vector3] = []
+	var input_indices: Array[int] = []
+	var vertex_index := 0
+	for x in [-1.0, 1.0]:
+		for y in [-1.0, 1.0]:
+			for z in [-1.0, 1.0]:
+				var point := Vector3(x, y, z)
+				brush._set_vertex(vertex_index, point)
+				input.append(point)
+				input_indices.append(vertex_index)
+				vertex_index += 1
+	brush._set_vertex(8, Vector3.ZERO)
+	input.append(Vector3.ZERO)
+	input_indices.append(8)
+
+	var hull := ConvexHullUtil.create(input)
+	_expect(hull.ok, "hull track interior creates cube hull")
+	brush.record_interior_vertices(input_indices, hull.points)
+	for index in range(8):
+		_expect(not bool(brush.m_AllVertices[index].interior), "hull track interior keeps boundary %d" % index)
+	_expect(bool(brush.m_AllVertices[8].interior), "hull track interior marks center")
+	brush.free()
+
+func _unique_normal_count(normals: Array[Vector3]) -> int:
+	var keys := {}
+	for normal in normals:
+		keys["%d:%d:%d" % [roundi(normal.x), roundi(normal.y), roundi(normal.z)]] = true
+	return keys.size()
 
 func _make_hull_brush(_render_backfaces: bool) -> HullBrush:
 	var brush := HullBrush.new()

@@ -17,6 +17,7 @@ func _init() -> void:
 	var dump_points := false
 	var expected_points := -1
 	var expected_faces := -1
+	var expected_triangles := -1
 	for arg in args:
 		if arg.begins_with("--csv="):
 			csv_path = arg.trim_prefix("--csv=")
@@ -28,11 +29,13 @@ func _init() -> void:
 			expected_points = int(arg.trim_prefix("--expect-points="))
 		elif arg.begins_with("--expect-faces="):
 			expected_faces = int(arg.trim_prefix("--expect-faces="))
+		elif arg.begins_with("--expect-triangles="):
+			expected_triangles = int(arg.trim_prefix("--expect-triangles="))
 	if not csv_path.is_empty():
 		if is_nan(csv_tolerance):
 			_run_csv_sweep(util, csv_path)
 		else:
-			_run_csv(util, csv_path, csv_tolerance, dump_points, expected_points, expected_faces)
+			_run_csv(util, csv_path, csv_tolerance, dump_points, expected_points, expected_faces, expected_triangles)
 		return
 	var failures := 0
 	var tetra_points := PackedVector3Array([
@@ -49,6 +52,43 @@ func _init() -> void:
 	])
 	if not bool(result.get("ok", false)):
 		failures += 1
+
+	var cube_points := PackedVector3Array()
+	for x in [-1.0, 1.0]:
+		for y in [-1.0, 1.0]:
+			for z in [-1.0, 1.0]:
+				cube_points.append(Vector3(x, y, z))
+	var cube_result: Dictionary = util.call("create", cube_points, 1e-5)
+	print("NATIVE_HULL_PROBE: cube_ok=%s points=%d faces=%d" % [
+		str(cube_result.get("ok", false)),
+		cube_result.get("points", []).size(),
+		cube_result.get("faces", []).size(),
+	])
+	if not bool(cube_result.get("ok", false)):
+		failures += 1
+	if cube_result.get("points", []).size() != 8:
+		failures += 1
+	if cube_result.get("faces", []).size() != 6:
+		failures += 1
+	for face in cube_result.get("faces", []):
+		if face.get("indices", []).size() != 4:
+			failures += 1
+		var normal: Vector3 = face.get("normal", Vector3.ZERO)
+		if not is_equal_approx(normal.length(), 1.0):
+			failures += 1
+		var indices: Array = face.get("indices", [])
+		if indices.size() >= 3:
+			var p0: Vector3 = cube_result.points[int(indices[0])]
+			var p1: Vector3 = cube_result.points[int(indices[1])]
+			var p2: Vector3 = cube_result.points[int(indices[2])]
+			if (p1 - p0).cross(p2 - p0).dot(normal) <= 0.0:
+				failures += 1
+			var center := Vector3.ZERO
+			for index in indices:
+				center += cube_result.points[int(index)]
+			center /= float(indices.size())
+			if center.dot(normal) <= 0.0:
+				failures += 1
 
 	var coplanar_points := PackedVector3Array([
 		Vector3(-1.0, -1.0, 0.0),
@@ -80,7 +120,15 @@ func _run_csv_sweep(util: Object, csv_path: String) -> void:
 	quit(0)
 
 
-func _run_csv(util: Object, csv_path: String, tolerance: float, dump_points: bool, expected_points: int, expected_faces: int) -> void:
+func _run_csv(
+	util: Object,
+	csv_path: String,
+	tolerance: float,
+	dump_points: bool,
+	expected_points: int,
+	expected_faces: int,
+	expected_triangles: int
+) -> void:
 	var points := _read_csv_points(csv_path)
 	if points.is_empty():
 		print("NATIVE_HULL_PROBE: csv_empty path=%s" % csv_path)
@@ -102,20 +150,34 @@ func _run_csv(util: Object, csv_path: String, tolerance: float, dump_points: boo
 			result.get("faces", []).size(),
 		])
 		failures += 1
+	if expected_triangles >= 0 and _fan_triangle_count(result.get("faces", [])) != expected_triangles:
+		print("NATIVE_HULL_PROBE: expected_triangles=%d actual=%d" % [
+			expected_triangles,
+			_fan_triangle_count(result.get("faces", [])),
+		])
+		failures += 1
 	quit(1 if failures > 0 else 0)
 
 
 func _print_csv_result(util: Object, csv_path: String, points: PackedVector3Array, tolerance: float) -> Dictionary:
 	var result: Dictionary = util.call("create", points, tolerance)
-	print("NATIVE_HULL_PROBE: csv=%s tolerance=%s ok=%s input=%d points=%d faces=%d" % [
+	print("NATIVE_HULL_PROBE: csv=%s tolerance=%s ok=%s input=%d points=%d faces=%d triangles=%d" % [
 		csv_path,
 		str(tolerance),
 		str(result.get("ok", false)),
 		points.size(),
 		result.get("points", []).size(),
 		result.get("faces", []).size(),
+		_fan_triangle_count(result.get("faces", [])),
 	])
 	return result
+
+
+func _fan_triangle_count(faces: Array) -> int:
+	var triangles := 0
+	for face in faces:
+		triangles += maxi(0, face.get("indices", []).size() - 2)
+	return triangles
 
 
 func _dump_result_points(input_points: PackedVector3Array, result: Dictionary) -> void:

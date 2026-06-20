@@ -46,7 +46,9 @@ addons/icosa/
 /[Bb]uild/
 /[Bb]uilds/
 /[Tt]emp/
-native/open_brush_hull/bin/
+!native/open_brush_hull/bin/
+native/open_brush_hull/bin/*
+!native/open_brush_hull/bin/.gdignore
 native/open_brush_hull/.sconsign
 native/open_brush_hull/.sconsign.dblite
 native/open_brush_hull/src/.sconsign

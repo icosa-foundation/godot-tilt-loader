@@ -4,11 +4,11 @@ Native convex hull backend for Godot hull brushes.
 
 The GDScript hull fallback is intentionally kept, but real `.tilt` hull strokes should use `NativeConvexHullUtil` when this extension is built and loaded. The native backend wraps Antti Kuukka's public-domain QuickHull implementation.
 
-The GDScript brush code passes the same tolerance scale used by the Unity hull brushes (`1e-6 * App.METERS_TO_UNITS * pointer_to_local()`). The native wrapper rejects too-small, collinear, and coplanar point sets before calling QuickHull so degenerate inputs behave like Unity's null-hull path instead of producing a synthetic thin hull.
+The GDScript brush code passes the same tolerance scale used by the Unity hull brushes (`1e-6 * App.METERS_TO_UNITS * pointer_to_local()`). The native wrapper rejects too-small, collinear, and coplanar point sets before calling QuickHull so degenerate inputs behave like Unity's null-hull path instead of producing a synthetic thin hull. QuickHull's triangle buffer is converted back into ordered polygon faces for truly coplanar facets; brush geometry still fan-triangulates those faces when writing mesh indices.
 
 ## Parity Status
 
-QuickHull is a geometric convex hull backend, not an exact port of Unity's `MIConvexHull35.dll`. It matches the representative regular hull samples checked from `brush_cafe_experimental.tilt`, and it matches two of the three ConcaveHull sliding-window samples exported from that file.
+QuickHull is a geometric convex hull backend, not an exact port of Unity's `MIConvexHull35.dll`. It matches the representative regular hull samples checked from `brush_cafe_experimental.tilt` by hull point count and fan-triangulated triangle count, and it matches two of the three ConcaveHull sliding-window samples exported from that file.
 
 The remaining known mismatch is ConcaveHull stroke 95's final 10-point window. Unity/MIConvexHull returns 6 points and 8 faces; this native backend returns 8 points and 12 faces for the same points and tolerance. Inspection of MIConvexHull shows that it keeps original vertex indices, does not pre-deduplicate equal positions, and has singular-vertex handling. That can make duplicate geometric points affect the final hull topology in ways QuickHull does not reproduce.
 
@@ -74,10 +74,10 @@ $userData = 'C:/Users/andyb/AppData/Roaming/Godot/app_userdata/open-brush-stroke
 
 ```powershell
 & $godot --headless --xr-mode off --log-file $log --path . --script res://Tests/GDScript/NativeHullParitySuite.gd
-& $godot --headless --xr-mode off --log-file $log --path . --script res://Tests/GDScript/NativeHullProbe.gd -- --csv='C:\Users\andyb\AppData\Roaming\Godot\app_userdata\open-brush-stroke-gen-godot\hull_compare_085.csv' --tolerance=0.000014966814 --expect-points=221 --expect-faces=438
-& $godot --headless --xr-mode off --log-file $log --path . --script res://Tests/GDScript/NativeHullProbe.gd -- --csv='C:\Users\andyb\AppData\Roaming\Godot\app_userdata\open-brush-stroke-gen-godot\hull_compare_111.csv' --tolerance=0.000010017480 --expect-points=190 --expect-faces=376
+& $godot --headless --xr-mode off --log-file $log --path . --script res://Tests/GDScript/NativeHullProbe.gd -- --csv='C:\Users\andyb\AppData\Roaming\Godot\app_userdata\open-brush-stroke-gen-godot\hull_compare_085.csv' --tolerance=0.000014966814 --expect-points=221 --expect-triangles=438
+& $godot --headless --xr-mode off --log-file $log --path . --script res://Tests/GDScript/NativeHullProbe.gd -- --csv='C:\Users\andyb\AppData\Roaming\Godot\app_userdata\open-brush-stroke-gen-godot\hull_compare_111.csv' --tolerance=0.000010017480 --expect-points=190 --expect-triangles=376
 ```
 
 Use an explicit `--log-file` for scripted/headless runs. In this local Godot 4.6.1 setup, the default project log rotation path can fail intermittently when launching repeated headless processes.
 
-The parity suite checks the representative regular hull samples plus ConcaveHull windows 96 and 97. It also reports ConcaveHull 95 as a known mismatch and verifies the current native result remains 8 points / 12 faces rather than silently changing. Unity/MIConvexHull returns 6 points / 8 faces for that degenerate duplicate-tail window.
+The parity suite checks the representative regular hull samples plus ConcaveHull windows 96 and 97. For polygon faces, it verifies point count and fan-triangulated triangle count while separately logging polygon face count. It also reports ConcaveHull 95 as a known mismatch and verifies the current native result remains 8 points / 12 fan triangles rather than silently changing. Unity/MIConvexHull returns 6 points / 8 triangles for that degenerate duplicate-tail window.
