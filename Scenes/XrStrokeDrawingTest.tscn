@@ -25,6 +25,7 @@ emission_energy_multiplier = 2.0
 
 [node name="App" type="Node3D" parent="."]
 script = ExtResource("1_bdpsi")
+EnableXR = true
 
 [node name="BrushSystemSetup" type="Node3D" parent="."]
 script = ExtResource("3_setup")
