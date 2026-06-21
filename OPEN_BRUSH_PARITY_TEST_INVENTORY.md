@@ -16,7 +16,7 @@ The key distinction is source authority. Current focused brush tests prove trans
 | `metadata/material test` | Verifies catalog, registry, descriptor, material, or prefab metadata handling. |
 | `visual smoke test` | Exercises a scene/tool intended primarily for human inspection. |
 | `diagnostic probe` | Prints data or extracts fixtures; not part of the normal pass/fail parity suite. |
-| `Open Brush reference mesh parity` | Compares Godot output against authoritative Open Brush mesh fixtures. No current test is in this category yet. |
+| `Open Brush reference mesh parity` | Compares Godot output against authoritative Open Brush mesh fixtures. The harness exists, but no authoritative fixtures are checked in yet. |
 
 ## Focused Brush Tests
 
@@ -50,6 +50,7 @@ The key distinction is source authority. Current focused brush tests prove trans
 | `Tests/GDScript/TiltBridgeReplayParityTest.gd` | `path equivalence` | `.tilt` scene builder runtime mesh data matches bridge-created stroke replay for sample cafe strokes. | Checks first supported sample strokes only. |
 | `Tests/GDScript/TiltImporterRuntimeReplayTest.gd` | `importer path test` | Importer has no old fallback tessellator entry points and cafe `.tilt` rebuilds through runtime brushes with substantial geometry. | Heavy scene-level check, not per-brush numeric reference parity. |
 | `Tests/GDScript/CafeStrokeFixturesReplayTest.gd` | `generated mesh parity` | Lightweight extracted cafe fixtures replay through runtime classes with stable counts, channels, descriptor resolution, and bounds. | Stable Godot fixture replay, not Open Brush reference mesh comparison. |
+| `Tests/GDScript/OpenBrushReferenceMeshFixtureTest.gd` | `Open Brush reference mesh parity` | Scans `Resources/Fixtures/OpenBrushReferenceMeshes/*.json`, replays each referenced stroke through Godot, and compares positions, triangle indices, and primary diffuse UV0 against Open Brush-exported fixture data. | Harness only until authoritative Open Brush C# mesh fixture JSON files are generated and checked in. |
 | `Tests/GDScript/SingleBrushStrokeInspectorTest.gd` | `visual smoke test` | Single-brush inspector can instantiate and step through supported brush strokes for inspection. | Human-inspection support, not numeric parity proof. |
 | `Tests/GDScript/MinimalExamplesParityTest.gd` | `visual smoke test` | 2D and XR example setup/drawing paths can be constructed without the full runtime. | Scene setup only; not enough to prove brush mesh parity. |
 | `Tests/GDScript/SimpleControllersParityTest.gd` | `visual smoke test` | Simple drawing controller setup and controls behave as expected. | Controller/UI behavior only. |
@@ -87,6 +88,8 @@ These scripts are useful for investigation or fixture generation, but they shoul
 
 `NativeHullParitySuite.gd` is stricter than most probes and is useful as a focused native-extension validation gate, but it depends on external CSV data in the Godot user data directory and the native hull extension being available.
 
-## Missing Test Class
+## Remaining Reference Fixture Gap
 
-There are currently no tests in the `Open Brush reference mesh parity` category. The next major evidence upgrade is to generate compact Open Brush C# reference mesh fixtures and compare Godot output against them numerically for representative brushes and stroke shapes.
+`Tests/GDScript/OpenBrushReferenceMeshFixtureTest.gd` now provides the `Open Brush reference mesh parity` harness. It intentionally passes with an explicit `OPEN_BRUSH_REFERENCE_MESH no reference fixtures found` message when no fixtures exist, so normal local smoke runs are not blocked before the exporter is ready.
+
+The next major evidence upgrade is still to generate compact Open Brush C# reference mesh fixtures into `Resources/Fixtures/OpenBrushReferenceMeshes/` and compare Godot output against them numerically for representative brushes and stroke shapes. To force the harness to fail when no fixtures are available, run it with `--require-open-brush-reference-fixtures`.
