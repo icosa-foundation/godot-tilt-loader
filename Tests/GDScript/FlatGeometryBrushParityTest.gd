@@ -8,7 +8,9 @@ func _init() -> void:
 
 func _run() -> void:
 	_check_distance_uv_double_sided_geometry()
+	_check_distance_uv_atlas_branch()
 	_check_stretch_uv_mode()
+	_check_stretch_uv_atlas_branch()
 	_check_batched_finalization_trims_short_post_break_tail()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_FLATBRUSH: all checks passed")
@@ -40,6 +42,24 @@ func _check_distance_uv_double_sided_geometry() -> void:
 	_expect(brush.m_geometry == null, "flat releases geometry")
 	brush.free()
 
+func _check_distance_uv_atlas_branch() -> void:
+	var brush := _make_flat_brush(FlatGeometryBrush.UVStyle.DISTANCE, false)
+	brush.m_Desc.m_TextureAtlasV = 4
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "flat distance atlas first update keeps")
+	brush.apply_changes_to_visuals()
+
+	var random01 := brush.m_rng.in01(brush.m_knots[1].iVert - 1)
+	var atlas := int(random01 * 3331.0) % brush.m_Desc.m_TextureAtlasV
+	var v0 := atlas / float(brush.m_Desc.m_TextureAtlasV)
+	var v1 := (atlas + 1) / float(brush.m_Desc.m_TextureAtlasV)
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[FlatGeometryBrush.BL].x, random01, "flat distance atlas u0")
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[FlatGeometryBrush.BL].y, v0, "flat distance atlas v0")
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[FlatGeometryBrush.BR].y, v1, "flat distance atlas v1")
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[FlatGeometryBrush.FL].y, v0, "flat distance atlas front v0")
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[FlatGeometryBrush.FR].y, v1, "flat distance atlas front v1")
+	brush.finalize_solitary_brush()
+	brush.free()
+
 func _check_stretch_uv_mode() -> void:
 	var brush := _make_flat_brush(FlatGeometryBrush.UVStyle.STRETCH, false)
 	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "flat stretch first update keeps")
@@ -52,6 +72,24 @@ func _check_stretch_uv_mode() -> void:
 	_expect_equal(brush.m_geometry.m_Texcoord0.v2[FlatGeometryBrush.BL].x, 0.0, "flat stretch start x")
 	_expect_close(brush.m_geometry.m_Texcoord0.v2[FlatGeometryBrush.FL].x, 0.5, "flat stretch first segment x")
 	_expect_close(brush.m_geometry.m_Texcoord0.v2[4 + FlatGeometryBrush.FL - 2].x, 1.0, "flat stretch second segment x")
+	brush.finalize_solitary_brush()
+	brush.free()
+
+func _check_stretch_uv_atlas_branch() -> void:
+	var brush := _make_flat_brush(FlatGeometryBrush.UVStyle.STRETCH, false)
+	brush.m_Desc.m_TextureAtlasV = 4
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "flat stretch atlas first update keeps")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(2.0, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "flat stretch atlas second update keeps")
+	brush.apply_changes_to_visuals()
+
+	var random01 := brush.m_rng.in01(brush.m_knots[1].iVert - 1)
+	var atlas := int(random01 * 3331.0) % brush.m_Desc.m_TextureAtlasV
+	var v0 := atlas / float(brush.m_Desc.m_TextureAtlasV)
+	var v1 := (atlas + 1) / float(brush.m_Desc.m_TextureAtlasV)
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[FlatGeometryBrush.BL].y, v0, "flat stretch atlas start v0")
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[FlatGeometryBrush.BR].y, v1, "flat stretch atlas start v1")
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[FlatGeometryBrush.FL].y, v0, "flat stretch atlas first front v0")
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[FlatGeometryBrush.FR].y, v1, "flat stretch atlas first front v1")
 	brush.finalize_solitary_brush()
 	brush.free()
 
