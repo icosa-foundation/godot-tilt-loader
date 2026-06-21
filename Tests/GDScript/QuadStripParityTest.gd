@@ -15,6 +15,7 @@ func _run() -> void:
 	_check_distance_uv_brush()
 	_check_distance_uv_color32_alpha_quantization()
 	_check_distance_uv_backfaces()
+	_check_append_color32_quantization()
 	_check_backface_append_color_pattern()
 	_check_backface_append_hue_shift()
 	_check_sharp_bend_shrinks_quad_strip()
@@ -132,11 +133,26 @@ func _check_distance_uv_backfaces() -> void:
 	brush.finalize_solitary_brush()
 	brush.free()
 
+func _check_append_color32_quantization() -> void:
+	var brush := _make_quad_brush(QuadStripBrushStretchUV.new(), false)
+	brush.m_Color = Color(0.1, 0.5, 0.9, 0.8)
+	brush.append_leading_quad(true, 0.25, Vector3.ZERO, Vector3.RIGHT, Vector3.BACK, Vector3.UP)
+	var expected := _color32(Color(0.1, 0.5, 0.9, 0.25))
+	var colors := brush.m_Geometry.m_Colors
+	_expect_color_close(colors[0], expected, "append color32 trailing 0")
+	_expect_color_close(colors[1], expected, "append color32 leading 1")
+	brush.append_leading_quad(true, 0.75, Vector3.RIGHT, Vector3.RIGHT, Vector3.BACK, Vector3.UP)
+	var next_expected := _color32(Color(0.1, 0.5, 0.9, 0.75))
+	_expect_color_close(colors[6], expected, "append second carries previous edge color")
+	_expect_color_close(colors[7], next_expected, "append second leading edge color32")
+	brush.finalize_solitary_brush()
+	brush.free()
+
 func _check_backface_append_color_pattern() -> void:
 	var brush := _make_quad_brush(QuadStripBrushStretchUV.new(), true)
 	brush.m_Color = Color(0.2, 0.5, 1.0, 0.8)
 	brush.append_leading_quad(true, 0.25, Vector3.ZERO, Vector3.RIGHT, Vector3.BACK, Vector3.UP)
-	var expected := Color(0.2, 0.5, 1.0, 0.25)
+	var expected := _color32(Color(0.2, 0.5, 1.0, 0.25))
 	var colors := brush.m_Geometry.m_Colors
 	_expect_color_close(colors[6], expected, "backface append color 0")
 	_expect_color_close(colors[7], expected, "backface append color 1")
@@ -145,7 +161,7 @@ func _check_backface_append_color_pattern() -> void:
 	_expect_color_close(colors[10], expected, "backface append color 4")
 	_expect_color_close(colors[11], expected, "backface append color 5")
 	brush.append_leading_quad(true, 0.75, Vector3.RIGHT, Vector3.RIGHT, Vector3.BACK, Vector3.UP)
-	var next_expected := Color(0.2, 0.5, 1.0, 0.75)
+	var next_expected := _color32(Color(0.2, 0.5, 1.0, 0.75))
 	_expect_color_close(colors[18], expected, "backface second append color 0")
 	_expect_color_close(colors[19], expected, "backface second append color 1")
 	_expect_color_close(colors[20], next_expected, "backface second append color 2")
@@ -162,7 +178,7 @@ func _check_backface_append_hue_shift() -> void:
 	brush.append_leading_quad(true, 0.25, Vector3.ZERO, Vector3.RIGHT, Vector3.BACK, Vector3.UP)
 	var shifted := HSLColor.from_color(brush.m_Color)
 	shifted.set_hue_degrees(shifted.get_hue_degrees() + brush.m_Desc.m_BackfaceHueShift)
-	var expected := shifted.to_color()
+	var expected := _color32(shifted.to_color())
 	var colors := brush.m_Geometry.m_Colors
 	_expect_color_close(colors[6], expected, "backface hue color 0")
 	_expect_color_close(colors[7], expected, "backface hue color 1")
@@ -352,6 +368,17 @@ func _expect_backface_tangents_match_front(brush: QuadStripBrush, front_vert: in
 
 func _mirrored_tangent(value: Vector4) -> Vector4:
 	return Vector4(value.x, value.y, value.z, -value.w)
+
+func _color32_channel(value: float) -> float:
+	return float(int(clamp(value, 0.0, 1.0) * 255.0)) / 255.0
+
+func _color32(value: Color) -> Color:
+	return Color(
+		_color32_channel(value.r),
+		_color32_channel(value.g),
+		_color32_channel(value.b),
+		_color32_channel(value.a)
+	)
 
 func _expect_close(actual: float, expected: float, label: String) -> void:
 	if abs(actual - expected) > 1e-5:

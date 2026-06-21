@@ -81,6 +81,20 @@ func get_vertex_layout(_desc: BrushDescriptor) -> GeometryPool.VertexLayout:
 		true
 	)
 
+func _color32_channel(value: float) -> float:
+	return float(int(clamp(value, 0.0, 1.0) * 255.0)) / 255.0
+
+func _color32_alpha(value: float) -> float:
+	return _color32_channel(value)
+
+func _to_color32(value: Color) -> Color:
+	return Color(
+		_color32_channel(value.r),
+		_color32_channel(value.g),
+		_color32_channel(value.b),
+		_color32_channel(value.a)
+	)
+
 func finalize_solitary_brush() -> void:
 	if m_Geometry == null:
 		return
@@ -116,8 +130,8 @@ func append_leading_quad(generate_new: bool, opacity01: float, center: Vector3, 
 	for offset in range(6):
 		norms[vert_index + offset] = normal
 	var earliest_changed_quad := m_LeadingQuadIndex
-	var color := m_Color
-	color.a = opacity01
+	var color := _to_color32(m_Color)
+	color.a = _color32_alpha(opacity01)
 	var last_color := colors[vert_index - current_stride + 4] if vert_index - current_stride >= 0 else color
 	colors[vert_index] = last_color
 	colors[vert_index + 1] = color
@@ -137,7 +151,7 @@ func append_leading_quad(generate_new: bool, opacity01: float, center: Vector3, 
 		else:
 			var hsl := HSLColor.from_color(m_Color)
 			hsl.set_hue_degrees(hsl.get_hue_degrees() + m_Desc.m_BackfaceHueShift)
-			back_color = hsl.to_color()
+			back_color = _to_color32(hsl.to_color())
 			last_back_color = colors[back_vert_index - current_stride + 4] if back_vert_index - current_stride >= 0 else back_color
 		colors[back_vert_index] = last_back_color
 		colors[back_vert_index + 1] = last_back_color

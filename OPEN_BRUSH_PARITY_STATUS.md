@@ -16,7 +16,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | --- | --- | --- | --- |
 | `BaseBrushScript.gd` | `BaseBrushScript.cs` | Not fully audited | Core lifecycle and coordinate shims need line-by-line comparison. |
 | `GeometryBrush.gd` | `GeometryBrush.cs` | Not fully audited | Shared geometry lifecycle needs audit before child classes can be considered complete. |
-| `QuadStripBrush.gd` | `QuadStripBrush.cs` | Partially audited, active repair started | Sharp-bend shrink/break behavior, double-sided backside consistency, backface color/hue-shift behavior, and single-sided batched weld finalization have been ported. Full line-by-line audit still required. |
+| `QuadStripBrush.gd` | `QuadStripBrush.cs` | Partially audited, active repair started | Sharp-bend shrink/break behavior, double-sided backside consistency, backface color/hue-shift behavior, append-time `Color32` truncation, and single-sided batched weld finalization have been ported. Full line-by-line audit still required. |
 | `QuadStripBrushStretchUV.gd` | `QuadStripBrushStretchUV.cs` | Partially tested | UV tests exist. Needs line-by-line audit after base `QuadStripBrush` settles. |
 | `QuadStripBrushDistanceUV.gd` | `QuadStripBrushDistanceUV.cs` | Partially audited, active repair started | Backface UV/color/tangent mirroring has been ported and tested. Needs full line-by-line audit. |
 | `QuadStripUnitizedUVBrush.gd` | `QuadStripUnitizedUVBrush.cs` | Partially audited, active repair started | Backface UV/tangent mirroring has been ported and tested. Needs full line-by-line audit. |
@@ -68,6 +68,7 @@ Implemented so far:
 - single-sided quad-strip batched welding from Open Brush `WeldSingleSidedQuadStrip`,
 - pending UV/tangent flushes before batched finalization for stretch and distance UV quad-strip subclasses,
 - Open Brush backface color pattern and `m_BackfaceHueShift` handling in `AppendLeadingQuad`,
+- Open Brush append-time `Color32` truncation for quad-strip vertex colors,
 - backface UV/color/tangent mirroring for `QuadStripBrushDistanceUV`,
 - backface UV/tangent mirroring for `QuadStripUnitizedUVBrush`.
 - Open Brush `Color32` alpha truncation for `QuadStripBrushDistanceUV` opacity fade.
@@ -82,7 +83,8 @@ Focused tests added/updated:
   - checks double-sided append-time backface color pattern and hue shifting,
   - checks double-sided DistanceUV backface UV/color/tangent channel mirroring,
   - checks double-sided UnitizedUV backface UV/tangent channel mirroring,
-  - checks DistanceUV fade opacity is quantized to Unity `Color32` byte alpha.
+  - checks DistanceUV fade opacity is quantized to Unity `Color32` byte alpha,
+  - checks quad-strip append-time colors, opacity, previous-edge carryover, and hue-shifted backfaces use Unity `Color32` byte truncation.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd`
   - walks the real manifest/catalog and verifies all normal `Line`, `LineWithWidth`, `UnitizedUV`, and `DistanceUV` prefabs route to the repaired quad-strip runtime classes.
 - `Tests/GDScript/CafeStrokeFixturesReplayTest.gd`

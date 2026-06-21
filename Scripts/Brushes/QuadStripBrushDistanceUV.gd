@@ -118,6 +118,3 @@ func update_uvs(quad0: int, quad1: int, size: float) -> void:
 
 func update_uvs_for_quad(_quad_index: int) -> void:
 	pass
-
-func _color32_alpha(value: float) -> float:
-	return float(int(clamp(value, 0.0, 1.0) * 255.0)) / 255.0
