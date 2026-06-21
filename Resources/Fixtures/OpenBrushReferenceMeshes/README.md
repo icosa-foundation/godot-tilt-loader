@@ -14,6 +14,12 @@ Open Brush Unity project it belongs at
 `Assets/Editor/Tests/OpenBrushReferenceMeshExportTest.cs`; after Unity compiles,
 the explicit `OpenBrushReferenceExport` tests write fixtures here.
 
+Use `Tools/OpenBrushReferenceMeshExport/RunOpenBrushReferenceMeshExport.ps1`
+from this Godot repo to run the exporter. It sets
+`OPEN_BRUSH_STROKE_GEN_GODOT_ROOT`, captures the Unity log in `Temp/`, and fails
+if Unity reports that the Open Brush project is already open or if any expected
+reference mesh JSON file is missing.
+
 The current exporter includes these representative cafe strokes:
 
 - `cafe_ink_stroke_150` (`Ink`)
