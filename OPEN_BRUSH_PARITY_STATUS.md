@@ -43,23 +43,25 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `SvgBrushScript.gd` | `SvgBrushScript.cs` | Audited as non-mesh layout provider | Matches Open Brush fake-brush role: layout only, update returns true, zero used verts, zero spawn interval, and explicit no-op solitary/batched finalization. |
 | `MidpointPlusLifetimeSprayBrush.gd` | `MidpointPlusLifetimeSprayBrush.cs` | Partially audited, active repair started | Removed non-Open-Brush finalization rewrite and the leftover unused particle helper copied from Genius-style particle behavior; finalization now preserves generated midpoint particles. UV1.w now stores Open Brush particle birth time. Particle layout and seed behavior still need full audit. |
 
-## Missing Godot Runtime Equivalents To Investigate
+## Unsupported Godot Runtime Equivalents To Implement
 
-Open Brush source files present without obvious Godot class equivalents:
+Open Brush experimental ParentBrush composites present in `Manifest_Experimental`
+without Godot runtime equivalents:
 
 - `CandyCane.cs`
 - `HolidayTree.cs`
-- `ParentBrush.cs`
 - `PlaitBrush.cs`
 - `SnowflakeBrush.cs`
 
 Current catalog/registry classification:
 
-- `ParentBrush.cs` is a C# source helper/base class, not a manifest brush prefab.
-- `CandyCane.cs`, `HolidayTree.cs`, `PlaitBrush.cs`, and `SnowflakeBrush.cs` are not referenced by the active Godot `Manifest.asset` + `Manifest_Experimental.asset` catalog as normal or compatibility durable names/prefab names.
-- The active manifest contains `Snow`, but it routes through the supported `GeniusParticle` prefab/runtime path; it is not `SnowflakeBrush.cs`.
+- `ParentBrush.cs` is the abstract C# helper/base class for these composite brushes.
+- `CandyCane`, `HolidayTree`, `Braid3`, and `Snowflake` are present in the Open Brush experimental manifest and tagged `experimental` + `broken`.
+- `Resources/BrushCatalog/brush_catalog.json` records them under `unsupported_brushes` with their asset GUID, durable GUID, prefab name, source class, and unsupported reason.
+- `UnityAssetLoader` skips them explicitly while loading catalog manifests instead of reporting them as missing descriptors.
+- The active manifest also contains the normal brush `Snow`, which routes through the supported `GeniusParticle` prefab/runtime path; it is not `SnowflakeBrush.cs`.
 
-`Tests/GDScript/BrushRuntimeRegistryParityTest.gd` now keeps this classification executable while also verifying every normal manifest brush has a runtime factory and every compatibility brush is excluded from live registration.
+`Tests/GDScript/BrushRuntimeRegistryParityTest.gd` now keeps this classification executable while also verifying every loaded normal manifest brush has a runtime factory and every compatibility brush is excluded from live registration.
 
 ## Current Repair Evidence
 
@@ -111,6 +113,7 @@ Implemented so far:
 - The Unity-side exporter source now exists at `Tools/OpenBrushReferenceMeshExport/OpenBrushReferenceMeshExportTest.cs`. It is installed in the Open Brush Unity editor test assembly and exports finalized `BatchSubset` mesh data plus `GeometryPool` layout/channel data for the representative cafe Ink, DuctTapeGeometry, Stars, Sparks, and MatteHull fixtures.
 - `Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd` now keeps the representative cafe fixture contract executable by checking that the Unity exporter source and reference fixture README list the same Ink, DuctTapeGeometry, Stars, Sparks, and MatteHull fixture set.
 - `OPEN_BRUSH_BRUSH_CLASS_INVENTORY.md` now records the Phase 1.2 brush class inventory: runtime class, Open Brush source file, catalog prefab families, geometry/UV role, finalization requirement, coverage, and current status. `Tests/GDScript/BrushClassInventoryCoverageTest.gd` keeps that inventory aligned with the catalog prefab families and expected source/runtime classes.
+- The four Open Brush experimental ParentBrush composites (`CandyCane`, `HolidayTree`, `Braid3`, and `Snowflake`) are now explicitly recorded as unsupported catalog brushes instead of surfacing as generic missing GUID warnings during manifest loading.
 
 Focused tests added/updated:
 

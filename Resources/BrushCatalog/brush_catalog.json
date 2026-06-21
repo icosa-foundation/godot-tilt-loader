@@ -1,6 +1,76 @@
 {
   "version": 1,
   "generated_from": "Unity YAML brush descriptors and prefabs",
+  "unsupported_brushes": {
+    "81969b4d6dd64af488d0ddece18329d8": {
+      "source_path": "Resources/X/Brushes/CandyCane/CandyCane.asset",
+      "name": "CandyCane",
+      "m_Guid": "61d2ef63-ed60-49b3-85fb-7267b7d234f2",
+      "m_DurableName": "CandyCane",
+      "m_Tags": [
+        "experimental",
+        "broken"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/X/Brushes/CandyCane/CandyCane_prefab.prefab",
+        "prefab_name": "CandyCane_prefab",
+        "script_guid": "57d8cfeb382300d44848cdec5f0691c6",
+        "source_class": "CandyCane.cs"
+      },
+      "unsupported_reason": "Experimental broken ParentBrush composite; ParentBrush child-stroke generation is not ported."
+    },
+    "b72ff267ccfa05a4d81f9da0e9e07539": {
+      "source_path": "Resources/X/Brushes/HolidayTree/HolidayTree.asset",
+      "name": "HolidayTree",
+      "m_Guid": "20a0bf1a-a96e-44e5-84ac-9823d2d65023",
+      "m_DurableName": "HolidayTree",
+      "m_Tags": [
+        "experimental",
+        "broken"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/X/Brushes/HolidayTree/HolidayTree_prefab.prefab",
+        "prefab_name": "HolidayTree_prefab",
+        "script_guid": "7f291fc0e1561834e8cf9fffb40594d8",
+        "source_class": "HolidayTree.cs"
+      },
+      "unsupported_reason": "Experimental broken ParentBrush composite; ParentBrush child-stroke generation is not ported."
+    },
+    "731681c2cdd050b478219dc6153f2a5c": {
+      "source_path": "Resources/X/Brushes/Snowflake/Snowflake.asset",
+      "name": "Snowflake",
+      "m_Guid": "2b65cd94-9259-4f10-99d2-d54b6664ac33",
+      "m_DurableName": "Snowflake",
+      "m_Tags": [
+        "experimental",
+        "broken"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/X/Brushes/Snowflake/Snowflake_prefab.prefab",
+        "prefab_name": "Snowflake_prefab",
+        "script_guid": "109cf3773c067ab468afd90c0a192406",
+        "source_class": "SnowflakeBrush.cs"
+      },
+      "unsupported_reason": "Experimental broken ParentBrush composite; ParentBrush child-stroke generation is not ported."
+    },
+    "0eecc41a00bac3044a9c10591d311f06": {
+      "source_path": "Resources/X/Brushes/Plait/Plait.asset",
+      "name": "Plait",
+      "m_Guid": "22d4f434-23e4-49d9-a9bd-05798aa21e58",
+      "m_DurableName": "Braid3",
+      "m_Tags": [
+        "experimental",
+        "broken"
+      ],
+      "prefab_fields": {
+        "prefab_path": "Resources/X/Brushes/Plait/Plait_prefab.prefab",
+        "prefab_name": "Plait_prefab",
+        "script_guid": "625f5c23c6563b2449749767bcfdc5a2",
+        "source_class": "PlaitBrush.cs"
+      },
+      "unsupported_reason": "Experimental broken ParentBrush composite; ParentBrush child-stroke generation is not ported."
+    }
+  },
   "manifests": {
     "Manifest": {
       "brushes": [

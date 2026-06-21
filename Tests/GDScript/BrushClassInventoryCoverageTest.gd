@@ -70,12 +70,22 @@ const COMPATIBILITY_PREFABS := [
 	"SvgFakeBrush",
 ]
 
-const SOURCE_ONLY_CLASSES := [
+const UNSUPPORTED_PARENT_PREFABS := [
+	"CandyCane_prefab",
+	"HolidayTree_prefab",
+	"Plait_prefab",
+	"Snowflake_prefab",
+]
+
+const UNSUPPORTED_PARENT_CLASSES := [
 	"CandyCane.cs",
 	"HolidayTree.cs",
-	"ParentBrush.cs",
 	"PlaitBrush.cs",
 	"SnowflakeBrush.cs",
+]
+
+const SOURCE_ONLY_CLASSES := [
+	"ParentBrush.cs",
 ]
 
 var _failures := 0
@@ -97,6 +107,10 @@ func _check_inventory_text(inventory: String) -> void:
 		_expect(inventory.contains("`%s`" % prefab), "%s normal prefab is listed" % prefab)
 	for prefab in COMPATIBILITY_PREFABS:
 		_expect(inventory.contains("`%s`" % prefab), "%s compatibility prefab is listed" % prefab)
+	for prefab in UNSUPPORTED_PARENT_PREFABS:
+		_expect(inventory.contains("`%s`" % prefab), "%s unsupported parent prefab is listed" % prefab)
+	for source_file in UNSUPPORTED_PARENT_CLASSES:
+		_expect(inventory.contains("`%s`" % source_file), "%s unsupported parent class is listed" % source_file)
 	for source_file in SOURCE_ONLY_CLASSES:
 		_expect(inventory.contains("`%s`" % source_file), "%s source-only class is listed" % source_file)
 
@@ -115,6 +129,14 @@ func _check_catalog_prefabs_are_documented(inventory: String) -> void:
 		_collect_prefabs_from_guids(descriptors, manifest.get("compatibility_brushes", []), catalog_prefabs)
 	for prefab in catalog_prefabs.keys():
 		_expect(inventory.contains("`%s`" % prefab), "%s catalog prefab is documented" % prefab)
+	var unsupported_brushes: Dictionary = catalog.get("unsupported_brushes", {})
+	for unsupported in unsupported_brushes.values():
+		if not unsupported is Dictionary:
+			continue
+		var fields: Dictionary = unsupported.get("prefab_fields", {})
+		var prefab := String(fields.get("prefab_name", ""))
+		if prefab != "":
+			_expect(inventory.contains("`%s`" % prefab), "%s unsupported catalog prefab is documented" % prefab)
 
 
 func _collect_prefabs_from_guids(descriptors: Dictionary, guids: Array, output: Dictionary) -> void:

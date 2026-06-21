@@ -15,6 +15,18 @@ The active Godot catalog currently registers 94 live normal brushes. The
 registry tests treat compatibility brushes separately and require every loaded
 normal brush descriptor to have a runtime factory.
 
+Four Open Brush experimental brushes in `Manifest_Experimental` are explicitly
+classified as unsupported ParentBrush composites rather than being loaded as
+normal live brushes:
+
+- `CandyCane` from `CandyCane.cs` / `CandyCane_prefab`
+- `HolidayTree` from `HolidayTree.cs` / `HolidayTree_prefab`
+- `Braid3` from `PlaitBrush.cs` / `Plait_prefab`
+- `Snowflake` from `SnowflakeBrush.cs` / `Snowflake_prefab`
+
+They are tagged `experimental` and `broken` in the Open Brush assets and depend
+on `ParentBrush.cs` child-stroke generation, which has not been ported.
+
 ## Runtime Brush Classes
 
 | Godot class | Open Brush source | Catalog prefab families | Geometry / UV role | Finalization requirement | Current coverage | Current status |
@@ -86,28 +98,19 @@ The normal live registry currently has factories for these prefab families:
 
 ## Source-Only Open Brush Classes
 
-These Open Brush source files have no active normal or compatibility catalog
-brush route in this Godot catalog. `BrushRuntimeRegistryParityTest.gd` verifies
-that they are not accidentally treated as catalog brush names or prefabs.
-
-- `CandyCane.cs`
-- `HolidayTree.cs`
-- `ParentBrush.cs`
-- `PlaitBrush.cs`
-- `SnowflakeBrush.cs`
-
-The active catalog contains `Snow`, but it uses the supported `GeniusParticle`
-prefab/runtime path and is not a route to `SnowflakeBrush.cs`.
+`ParentBrush.cs` is the abstract Open Brush source helper for the unsupported
+experimental composite brushes listed above. There is no Godot runtime class for
+it yet, and no normal live brush should silently route through substitute
+geometry in its place.
 
 ## Known Inventory Gaps
 
 - This inventory is not a claim that every class is fully audited. Most mesh
   classes remain marked partially audited until line-by-line source comparison
   and Open Brush reference mesh fixtures prove their behavior.
-- Four experimental manifest GUIDs are referenced by
-  `Resources/BrushCatalog/brush_catalog.json` but do not have brush descriptor
-  entries. The current loader reports warnings for them and does not register
-  them as live brushes.
+- The four experimental ParentBrush composites are documented in
+  `Resources/BrushCatalog/brush_catalog.json` under `unsupported_brushes` and
+  skipped by policy while `ParentBrush` child-stroke generation remains unported.
 - `TetraBrush.gd` and `PrintableBrush.gd` have source-derived tests, but no
   active normal catalog prefab currently routes to them through
   `BrushRuntimeRegistry.gd`.

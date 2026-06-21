@@ -189,12 +189,37 @@ static func _load_manifest_from_catalog(manifest_name: String) -> TiltBrushManif
 static func _load_descriptors_from_catalog_guids(guids: Array) -> Array[BrushDescriptor]:
 	var output: Array[BrushDescriptor] = []
 	for guid_value in guids:
-		var descriptor := _load_descriptor_from_catalog_guid(String(guid_value))
+		var guid := String(guid_value)
+		var unsupported := get_unsupported_catalog_brush(guid)
+		if not unsupported.is_empty():
+			print("UnityAssetLoader: skipping unsupported Open Brush brush %s (%s): %s" % [
+				String(unsupported.get("m_DurableName", unsupported.get("name", guid))),
+				guid,
+				String(unsupported.get("unsupported_reason", "unsupported"))
+			])
+			continue
+		var descriptor := _load_descriptor_from_catalog_guid(guid)
 		if descriptor != null:
 			output.append(descriptor)
 		else:
-			push_warning("Could not find brush with GUID %s" % String(guid_value))
+			push_warning("Could not find brush with GUID %s" % guid)
 	return output
+
+static func get_unsupported_catalog_brush(guid: String) -> Dictionary:
+	var catalog := _load_catalog()
+	if catalog.is_empty():
+		return {}
+	var unsupported_brushes: Dictionary = catalog.get("unsupported_brushes", {})
+	var key := guid.strip_edges().to_lower().replace("-", "")
+	var data = unsupported_brushes.get(key, {})
+	return data if data is Dictionary else {}
+
+static func get_unsupported_catalog_brushes() -> Dictionary:
+	var catalog := _load_catalog()
+	if catalog.is_empty():
+		return {}
+	var unsupported_brushes = catalog.get("unsupported_brushes", {})
+	return unsupported_brushes if unsupported_brushes is Dictionary else {}
 
 static func _load_descriptor_from_catalog_path(asset_file_path: String) -> BrushDescriptor:
 	var catalog := _load_catalog()
