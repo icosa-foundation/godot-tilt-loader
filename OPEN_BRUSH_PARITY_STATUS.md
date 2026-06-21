@@ -49,7 +49,13 @@ Open Brush source files present without obvious Godot class equivalents:
 - `PlaitBrush.cs`
 - `SnowflakeBrush.cs`
 
-These may be unsupported, compatibility-only, or mapped through another runtime class. Each needs an explicit catalog/registry decision.
+Current catalog/registry classification:
+
+- `ParentBrush.cs` is a C# source helper/base class, not a manifest brush prefab.
+- `CandyCane.cs`, `HolidayTree.cs`, `PlaitBrush.cs`, and `SnowflakeBrush.cs` are not referenced by the active Godot `Manifest.asset` + `Manifest_Experimental.asset` catalog as normal or compatibility durable names/prefab names.
+- The active manifest contains `Snow`, but it routes through the supported `GeniusParticle` prefab/runtime path; it is not `SnowflakeBrush.cs`.
+
+`Tests/GDScript/BrushRuntimeRegistryParityTest.gd` now keeps this classification executable while also verifying every normal manifest brush has a runtime factory and every compatibility brush is excluded from live registration.
 
 ## Current Repair Evidence
 
