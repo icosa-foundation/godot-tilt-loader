@@ -43,8 +43,8 @@ const FIXTURES := [
 		"control_points": 2,
 		"vertices": 34,
 		"indices": 96,
-		"bounds_min": Vector3(0.730572, -7.083524, -13.51219),
-		"bounds_max": Vector3(0.948587, -6.927204, -13.4268),
+		"bounds_min": Vector3(0.730572, -7.083524, -13.51105),
+		"bounds_max": Vector3(0.948587, -6.927797, -13.4268),
 	},
 	{
 		"path": "res://Resources/Fixtures/cafe_matte_hull_stroke_11.json",

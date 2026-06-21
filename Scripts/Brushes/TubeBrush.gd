@@ -129,11 +129,9 @@ func on_changed_frame_knots(knot_index: int) -> bool:
 		else:
 			var tangent := move / cur.length
 			if prev.has_geometry():
-				cur.qFrame = _compute_minimal_rotation_frame(tangent, prev.qFrame)
+				cur.qFrame = MathUtils.compute_minimal_rotation_frame(tangent, prev.qFrame, cur.point.m_Orient)
 			else:
-				var frame := BaseBrushScript.compute_surface_frame_new(Vector3.ZERO, tangent, cur.point.m_Orient)
-				var up: Vector3 = frame.normal
-				cur.qFrame = _look_rotation(tangent, up)
+				cur.qFrame = MathUtils.compute_minimal_rotation_frame(tangent, null, cur.point.m_Orient)
 
 			if prev.has_geometry() and not m_PreviewMode:
 				var width_height_ratio := cur.length / pressured_size(cur.smoothedPressure)
@@ -506,18 +504,6 @@ func append_tri(knot: Knot, t0: int, t1: int, t2: int) -> void:
 
 func is_penultimate(knot_index: int) -> bool:
 	return knot_index + 1 == m_knots.size() or not m_knots[knot_index + 1].has_geometry()
-
-static func _compute_minimal_rotation_frame(tangent: Vector3, previous_frame: Quaternion) -> Quaternion:
-	var previous_tangent := Basis(previous_frame) * Vector3.BACK
-	var minimal := QuaternionUtils.from_to_rotation(previous_tangent, tangent)
-	return (minimal * previous_frame).normalized()
-
-static func _look_rotation(forward: Vector3, up: Vector3) -> Quaternion:
-	var normalized_forward := forward.normalized()
-	var normalized_up := up.normalized()
-	if absf(normalized_up.dot(normalized_forward)) > 0.99:
-		normalized_up = Vector3.UP if absf(Vector3.UP.dot(normalized_forward)) < 0.99 else Vector3.RIGHT
-	return Basis.looking_at(-normalized_forward, normalized_up).get_rotation_quaternion()
 
 func _uses_vector3_uv0() -> bool:
 	return m_geometry != null and m_geometry.get_layout().texcoord0.size == 3

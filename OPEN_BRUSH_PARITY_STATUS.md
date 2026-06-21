@@ -22,7 +22,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `QuadStripUnitizedUVBrush.gd` | `QuadStripUnitizedUVBrush.cs` | Partially audited, active repair started | Backface UV/tangent mirroring has been ported and tested. Needs full line-by-line audit. |
 | `FlatGeometryBrush.gd` | `FlatGeometryBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Batched finalization now trims short post-break tails like Open Brush. Needs full branch audit. |
 | `ThickGeometryBrush.gd` | `ThickGeometryBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Texture atlas count handling now matches Open Brush directly, with distance/stretch atlas branch coverage. Needs full branch audit. |
-| `TubeBrush.gd` | `TubeBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Texture atlas count handling and UV-rate division now match Open Brush directly, with distance atlas branch coverage. Needs full branch audit. |
+| `TubeBrush.gd` | `TubeBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Texture atlas count handling, UV-rate division, and minimal-frame routing now match Open Brush directly, with distance atlas branch coverage. Needs full branch audit. |
 | `HullBrush.gd` | `HullBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Batched finalization now runs the Open Brush `SimplifyAtEnd` geometry pass and simplification tolerance path. Native hull backend and degenerate cases need explicit parity review. |
 | `ConcaveHullBrush.gd` | `ConcaveHullBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Known degenerate hull behavior needs explicit classification. |
 | `SprayBrush.gd` | `SprayBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Random salt wraparound now matches Open Brush `kSaltMaxQuadsPerKnot`. Particle layout still needs full audit. |
@@ -95,6 +95,7 @@ Implemented so far:
 - Open Brush `SliceBrush` initial frame direction/normal orientation behavior, routed through the shared `ComputeSurfaceFrameNew` parity helper.
 - Open Brush `HullBrush` `SimplifyAtEnd` batched finalization route and simplification tolerance pass.
 - Open Brush `MathUtils.ComputeMinimalRotationFrame` forward-axis convention for Godot `Basis.looking_at`.
+- Open Brush `TubeBrush` routing through shared `MathUtils.ComputeMinimalRotationFrame` instead of a local alternate frame path.
 
 Focused tests added/updated:
 
