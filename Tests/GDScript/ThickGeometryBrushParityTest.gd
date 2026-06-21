@@ -27,7 +27,7 @@ func _check_distance_uv_geometry() -> void:
 	_expect_vec3_close(brush.m_geometry.m_Vertices[ThickGeometryBrush.FMT], Vector3.RIGHT, "thick front pinched middle")
 	_expect_vec3_close(brush.m_geometry.m_Normals[ThickGeometryBrush.BRT], Vector3.BACK, "thick back top normal")
 	_expect_vec3_close(brush.m_geometry.m_Normals[ThickGeometryBrush.BRB], -Vector3.BACK, "thick back bottom normal")
-	_expect_equal(brush.m_geometry.m_Colors[0], Color(0.2, 0.7, 0.4, 1.0), "thick color")
+	_expect_color_close(brush.m_geometry.m_Colors[0], _color32(Color(0.2, 0.7, 0.4, 0.75)), "thick color32 color")
 	_expect_close(brush.m_geometry.m_Texcoord0.v2[ThickGeometryBrush.BLT].y, 0.1, "thick uv left chop")
 	_expect_close(brush.m_geometry.m_Texcoord0.v2[ThickGeometryBrush.BRT].y, 0.9, "thick uv right chop")
 	_expect_close(brush.m_geometry.m_Texcoord0.v2[ThickGeometryBrush.FLT].x - brush.m_geometry.m_Texcoord0.v2[ThickGeometryBrush.BLT].x, 1.0, "thick distance u delta")
@@ -63,7 +63,7 @@ func _make_thick_brush(uv_style: int) -> ThickGeometryBrush:
 	desc.m_TileRate = 1.0
 	desc.m_PressureSizeRange = Vector2(1.0, 1.0)
 	desc.m_PressureOpacityRange = Vector2(1.0, 1.0)
-	desc.m_Opacity = 1.0
+	desc.m_Opacity = 0.75
 	desc.m_SizeVariance = 0.0
 
 	var brush := ThickGeometryBrush.new()
@@ -87,6 +87,23 @@ func _expect_vec3_close(actual: Vector3, expected: Vector3, label: String) -> vo
 	_expect_close(actual.x, expected.x, "%s x" % label)
 	_expect_close(actual.y, expected.y, "%s y" % label)
 	_expect_close(actual.z, expected.z, "%s z" % label)
+
+func _expect_color_close(actual: Color, expected: Color, label: String) -> void:
+	_expect_close(actual.r, expected.r, "%s r" % label)
+	_expect_close(actual.g, expected.g, "%s g" % label)
+	_expect_close(actual.b, expected.b, "%s b" % label)
+	_expect_close(actual.a, expected.a, "%s a" % label)
+
+func _color32_channel(value: float) -> float:
+	return float(int(clamp(value, 0.0, 1.0) * 255.0)) / 255.0
+
+func _color32(value: Color) -> Color:
+	return Color(
+		_color32_channel(value.r),
+		_color32_channel(value.g),
+		_color32_channel(value.b),
+		_color32_channel(value.a)
+	)
 
 func _expect_close(actual: float, expected: float, label: String) -> void:
 	if abs(actual - expected) > 1e-5:

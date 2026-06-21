@@ -27,7 +27,7 @@ func _check_distance_uv_double_sided_geometry() -> void:
 	_expect_vec3_close(brush.m_geometry.m_Vertices[FlatGeometryBrush.FR * brush.NS], Vector3(1.0, 0.5, 0.0), "flat front right")
 	_expect_vec3_close(brush.m_geometry.m_Normals[0], Vector3.BACK, "flat front normal")
 	_expect_vec3_close(brush.m_geometry.m_Normals[1], -Vector3.BACK, "flat backface normal")
-	_expect_equal(brush.m_geometry.m_Colors[0], Color(0.1, 0.2, 0.3, 1.0), "flat color")
+	_expect_color_close(brush.m_geometry.m_Colors[0], _color32(Color(0.1, 0.2, 0.3, 0.75)), "flat color32 color")
 	_expect_equal(brush.m_geometry.m_Texcoord0.v2[FlatGeometryBrush.BL * brush.NS].y, 0.0, "flat distance v0")
 	_expect_equal(brush.m_geometry.m_Texcoord0.v2[FlatGeometryBrush.BR * brush.NS].y, 1.0, "flat distance v1")
 	_expect_close(brush.m_geometry.m_Texcoord0.v2[FlatGeometryBrush.FL * brush.NS].x - brush.m_geometry.m_Texcoord0.v2[FlatGeometryBrush.BL * brush.NS].x, 1.0, "flat distance u delta")
@@ -64,7 +64,7 @@ func _make_flat_brush(uv_style: int, backfaces: bool) -> FlatGeometryBrush:
 	desc.m_TileRate = 1.0
 	desc.m_PressureSizeRange = Vector2(1.0, 1.0)
 	desc.m_PressureOpacityRange = Vector2(1.0, 1.0)
-	desc.m_Opacity = 1.0
+	desc.m_Opacity = 0.75
 	desc.m_SizeVariance = 0.0
 
 	var brush := FlatGeometryBrush.new()
@@ -88,6 +88,23 @@ func _expect_vec3_close(actual: Vector3, expected: Vector3, label: String) -> vo
 	_expect_close(actual.x, expected.x, "%s x" % label)
 	_expect_close(actual.y, expected.y, "%s y" % label)
 	_expect_close(actual.z, expected.z, "%s z" % label)
+
+func _expect_color_close(actual: Color, expected: Color, label: String) -> void:
+	_expect_close(actual.r, expected.r, "%s r" % label)
+	_expect_close(actual.g, expected.g, "%s g" % label)
+	_expect_close(actual.b, expected.b, "%s b" % label)
+	_expect_close(actual.a, expected.a, "%s a" % label)
+
+func _color32_channel(value: float) -> float:
+	return float(int(clamp(value, 0.0, 1.0) * 255.0)) / 255.0
+
+func _color32(value: Color) -> Color:
+	return Color(
+		_color32_channel(value.r),
+		_color32_channel(value.g),
+		_color32_channel(value.b),
+		_color32_channel(value.a)
+	)
 
 func _expect_close(actual: float, expected: float, label: String) -> void:
 	if abs(actual - expected) > 1e-5:

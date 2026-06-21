@@ -81,20 +81,6 @@ func get_vertex_layout(_desc: BrushDescriptor) -> GeometryPool.VertexLayout:
 		true
 	)
 
-func _color32_channel(value: float) -> float:
-	return float(int(clamp(value, 0.0, 1.0) * 255.0)) / 255.0
-
-func _color32_alpha(value: float) -> float:
-	return _color32_channel(value)
-
-func _to_color32(value: Color) -> Color:
-	return Color(
-		_color32_channel(value.r),
-		_color32_channel(value.g),
-		_color32_channel(value.b),
-		_color32_channel(value.a)
-	)
-
 func finalize_solitary_brush() -> void:
 	if m_Geometry == null:
 		return

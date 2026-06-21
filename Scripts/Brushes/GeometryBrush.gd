@@ -250,8 +250,8 @@ func set_tri(i_tri: int, i_vert: int, triangle_pair: int, vp0: int, vp1: int, vp
 		m_geometry.m_Tris[i + 5] = i_vert + vp0 * NS + 1
 
 func set_vert(i_vert: int, vp: int, vertex: Vector3, normal: Vector3, color: Color, alpha: float) -> void:
-	var final_color := color
-	final_color.a = alpha
+	var final_color := _to_color32(color)
+	final_color.a = _color32_alpha(alpha)
 	var i := i_vert + vp * NS
 	m_geometry.m_Vertices[i] = vertex
 	m_geometry.m_Normals[i] = normal
