@@ -116,6 +116,7 @@ Implemented so far:
 - The four Open Brush experimental ParentBrush composites (`CandyCane`, `HolidayTree`, `Braid3`, and `Snowflake`) are now explicitly recorded as unsupported catalog brushes instead of surfacing as generic missing GUID warnings during manifest loading.
 - `TiltBrushManifest.append_from()` now de-duplicates merged manifests by brush GUID instead of object identity and lets normal-brush entries take precedence over compatibility entries. This removes duplicate catalog GUID warnings and registers 97 live normal brushes when `Manifest.asset` and `Manifest_Experimental.asset` are combined.
 - `Tests/GDScript/BrushRuntimeRegistryParityTest.gd` now explicitly checks the promoted normal brushes that used to be masked by compatibility entries: `DotMarker` routes to `SprayBrush`, `Plasma` routes to `QuadStripBrushDistanceUV`, and `TaperedMarker_Flat` routes to `FlatGeometryBrush`.
+- `Tests/GDScript/BrushRuntimeRegistryParityTest.gd` now checks that a normal brush descriptor with no runtime factory is not registered and that replaying it through `BrushStrokeReplay` returns no mesh instead of generating fallback geometry.
 
 Focused tests added/updated:
 
@@ -202,6 +203,7 @@ Focused tests added/updated:
   - now checks manifest merging de-duplicates by brush GUID and removes a brush from compatibility when an appended manifest lists it as a normal brush.
 - `Tests/GDScript/BrushRuntimeRegistryParityTest.gd`
   - now checks `DotMarker`, `Plasma`, and `TaperedMarker_Flat` remain normal live brushes after `Manifest_Experimental` is merged over `Manifest`.
+  - now checks an unknown normal prefab with no factory fails replay without producing fallback mesh data.
 - `Tests/GDScript/CafeStrokeFixtureExtractProbe.gd`
   - extracts a source fixture from `res://Temp/TiltEvidence/brush_cafe_experimental.tilt`,
   - defaults to stroke index 150 and accepts `--source-stroke-index=...`,

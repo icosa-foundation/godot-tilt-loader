@@ -8,6 +8,7 @@ func _init() -> void:
 	_check_live_registry_excludes_compatibility_brushes()
 	_check_parent_composite_brushes_are_explicitly_unsupported()
 	_check_experimental_promotions_are_live_brushes()
+	_check_unknown_normal_prefab_does_not_generate_fallback_mesh()
 	quit(1 if _failures > 0 else 0)
 
 func _check_live_registry_excludes_compatibility_brushes() -> void:
@@ -105,6 +106,38 @@ func _runtime_class_name(brush: BaseBrushScript) -> String:
 	if brush is FlatGeometryBrush:
 		return "FlatGeometryBrush"
 	return brush.get_class()
+
+func _check_unknown_normal_prefab_does_not_generate_fallback_mesh() -> void:
+	var desc := _test_descriptor("UnknownNormalBrush", "dddddddd-dddd-dddd-dddd-dddddddddddd", "NoRuntimeFactory")
+	var manifest := TiltBrushManifest.new()
+	manifest.Brushes = [desc]
+	manifest.CompatibilityBrushes = []
+	BrushCatalog.init(manifest)
+	BrushRuntimeRegistryScript.register_supported_brushes(manifest)
+	_expect(not BrushRuntimeRegistryScript.is_supported(desc), "unknown normal prefab is not registered")
+	var stroke := Stroke.new()
+	stroke.m_Type = Stroke.Type.NOT_CREATED
+	stroke.m_BrushGuid = desc.m_Guid
+	stroke.m_BrushScale = 1.0
+	stroke.m_BrushSize = 0.1
+	stroke.m_Color = Color(1.0, 0.0, 0.0, 1.0)
+	stroke.m_Seed = 123
+	stroke.m_ControlPoints = [
+		ControlPoint.create(Vector3.ZERO, Quaternion.IDENTITY, 1.0, 0),
+		ControlPoint.create(Vector3.RIGHT, Quaternion.IDENTITY, 1.0, 1),
+	]
+	stroke.m_ControlPointsToDrop = [false, false]
+	var mesh := BrushStrokeReplay.build_mesh_data_for_stroke(stroke)
+	_expect(mesh == null, "unknown normal prefab does not produce fallback mesh")
+
+func _test_descriptor(durable_name: String, guid: String, prefab_name: String) -> BrushDescriptor:
+	var desc := BrushDescriptor.new()
+	desc.m_DurableName = durable_name
+	desc.m_Guid = guid
+	desc.prefab_fields = {
+		"prefab_name": prefab_name,
+	}
+	return desc
 
 func _load_manifest() -> TiltBrushManifest:
 	var manifest := UnityAssetLoader.load_manifest(ProjectSettings.globalize_path("res://").path_join("Manifest.asset"))
