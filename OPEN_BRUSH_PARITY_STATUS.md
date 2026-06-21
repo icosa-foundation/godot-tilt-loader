@@ -128,6 +128,7 @@ Implemented so far:
 - `Tests/GDScript/SprayCatalogReplayTest.gd` now replays every normal catalog `Spray` and `MiddpointPlusLifetimeGeomSpray` brush through the shared runtime replay path and verifies generated particle mesh channel completeness for UV0, UV1, normals, colors, and tangents.
 - `Tests/GDScript/TubeCatalogReplayTest.gd` now replays every normal catalog tube-derived prefab through the shared runtime replay path and verifies descriptor-driven UV0, UV1, normal, color, tangent, and runtime-class channel expectations, including the BubbleWand-specific no-tangent/UV1 Vector4 layout.
 - `Tests/GDScript/SolidCatalogReplayTest.gd` now replays every normal catalog `ThickDistance`, `HullPrefab`, `HullPrefabPassthrough`, `HullPrefabSmooth`, `ConcaveHullPrefab`, `Square3DPrintBrush`, `SquareBrush_prefab`, and `Slice` brush through the shared runtime path and verifies descriptor-driven UV0, normal, color, tangent, and runtime-class expectations.
+- `Tests/GDScript/CatalogReplayCoverageTest.gd` now proves the catalog replay tests collectively cover every active normal merged-manifest prefab family and all 97 normal live brushes.
 - `Tests/GDScript/LiveVsTiltUvParityTest.gd` now compares vertex positions as well as primary UVs and includes the promoted normal brushes `DotMarker`, `Plasma`, and `TaperedMarker_Flat` across direct replay, memory replay, pointer math, and live object paths.
 
 Focused tests added/updated:
@@ -158,6 +159,9 @@ Focused tests added/updated:
 - `Tests/GDScript/SolidCatalogReplayTest.gd`
   - replays all normal catalog `ThickDistance`, `HullPrefab`, `HullPrefabPassthrough`, `HullPrefabSmooth`, `ConcaveHullPrefab`, `Square3DPrintBrush`, `SquareBrush_prefab`, and `Slice` brushes through `BrushStrokeReplay`,
   - verifies each replay produces non-empty mesh data with the expected descriptor-driven channel layout: thick UV0/tangents, hull UV0 Vector3/no tangents, concave hull no UV/tangents, square UV0/no tangents, 3D print color-only geometry, and Slice UV0 Vector3/no tangents.
+- `Tests/GDScript/CatalogReplayCoverageTest.gd`
+  - loads the merged manifest and checks that every active normal prefab family is assigned to one of the catalog replay tests,
+  - verifies the covered replay family counts sum to the current 97 normal live brushes, preventing future catalog additions from bypassing replay coverage silently.
 - `Tests/GDScript/ConcaveHullBrushParityTest.gd`
   - checks exact source-derived vertex generation for Rapidograph, Quill Pen, Tetrahedron, Octahedron, and Cube knot conversion modes,
   - checks ConcaveHull smooth cube geometry exports shared vertices, double-wound triangles, normalized normals, and correct fan-triangulated index counts through the native hull backend.
@@ -300,3 +304,4 @@ Known validation noise:
 4. Convert current helper tests into generated-mesh parity tests where possible.
 5. Audit all remaining brush classes line-by-line against the reference source.
 6. Remove or quarantine any remaining production fallback geometry paths for normal brushes.
+7. Fix or explicitly classify material/shader gaps surfaced by catalog replay coverage (`Digital`, `Race`, `PassthroughHull`, and `Slice.gdshader`).
