@@ -26,7 +26,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `HullBrush.gd` | `HullBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Native hull backend and degenerate cases need explicit parity review. |
 | `ConcaveHullBrush.gd` | `ConcaveHullBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Known degenerate hull behavior needs explicit classification. |
 | `SprayBrush.gd` | `SprayBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Random salt wraparound now matches Open Brush `kSaltMaxQuadsPerKnot`. Particle layout still needs full audit. |
-| `GeniusParticlesBrush.gd` | `GeniusParticlesBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Batched finalization now explicitly runs particle finalization like Open Brush. UV0.w now stores Open Brush particle birth time, negative in preview mode. Particle layout and seed behavior still need full audit. |
+| `GeniusParticlesBrush.gd` | `GeniusParticlesBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Batched finalization now explicitly runs particle finalization like Open Brush. UV0.w now stores Open Brush particle birth time, negative in preview mode. Texture atlas UVs and finalization/length-cache control flow now have focused parity coverage. Particle layout and seed behavior still need full audit. |
 | `BubbleWandBrush.gd` | `BubbleWandBrush.cs` | Partially tested | Needs full branch audit. |
 | `BlocksBrushScript.gd` | `BlocksBrushScript.cs` | Partially tested | Needs full branch audit. |
 | `TetraBrush.gd` | `TetraBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Needs full branch audit. |
@@ -82,6 +82,7 @@ Implemented so far:
 - Open Brush `Color32` truncation for direct vertex-color writes in hull, concave hull, tube, tetra, square, square 3D print, slice, and printable brush classes.
 - Open Brush particle birth-time packing for `GeniusParticlesBrush` UV0.w and `MidpointPlusLifetimeSprayBrush` UV1.w.
 - Open Brush explicit `GeniusParticlesBrush.FinalizeBatchedBrush` behavior, with `GeometryBrush` batched finalization made non-reentrant for subclasses.
+- Open Brush `GeniusParticlesBrush` finalization and length-cache update control flow, removing non-reference defensive guards in the covered paths.
 - Open Brush `SprayBrush.CalculateSalt` modulo behavior for dense knots.
 - Removal of the unused non-Open-Brush `MidpointPlusLifetimeSprayBrush.create_particle_geometry` helper.
 - Open Brush texture-atlas branch coverage for `QuadStripBrushStretchUV` and `QuadStripBrushDistanceUV`.
@@ -114,7 +115,7 @@ Focused tests added/updated:
 - `Tests/GDScript/SprayBrushParityTest.gd`
   - checks Spray geometry layout, double-sided output, single-sided descriptor handling, UV/tangent generation, batched runtime finalization, Open Brush salt wraparound, and preview decay aging with elapsed time.
 - `Tests/GDScript/GeniusParticlesBrushParityTest.gd`
-  - checks Genius particle geometry layout, generated UV channels, solitary and batched hanging-particle finalization, single-particle pressure behavior, preview decay aging with elapsed time, and Open Brush birth-time sign packing in UV0.w.
+  - checks Genius particle geometry layout, generated UV channels, texture atlas UV branch behavior for `m_TextureAtlasV > 1`, solitary and batched hanging-particle finalization, single-particle pressure behavior, preview decay aging with elapsed time, and Open Brush birth-time sign packing in UV0.w.
 - `Tests/GDScript/MidpointSprayBrushParityTest.gd`
   - checks Midpoint Plus Lifetime Spray geometry layout, generated UV0/UV1 channels, tangent/color output, finalization preserving the generated particle mesh rather than applying Genius Particles hanging-particle removal, and Open Brush birth-time packing in UV1.w.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd`

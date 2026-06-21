@@ -9,6 +9,7 @@ func _init() -> void:
 func _run() -> void:
 	App.force_deterministic_birth_time_for_export = true
 	_check_particle_geometry()
+	_check_texture_atlas_uvs()
 	_check_finalize_removes_hanging_particle()
 	_check_batched_finalize_removes_hanging_particle()
 	_check_preview_decay_uses_elapsed_time()
@@ -39,6 +40,27 @@ func _check_particle_geometry() -> void:
 	_expect_close(brush.m_geometry.m_Texcoord0.v4[1].x, 0.0, "genius uv bl x")
 	_expect_close(brush.m_geometry.m_Texcoord0.v4[3].x, 1.0, "genius uv fl x")
 	_expect_close(brush.m_geometry.m_Texcoord0.v4[0].y, 1.0, "genius uv br y")
+	brush.free()
+
+func _check_texture_atlas_uvs() -> void:
+	var brush := _make_genius_brush(4)
+	_expect(not brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "genius atlas update waits for travelled distance")
+	brush.apply_changes_to_visuals()
+
+	var salt := brush.calculate_salt(1, 0)
+	var rand := brush.m_rng.in_int_range(salt + GeniusParticlesBrush.K_SALT_ATLAS, 0, 4)
+	var offset := GeniusParticlesBrush.TEXTURE_ATLAS_00
+	if rand == 1:
+		offset = GeniusParticlesBrush.TEXTURE_ATLAS_50
+	elif rand == 2:
+		offset = GeniusParticlesBrush.TEXTURE_ATLAS_05
+	elif rand == 3:
+		offset = GeniusParticlesBrush.TEXTURE_ATLAS_55
+	var uv0 := Vector4.ZERO
+	_expect_vec4_close(brush.m_geometry.m_Texcoord0.v4[GeniusParticlesBrush.BL], GeniusParticlesBrush.TEXTURE_ATLAS_00 + offset + uv0, "genius atlas bl uv")
+	_expect_vec4_close(brush.m_geometry.m_Texcoord0.v4[GeniusParticlesBrush.FL], GeniusParticlesBrush.TEXTURE_ATLAS_50 + offset + uv0, "genius atlas fl uv")
+	_expect_vec4_close(brush.m_geometry.m_Texcoord0.v4[GeniusParticlesBrush.BR], GeniusParticlesBrush.TEXTURE_ATLAS_05 + offset + uv0, "genius atlas br uv")
+	_expect_vec4_close(brush.m_geometry.m_Texcoord0.v4[GeniusParticlesBrush.FR], GeniusParticlesBrush.TEXTURE_ATLAS_55 + offset + uv0, "genius atlas fr uv")
 	brush.free()
 
 func _check_finalize_removes_hanging_particle() -> void:
@@ -102,13 +124,13 @@ func _check_particle_birth_time_matches_open_brush_sign() -> void:
 	_expect(preview.m_geometry.m_Texcoord0.v4[0].w < 0.0, "genius preview birth time is negative")
 	preview.free()
 
-func _make_genius_brush() -> GeniusParticlesBrush:
+func _make_genius_brush(texture_atlas_v: int = 1) -> GeniusParticlesBrush:
 	var desc := BrushDescriptor.new()
 	desc.m_DurableName = "GeniusParticles"
 	desc.m_RenderBackfaces = false
 	desc.m_BackIsInvisible = false
 	desc.m_M11Compatibility = false
-	desc.m_TextureAtlasV = 1
+	desc.m_TextureAtlasV = texture_atlas_v
 	desc.m_TileRate = 1.0
 	desc.m_PressureSizeRange = Vector2(1.0, 1.0)
 	desc.m_PressureOpacityRange = Vector2(1.0, 1.0)
@@ -140,6 +162,12 @@ func _expect_vec3_close(actual: Vector3, expected: Vector3, label: String) -> vo
 	_expect_close(actual.x, expected.x, "%s x" % label)
 	_expect_close(actual.y, expected.y, "%s y" % label)
 	_expect_close(actual.z, expected.z, "%s z" % label)
+
+func _expect_vec4_close(actual: Vector4, expected: Vector4, label: String) -> void:
+	_expect_close(actual.x, expected.x, "%s x" % label)
+	_expect_close(actual.y, expected.y, "%s y" % label)
+	_expect_close(actual.z, expected.z, "%s z" % label)
+	_expect_close(actual.w, expected.w, "%s w" % label)
 
 func _expect_close(actual: float, expected: float, label: String) -> void:
 	if absf(actual - expected) > 1e-5:

@@ -91,7 +91,7 @@ func decay_brush() -> void:
 		return
 	m_DecayTimers = m_DecayTimers.slice(knots_to_shift)
 	remove_initial_knots(knots_to_shift)
-	if knots_to_shift > 0 and knots_to_shift < m_LengthsAtKnot.size():
+	if knots_to_shift > 0:
 		var length_reduction := floorf(m_LengthsAtKnot[knots_to_shift] / m_SpawnInterval) * m_SpawnInterval
 		var new_count := m_LengthsAtKnot.size() - knots_to_shift
 		for index in range(1, new_count):
@@ -185,8 +185,6 @@ func total_particles_at_knot(knot_index: int) -> int:
 	return int(floorf(stroke_length_at_knot(knot_index) / m_SpawnInterval)) + 1
 
 func finalize_particle_mesh() -> void:
-	if m_knots.size() < 2:
-		return
 	var final := m_knots[m_knots.size() - 1]
 	if final.nTri <= K_TRIS_IN_SOLID * NS:
 		m_knots = m_knots.slice(0, m_knots.size() - 1)
@@ -199,11 +197,10 @@ func finalize_particle_mesh() -> void:
 	if m_knots.size() == 2:
 		final = m_knots[1]
 		var last_particle := int(final.nTri / K_TRIS_IN_SOLID) - 1
-		if last_particle >= 0:
-			var pressure: float = maxf(K_SINGLE_PARTICLE_TRIGGER_PRESSURE, final.smoothedPressure)
-			var salt := calculate_salt(1, last_particle)
-			var size := pressured_random_size(pressure, salt)
-			create_particle_geometry(1, last_particle, m_knots[0].point.m_Pos, size)
+		var pressure: float = maxf(K_SINGLE_PARTICLE_TRIGGER_PRESSURE, final.smoothedPressure)
+		var salt := calculate_salt(1, last_particle)
+		var size := pressured_random_size(pressure, salt)
+		create_particle_geometry(1, last_particle, m_knots[0].point.m_Pos, size)
 
 func set_geometry_space_for_knot(knot_index: int, particle_count: int) -> void:
 	var cur := m_knots[knot_index]
