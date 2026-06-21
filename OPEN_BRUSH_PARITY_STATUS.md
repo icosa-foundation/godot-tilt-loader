@@ -34,9 +34,9 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `Square3DPrintBrush.gd` | `Square3DPrintBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Tests now cover straight topology, shared-ring continuation, and parity-flip ring-face insertion. Needs full branch audit. |
 | `SliceBrush.gd` | `SliceBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Initial frame direction now matches Open Brush `ComputeSurfaceFrameNew` + `Quaternion.LookRotation` semantics, with normal-direction coverage. Needs full branch audit. |
 | `PrintableBrush.gd` | `PrintableBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Needs full branch audit. |
-| `PbrBrushScript.gd` | `PbrBrushScript.cs` | Not fully audited | Material/export interaction needs separation from mesh parity. |
-| `EnvironmentBrushScript.gd` | `EnvironmentBrushScript.cs` | Not fully audited | Need confirm whether this participates in runtime mesh generation. |
-| `SvgBrushScript.gd` | `SvgBrushScript.cs` | Not fully audited | Need confirm whether this participates in runtime mesh generation. |
+| `PbrBrushScript.gd` | `PbrBrushScript.cs` | Audited as non-mesh layout provider | Matches Open Brush fake-brush role: layout only, update returns true, zero used verts, zero spawn interval, and explicit no-op solitary/batched finalization. |
+| `EnvironmentBrushScript.gd` | `EnvironmentBrushScript.cs` | Audited as non-mesh layout provider | Matches Open Brush fake-brush role: layout only, optional UV1 layout, update returns true, zero used verts, zero spawn interval, and explicit no-op solitary/batched finalization. |
+| `SvgBrushScript.gd` | `SvgBrushScript.cs` | Audited as non-mesh layout provider | Matches Open Brush fake-brush role: layout only, update returns true, zero used verts, zero spawn interval, and explicit no-op solitary/batched finalization. |
 | `MidpointPlusLifetimeSprayBrush.gd` | `MidpointPlusLifetimeSprayBrush.cs` | Partially audited, active repair started | Removed non-Open-Brush finalization rewrite and the leftover unused particle helper copied from Genius-style particle behavior; finalization now preserves generated midpoint particles. UV1.w now stores Open Brush particle birth time. Particle layout and seed behavior still need full audit. |
 
 ## Missing Godot Runtime Equivalents To Investigate
@@ -98,6 +98,7 @@ Implemented so far:
 - Open Brush `TubeBrush` routing through shared `MathUtils.ComputeMinimalRotationFrame` instead of a local alternate frame path.
 - Open Brush `GeometryBrush` initial knot `smoothedPressure` default behavior before the first update.
 - Direct runtime finalization for `QuadStripBrushDistanceUV` now flushes pending tangent requests like the visual update path, matching the established stretch UV finalization behavior.
+- Open Brush fake layout brushes (`PbrBrushScript`, `EnvironmentBrushScript`, `SvgBrushScript`) are classified as non-mesh layout providers with explicit no-op batched finalization.
 
 Focused tests added/updated:
 
@@ -148,6 +149,8 @@ Focused tests added/updated:
   - checks shared utility behavior including `MathUtils.ComputeMinimalRotationFrame` forward-axis parity.
 - `Tests/GDScript/BrushLifecycleParityTest.gd`
   - checks shared geometry brush lifecycle, including initial knot defaults, first-update dirty tracking, geometry resize/copy, and finalization release behavior.
+- `Tests/GDScript/LayoutBrushParityTest.gd`
+  - checks fake layout brush vertex layouts and no-op update/solitary/runtime finalization contracts for PBR, environment, and SVG layout providers.
 - `Tests/GDScript/CafeStrokeFixturesReplayTest.gd`
   - replays checked-in cafe stroke fixtures through `OpenBrushStrokeBridge` and `BrushStrokeReplay` without loading the full cafe `.tilt`,
   - verifies the cafe legacy Ink GUID resolves to the runtime `Ink` descriptor and `QuadStripBrushStretchUV`,

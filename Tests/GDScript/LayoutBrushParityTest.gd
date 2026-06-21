@@ -69,6 +69,8 @@ func _check_noop_contract(brush: BaseBrushScript, label: String) -> void:
 	_expect(brush.update_position_ls(TrTransform.t(Vector3.RIGHT), 0.5), "%s update returns true" % label)
 	brush.apply_changes_to_visuals()
 	brush.finalize_solitary_brush()
+	brush.finalize_for_runtime()
+	_expect_equal(brush.mesh_data.vertices.size(), 0, "%s runtime finalize remains meshless" % label)
 
 func _expect(condition: bool, label: String) -> void:
 	if not condition:
