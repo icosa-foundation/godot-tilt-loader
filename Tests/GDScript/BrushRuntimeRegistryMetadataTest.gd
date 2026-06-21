@@ -12,6 +12,7 @@ func _run() -> void:
 	_check_midpoint_plus_offset_metadata()
 	_check_thick_uv_metadata()
 	_check_catalog_quad_strip_prefab_routes()
+	_check_all_catalog_mesh_metadata_is_applied()
 	if _failures == 0:
 		print("GDSCRIPT_REGISTRY_METADATA: all checks passed")
 
@@ -75,6 +76,88 @@ func _check_catalog_quad_strip_prefab_routes() -> void:
 			brush.free()
 		checked += 1
 	_expect(checked > 0, "catalog contains normal quad-strip brushes")
+
+func _check_all_catalog_mesh_metadata_is_applied() -> void:
+	var manifest := _load_manifest()
+	BrushCatalog.init(manifest)
+	BrushRuntimeRegistry.register_supported_brushes(manifest)
+	var compatibility := {}
+	for brush in manifest.CompatibilityBrushes:
+		compatibility[_brush_key(brush)] = true
+
+	var checked_fields := 0
+	for desc in manifest.Brushes:
+		if desc == null or compatibility.has(_brush_key(desc)):
+			continue
+		var brush := BrushRuntimeRegistry.create_brush_for_descriptor(desc)
+		_expect(brush != null, "%s creates runtime brush" % desc.m_DurableName)
+		if brush == null:
+			continue
+		for field in desc.prefab_fields.keys():
+			if _is_non_runtime_prefab_field(field):
+				continue
+			_check_mesh_metadata_field(desc, brush, String(field))
+			checked_fields += 1
+		brush.free()
+	_expect(checked_fields > 0, "catalog contains mesh metadata fields")
+
+func _check_mesh_metadata_field(desc: BrushDescriptor, brush: BaseBrushScript, field: String) -> void:
+	var label := "%s %s" % [desc.m_DurableName, field]
+	match field:
+		"m_StoreWidthInTexcoord0Z":
+			_expect(brush is QuadStripBrushStretchUV, "%s applies to stretch quad strip" % label)
+			_expect_property_equal(brush, field, bool(desc.prefab_fields[field]), label)
+		"m_uvStyle":
+			_expect(brush is FlatGeometryBrush or brush is ThickGeometryBrush or brush is TubeBrush, "%s applies to uv-style runtime brush" % label)
+			_expect_property_equal(brush, field, int(desc.prefab_fields[field]), label)
+		"m_bOffsetInTexcoord1":
+			_expect(brush is FlatGeometryBrush, "%s applies to flat brush" % label)
+			_expect_property_equal(brush, field, bool(desc.prefab_fields[field]), label)
+		"m_Faceted", "m_TrackInterior":
+			_expect(brush is HullBrush or brush is ConcaveHullBrush, "%s applies to hull brush" % label)
+			_expect_property_equal(brush, field, bool(desc.prefab_fields[field]), label)
+		"m_KnotConversion":
+			_expect(brush is HullBrush or brush is ConcaveHullBrush, "%s applies to hull brush" % label)
+			_expect_property_equal(brush, field, int(desc.prefab_fields[field]), label)
+		"m_Simplification_PS":
+			_expect(brush is HullBrush, "%s applies to hull brush" % label)
+			_expect_property_equal(brush, field, float(desc.prefab_fields[field]), label)
+		"m_SimplifyMode":
+			_expect(brush is HullBrush, "%s applies to hull brush" % label)
+			_expect_property_equal(brush, field, int(desc.prefab_fields[field]), label)
+		"m_KnotsInHull":
+			_expect(brush is ConcaveHullBrush, "%s applies to concave hull brush" % label)
+			_expect_property_equal(brush, field, int(desc.prefab_fields[field]), label)
+		"m_CapAspect", "m_TaperScalar", "m_PetalDisplacementAmt", "m_PetalDisplacementExp", "m_BreakAngleMultiplier":
+			_expect(brush is TubeBrush, "%s applies to tube brush" % label)
+			_expect_property_equal(brush, field, float(desc.prefab_fields[field]), label)
+		"m_PointsInClosedCircle", "m_ShapeModifier":
+			_expect(brush is TubeBrush, "%s applies to tube brush" % label)
+			_expect_property_equal(brush, field, int(desc.prefab_fields[field]), label)
+		"m_EndCaps", "m_HardEdges":
+			_expect(brush is TubeBrush, "%s applies to tube brush" % label)
+			_expect_property_equal(brush, field, bool(desc.prefab_fields[field]), label)
+		_:
+			_fail("%s has unclassified mesh metadata field" % label)
+
+func _is_non_runtime_prefab_field(field: Variant) -> bool:
+	return ["prefab_name", "prefab_path", "script_guid"].has(String(field))
+
+func _expect_property_equal(brush: BaseBrushScript, field: String, expected: Variant, label: String) -> void:
+	var actual: Variant = brush.get(field)
+	match typeof(expected):
+		TYPE_FLOAT:
+			if not is_equal_approx(float(actual), float(expected)):
+				_fail("%s expected %s but got %s" % [label, expected, actual])
+		TYPE_INT:
+			if int(actual) != int(expected):
+				_fail("%s expected %s but got %s" % [label, expected, actual])
+		TYPE_BOOL:
+			if bool(actual) != bool(expected):
+				_fail("%s expected %s but got %s" % [label, expected, actual])
+		_:
+			if actual != expected:
+				_fail("%s expected %s but got %s" % [label, expected, actual])
 
 func _create_brush(prefab_name: String, fields: Dictionary, durable_name: String) -> BaseBrushScript:
 	var desc := BrushDescriptor.new()
