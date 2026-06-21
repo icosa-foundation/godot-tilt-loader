@@ -9,6 +9,7 @@ func _init() -> void:
 func _run() -> void:
 	_check_position_and_fuse_helpers()
 	_check_num_used_verts_edge_cases()
+	_check_destroy_releases_master_brush_to_pool()
 	_check_preview_reset_layout_and_indices()
 	_check_debug_geometry_reports_used_counts()
 	_check_spawn_interval_pressure_smoothing_and_out_of_verts()
@@ -90,6 +91,23 @@ func _check_num_used_verts_edge_cases() -> void:
 	double.m_LeadingSegmentInitialQuadIndex = 0
 	_expect_equal(double.get_num_used_verts(), 36, "double-sided includes multi-solid leading segment")
 	double.free()
+
+func _check_destroy_releases_master_brush_to_pool() -> void:
+	var previous_pool := MasterBrush.shared_pool
+	MasterBrush.shared_pool = Pool.create(func(): return MasterBrush.new())
+
+	var unfinalized := _make_quad_brush(QuadStripBrushStretchUV.new(), false)
+	_expect_equal(MasterBrush.shared_pool.free_count(), 0, "quad destroy pool starts empty")
+	unfinalized.free()
+	_expect_equal(MasterBrush.shared_pool.free_count(), 1, "quad destroy releases unfinalized geometry")
+
+	var finalized := _make_quad_brush(QuadStripBrushStretchUV.new(), false)
+	finalized.finalize_solitary_brush()
+	_expect_equal(MasterBrush.shared_pool.free_count(), 1, "quad finalize releases geometry once")
+	finalized.free()
+	_expect_equal(MasterBrush.shared_pool.free_count(), 1, "quad free after finalize does not double release")
+
+	MasterBrush.shared_pool = previous_pool
 
 func _check_preview_reset_layout_and_indices() -> void:
 	var stretch := QuadStripBrushStretchUV.new()

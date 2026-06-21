@@ -24,6 +24,10 @@ var m_LeadingSegmentInitialQuadIndex: Variant = null
 func _init() -> void:
 	setup_base(true)
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE:
+		_release_geometry_to_pool()
+
 func stride() -> int:
 	return 6 * (2 if m_EnableBackfaces else 1)
 
@@ -86,9 +90,7 @@ func finalize_solitary_brush() -> void:
 		return
 	_copy_master_geometry_to_mesh_data(get_num_used_verts())
 	update_visible_mesh()
-	MasterBrush.ensure_shared_pool()
-	MasterBrush.shared_pool.put(m_Geometry)
-	m_Geometry = null
+	_release_geometry_to_pool()
 
 func finalize_batched_brush() -> void:
 	if m_Geometry == null:
@@ -99,6 +101,11 @@ func finalize_batched_brush() -> void:
 	else:
 		_copy_welded_single_sided_quad_strip_to_mesh_data(used_verts)
 	update_visible_mesh()
+	_release_geometry_to_pool()
+
+func _release_geometry_to_pool() -> void:
+	if m_Geometry == null:
+		return
 	MasterBrush.ensure_shared_pool()
 	MasterBrush.shared_pool.put(m_Geometry)
 	m_Geometry = null
