@@ -13,6 +13,7 @@ func _run() -> void:
 	_check_debug_geometry_reports_used_counts()
 	_check_spawn_interval_pressure_smoothing_and_out_of_verts()
 	_check_small_move_does_not_generate_or_update_spawn()
+	_check_preview_move_does_not_commit_spawn_state()
 	_check_unitized_uv_brush()
 	_check_unitized_uv_complete_layout_and_noops()
 	_check_unitized_uv_backfaces()
@@ -31,6 +32,7 @@ func _run() -> void:
 	_check_backface_append_hue_shift()
 	_check_sharp_bend_shrinks_quad_strip()
 	_check_double_back_creates_strip_break()
+	_check_disabled_strip_break_keeps_single_segment()
 	_check_backfaces_follow_fused_front_quads()
 	_check_batched_finalization_welds_single_sided_strip()
 	_check_batched_weld_preserves_width_uvws()
@@ -157,6 +159,32 @@ func _check_small_move_does_not_generate_or_update_spawn() -> void:
 	_expect_equal(brush.m_InitialQuadIndex, 0, "small quad-strip move preserves initial index")
 	_expect_vec3_close(brush.m_LastSpawnXf.translation, prior_xf.translation, "small quad-strip move preserves last spawn translation")
 	_expect_close(brush.m_LastSpawnXf.scale, prior_xf.scale, "small quad-strip move preserves last spawn scale")
+	brush.finalize_solitary_brush()
+	brush.free()
+
+func _check_preview_move_does_not_commit_spawn_state() -> void:
+	var brush := _make_quad_brush(QuadStripBrushStretchUV.new(), false)
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(1.0, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "preview move setup generates first quad")
+	var prior_xf := brush.m_LastSpawnXf
+	var prior_facing := brush.m_LastFacing
+	var prior_center := brush.m_LastQuadCenter
+	var prior_forward := brush.m_LastQuadForward
+	var prior_right := brush.m_LastQuadRight
+	var prior_segment_solids := brush.m_LastSegmentLengthSolids
+	var prior_initial := brush.m_InitialQuadIndex
+	var prior_leading := brush.m_LeadingQuadIndex
+	var preview_delta := brush.get_spawn_interval(1.0) * 0.5
+	var generated := brush.update_position_ls(TrTransform.trs(prior_xf.translation + Vector3(preview_delta, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0)
+	_expect(not generated, "preview move does not commit a new quad")
+	_expect_equal(brush.m_LeadingQuadIndex, prior_leading, "preview move restores leading index")
+	_expect_equal(brush.m_InitialQuadIndex, prior_initial, "preview move restores initial index")
+	_expect_equal(brush.m_LeadingSegmentInitialQuadIndex, prior_initial, "preview move records temporary leading segment start")
+	_expect_equal(brush.m_LastSegmentLengthSolids, prior_segment_solids, "preview move preserves committed segment length")
+	_expect_vec3_close(brush.m_LastSpawnXf.translation, prior_xf.translation, "preview move preserves last spawn translation")
+	_expect_vec3_close(brush.m_LastFacing, prior_facing, "preview move preserves last facing")
+	_expect_vec3_close(brush.m_LastQuadCenter, prior_center, "preview move preserves last quad center")
+	_expect_vec3_close(brush.m_LastQuadForward, prior_forward, "preview move preserves last quad forward")
+	_expect_vec3_close(brush.m_LastQuadRight, prior_right, "preview move preserves last quad right")
 	brush.finalize_solitary_brush()
 	brush.free()
 
@@ -427,6 +455,19 @@ func _check_double_back_creates_strip_break() -> void:
 	_expect_equal(brush.m_InitialQuadIndex, 1, "double-back starts new strip segment")
 	_expect_equal(brush.m_LastSegmentLengthSolids, 1, "double-back segment length starts at one")
 	_expect_close(brush.m_LastSizeShrink, 0.0, "double-back does not record shrink")
+	brush.finalize_solitary_brush()
+	brush.free()
+
+func _check_disabled_strip_break_keeps_single_segment() -> void:
+	var brush := _make_quad_brush(QuadStripBrushStretchUV.new(), false)
+	brush.m_AllowStripBreak = false
+	brush.m_Desc.m_BackIsInvisible = true
+	brush.m_BaseSize_PS = 2.0
+	brush.update_position_ls(TrTransform.trs(Vector3(1.0, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0)
+	brush.update_position_ls(TrTransform.trs(Vector3(1.0, 1.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0)
+	_expect_equal(brush.m_InitialQuadIndex, 0, "disabled strip break keeps initial segment")
+	_expect_equal(brush.m_LastSegmentLengthSolids, 2, "disabled strip break keeps connected segment length")
+	_expect_close(brush.m_LastSizeShrink, 0.0, "disabled strip break does not shrink in skipped branch")
 	brush.finalize_solitary_brush()
 	brush.free()
 
