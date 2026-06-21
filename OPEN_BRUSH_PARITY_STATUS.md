@@ -143,6 +143,7 @@ Implemented so far:
 - `Tests/GDScript/BrushRuntimeRegistryParityTest.gd` now checks that a normal brush descriptor with no runtime factory is not registered and that replaying it through `BrushStrokeReplay` returns no mesh instead of generating fallback geometry.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd` now checks all 97 merged-manifest normal brushes route to the expected runtime class and verifies the expected normal prefab-family counts, including the merged `Line` count of 20.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd` now checks all seven normal catalog `GeniusParticle` brushes initialize the Open Brush particle formulas from their real descriptor metadata, including particle rate, particle speed, random alpha, initial rotation range, spawn interval, particle size scale, and UV channel layout.
+- `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd` now checks all normal catalog `Spray` and `MiddpointPlusLifetimeGeomSpray` brushes initialize the Open Brush particle formulas from their real descriptor metadata, including spray rate multiplier, size ratio, spawn interval, UV channel layout, normals, colors, and tangents.
 - `Tests/GDScript/FlatStripCatalogReplayTest.gd` now replays every normal catalog `Line`, `LineWithWidth`, `DistanceUV`, `UnitizedUV`, `FlatDistance`, `FlatStretch`, and `MidpointPlusOffset` brush through the shared runtime path and verifies descriptor-driven UV0, UV1, normal, color, tangent, and runtime-class expectations.
 - `Tests/GDScript/GeniusParticlesCatalogReplayTest.gd` now replays every normal catalog `GeniusParticle` brush through the shared runtime replay path and verifies generated particle mesh channel completeness: vertices, triangle indices, normals, colors, UV0 Vector4, UV1 Vector3, and no tangents.
 - `Tests/GDScript/SprayCatalogReplayTest.gd` now replays every normal catalog `Spray` and `MiddpointPlusLifetimeGeomSpray` brush through the shared runtime replay path and verifies generated particle mesh channel completeness for UV0, UV1, normals, colors, and tangents.
@@ -228,6 +229,7 @@ Focused tests added/updated:
   - walks the real manifest/catalog and verifies all normal `Line`, `LineWithWidth`, `UnitizedUV`, and `DistanceUV` prefabs route to the repaired quad-strip runtime classes.
   - verifies every mesh-affecting prefab field in the active manifest/catalog is applied to the created runtime brush instance, including quad-strip width storage, flat/thick/tube UV style, flat offset flags, hull parameters, concave hull parameters, and tube shape parameters.
   - verifies all normal catalog `GeniusParticle` brushes use nonzero Open Brush particle formula inputs and initialize spawn interval, particle size scale, random alpha, initial rotation range, and UV channel layout from descriptor metadata.
+  - verifies all normal catalog `Spray` and `MiddpointPlusLifetimeGeomSpray` brushes use nonzero Open Brush spray formula inputs and initialize spawn interval, size ratio, UV layout, normal/color/tangent channels, and midpoint UV1 layout from descriptor metadata.
 - `Tests/GDScript/UtilityParityTest.gd`
   - checks shared utility behavior including `MathUtils.ComputeMinimalRotationFrame` forward-axis parity.
 - `Tests/GDScript/BrushLifecycleParityTest.gd`
@@ -493,6 +495,14 @@ Additional validation after adding `MidpointPlusLifetimeSprayBrush` seeded parti
 ```
 
 Result: command exited successfully.
+
+Additional validation after adding Spray/Midpoint catalog metadata coverage:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd
+```
+
+Result: command exited successfully with the known Godot resource-leak warning after test shutdown.
 
 Open Brush Unity editor project compile check also run after installing the exporter:
 

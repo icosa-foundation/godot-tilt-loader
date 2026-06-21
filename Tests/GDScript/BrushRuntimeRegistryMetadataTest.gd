@@ -44,6 +44,7 @@ func _run() -> void:
 	_check_midpoint_plus_offset_metadata()
 	_check_thick_uv_metadata()
 	_check_genius_particle_catalog_metadata()
+	_check_spray_particle_catalog_metadata()
 	_check_catalog_quad_strip_prefab_routes()
 	_check_all_normal_catalog_prefabs_route_to_expected_runtime_classes()
 	_check_all_catalog_mesh_metadata_is_applied()
@@ -116,6 +117,58 @@ func _check_genius_particle_catalog_metadata() -> void:
 		brush.free()
 		checked += 1
 	_expect_equal(checked, EXPECTED_NORMAL_PREFAB_COUNTS["GeniusParticle"], "catalog GeniusParticle metadata count")
+
+func _check_spray_particle_catalog_metadata() -> void:
+	var manifest := _load_manifest()
+	BrushCatalog.init(manifest)
+	BrushRuntimeRegistry.register_supported_brushes(manifest)
+	var compatibility := {}
+	for brush in manifest.CompatibilityBrushes:
+		compatibility[_brush_key(brush)] = true
+
+	var counts := {
+		"Spray": 0,
+		"MiddpointPlusLifetimeGeomSpray": 0,
+	}
+	var has_rotation_variance := false
+	var has_position_variance := false
+	for desc in manifest.Brushes:
+		if desc == null or compatibility.has(_brush_key(desc)):
+			continue
+		var prefab := String(desc.prefab_fields.get("prefab_name", ""))
+		if not counts.has(prefab):
+			continue
+		var brush := BrushRuntimeRegistry.create_brush_for_descriptor(desc)
+		match prefab:
+			"Spray":
+				_expect(brush is SprayBrush, "%s creates SprayBrush" % desc.m_DurableName)
+			"MiddpointPlusLifetimeGeomSpray":
+				_expect(brush is MidpointPlusLifetimeSprayBrush, "%s creates MidpointPlusLifetimeSprayBrush" % desc.m_DurableName)
+		if brush == null:
+			continue
+		_expect(desc.m_SprayRateMultiplier > 0.0, "%s spray rate multiplier is nonzero" % desc.m_DurableName)
+		_expect(desc.m_SizeRatio.x > 0.0, "%s size ratio x is nonzero" % desc.m_DurableName)
+		_expect(desc.m_SizeRatio.y > 0.0, "%s size ratio y is nonzero" % desc.m_DurableName)
+		brush.m_BaseSize_PS = 1.0
+		brush.init_brush(desc, TrTransform.identity())
+		var expected_full_pressure_interval := brush.pressured_size(1.0) / desc.m_SprayRateMultiplier
+		_expect_close(brush.get_spawn_interval(1.0), expected_full_pressure_interval, "%s spray spawn interval" % desc.m_DurableName)
+		_expect_equal(brush.m_geometry.get_layout().texcoord0.size, 2, "%s spray uv0 layout" % desc.m_DurableName)
+		_expect(brush.m_geometry.get_layout().bUseNormals, "%s spray normal layout" % desc.m_DurableName)
+		_expect(brush.m_geometry.get_layout().bUseColors, "%s spray color layout" % desc.m_DurableName)
+		_expect(brush.m_geometry.get_layout().bUseTangents, "%s spray tangent layout" % desc.m_DurableName)
+		if prefab == "Spray":
+			_expect_equal(brush.m_geometry.get_layout().texcoord1.size, 0, "%s Spray uv1 layout" % desc.m_DurableName)
+		else:
+			_expect_equal(brush.m_geometry.get_layout().texcoord1.size, 4, "%s midpoint uv1 layout" % desc.m_DurableName)
+		has_rotation_variance = has_rotation_variance or desc.m_RotationVariance > 0.0
+		has_position_variance = has_position_variance or desc.m_PositionVariance > 0.0
+		brush.free()
+		counts[prefab] = int(counts[prefab]) + 1
+	_expect_equal(int(counts["Spray"]), EXPECTED_NORMAL_PREFAB_COUNTS["Spray"], "catalog Spray metadata count")
+	_expect_equal(int(counts["MiddpointPlusLifetimeGeomSpray"]), EXPECTED_NORMAL_PREFAB_COUNTS["MiddpointPlusLifetimeGeomSpray"], "catalog midpoint spray metadata count")
+	_expect(has_rotation_variance, "catalog Spray/Midpoint set includes rotation variance metadata")
+	_expect(has_position_variance, "catalog Spray/Midpoint set includes position variance metadata")
 
 func _check_catalog_quad_strip_prefab_routes() -> void:
 	var manifest := _load_manifest()
