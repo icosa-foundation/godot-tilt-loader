@@ -11,6 +11,7 @@ func _run() -> void:
 	_check_distance_uv_atlas_branch()
 	_check_stretch_uv_mode()
 	_check_stretch_uv_atlas_branch()
+	_check_offset_uv1_vectors()
 	_check_batched_finalization_trims_short_post_break_tail()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_FLATBRUSH: all checks passed")
@@ -93,6 +94,23 @@ func _check_stretch_uv_atlas_branch() -> void:
 	brush.finalize_solitary_brush()
 	brush.free()
 
+func _check_offset_uv1_vectors() -> void:
+	var brush := _make_flat_brush(FlatGeometryBrush.UVStyle.DISTANCE, false, true)
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "flat offset first update keeps")
+	brush.apply_changes_to_visuals()
+
+	_expect_equal(brush.m_geometry.get_layout().texcoord1.size, 3, "flat offset uv1 layout size")
+	_expect_vec3_close(brush.m_geometry.m_Texcoord1.v3[FlatGeometryBrush.BR], Vector3(0.0, 0.5, 0.0), "flat offset BR uv1")
+	_expect_vec3_close(brush.m_geometry.m_Texcoord1.v3[FlatGeometryBrush.BL], Vector3(0.0, -0.5, 0.0), "flat offset BL uv1")
+	_expect_vec3_close(brush.m_geometry.m_Texcoord1.v3[FlatGeometryBrush.FR], Vector3(0.0, 0.5, 0.0), "flat offset FR uv1")
+	_expect_vec3_close(brush.m_geometry.m_Texcoord1.v3[FlatGeometryBrush.FL], Vector3(0.0, -0.5, 0.0), "flat offset FL uv1")
+
+	brush.finalize_solitary_brush()
+	_expect_equal(brush.mesh_data.uv1_v3.size(), 4, "flat finalized offset uv1 count")
+	_expect_vec3_close(brush.mesh_data.uv1_v3[FlatGeometryBrush.BR], Vector3(0.0, 0.5, 0.0), "flat finalized offset BR uv1")
+	_expect_vec3_close(brush.mesh_data.uv1_v3[FlatGeometryBrush.FL], Vector3(0.0, -0.5, 0.0), "flat finalized offset FL uv1")
+	brush.free()
+
 func _check_batched_finalization_trims_short_post_break_tail() -> void:
 	var brush := _make_flat_brush(FlatGeometryBrush.UVStyle.DISTANCE, false)
 	brush.m_bM11Compatibility = false
@@ -107,7 +125,7 @@ func _check_batched_finalization_trims_short_post_break_tail() -> void:
 	_expect_equal(brush.mesh_data.triangles.size(), 12, "flat batched trimmed tri index count")
 	brush.free()
 
-func _make_flat_brush(uv_style: int, backfaces: bool) -> FlatGeometryBrush:
+func _make_flat_brush(uv_style: int, backfaces: bool, offset_in_uv1: bool = false) -> FlatGeometryBrush:
 	var desc := BrushDescriptor.new()
 	desc.m_DurableName = "Flat"
 	desc.m_RenderBackfaces = backfaces
@@ -122,6 +140,7 @@ func _make_flat_brush(uv_style: int, backfaces: bool) -> FlatGeometryBrush:
 
 	var brush := FlatGeometryBrush.new()
 	brush.m_uvStyle = uv_style
+	brush.m_bOffsetInTexcoord1 = offset_in_uv1
 	brush.m_BaseSize_PS = 1.0
 	brush.m_Color = Color(0.1, 0.2, 0.3, 1.0)
 	brush.set_random_seed(0)
