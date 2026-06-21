@@ -8,6 +8,8 @@ func _init() -> void:
 
 func _run() -> void:
 	_check_square_brush_geometry()
+	_check_square_brush_shared_ring_continuation()
+	_check_square_brush_sharp_turn_breaks_segment()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_SQUAREBRUSH: all checks passed")
 
@@ -54,6 +56,62 @@ func _check_square_brush_geometry() -> void:
 	_expect_equal(brush.mesh_data.vertices.size(), 16, "square finalized vertex count")
 	_expect(brush.m_geometry == null, "square releases geometry")
 	brush.free()
+
+func _check_square_brush_shared_ring_continuation() -> void:
+	var brush := _make_square_brush()
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "square continuation first update keeps")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(2.0, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "square continuation second update keeps")
+	brush.apply_changes_to_visuals()
+
+	_expect(brush.check_knot_invariants(), "square continuation knot invariants")
+	_expect_equal(brush.m_geometry.num_verts(), 24, "square continuation vertex count")
+	_expect_equal(brush.m_geometry.num_tri_indices(), 60, "square continuation triangle index count")
+	_expect_equal(brush.m_knots[1].iVert, 0, "square continuation first knot vertex start")
+	_expect_equal(brush.m_knots[1].nVert, 16, "square continuation first knot verts")
+	_expect_equal(brush.m_knots[1].nTri, 10, "square continuation first knot tris with start cap only")
+	_expect_equal(brush.m_knots[2].iVert, 8, "square continuation second knot rewinds shared ring")
+	_expect_equal(brush.m_knots[2].nVert, 16, "square continuation second knot verts include shared ring")
+	_expect_equal(brush.m_knots[2].nTri, 10, "square continuation second knot tris with end cap only")
+	_expect(not brush.m_knots[1].endsGeometry, "square continuation first knot has no end cap")
+	_expect(brush.m_knots[2].endsGeometry, "square continuation second knot has end cap")
+	_expect_vec3_close(brush.m_geometry.m_Vertices[SquareBrush.FBR_B], Vector3(1.0, 0.5, -0.1875), "square continuation shared ring position")
+	_expect_vec3_close(brush.m_geometry.m_Vertices[brush.m_knots[2].iVert + SquareBrush.FBR_B], Vector3(2.0, 0.5, -0.1875), "square continuation second front ring position")
+	brush.free()
+
+func _check_square_brush_sharp_turn_breaks_segment() -> void:
+	var brush := _make_square_brush()
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "square break first update keeps")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.ZERO, Quaternion.IDENTITY, 1.0), 1.0), "square break reverse update keeps")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.LEFT, Quaternion.IDENTITY, 1.0), 1.0), "square break new segment update keeps")
+	brush.apply_changes_to_visuals()
+
+	_expect(brush.check_knot_invariants(), "square break knot invariants")
+	_expect_equal(brush.m_geometry.num_verts(), 32, "square break vertex count")
+	_expect_equal(brush.m_geometry.num_tri_indices(), 72, "square break triangle index count")
+	_expect(brush.m_knots[1].endsGeometry, "square break first segment closed")
+	_expect(not brush.m_knots[2].has_geometry(), "square break reversing knot has no geometry")
+	_expect(brush.m_knots[3].startsGeometry, "square break new segment starts")
+	_expect(brush.m_knots[3].endsGeometry, "square break new segment ends")
+	_expect_equal(brush.m_knots[3].iVert, 16, "square break new segment vertex start")
+	_expect_equal(brush.m_geometry.m_Tris.slice(24, 36), [5, 1, 3, 3, 1, 7, 13, 11, 9, 9, 11, 15], "square break first segment caps")
+	brush.free()
+
+func _make_square_brush() -> SquareBrush:
+	var desc := BrushDescriptor.new()
+	desc.m_DurableName = "Square"
+	desc.m_RenderBackfaces = false
+	desc.m_BackIsInvisible = false
+	desc.m_M11Compatibility = false
+	desc.m_PressureSizeRange = Vector2(1.0, 1.0)
+	desc.m_PressureOpacityRange = Vector2(1.0, 1.0)
+	desc.m_Opacity = 1.0
+	desc.m_SizeVariance = 0.0
+
+	var brush := SquareBrush.new()
+	brush.m_BaseSize_PS = 1.0
+	brush.m_Color = Color(0.25, 0.5, 0.75, 0.2)
+	brush.init_brush(desc, TrTransform.identity())
+	return brush
 
 func _expect(condition: bool, label: String) -> void:
 	if not condition:

@@ -31,10 +31,10 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `BubbleWandBrush.gd` | `BubbleWandBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. BubbleWand-specific UVW post-processing, original-position UV1 storage, and direct finalization control flow now have focused coverage. Needs full branch audit. |
 | `BlocksBrushScript.gd` | `BlocksBrushScript.cs` | Partially audited, active repair started | Existing parity tests cover the no-op contract and vertex layout. Batched finalization is now explicitly no-op like Open Brush. Needs full catalog usage audit. |
 | `TetraBrush.gd` | `TetraBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Texture atlas count handling now matches Open Brush directly, with distance atlas and texture-edge chop coverage. Needs full branch audit. |
-| `SquareBrush.gd` | `SquareBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Needs full branch audit. |
+| `SquareBrush.gd` | `SquareBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Tests now cover straight topology, shared-ring continuation, and sharp-turn segment break behavior. Needs full branch audit. |
 | `Square3DPrintBrush.gd` | `Square3DPrintBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Tests now cover straight topology, shared-ring continuation, and parity-flip ring-face insertion. Needs full branch audit. |
 | `SliceBrush.gd` | `SliceBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Initial frame direction now matches Open Brush `ComputeSurfaceFrameNew` + `Quaternion.LookRotation` semantics, with normal-direction coverage. Needs full branch audit. |
-| `PrintableBrush.gd` | `PrintableBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Needs full branch audit. |
+| `PrintableBrush.gd` | `PrintableBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Tests now cover straight topology, envelope behavior, shared-ring continuation, and sharp-turn segment break behavior. Needs full branch audit. |
 | `PbrBrushScript.gd` | `PbrBrushScript.cs` | Audited as non-mesh layout provider | Matches Open Brush fake-brush role: layout only, update returns true, zero used verts, zero spawn interval, and explicit no-op solitary/batched finalization. |
 | `EnvironmentBrushScript.gd` | `EnvironmentBrushScript.cs` | Audited as non-mesh layout provider | Matches Open Brush fake-brush role: layout only, optional UV1 layout, update returns true, zero used verts, zero spawn interval, and explicit no-op solitary/batched finalization. |
 | `SvgBrushScript.gd` | `SvgBrushScript.cs` | Audited as non-mesh layout provider | Matches Open Brush fake-brush role: layout only, update returns true, zero used verts, zero spawn interval, and explicit no-op solitary/batched finalization. |
@@ -93,6 +93,7 @@ Implemented so far:
 - Open Brush `BubbleWandBrush` finalization control flow, UVW formula behavior, and UV1 original-position storage coverage.
 - Open Brush `BlocksBrushScript` explicit no-op batched finalization behavior.
 - Open Brush `TetraBrush` texture atlas count handling and distance atlas branch coverage, including texture edge chop.
+- Open Brush `SquareBrush` and `PrintableBrush` shared-ring continuation and sharp-turn segment-break topology now have focused lifecycle coverage.
 - Open Brush `Square3DPrintBrush` parity-flip topology branch coverage for double-back strokes.
 - Open Brush `SliceBrush` initial frame direction/normal orientation behavior, routed through the shared `ComputeSurfaceFrameNew` parity helper.
 - Open Brush `HullBrush` `SimplifyAtEnd` batched finalization route and simplification tolerance pass.
@@ -135,6 +136,10 @@ Focused tests added/updated:
   - checks shared-quad geometry, UVW distance accumulation, triangle winding, opaque `Color32` writes, and Open Brush normal direction for initial/front quads.
 - `Tests/GDScript/Square3DPrintBrushParityTest.gd`
   - checks single-segment topology, shared-ring continuation topology, and flip-branch topology where Open Brush closes the previous ring face and adds an extra current-orientation ring.
+- `Tests/GDScript/SquareBrushParityTest.gd`
+  - checks straight segment topology, shared-ring continuation, sharp-turn segment break topology, caps, normals, default UVs, and opaque `Color32` writes.
+- `Tests/GDScript/PrintableBrushParityTest.gd`
+  - checks straight segment topology, envelope behavior, shared-ring continuation, sharp-turn segment break topology, caps, normals, default UVs, and opaque `Color32` writes.
 - `Tests/GDScript/TetraBrushParityTest.gd`
   - checks Tetra distance and unitized UV geometry, generated topology, vertex color truncation, and distance UV texture atlas branch formulas for `m_TextureAtlasV > 1` with texture edge chop.
 - `Tests/GDScript/TubeBrushParityTest.gd`

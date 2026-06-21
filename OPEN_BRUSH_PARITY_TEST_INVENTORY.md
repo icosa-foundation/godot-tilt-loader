@@ -34,10 +34,10 @@ The key distinction is source authority. Current focused brush tests prove trans
 | `Tests/GDScript/BubbleWandBrushParityTest.gd` | `generated mesh parity` | BubbleWand Tube-derived geometry, UVW formula, release time, smoothing, and original-position UV1 storage. | Does not cover all Tube-derived branches. |
 | `Tests/GDScript/BlocksBrushParityTest.gd` | `lifecycle parity` | Blocks brush no-op mesh contract and runtime finalization behavior. | Layout provider only; no generated mesh. |
 | `Tests/GDScript/TetraBrushParityTest.gd` | `generated mesh parity` | Tetra distance/unitized UV geometry, atlas branch, topology, and color truncation. | Does not cover every pressure/rotation branch. |
-| `Tests/GDScript/SquareBrushParityTest.gd` | `generated mesh parity` | Square straight segment topology, normals, UV default, caps, and color truncation. | Needs curved/break branch coverage and source audit completion. |
+| `Tests/GDScript/SquareBrushParityTest.gd` | `generated mesh parity` | Square straight segment topology, shared-ring continuation, sharp-turn segment break behavior, normals, UV default, caps, and color truncation. | Needs full source audit completion and reference fixture comparison. |
 | `Tests/GDScript/Square3DPrintBrushParityTest.gd` | `generated mesh parity` | Single segment, shared-ring continuation, and flip branch topology. | Needs full branch audit and more shape fixtures. |
 | `Tests/GDScript/SliceBrushParityTest.gd` | `generated mesh parity` | Slice shared-quad geometry, UVW distance, winding, color, and initial normal direction. | Needs full branch audit. |
-| `Tests/GDScript/PrintableBrushParityTest.gd` | `generated mesh parity` | Printable straight segment topology, envelope, normals, UV default, caps, and color truncation. | Needs curved/break branch coverage and source audit completion. |
+| `Tests/GDScript/PrintableBrushParityTest.gd` | `generated mesh parity` | Printable straight segment topology, envelope behavior, shared-ring continuation, sharp-turn segment break behavior, normals, UV default, caps, and color truncation. | Needs full source audit completion and reference fixture comparison. |
 | `Tests/GDScript/LayoutBrushParityTest.gd` | `lifecycle parity` | PBR, Environment, and SVG fake layout brush no-op contracts and layout flags. | Non-mesh provider coverage only. |
 
 ## Runtime, Importer, and Path Tests
@@ -90,4 +90,3 @@ These scripts are useful for investigation or fixture generation, but they shoul
 ## Missing Test Class
 
 There are currently no tests in the `Open Brush reference mesh parity` category. The next major evidence upgrade is to generate compact Open Brush C# reference mesh fixtures and compare Godot output against them numerically for representative brushes and stroke shapes.
-

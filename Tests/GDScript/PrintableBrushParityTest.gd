@@ -8,6 +8,8 @@ func _init() -> void:
 
 func _run() -> void:
 	_check_printable_brush_geometry()
+	_check_printable_brush_shared_ring_continuation()
+	_check_printable_brush_sharp_turn_breaks_segment()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_PRINTABLEBRUSH: all checks passed")
 
@@ -50,6 +52,62 @@ func _check_printable_brush_geometry() -> void:
 	_expect_equal(brush.mesh_data.vertices.size(), 8, "printable finalized vertex count")
 	_expect(brush.m_geometry == null, "printable releases geometry")
 	brush.free()
+
+func _check_printable_brush_shared_ring_continuation() -> void:
+	var brush := _make_printable_brush()
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "printable continuation first update keeps")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(2.0, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "printable continuation second update keeps")
+	brush.apply_changes_to_visuals()
+
+	_expect(brush.check_knot_invariants(), "printable continuation knot invariants")
+	_expect_equal(brush.m_geometry.num_verts(), 12, "printable continuation vertex count")
+	_expect_equal(brush.m_geometry.num_tri_indices(), 60, "printable continuation triangle index count")
+	_expect_equal(brush.m_knots[1].iVert, 0, "printable continuation first knot vertex start")
+	_expect_equal(brush.m_knots[1].nVert, 8, "printable continuation first knot verts")
+	_expect_equal(brush.m_knots[1].nTri, 10, "printable continuation first knot tris with start cap only")
+	_expect_equal(brush.m_knots[2].iVert, 4, "printable continuation second knot rewinds shared ring")
+	_expect_equal(brush.m_knots[2].nVert, 8, "printable continuation second knot verts include shared ring")
+	_expect_equal(brush.m_knots[2].nTri, 10, "printable continuation second knot tris with end cap only")
+	_expect(not brush.m_knots[1].endsGeometry, "printable continuation first knot has no end cap")
+	_expect(brush.m_knots[2].endsGeometry, "printable continuation second knot has end cap")
+	_expect_vec3_close(brush.m_geometry.m_Vertices[PrintableBrush.FR], Vector3(1.0, 0.5, 0.0), "printable continuation shared ring position")
+	_expect_vec3_close(brush.m_geometry.m_Vertices[brush.m_knots[2].iVert + PrintableBrush.FR], Vector3(2.0, 0.15, 0.0), "printable continuation second front ring position")
+	brush.free()
+
+func _check_printable_brush_sharp_turn_breaks_segment() -> void:
+	var brush := _make_printable_brush()
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "printable break first update keeps")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.ZERO, Quaternion.IDENTITY, 1.0), 1.0), "printable break reverse update keeps")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.LEFT, Quaternion.IDENTITY, 1.0), 1.0), "printable break new segment update keeps")
+	brush.apply_changes_to_visuals()
+
+	_expect(brush.check_knot_invariants(), "printable break knot invariants")
+	_expect_equal(brush.m_geometry.num_verts(), 16, "printable break vertex count")
+	_expect_equal(brush.m_geometry.num_tri_indices(), 72, "printable break triangle index count")
+	_expect(brush.m_knots[1].endsGeometry, "printable break first segment closed")
+	_expect(not brush.m_knots[2].has_geometry(), "printable break reversing knot has no geometry")
+	_expect(brush.m_knots[3].startsGeometry, "printable break new segment starts")
+	_expect(brush.m_knots[3].endsGeometry, "printable break new segment ends")
+	_expect_equal(brush.m_knots[3].iVert, 8, "printable break new segment vertex start")
+	_expect_equal(brush.m_geometry.m_Tris.slice(24, 36), [2, 0, 1, 1, 0, 3, 6, 5, 4, 4, 5, 7], "printable break first segment caps")
+	brush.free()
+
+func _make_printable_brush() -> PrintableBrush:
+	var desc := BrushDescriptor.new()
+	desc.m_DurableName = "Printable"
+	desc.m_RenderBackfaces = false
+	desc.m_BackIsInvisible = false
+	desc.m_M11Compatibility = false
+	desc.m_PressureSizeRange = Vector2(1.0, 1.0)
+	desc.m_PressureOpacityRange = Vector2(1.0, 1.0)
+	desc.m_Opacity = 1.0
+	desc.m_SizeVariance = 0.0
+
+	var brush := PrintableBrush.new()
+	brush.m_BaseSize_PS = 1.0
+	brush.m_Color = Color(0.6, 0.4, 0.2, 0.1)
+	brush.init_brush(desc, TrTransform.identity())
+	return brush
 
 func _expect(condition: bool, label: String) -> void:
 	if not condition:
