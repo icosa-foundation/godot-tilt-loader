@@ -11,6 +11,8 @@ func _run() -> void:
 	_check_num_used_verts_edge_cases()
 	_check_preview_reset_layout_and_indices()
 	_check_debug_geometry_reports_used_counts()
+	_check_spawn_interval_pressure_smoothing_and_out_of_verts()
+	_check_small_move_does_not_generate_or_update_spawn()
 	_check_unitized_uv_brush()
 	_check_unitized_uv_complete_layout_and_noops()
 	_check_unitized_uv_backfaces()
@@ -111,6 +113,50 @@ func _check_debug_geometry_reports_used_counts() -> void:
 	_expect_equal(debug["nTris"], 12, "debug geometry used triangle count")
 	_expect(debug["verts"].size() >= debug["nVerts"], "debug geometry exposes full vertex buffer")
 	_expect(debug["tris"].size() >= debug["nTris"], "debug geometry exposes full index buffer")
+	brush.finalize_solitary_brush()
+	brush.free()
+
+func _check_spawn_interval_pressure_smoothing_and_out_of_verts() -> void:
+	var brush := _make_quad_brush(QuadStripBrushStretchUV.new(), false)
+	var expected_spawn := QuadStripBrush.K_SOLID_MIN_LENGTH_METERS_PS * App.METERS_TO_UNITS * brush.pointer_to_local()
+	expected_spawn += brush.pressured_size(1.0) * QuadStripBrush.K_SOLID_ASPECT_RATIO
+	_expect_close(brush.get_spawn_interval(1.0), expected_spawn, "quad strip spawn interval")
+	_expect_close(brush.get_smoothed_pressure(0.8, Vector3(10.0, 0.0, 0.0)), 0.8, "quad strip initial pressure is unsmoothed")
+	brush.m_LeadingQuadIndex = 1
+	brush.m_LastSpawnXf = TrTransform.trs(Vector3.ZERO, Quaternion.IDENTITY, 2.0)
+	brush.m_LastSpawnPressure = 0.2
+	var distance_m := Vector3(10.0, 0.0, 0.0).length() * App.UNITS_TO_METERS
+	var window_m := QuadStripBrush.K_PRESSURE_SMOOTH_WINDOW_METERS_PS * brush.pointer_to_local()
+	var k := pow(0.1, distance_m / window_m)
+	var expected_pressure := k * 0.2 + (1.0 - k) * 0.8
+	_expect_close(brush.get_smoothed_pressure(0.8, Vector3(10.0, 0.0, 0.0)), expected_pressure, "quad strip pressure smoothing")
+	brush.set_preview_mode()
+	_expect_close(brush.get_smoothed_pressure(0.8, Vector3(10.0, 0.0, 0.0)), 0.8, "quad strip preview pressure is unsmoothed")
+	brush.m_NumQuads = 4
+	brush.m_LeadingQuadIndex = 2
+	_expect(not brush.is_out_of_verts(), "single-sided one quad before out of verts")
+	brush.m_LeadingQuadIndex = 3
+	_expect(brush.is_out_of_verts(), "single-sided out of verts threshold")
+	brush.free()
+
+	var double := _make_quad_brush(QuadStripBrushStretchUV.new(), true)
+	double.m_NumQuads = 6
+	double.m_LeadingQuadIndex = 3
+	_expect(not double.is_out_of_verts(), "double-sided one solid before out of verts")
+	double.m_LeadingQuadIndex = 4
+	_expect(double.is_out_of_verts(), "double-sided out of verts threshold")
+	double.free()
+
+func _check_small_move_does_not_generate_or_update_spawn() -> void:
+	var brush := _make_quad_brush(QuadStripBrushStretchUV.new(), false)
+	var prior_xf := brush.m_LastSpawnXf
+	var threshold := QuadStripBrush.K_MINIMUM_MOVE_LENGTH_METERS_PS * App.METERS_TO_UNITS * brush.pointer_to_local()
+	var generated := brush.update_position_ls(TrTransform.trs(Vector3(threshold * 0.5, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0)
+	_expect(not generated, "small quad-strip move does not generate")
+	_expect_equal(brush.m_LeadingQuadIndex, 0, "small quad-strip move preserves leading index")
+	_expect_equal(brush.m_InitialQuadIndex, 0, "small quad-strip move preserves initial index")
+	_expect_vec3_close(brush.m_LastSpawnXf.translation, prior_xf.translation, "small quad-strip move preserves last spawn translation")
+	_expect_close(brush.m_LastSpawnXf.scale, prior_xf.scale, "small quad-strip move preserves last spawn scale")
 	brush.finalize_solitary_brush()
 	brush.free()
 
