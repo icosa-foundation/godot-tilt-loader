@@ -106,8 +106,8 @@ Implemented so far:
 - Direct runtime finalization for `QuadStripBrushDistanceUV` now flushes pending tangent requests like the visual update path, matching the established stretch UV finalization behavior.
 - Open Brush fake layout brushes (`PbrBrushScript`, `EnvironmentBrushScript`, `SvgBrushScript`) are classified as non-mesh layout providers with explicit no-op batched finalization.
 - Current Godot parity tests and probes are classified in `OPEN_BRUSH_PARITY_TEST_INVENTORY.md`, including the remaining evidence gap that no authoritative Open Brush reference mesh fixtures have been exported yet.
-- An Open Brush reference mesh fixture harness now exists at `Tests/GDScript/OpenBrushReferenceMeshFixtureTest.gd`. It scans `Resources/Fixtures/OpenBrushReferenceMeshes/*.json`, replays each referenced stroke through Godot, and compares vertex positions, triangle indices, and primary diffuse UV0 against Open Brush-exported mesh data.
-- The Unity-side exporter source now exists at `Tools/OpenBrushReferenceMeshExport/OpenBrushReferenceMeshExportTest.cs`. It is installed in the Open Brush Unity editor test assembly and exports finalized `BatchSubset` mesh data for the cafe Ink fixture.
+- An Open Brush reference mesh fixture harness now exists at `Tests/GDScript/OpenBrushReferenceMeshFixtureTest.gd`. It scans `Resources/Fixtures/OpenBrushReferenceMeshes/*.json`, replays each referenced stroke through Godot, and compares vertex positions, triangle indices, normals, colors, tangents, and full-width UV0/UV1/UV2 data against Open Brush-exported mesh data.
+- The Unity-side exporter source now exists at `Tools/OpenBrushReferenceMeshExport/OpenBrushReferenceMeshExportTest.cs`. It is installed in the Open Brush Unity editor test assembly and exports finalized `BatchSubset` mesh data plus `GeometryPool` layout/channel data for the cafe Ink fixture.
 
 Focused tests added/updated:
 
@@ -180,7 +180,7 @@ Focused tests added/updated:
   - provides the source-of-truth mesh comparison harness for future Open Brush C# mesh fixtures,
   - scans `Resources/Fixtures/OpenBrushReferenceMeshes/*.json`,
   - supports referenced stroke fixtures via `source_stroke_fixture`,
-  - compares positions, triangle indices, and primary diffuse UV0 values,
+  - compares positions, triangle indices, normals, colors, tangents, and full-width UV0/UV1/UV2 values directly from `MeshData`,
   - accepts `--require-open-brush-reference-fixtures` to fail when no fixtures are present.
 - `Tests/GDScript/CafeStrokeFixtureExtractProbe.gd`
   - extracts a source fixture from `res://Temp/TiltEvidence/brush_cafe_experimental.tilt`,

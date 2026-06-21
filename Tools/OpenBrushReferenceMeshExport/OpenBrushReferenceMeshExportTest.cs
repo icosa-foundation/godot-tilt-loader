@@ -171,13 +171,36 @@ namespace TiltBrush
                 ["brush"] = brushName,
                 ["source_stroke_fixture"] = "res://" + sourceStrokeFixtureRelativePath.Replace('\\', '/'),
                 ["position_tolerance"] = 0.00001f,
+                ["normal_tolerance"] = 0.00001f,
+                ["color_tolerance"] = 0.00001f,
                 ["uv_tolerance"] = 0.00001f,
+                ["tangent_tolerance"] = 0.00001f,
                 ["mesh"] = new JObject
                 {
+                    ["layout"] = SerializeLayout(geometry),
                     ["vertices"] = SerializeVertices(geometry, subset),
                     ["triangles"] = SerializeTriangles(geometry, subset),
-                    ["uv0"] = SerializeUv0(geometry, subset)
+                    ["normals"] = SerializeNormals(geometry, subset),
+                    ["colors"] = SerializeColors(geometry, subset),
+                    ["tangents"] = SerializeTangents(geometry, subset),
+                    ["uv0"] = SerializeTexcoord(geometry, subset, channel: 0),
+                    ["uv1"] = SerializeTexcoord(geometry, subset, channel: 1),
+                    ["uv2"] = SerializeTexcoord(geometry, subset, channel: 2)
                 }
+            };
+        }
+
+        private static JObject SerializeLayout(GeometryPool geometry)
+        {
+            GeometryPool.VertexLayout layout = geometry.Layout;
+            return new JObject
+            {
+                ["use_normals"] = layout.bUseNormals,
+                ["use_colors"] = layout.bUseColors,
+                ["use_tangents"] = layout.bUseTangents,
+                ["uv0_size"] = layout.texcoord0.size,
+                ["uv1_size"] = layout.texcoord1.size,
+                ["uv2_size"] = layout.texcoord2.size
             };
         }
 
@@ -203,10 +226,10 @@ namespace TiltBrush
             return values;
         }
 
-        private static JArray SerializeUv0(GeometryPool geometry, BatchSubset subset)
+        private static JArray SerializeNormals(GeometryPool geometry, BatchSubset subset)
         {
             var values = new JArray();
-            if (geometry.Layout.texcoord0.size == 0)
+            if (!geometry.Layout.bUseNormals)
             {
                 return values;
             }
@@ -214,26 +237,98 @@ namespace TiltBrush
             int end = subset.m_StartVertIndex + subset.m_VertLength;
             for (int i = subset.m_StartVertIndex; i < end; i++)
             {
-                values.Add(SerializeVector2(GetUv0Xy(geometry, i)));
+                values.Add(SerializeVector3(geometry.m_Normals[i]));
             }
             return values;
         }
 
-        private static Vector2 GetUv0Xy(GeometryPool geometry, int index)
+        private static JArray SerializeColors(GeometryPool geometry, BatchSubset subset)
         {
-            switch (geometry.Layout.texcoord0.size)
+            var values = new JArray();
+            if (!geometry.Layout.bUseColors)
+            {
+                return values;
+            }
+
+            int end = subset.m_StartVertIndex + subset.m_VertLength;
+            for (int i = subset.m_StartVertIndex; i < end; i++)
+            {
+                Color32 color = geometry.m_Colors[i];
+                values.Add(new JArray(
+                    color.r / 255.0f,
+                    color.g / 255.0f,
+                    color.b / 255.0f,
+                    color.a / 255.0f));
+            }
+            return values;
+        }
+
+        private static JArray SerializeTangents(GeometryPool geometry, BatchSubset subset)
+        {
+            var values = new JArray();
+            if (!geometry.Layout.bUseTangents)
+            {
+                return values;
+            }
+
+            int end = subset.m_StartVertIndex + subset.m_VertLength;
+            for (int i = subset.m_StartVertIndex; i < end; i++)
+            {
+                values.Add(SerializeVector4(geometry.m_Tangents[i]));
+            }
+            return values;
+        }
+
+        private static JArray SerializeTexcoord(GeometryPool geometry, BatchSubset subset, int channel)
+        {
+            var values = new JArray();
+            int size = geometry.Layout.GetTexcoordInfo(channel).size;
+            if (size == 0)
+            {
+                return values;
+            }
+
+            int end = subset.m_StartVertIndex + subset.m_VertLength;
+            for (int i = subset.m_StartVertIndex; i < end; i++)
+            {
+                values.Add(SerializeTexcoordValue(geometry, channel, size, i));
+            }
+            return values;
+        }
+
+        private static JArray SerializeTexcoordValue(
+            GeometryPool geometry,
+            int channel,
+            int size,
+            int index)
+        {
+            GeometryPool.TexcoordData texcoord = GetTexcoordData(geometry, channel);
+            switch (size)
             {
                 case 2:
-                    return geometry.m_Texcoord0.v2[index];
+                    return SerializeVector2(texcoord.v2[index]);
                 case 3:
-                    Vector3 uvw = geometry.m_Texcoord0.v3[index];
-                    return new Vector2(uvw.x, uvw.y);
+                    return SerializeVector3(texcoord.v3[index]);
                 case 4:
-                    Vector4 uv4 = geometry.m_Texcoord0.v4[index];
-                    return new Vector2(uv4.x, uv4.y);
+                    return SerializeVector4(texcoord.v4[index]);
                 default:
                     throw new InvalidOperationException(
-                        $"Unsupported UV0 size {geometry.Layout.texcoord0.size}");
+                        $"Unsupported UV{channel} size {size}");
+            }
+        }
+
+        private static GeometryPool.TexcoordData GetTexcoordData(GeometryPool geometry, int channel)
+        {
+            switch (channel)
+            {
+                case 0:
+                    return geometry.m_Texcoord0;
+                case 1:
+                    return geometry.m_Texcoord1;
+                case 2:
+                    return geometry.m_Texcoord2;
+                default:
+                    throw new InvalidOperationException($"Unsupported UV channel {channel}");
             }
         }
 
@@ -266,6 +361,11 @@ namespace TiltBrush
         private static JArray SerializeVector3(Vector3 value)
         {
             return new JArray(value.x, value.y, value.z);
+        }
+
+        private static JArray SerializeVector4(Vector4 value)
+        {
+            return new JArray(value.x, value.y, value.z, value.w);
         }
 
         private class StrokeFixture

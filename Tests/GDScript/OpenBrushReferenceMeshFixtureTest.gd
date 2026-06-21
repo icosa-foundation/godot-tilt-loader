@@ -6,7 +6,10 @@ const IcosaOpenBrushScript := preload("res://addons/icosa/open_brush/open_brush.
 
 const REFERENCE_DIR := "res://Resources/Fixtures/OpenBrushReferenceMeshes"
 const DEFAULT_POSITION_TOLERANCE := 0.00001
+const DEFAULT_NORMAL_TOLERANCE := 0.00001
+const DEFAULT_COLOR_TOLERANCE := 0.00001
 const DEFAULT_UV_TOLERANCE := 0.00001
+const DEFAULT_TANGENT_TOLERANCE := 0.00001
 
 var _failures := 0
 
@@ -108,37 +111,73 @@ func _load_stroke_fixture(reference: Dictionary, reference_path: String) -> Dict
 
 func _compare_reference_mesh(path: String, desc: BrushDescriptor, reference: Dictionary, actual_mesh: MeshData) -> void:
 	var mesh: Dictionary = reference.get("mesh", {})
+	var layout: Dictionary = mesh.get("layout", {})
 	var expected_vertices := _vec3_array_list(mesh.get("vertices", []))
 	var expected_triangles := _int_array_list(mesh.get("triangles", []))
-	var expected_uv0 := _vec2_array_list(mesh.get("uv0", []))
-	var arrays := actual_mesh.to_mesh_arrays()
-	var actual_vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
-	var actual_triangles: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
-	var actual_uv0: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV]
+	var expected_normals := _vec3_array_list(mesh.get("normals", []))
+	var expected_colors := _color_array_list(mesh.get("colors", []))
+	var expected_tangents := _vec4_array_list(mesh.get("tangents", []))
 
-	_expect(actual_vertices.size() == expected_vertices.size(), "%s vertex count" % path)
-	_expect(actual_triangles.size() == expected_triangles.size(), "%s triangle index count" % path)
-	if not expected_uv0.is_empty():
-		_expect(actual_uv0.size() == expected_uv0.size(), "%s uv0 count" % path)
-
-	var max_position_delta := _max_vec3_delta(actual_vertices, expected_vertices)
-	var max_uv_delta := _max_vec2_delta(actual_uv0, expected_uv0)
-	print("OPEN_BRUSH_REFERENCE_MESH\tpath=%s\tbrush=%s\tverts=%d\ttris=%d\tuv0=%d\tmax_position_delta=%.8f\tmax_uv_delta=%.8f" % [
-		path,
-		desc.m_DurableName,
-		actual_vertices.size(),
-		actual_triangles.size(),
-		actual_uv0.size(),
-		max_position_delta,
-		max_uv_delta,
-	])
+	_expect(actual_mesh.vertices.size() == expected_vertices.size(), "%s vertex count" % path)
+	_expect(actual_mesh.triangles.size() == expected_triangles.size(), "%s triangle index count" % path)
 
 	var position_tolerance := float(reference.get("position_tolerance", DEFAULT_POSITION_TOLERANCE))
+	var normal_tolerance := float(reference.get("normal_tolerance", DEFAULT_NORMAL_TOLERANCE))
+	var color_tolerance := float(reference.get("color_tolerance", DEFAULT_COLOR_TOLERANCE))
 	var uv_tolerance := float(reference.get("uv_tolerance", DEFAULT_UV_TOLERANCE))
+	var tangent_tolerance := float(reference.get("tangent_tolerance", DEFAULT_TANGENT_TOLERANCE))
+
+	var max_position_delta := _max_vec3_delta(actual_mesh.vertices, expected_vertices)
 	_expect(max_position_delta <= position_tolerance, "%s vertex positions within tolerance %.8f" % [path, position_tolerance])
-	if not expected_uv0.is_empty():
-		_expect(max_uv_delta <= uv_tolerance, "%s uv0 within tolerance %.8f" % [path, uv_tolerance])
-	_compare_triangles(path, actual_triangles, expected_triangles)
+	_compare_triangles(path, actual_mesh.triangles, expected_triangles)
+
+	var max_normal_delta := _compare_vec3_channel(
+		path,
+		"normals",
+		actual_mesh.normals,
+		expected_normals,
+		normal_tolerance,
+		bool(layout.get("use_normals", false)))
+	var max_color_delta := _compare_color_channel(
+		path,
+		actual_mesh.colors,
+		expected_colors,
+		color_tolerance,
+		bool(layout.get("use_colors", false)))
+	var max_tangent_delta := _compare_vec4_channel(
+		path,
+		"tangents",
+		actual_mesh.tangents,
+		expected_tangents,
+		tangent_tolerance,
+		bool(layout.get("use_tangents", false)))
+	var max_uv_delta := 0.0
+	for channel in range(3):
+		var key := "uv%d" % channel
+		var size := int(layout.get("%s_size" % key, _infer_vector_size(mesh.get(key, []))))
+		var expected_uvs := _vector_array_list(mesh.get(key, []), size)
+		var actual_uvs: Array = actual_mesh.get_uvs(channel, size)
+		var channel_delta := _compare_vector_channel(
+			path,
+			key,
+			actual_uvs,
+			expected_uvs,
+			size,
+			uv_tolerance,
+			size > 0)
+		max_uv_delta = maxf(max_uv_delta, channel_delta)
+
+	print("OPEN_BRUSH_REFERENCE_MESH\tpath=%s\tbrush=%s\tverts=%d\ttris=%d\tmax_position_delta=%.8f\tmax_normal_delta=%.8f\tmax_color_delta=%.8f\tmax_uv_delta=%.8f\tmax_tangent_delta=%.8f" % [
+		path,
+		desc.m_DurableName,
+		actual_mesh.vertices.size(),
+		actual_mesh.triangles.size(),
+		max_position_delta,
+		max_normal_delta,
+		max_color_delta,
+		max_uv_delta,
+		max_tangent_delta,
+	])
 
 func _load_json_file(path: String) -> Dictionary:
 	var json := FileAccess.get_file_as_string(path)
@@ -217,6 +256,38 @@ func _vec2_array_list(values: Variant) -> Array[Vector2]:
 			output.append(Vector2(float(value[0]), float(value[1])))
 	return output
 
+func _vec4_array_list(values: Variant) -> Array[Vector4]:
+	var output: Array[Vector4] = []
+	if not values is Array:
+		return output
+	for value in values:
+		if value is Array and value.size() >= 4:
+			output.append(Vector4(float(value[0]), float(value[1]), float(value[2]), float(value[3])))
+	return output
+
+func _color_array_list(values: Variant) -> Array[Color]:
+	var output: Array[Color] = []
+	if not values is Array:
+		return output
+	for value in values:
+		if value is Array and value.size() >= 4:
+			output.append(Color(float(value[0]), float(value[1]), float(value[2]), float(value[3])))
+	return output
+
+func _vector_array_list(values: Variant, size: int) -> Array:
+	match size:
+		0:
+			return []
+		2:
+			return _vec2_array_list(values)
+		3:
+			return _vec3_array_list(values)
+		4:
+			return _vec4_array_list(values)
+		_:
+			_expect(false, "invalid vector channel size %d" % size)
+			return []
+
 func _int_array_list(values: Variant) -> Array[int]:
 	var output: Array[int] = []
 	if not values is Array:
@@ -225,21 +296,94 @@ func _int_array_list(values: Variant) -> Array[int]:
 		output.append(int(value))
 	return output
 
-func _max_vec3_delta(actual: PackedVector3Array, expected: Array[Vector3]) -> float:
+func _infer_vector_size(values: Variant) -> int:
+	if not values is Array or values.is_empty():
+		return 0
+	var first = values[0]
+	if first is Array:
+		return first.size()
+	return 0
+
+func _max_vec3_delta(actual: Array, expected: Array[Vector3]) -> float:
 	var max_delta := 0.0
 	var count := mini(actual.size(), expected.size())
 	for index in range(count):
 		max_delta = maxf(max_delta, actual[index].distance_to(expected[index]))
 	return max_delta
 
-func _max_vec2_delta(actual: PackedVector2Array, expected: Array[Vector2]) -> float:
+func _max_vec2_delta(actual: Array, expected: Array[Vector2]) -> float:
 	var max_delta := 0.0
 	var count := mini(actual.size(), expected.size())
 	for index in range(count):
 		max_delta = maxf(max_delta, actual[index].distance_to(expected[index]))
 	return max_delta
 
-func _compare_triangles(path: String, actual: PackedInt32Array, expected: Array[int]) -> void:
+func _max_vec4_delta(actual: Array, expected: Array[Vector4]) -> float:
+	var max_delta := 0.0
+	var count := mini(actual.size(), expected.size())
+	for index in range(count):
+		var delta := maxf(absf(actual[index].x - expected[index].x), absf(actual[index].y - expected[index].y))
+		delta = maxf(delta, absf(actual[index].z - expected[index].z))
+		delta = maxf(delta, absf(actual[index].w - expected[index].w))
+		max_delta = maxf(max_delta, delta)
+	return max_delta
+
+func _max_color_delta(actual: Array[Color], expected: Array[Color]) -> float:
+	var max_delta := 0.0
+	var count := mini(actual.size(), expected.size())
+	for index in range(count):
+		var delta := maxf(absf(actual[index].r - expected[index].r), absf(actual[index].g - expected[index].g))
+		delta = maxf(delta, absf(actual[index].b - expected[index].b))
+		delta = maxf(delta, absf(actual[index].a - expected[index].a))
+		max_delta = maxf(max_delta, delta)
+	return max_delta
+
+func _compare_vec3_channel(path: String, channel_name: String, actual: Array[Vector3], expected: Array[Vector3], tolerance: float, required: bool) -> float:
+	if expected.is_empty() and not required:
+		return 0.0
+	_expect(actual.size() == expected.size(), "%s %s count" % [path, channel_name])
+	var max_delta := _max_vec3_delta(actual, expected)
+	_expect(max_delta <= tolerance, "%s %s within tolerance %.8f" % [path, channel_name, tolerance])
+	return max_delta
+
+func _compare_vec4_channel(path: String, channel_name: String, actual: Array[Vector4], expected: Array[Vector4], tolerance: float, required: bool) -> float:
+	if expected.is_empty() and not required:
+		return 0.0
+	_expect(actual.size() == expected.size(), "%s %s count" % [path, channel_name])
+	var max_delta := _max_vec4_delta(actual, expected)
+	_expect(max_delta <= tolerance, "%s %s within tolerance %.8f" % [path, channel_name, tolerance])
+	return max_delta
+
+func _compare_color_channel(path: String, actual: Array[Color], expected: Array[Color], tolerance: float, required: bool) -> float:
+	if expected.is_empty() and not required:
+		return 0.0
+	_expect(actual.size() == expected.size(), "%s colors count" % path)
+	var max_delta := _max_color_delta(actual, expected)
+	_expect(max_delta <= tolerance, "%s colors within tolerance %.8f" % [path, tolerance])
+	return max_delta
+
+func _compare_vector_channel(path: String, channel_name: String, actual: Array, expected: Array, size: int, tolerance: float, required: bool) -> float:
+	if size == 0:
+		_expect(expected.is_empty(), "%s %s expected empty when layout size is 0" % [path, channel_name])
+		return 0.0
+	if expected.is_empty() and not required:
+		return 0.0
+	_expect(actual.size() == expected.size(), "%s %s count" % [path, channel_name])
+	var max_delta := 0.0
+	match size:
+		2:
+			max_delta = _max_vec2_delta(actual, expected)
+		3:
+			max_delta = _max_vec3_delta(actual, expected)
+		4:
+			max_delta = _max_vec4_delta(actual, expected)
+		_:
+			_expect(false, "%s %s invalid size %d" % [path, channel_name, size])
+			return 0.0
+	_expect(max_delta <= tolerance, "%s %s within tolerance %.8f" % [path, channel_name, tolerance])
+	return max_delta
+
+func _compare_triangles(path: String, actual: Array[int], expected: Array[int]) -> void:
 	var count := mini(actual.size(), expected.size())
 	for index in range(count):
 		if actual[index] != expected[index]:

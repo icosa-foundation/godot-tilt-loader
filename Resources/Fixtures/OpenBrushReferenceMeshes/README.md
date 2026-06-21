@@ -23,19 +23,38 @@ Fixture schema:
   "brush": "Ink",
   "source_stroke_fixture": "res://Resources/Fixtures/cafe_ink_stroke_150.json",
   "position_tolerance": 0.00001,
+  "normal_tolerance": 0.00001,
+  "color_tolerance": 0.00001,
   "uv_tolerance": 0.00001,
+  "tangent_tolerance": 0.00001,
   "mesh": {
+    "layout": {
+      "use_normals": true,
+      "use_colors": true,
+      "use_tangents": true,
+      "uv0_size": 2,
+      "uv1_size": 0,
+      "uv2_size": 0
+    },
     "vertices": [[0.0, 0.0, 0.0]],
     "triangles": [0, 1, 2],
-    "uv0": [[0.0, 0.0]]
+    "normals": [[0.0, 1.0, 0.0]],
+    "colors": [[1.0, 1.0, 1.0, 1.0]],
+    "tangents": [[1.0, 0.0, 0.0, 1.0]],
+    "uv0": [[0.0, 0.0]],
+    "uv1": [],
+    "uv2": []
   }
 }
 ```
 
 Rules:
 
-- `mesh.vertices`, `mesh.triangles`, and `mesh.uv0` must come from Open Brush
-  C# mesh generation, not from Godot.
+- `mesh.vertices`, `mesh.triangles`, and all present channel arrays must come
+  from Open Brush C# mesh generation, not from Godot.
+- UV arrays preserve the Open Brush `GeometryPool` channel width. A `uv0_size`
+  of `4` means each `uv0` row must contain four floats, not just diffuse xy.
+- Colors are normalized RGBA floats exported from Open Brush `Color32` bytes.
 - Prefer small, targeted strokes that exercise one brush behavior each.
 - Use existing stroke fixtures for stroke input when possible, so only the mesh
   output is duplicated here.
