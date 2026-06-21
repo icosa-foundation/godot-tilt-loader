@@ -118,7 +118,8 @@ Implemented so far:
 - Current Godot parity tests and probes are classified in `OPEN_BRUSH_PARITY_TEST_INVENTORY.md`, including the remaining evidence gap that no authoritative Open Brush reference mesh fixtures have been exported yet.
 - An Open Brush reference mesh fixture harness now exists at `Tests/GDScript/OpenBrushReferenceMeshFixtureTest.gd`. It scans `Resources/Fixtures/OpenBrushReferenceMeshes/*.json`, replays each referenced stroke through Godot, and compares vertex positions, triangle indices, normals, colors, tangents, and full-width UV0/UV1/UV2 data against Open Brush-exported mesh data.
 - The Unity-side exporter source now exists at `Tools/OpenBrushReferenceMeshExport/OpenBrushReferenceMeshExportTest.cs`. It is installed in the Open Brush Unity editor test assembly and exports finalized `BatchSubset` mesh data plus `GeometryPool` layout/channel data for the representative cafe Ink, DuctTapeGeometry, Stars, Sparks, and MatteHull fixtures.
-- `Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd` now keeps the representative cafe fixture contract executable by checking that the Unity exporter source and reference fixture README list the same Ink, DuctTapeGeometry, Stars, Sparks, and MatteHull fixture set.
+- `Tools/OpenBrushReferenceMeshExport/RunOpenBrushReferenceMeshExport.ps1` now defaults to the separate `open-brush-reference-exporter-worktree` checkout and refuses to run against the main `open-brush-fast` checkout unless `-AllowMainOpenBrushProject` is passed explicitly.
+- `Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd` now keeps the representative cafe fixture contract executable by checking that the Unity exporter source, runner safety guard, and reference fixture README stay aligned.
 - `OPEN_BRUSH_BRUSH_CLASS_INVENTORY.md` now records the Phase 1.2 brush class inventory: runtime class, Open Brush source file, catalog prefab families, geometry/UV role, finalization requirement, coverage, and current status. `Tests/GDScript/BrushClassInventoryCoverageTest.gd` keeps that inventory aligned with the catalog prefab families and expected source/runtime classes.
 - The four Open Brush experimental ParentBrush composites (`CandyCane`, `HolidayTree`, `Braid3`, and `Snowflake`) are now explicitly recorded as unsupported catalog brushes instead of surfacing as generic missing GUID warnings during manifest loading.
 - `TiltBrushManifest.append_from()` now de-duplicates merged manifests by brush GUID instead of object identity and lets normal-brush entries take precedence over compatibility entries. This removes duplicate catalog GUID warnings and registers 97 live normal brushes when `Manifest.asset` and `Manifest_Experimental.asset` are combined.
@@ -229,6 +230,7 @@ Focused tests added/updated:
   - accepts `--require-open-brush-reference-fixtures` to fail when no fixtures are present.
 - `Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd`
   - checks the checked-in Unity exporter source still includes the representative cafe fixture export set,
+  - checks the exporter runner defaults to a separate Open Brush worktree and refuses the main Open Brush checkout by default,
   - checks the reference fixture README names the same representative cafe fixtures,
   - verifies the explicit `OpenBrushReferenceExport` category and `ExportRepresentativeCafeFixtures` entry point are present.
 - `Tests/GDScript/BrushClassInventoryCoverageTest.gd`
@@ -328,6 +330,30 @@ Additional validation after strengthening the importer fallback regression guard
 
 Result: command exited successfully. The guard now rejects the old importer-local family dispatch helpers, fallback tessellator entry points, and fallback constants, and requires the shared registry, replay, and material resolver path.
 
+Additional validation after adding the exporter-runner main-checkout safety guard:
+
+```powershell
+& .\Tools\OpenBrushReferenceMeshExport\RunOpenBrushReferenceMeshExport.ps1 -OpenBrushRoot "C:\Users\andyb\Documents\open-brush-fast"
+```
+
+Result: command stopped before launching Unity with `Refusing to run reference export against the main Open Brush checkout`.
+
+The exporter was then attempted against `C:\Users\andyb\Documents\open-brush-reference-exporter-worktree`:
+
+```powershell
+& .\Tools\OpenBrushReferenceMeshExport\RunOpenBrushReferenceMeshExport.ps1 -OpenBrushRoot "C:\Users\andyb\Documents\open-brush-reference-exporter-worktree"
+```
+
+Result: Unity opened the separate worktree but failed before running tests during package resolution: `The "path" argument must be of type string. Received undefined.` No reference mesh fixtures were generated.
+
+Exporter contract validation after the runner guard change:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd
+```
+
+Result: command exited successfully.
+
 Open Brush Unity editor project compile check also run after installing the exporter:
 
 ```powershell
@@ -341,6 +367,7 @@ Known validation noise:
 - Godot reported an existing resource-leak warning after a scene-style test.
 - Catalog loading now explicitly logs unsupported experimental ParentBrush composite skips instead of missing GUID or duplicate GUID warnings.
 - Cafe importer validation reports legacy GUID remaps; these do not currently fail the runtime replay test.
+- Unity reference fixture export from the separate Open Brush worktree is currently blocked by Unity Package Manager failing during fresh package resolution before tests run.
 
 ## Next Required Work
 

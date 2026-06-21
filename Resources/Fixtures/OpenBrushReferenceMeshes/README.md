@@ -15,10 +15,17 @@ Open Brush Unity project it belongs at
 the explicit `OpenBrushReferenceExport` tests write fixtures here.
 
 Use `Tools/OpenBrushReferenceMeshExport/RunOpenBrushReferenceMeshExport.ps1`
-from this Godot repo to run the exporter. It sets
+from this Godot repo to run the exporter against a separate Open Brush git
+worktree. It sets
 `OPEN_BRUSH_STROKE_GEN_GODOT_ROOT`, captures the Unity log in `Temp/`, and fails
 if Unity reports that the Open Brush project is already open or if any expected
 reference mesh JSON file is missing.
+
+By default the runner targets
+`C:\Users\andyb\Documents\open-brush-reference-exporter-worktree`. It refuses to
+run against the main `C:\Users\andyb\Documents\open-brush-fast` checkout unless
+`-AllowMainOpenBrushProject` is passed explicitly. This keeps exporter work out
+of a checkout being used for unrelated Open Brush development.
 
 The current exporter includes these representative cafe strokes:
 

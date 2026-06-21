@@ -1,8 +1,9 @@
 param(
     [string] $GodotRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path,
-    [string] $OpenBrushRoot = "C:\Users\andyb\Documents\open-brush-fast",
+    [string] $OpenBrushRoot = "C:\Users\andyb\Documents\open-brush-reference-exporter-worktree",
     [string] $UnityExe = "C:\Program Files\Unity\Hub\Editor\2022.3.62f2\Editor\Unity.exe",
-    [string] $TestFilter = "TiltBrush.OpenBrushReferenceMeshExportTest.ExportRepresentativeCafeFixtures"
+    [string] $TestFilter = "TiltBrush.OpenBrushReferenceMeshExportTest.ExportRepresentativeCafeFixtures",
+    [switch] $AllowMainOpenBrushProject
 )
 
 $ErrorActionPreference = "Stop"
@@ -53,6 +54,19 @@ function Test-LogHasTerminalMarker {
 $logDirectory = Join-Path $GodotRoot "Temp"
 $logPath = Join-Path $logDirectory "open_brush_reference_export.log"
 $outputDirectory = Join-Path $GodotRoot "Resources\Fixtures\OpenBrushReferenceMeshes"
+$mainOpenBrushRoot = "C:\Users\andyb\Documents\open-brush-fast"
+
+$resolvedOpenBrushRoot = (Resolve-Path -LiteralPath $OpenBrushRoot).Path
+$resolvedMainOpenBrushRoot = $null
+if (Test-Path -LiteralPath $mainOpenBrushRoot) {
+    $resolvedMainOpenBrushRoot = (Resolve-Path -LiteralPath $mainOpenBrushRoot).Path
+}
+
+if ($resolvedMainOpenBrushRoot -ne $null -and
+    $resolvedOpenBrushRoot -eq $resolvedMainOpenBrushRoot -and
+    -not $AllowMainOpenBrushProject) {
+    throw "Refusing to run reference export against the main Open Brush checkout at $resolvedMainOpenBrushRoot. Use a separate git worktree, or pass -AllowMainOpenBrushProject if you intentionally want to use that checkout."
+}
 
 New-Item -ItemType Directory -Force -Path $logDirectory | Out-Null
 New-Item -ItemType Directory -Force -Path $outputDirectory | Out-Null
@@ -62,7 +76,7 @@ $env:OPEN_BRUSH_STROKE_GEN_GODOT_ROOT = $GodotRoot
 & $UnityExe `
     -batchmode `
     -nographics `
-    -projectPath $OpenBrushRoot `
+    -projectPath $resolvedOpenBrushRoot `
     -runTests `
     -testPlatform EditMode `
     -testFilter $TestFilter `
