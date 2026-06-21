@@ -12,7 +12,15 @@ The Unity-side exporter source is kept at
 `Tools/OpenBrushReferenceMeshExport/OpenBrushReferenceMeshExportTest.cs`. In the
 Open Brush Unity project it belongs at
 `Assets/Editor/Tests/OpenBrushReferenceMeshExportTest.cs`; after Unity compiles,
-the explicit `OpenBrushReferenceExport` test writes fixtures here.
+the explicit `OpenBrushReferenceExport` tests write fixtures here.
+
+The current exporter includes these representative cafe strokes:
+
+- `cafe_ink_stroke_150` (`Ink`)
+- `cafe_duct_tape_geometry_stroke_496` (`DuctTapeGeometry`)
+- `cafe_stars_stroke_130` (`Stars`)
+- `cafe_sparks_stroke_463` (`Sparks`)
+- `cafe_matte_hull_stroke_11` (`MatteHull`)
 
 Fixture schema:
 

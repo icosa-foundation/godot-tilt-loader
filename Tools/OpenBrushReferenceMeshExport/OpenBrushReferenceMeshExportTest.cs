@@ -17,17 +17,55 @@ namespace TiltBrush
     {
         private const string kSchema = "open-brush-reference-mesh-v1";
         private const string kGodotRootEnvVar = "OPEN_BRUSH_STROKE_GEN_GODOT_ROOT";
-        private const string kCafeInkStrokeFixture = "Resources/Fixtures/cafe_ink_stroke_150.json";
+
+        private static readonly ReferenceFixtureSpec[] kRepresentativeCafeFixtures =
+        {
+            new ReferenceFixtureSpec(
+                name: "cafe_ink_stroke_150",
+                brushName: "Ink",
+                sourceStrokeFixtureRelativePath: "Resources/Fixtures/cafe_ink_stroke_150.json"),
+            new ReferenceFixtureSpec(
+                name: "cafe_duct_tape_geometry_stroke_496",
+                brushName: "DuctTapeGeometry",
+                sourceStrokeFixtureRelativePath: "Resources/Fixtures/cafe_duct_tape_geometry_stroke_496.json"),
+            new ReferenceFixtureSpec(
+                name: "cafe_stars_stroke_130",
+                brushName: "Stars",
+                sourceStrokeFixtureRelativePath: "Resources/Fixtures/cafe_stars_stroke_130.json"),
+            new ReferenceFixtureSpec(
+                name: "cafe_sparks_stroke_463",
+                brushName: "Sparks",
+                sourceStrokeFixtureRelativePath: "Resources/Fixtures/cafe_sparks_stroke_463.json"),
+            new ReferenceFixtureSpec(
+                name: "cafe_matte_hull_stroke_11",
+                brushName: "MatteHull",
+                sourceStrokeFixtureRelativePath: "Resources/Fixtures/cafe_matte_hull_stroke_11.json")
+        };
+
+        [Test]
+        [Explicit("Writes representative Open Brush reference mesh fixtures into the Godot parity repo.")]
+        [Category("OpenBrushReferenceExport")]
+        public void ExportRepresentativeCafeFixtures()
+        {
+            foreach (ReferenceFixtureSpec spec in kRepresentativeCafeFixtures)
+            {
+                ExportReferenceFixture(
+                    name: spec.Name,
+                    brushName: spec.BrushName,
+                    sourceStrokeFixtureRelativePath: spec.SourceStrokeFixtureRelativePath);
+            }
+        }
 
         [Test]
         [Explicit("Writes Open Brush reference mesh fixtures into the Godot parity repo.")]
         [Category("OpenBrushReferenceExport")]
         public void ExportCafeInkStroke150()
         {
+            ReferenceFixtureSpec spec = kRepresentativeCafeFixtures[0];
             ExportReferenceFixture(
-                name: "cafe_ink_stroke_150",
-                brushName: "Ink",
-                sourceStrokeFixtureRelativePath: kCafeInkStrokeFixture);
+                name: spec.Name,
+                brushName: spec.BrushName,
+                sourceStrokeFixtureRelativePath: spec.SourceStrokeFixtureRelativePath);
         }
 
         private static void ExportReferenceFixture(
@@ -390,6 +428,23 @@ namespace TiltBrush
 
             [JsonProperty("control_points")]
             public ControlPointFixture[] ControlPoints { get; set; }
+        }
+
+        private class ReferenceFixtureSpec
+        {
+            public ReferenceFixtureSpec(
+                string name,
+                string brushName,
+                string sourceStrokeFixtureRelativePath)
+            {
+                Name = name;
+                BrushName = brushName;
+                SourceStrokeFixtureRelativePath = sourceStrokeFixtureRelativePath;
+            }
+
+            public string Name { get; }
+            public string BrushName { get; }
+            public string SourceStrokeFixtureRelativePath { get; }
         }
 
         private class ControlPointFixture
