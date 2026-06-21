@@ -7,10 +7,22 @@ func _init() -> void:
 	quit(1 if _failures > 0 else 0)
 
 func _run() -> void:
+	_check_spray_salt_wraps_like_open_brush()
 	_check_spray_geometry()
+	_check_spray_single_sided_geometry()
+	_check_spray_batched_finalize()
 	_check_preview_decay_bookkeeping()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_SPRAYBRUSH: all checks passed")
+
+func _check_spray_salt_wraps_like_open_brush() -> void:
+	var brush := SprayBrush.new()
+	_expect_equal(brush.calculate_salt(3, 0), 360, "spray salt base")
+	_expect_equal(brush.calculate_salt(3, SprayBrush.K_SALT_MAX_QUADS_PER_KNOT), 360, "spray salt wraps at salt max quads")
+	_expect_equal(brush.calculate_salt(3, SprayBrush.K_SALT_MAX_QUADS_PER_KNOT + 1), 370, "spray salt wraps next quad")
+	brush.m_DecayedKnots = 2
+	_expect_equal(brush.calculate_salt(3, 0), 600, "spray salt includes decayed knots")
+	brush.free()
 
 func _check_spray_geometry() -> void:
 	var brush := _make_spray_brush(true)
@@ -41,6 +53,28 @@ func _check_spray_geometry() -> void:
 	brush.finalize_solitary_brush()
 	_expect_equal(brush.mesh_data.vertices.size(), 16, "spray finalized vertex count")
 	_expect(brush.m_geometry == null, "spray releases geometry")
+	brush.free()
+
+func _check_spray_single_sided_geometry() -> void:
+	var brush := _make_spray_brush(false)
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(2.0, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "spray single-sided update keeps")
+	brush.apply_changes_to_visuals()
+
+	_expect_equal(brush.NS, 1, "spray single-sided stride")
+	_expect_equal(brush.m_geometry.num_verts(), 8, "spray single-sided vertex count")
+	_expect_equal(brush.m_geometry.num_tri_indices(), 12, "spray single-sided tri index count")
+	_expect_equal(brush.m_geometry.m_Tris.slice(0, 6), [0, 1, 3, 0, 3, 2], "spray single-sided first tri")
+	brush.free()
+
+func _check_spray_batched_finalize() -> void:
+	var brush := _make_spray_brush(true)
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(2.0, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "spray batched update keeps")
+	brush.apply_changes_to_visuals()
+	brush.finalize_for_runtime()
+
+	_expect_equal(brush.mesh_data.vertices.size(), 16, "spray batched finalized vertex count")
+	_expect_equal(brush.mesh_data.triangles.size(), 24, "spray batched finalized tri count")
+	_expect(brush.m_geometry == null, "spray batched releases geometry")
 	brush.free()
 
 func _check_preview_decay_bookkeeping() -> void:

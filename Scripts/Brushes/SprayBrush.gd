@@ -32,7 +32,7 @@ func _init() -> void:
 
 func calculate_salt(knot_index: int, quad_index: int) -> int:
 	var pretend_knot_index := knot_index + m_DecayedKnots
-	return K_SALT_MAX_SALTS_PER_QUAD * (pretend_knot_index * K_SALT_MAX_QUADS_PER_KNOT + quad_index % K_MAX_QUADS_PER_KNOT)
+	return K_SALT_MAX_SALTS_PER_QUAD * (pretend_knot_index * K_SALT_MAX_QUADS_PER_KNOT + quad_index % K_SALT_MAX_QUADS_PER_KNOT)
 
 func get_spawn_interval(pressure01: float) -> float:
 	return pressured_size(pressure01) / m_Desc.m_SprayRateMultiplier

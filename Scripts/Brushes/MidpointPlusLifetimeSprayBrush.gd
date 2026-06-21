@@ -164,23 +164,6 @@ func on_changed_tangents(knot_index: int) -> void:
 				set_tangent(vert_index, FL, facing)
 				set_tangent(vert_index, FR, facing)
 
-func create_particle_geometry(knot_index: int, particle_index: int, position: Vector3, size: float) -> void:
-	var cur := m_knots[knot_index]
-	var vert_index := cur.iVert + particle_index * K_VERTS_IN_SOLID * NS
-	var tri_index := cur.iTri + particle_index * K_TRIS_IN_SOLID * NS
-	var salt := K_SALT_MAX_SALTS_PER_QUAD * (knot_index * K_SALT_MAX_QUADS_PER_KNOT + particle_index)
-	var alpha: float = m_rng.in01(salt + K_SALT_ALPHA) if m_Desc.m_RandomizeAlpha else pressured_opacity(cur.smoothedPressure)
-	var center := position
-	var up_offset := Vector3.UP * size * 0.5
-	var right_offset := Vector3.RIGHT * size * 0.5
-	set_tri(tri_index, vert_index, 0, BR, BL, FL)
-	set_tri(tri_index, vert_index, 1, BR, FL, FR)
-	set_vert(vert_index, BR, center - up_offset + right_offset, cur.nSurface, m_Color, alpha)
-	set_vert(vert_index, BL, center - up_offset - right_offset, cur.nSurface, m_Color, alpha)
-	set_vert(vert_index, FR, center + up_offset + right_offset, cur.nSurface, m_Color, alpha)
-	set_vert(vert_index, FL, center + up_offset - right_offset, cur.nSurface, m_Color, alpha)
-	on_changed_uvs(knot_index)
-
 func get_num_quads_allowed() -> int:
 	var max_num_verts := 0xffff
 	return min(int((max_num_verts - get_num_used_verts()) / (K_VERTS_IN_SOLID * NS)), K_MAX_QUADS_PER_KNOT)
