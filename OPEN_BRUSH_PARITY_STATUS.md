@@ -118,6 +118,7 @@ Implemented so far:
 - `Tests/GDScript/BrushRuntimeRegistryParityTest.gd` now explicitly checks the promoted normal brushes that used to be masked by compatibility entries: `DotMarker` routes to `SprayBrush`, `Plasma` routes to `QuadStripBrushDistanceUV`, and `TaperedMarker_Flat` routes to `FlatGeometryBrush`.
 - `Tests/GDScript/BrushRuntimeRegistryParityTest.gd` now checks that a normal brush descriptor with no runtime factory is not registered and that replaying it through `BrushStrokeReplay` returns no mesh instead of generating fallback geometry.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd` now checks all 97 merged-manifest normal brushes route to the expected runtime class and verifies the expected normal prefab-family counts, including the merged `Line` count of 20.
+- `Tests/GDScript/LiveVsTiltUvParityTest.gd` now compares vertex positions as well as primary UVs and includes the promoted normal brushes `DotMarker`, `Plasma`, and `TaperedMarker_Flat` across direct replay, memory replay, pointer math, and live object paths.
 
 Focused tests added/updated:
 
@@ -207,6 +208,8 @@ Focused tests added/updated:
   - now checks an unknown normal prefab with no factory fails replay without producing fallback mesh data.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd`
   - now checks every normal merged-manifest prefab family has the expected route and count before validating mesh-affecting prefab fields.
+- `Tests/GDScript/LiveVsTiltUvParityTest.gd`
+  - now checks vertex and primary-UV equivalence for `Ink`, `Paper`, `TaperedMarker`, `LightWire`, `DotMarker`, `Plasma`, and `TaperedMarker_Flat` across direct runtime replay, pointer-memory replay, pointer math, and live object drawing paths.
 - `Tests/GDScript/CafeStrokeFixtureExtractProbe.gd`
   - extracts a source fixture from `res://Temp/TiltEvidence/brush_cafe_experimental.tilt`,
   - defaults to stroke index 150 and accepts `--source-stroke-index=...`,

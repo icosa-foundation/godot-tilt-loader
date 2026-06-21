@@ -12,6 +12,9 @@ func _init() -> void:
 	_compare_brush("Paper")
 	_compare_brush("TaperedMarker")
 	_compare_brush("LightWire")
+	_compare_brush("DotMarker")
+	_compare_brush("Plasma")
+	_compare_brush("TaperedMarker_Flat")
 	quit(1 if _failures > 0 else 0)
 
 func _load_manifest() -> TiltBrushManifest:
@@ -141,6 +144,12 @@ func _compare_meshes(label: String, a: MeshData, b: MeshData) -> void:
 	print("LIVE_TILT_UV\t%s\tverts=%d/%d\tuvs=%d/%d" % [label, a_vertices.size(), b_vertices.size(), a_uv.size(), b_uv.size()])
 	_expect(a_vertices.size() == b_vertices.size(), "%s vertex count" % label)
 	_expect(a_uv.size() == b_uv.size(), "%s uv count" % label)
+	var vertex_count := mini(a_vertices.size(), b_vertices.size())
+	var max_vertex_delta := 0.0
+	for index in range(vertex_count):
+		max_vertex_delta = maxf(max_vertex_delta, a_vertices[index].distance_to(b_vertices[index]))
+	print("LIVE_TILT_UV\t%s\tmax_vertex_delta=%.8f" % [label, max_vertex_delta])
+	_expect(max_vertex_delta < 0.00001, "%s vertex delta %.8f" % [label, max_vertex_delta])
 	var count := mini(a_uv.size(), b_uv.size())
 	var max_uv_delta := 0.0
 	for index in range(count):
