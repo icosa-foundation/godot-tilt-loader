@@ -41,7 +41,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `PbrBrushScript.gd` | `PbrBrushScript.cs` | Audited as non-mesh layout provider | Matches Open Brush fake-brush role: layout only, update returns true, zero used verts, zero spawn interval, and explicit no-op solitary/batched finalization. |
 | `EnvironmentBrushScript.gd` | `EnvironmentBrushScript.cs` | Audited as non-mesh layout provider | Matches Open Brush fake-brush role: layout only, optional UV1 layout, update returns true, zero used verts, zero spawn interval, and explicit no-op solitary/batched finalization. |
 | `SvgBrushScript.gd` | `SvgBrushScript.cs` | Audited as non-mesh layout provider | Matches Open Brush fake-brush role: layout only, update returns true, zero used verts, zero spawn interval, and explicit no-op solitary/batched finalization. |
-| `MidpointPlusLifetimeSprayBrush.gd` | `MidpointPlusLifetimeSprayBrush.cs` | Partially audited, active repair started | Removed non-Open-Brush finalization rewrite and the leftover unused particle helper copied from Genius-style particle behavior; finalization now preserves generated midpoint particles. UV1.w now stores Open Brush particle birth time. Particle layout and seed behavior still need full audit. |
+| `MidpointPlusLifetimeSprayBrush.gd` | `MidpointPlusLifetimeSprayBrush.cs` | Partially audited, active repair started | Removed non-Open-Brush finalization rewrite and the leftover unused particle helper copied from Genius-style particle behavior; finalization now preserves generated midpoint particles. Spawn interval, seeded random size/rotation/position/alpha branches, atlas UV selection, multi-particle spacing, tangent output, UV1 offset packing, and UV1.w birth time now have focused source-formula coverage. Full Open Brush reference fixture comparison still required. |
 
 ## Unsupported Godot Runtime Equivalents To Implement
 
@@ -102,6 +102,7 @@ Implemented so far:
 - Open Brush `GeniusParticlesBrush` pointer-travel distance override, straight-edge proxy flag, preview decay length-cache reduction, and decayed-knot salt offset now have focused coverage.
 - Open Brush `SprayBrush.CalculateSalt` modulo behavior for dense knots.
 - Open Brush `SprayBrush` spawn interval formula and seeded random particle layout branches now have focused coverage, including random size, rotation variance, position scatter, randomized alpha, atlas UV selection, multi-particle spacing, and tangent/backface sign output.
+- Open Brush `MidpointPlusLifetimeSprayBrush` spawn interval formula and seeded random particle layout branches now have focused coverage, including random size, rotation variance, position scatter, randomized alpha, atlas UV selection, multi-particle spacing, tangent output, and UV1 offset packing.
 - Catalog replay coverage now verifies all normal `Spray` and `MiddpointPlusLifetimeGeomSpray` brushes generate complete particle mesh channels through the shared runtime replay path.
 - Removal of the unused non-Open-Brush `MidpointPlusLifetimeSprayBrush.create_particle_geometry` helper.
 - Removal of unused `GeometryPool.append_mesh_data` fallback color/texcoord fill parameters; mesh appends now require complete source channel data instead of carrying dormant substitute-channel behavior.
@@ -222,7 +223,7 @@ Focused tests added/updated:
   - replays all seven normal catalog `GeniusParticle` brushes through `BrushStrokeReplay`,
   - verifies each one produces particle-quad-aligned mesh data with complete normal/color/UV0 Vector4/UV1 Vector3 channels and no tangents.
 - `Tests/GDScript/MidpointSprayBrushParityTest.gd`
-  - checks Midpoint Plus Lifetime Spray geometry layout, generated UV0/UV1 channels, tangent/color output, finalization preserving the generated particle mesh rather than applying Genius Particles hanging-particle removal, and Open Brush birth-time packing in UV1.w.
+  - checks Midpoint Plus Lifetime Spray geometry layout, spawn interval metadata, seeded random size/rotation/position/alpha formulas, atlas UV selection, generated UV0/UV1 channels, UV1 offset packing, tangent/color output, finalization preserving the generated particle mesh rather than applying Genius Particles hanging-particle removal, and Open Brush birth-time packing in UV1.w.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd`
   - walks the real manifest/catalog and verifies all normal `Line`, `LineWithWidth`, `UnitizedUV`, and `DistanceUV` prefabs route to the repaired quad-strip runtime classes.
   - verifies every mesh-affecting prefab field in the active manifest/catalog is applied to the created runtime brush instance, including quad-strip width storage, flat/thick/tube UV style, flat offset flags, hull parameters, concave hull parameters, and tube shape parameters.
@@ -481,6 +482,14 @@ Additional validation after adding `SprayBrush` seeded particle layout and spawn
 
 ```powershell
 & "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SprayBrushParityTest.gd
+```
+
+Result: command exited successfully.
+
+Additional validation after adding `MidpointPlusLifetimeSprayBrush` seeded particle layout, UV1 offset, and spawn-interval coverage:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/MidpointSprayBrushParityTest.gd
 ```
 
 Result: command exited successfully.
