@@ -21,13 +21,15 @@ Already fixed:
 - `MeshData.to_mesh_arrays()` is now the shared runtime mesh export path.
 - Live strokes now resolve Icosa/Open Brush materials through `BrushMaterialResolver`.
 - `MeshData` now preserves wider UV data into Godot custom channels instead of dropping `uv0.z/w`, `uv1`, and `uv2`.
+- `.tilt` scene building now resolves normal brushes through `BrushRuntimeRegistry`.
+- `.tilt` scene building replays strokes through `BrushStrokeReplay`.
+- `.tilt` scene building assigns materials through `BrushMaterialResolver`.
+- The production `.tilt` path no longer contains the old bespoke particle/ribbon fallback tessellators or importer-local brush-family factory helpers.
 
-Remaining problems:
+Remaining parity proof gaps:
 
-- `OpenBrushTiltSceneImporter` still has duplicated brush selection/factory logic.
-- `OpenBrushTiltSceneImporter` still contains bespoke particle and fallback ribbon tessellators.
-- `.tilt` import material assignment is not fully centralized through `BrushMaterialResolver`.
-- Normal brush import failures can still be hidden by fallback geometry paths.
+- Godot `.tilt` import/runtime replay is covered by path-equivalence and scene-level tests, but still needs authoritative Open Brush reference mesh fixtures for vertex-by-vertex proof.
+- Brush class line-by-line audits are still incomplete for most runtime classes.
 
 ## Architectural Rule
 

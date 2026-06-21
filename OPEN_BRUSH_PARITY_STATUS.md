@@ -250,6 +250,8 @@ Focused tests added/updated:
   - lists first runtime-supported cafe stroke candidates by descriptor prefab and runtime class so new fixture choices are reproducible.
 - `Tests/GDScript/TiltImporterRuntimeReplayTest.gd`
   - verifies the `.tilt` importer and runtime scene builder do not contain the old fallback tessellator entry points,
+  - verifies the `.tilt` path does not contain importer-local brush-family factory tokens or old fallback constants,
+  - verifies the `.tilt` path contains the shared `BrushRuntimeRegistry`, `BrushStrokeReplay`, and `BrushMaterialResolver` routing points,
   - loads the cafe `.tilt` through runtime replay and checks it creates substantial geometry/material coverage without unresolved normal-brush errors.
 
 Focused validation command run:
@@ -308,6 +310,14 @@ Additional validation after correcting stale shader UIDs in Godot brush material
 
 Result: all three commands exited successfully. The previous shader UID warnings for `Electricity.tres`, `Stars.tres`, and the cafe-imported `Snow`, `Dots`, `Smoke`, `Embers`, and `Bubbles` materials no longer appear.
 
+Additional validation after strengthening the importer fallback regression guard:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/TiltImporterRuntimeReplayTest.gd
+```
+
+Result: command exited successfully. The guard now rejects the old importer-local family dispatch helpers, fallback tessellator entry points, and fallback constants, and requires the shared registry, replay, and material resolver path.
+
 Open Brush Unity editor project compile check also run after installing the exporter:
 
 ```powershell
@@ -331,4 +341,3 @@ Known validation noise:
 3. Generate or import authoritative Open Brush reference mesh fixtures; the current cafe fixture verifies Godot runtime stability for a real stroke but does not yet compare against Open Brush vertex-by-vertex output.
 4. Convert current helper tests into generated-mesh parity tests where possible.
 5. Audit all remaining brush classes line-by-line against the reference source.
-6. Remove or quarantine any remaining production fallback geometry paths for normal brushes.

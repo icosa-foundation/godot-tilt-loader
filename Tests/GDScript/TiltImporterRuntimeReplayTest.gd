@@ -14,11 +14,28 @@ func _init() -> void:
 
 func _check_importer_has_no_fallback_tessellation() -> void:
 	var source := _read_text(TILT_IMPORTER_PATH) + "\n" + _read_text(TILT_SCENE_BUILDER_PATH)
-	_expect(not source.contains("_tessellate_strokes"), "tilt path has no generic ribbon fallback")
-	_expect(not source.contains("_tessellate_particle_strokes"), "tilt path has no particle fallback")
-	_expect(not source.contains("_uses_runtime_flat_brush"), "tilt path has no brush-family dispatch")
-	_expect(not source.contains("FlatGeometryBrush.gd"), "tilt path does not directly preload flat brush")
-	_expect(not source.contains("QuadStripBrush"), "tilt path does not directly preload quad strip brushes")
+	var forbidden_tokens := [
+		"_tessellate_strokes",
+		"_tessellate_particle_strokes",
+		"_uses_runtime_flat_brush",
+		"_uses_runtime_quad_strip_brush",
+		"_uses_runtime_hull_brush",
+		"PARTICLE_BRUSHES",
+		"BRUSH_ATLAS_V",
+		"BRUSH_TILE_RATE",
+		"_FlatGeometryBrush",
+		"_QuadStripBrushDistanceUV",
+		"_QuadStripBrushStretchUV",
+		"_HullBrush",
+		"_ConcaveHullBrush",
+		"FlatGeometryBrush.gd",
+		"QuadStripBrush",
+	]
+	for token in forbidden_tokens:
+		_expect(not source.contains(token), "tilt path has no fallback/importer-local brush path token: %s" % token)
+	_expect(source.contains("BrushRuntimeRegistry"), "tilt path uses BrushRuntimeRegistry")
+	_expect(source.contains("BrushStrokeReplay"), "tilt path uses BrushStrokeReplay")
+	_expect(source.contains("BrushMaterialResolver"), "tilt path uses BrushMaterialResolver")
 
 func _check_importer_replays_tilt_through_runtime_brushes() -> void:
 	var reader_script := load(TILT_READER_PATH)
