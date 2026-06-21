@@ -59,7 +59,7 @@ func flush_update_uv_request() -> void:
 	var quads_per_solid := 2 if m_EnableBackfaces else 1
 	var num_solids := int((segment_front - segment_back) / quads_per_solid)
 	var random01 := m_rng.in01(segment_back * 6)
-	var num_v: int = max(m_Desc.m_TextureAtlasV, 1)
+	var num_v: int = m_Desc.m_TextureAtlasV
 	var atlas := int(random01 * num_v)
 	var y_start := atlas / float(num_v)
 	var y_end := (atlas + 1) / float(num_v)
@@ -118,3 +118,7 @@ func update_uvs(quad0: int, quad1: int, size: float) -> void:
 func finalize_solitary_brush() -> void:
 	flush_update_uv_request()
 	super.finalize_solitary_brush()
+
+func finalize_batched_brush() -> void:
+	flush_update_uv_request()
+	super.finalize_batched_brush()

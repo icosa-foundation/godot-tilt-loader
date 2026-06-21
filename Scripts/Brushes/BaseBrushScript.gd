@@ -148,6 +148,15 @@ func debug_get_geometry() -> Dictionary:
 func finalize_solitary_brush() -> void:
 	pass
 
+func finalize_batched_brush() -> void:
+	finalize_solitary_brush()
+
+func finalize_for_runtime() -> void:
+	if m_bCanBatch:
+		finalize_batched_brush()
+	else:
+		finalize_solitary_brush()
+
 func update_visible_mesh() -> void:
 	if _mesh_instance == null:
 		_mesh_instance = MeshInstance3D.new()

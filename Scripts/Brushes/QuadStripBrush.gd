@@ -90,6 +90,19 @@ func finalize_solitary_brush() -> void:
 	MasterBrush.shared_pool.put(m_Geometry)
 	m_Geometry = null
 
+func finalize_batched_brush() -> void:
+	if m_Geometry == null:
+		return
+	var used_verts := get_num_used_verts()
+	if m_EnableBackfaces:
+		_copy_master_geometry_to_mesh_data(used_verts)
+	else:
+		_copy_welded_single_sided_quad_strip_to_mesh_data(used_verts)
+	update_visible_mesh()
+	MasterBrush.ensure_shared_pool()
+	MasterBrush.shared_pool.put(m_Geometry)
+	m_Geometry = null
+
 func should_discard() -> bool:
 	return get_num_used_verts() <= 0
 
@@ -116,8 +129,22 @@ func append_leading_quad(generate_new: bool, opacity01: float, center: Vector3, 
 	if m_EnableBackfaces:
 		var back_vert_index := m_LeadingQuadIndex * 6
 		BaseBrushScript.create_duplicate_quad(verts, norms, m_LeadingQuadIndex, normal)
-		for offset in range(6):
-			colors[back_vert_index + offset] = color
+		var back_color: Color
+		var last_back_color: Color
+		if is_equal_approx(m_Desc.m_BackfaceHueShift, 0.0):
+			back_color = color
+			last_back_color = last_color
+		else:
+			var hsl := HSLColor.from_color(m_Color)
+			hsl.set_hue_degrees(hsl.get_hue_degrees() + m_Desc.m_BackfaceHueShift)
+			back_color = hsl.to_color()
+			last_back_color = colors[back_vert_index - current_stride + 4] if back_vert_index - current_stride >= 0 else back_color
+		colors[back_vert_index] = last_back_color
+		colors[back_vert_index + 1] = last_back_color
+		colors[back_vert_index + 2] = back_color
+		colors[back_vert_index + 3] = last_back_color
+		colors[back_vert_index + 4] = back_color
+		colors[back_vert_index + 5] = back_color
 		m_LeadingQuadIndex += 1
 
 	var strip_length := m_LeadingQuadIndex
@@ -136,15 +163,26 @@ func append_leading_quad(generate_new: bool, opacity01: float, center: Vector3, 
 			earliest_changed_quad = min(earliest_changed_quad, mid_quad_index)
 			if strip_length > 2 and m_LastSegmentLengthSolids > 1:
 				fuse_quads(verts, norms, back_quad_vert, mid_quad_vert, generate_new)
+				if m_EnableBackfaces:
+					make_consistent_backside_quad(verts, norms, back_quad_vert)
 			elif generate_new and m_LastSegmentLengthSolids == 1:
 				position_quad(verts, mid_quad_vert, m_LastQuadCenter, Vector3.ZERO, Vector3.ZERO)
+			if m_EnableBackfaces:
+				make_consistent_backside_quad(verts, norms, mid_quad_vert)
 		elif segment_length == 2:
 			fuse_quads(verts, norms, mid_quad_vert, front_quad_vert, generate_new)
+			if m_EnableBackfaces:
+				make_consistent_backside_quad(verts, norms, mid_quad_vert)
+				make_consistent_backside_quad(verts, norms, front_quad_vert)
 		else:
 			for offset in range(6):
 				verts[mid_quad_vert + offset] = (verts[back_quad_vert + offset] + verts[front_quad_vert + offset]) * 0.5
 			fuse_quads(verts, norms, back_quad_vert, mid_quad_vert, generate_new)
 			fuse_quads(verts, norms, mid_quad_vert, front_quad_vert, generate_new)
+			if m_EnableBackfaces:
+				make_consistent_backside_quad(verts, norms, back_quad_vert)
+				make_consistent_backside_quad(verts, norms, mid_quad_vert)
+				make_consistent_backside_quad(verts, norms, front_quad_vert)
 			update_uvs_for_quad(mid_quad_index)
 	return earliest_changed_quad
 
@@ -216,6 +254,48 @@ func _copy_master_geometry_to_mesh_data(used_verts: int) -> void:
 	mesh_data.colors.assign(m_Geometry.m_Colors.slice(0, used_verts))
 	mesh_data.tangents.assign(m_Geometry.m_Tangents.slice(0, used_verts))
 
+func _copy_welded_single_sided_quad_strip_to_mesh_data(used_verts: int) -> void:
+	mesh_data.clear()
+	if m_Geometry == null or used_verts <= 0:
+		return
+	const K_BR_OLD := 2
+	const K_BL_OLD := 0
+	const K_FR_OLD := 5
+	const K_FL_OLD := 1
+	var vert_read := 0
+	while vert_read < used_verts:
+		var quad_base := mesh_data.vertices.size()
+		_append_welded_vertex(vert_read + K_BR_OLD)
+		_append_welded_vertex(vert_read + K_BL_OLD)
+		_append_welded_vertex(vert_read + K_FR_OLD)
+		_append_welded_vertex(vert_read + K_FL_OLD)
+		_append_welded_quad_tris(quad_base)
+		vert_read += 6
+		while vert_read < used_verts and m_Geometry.m_Vertices[vert_read + K_BR_OLD] == mesh_data.vertices[mesh_data.vertices.size() - 2]:
+			quad_base = mesh_data.vertices.size() - 2
+			_append_welded_vertex(vert_read + K_FR_OLD)
+			_append_welded_vertex(vert_read + K_FL_OLD)
+			_append_welded_quad_tris(quad_base)
+			vert_read += 6
+
+func _append_welded_vertex(source_index: int) -> void:
+	mesh_data.vertices.append(m_Geometry.m_Vertices[source_index])
+	mesh_data.normals.append(m_Geometry.m_Normals[source_index])
+	mesh_data.colors.append(m_Geometry.m_Colors[source_index])
+	mesh_data.tangents.append(m_Geometry.m_Tangents[source_index])
+	if m_Geometry.vertex_layout != null and m_Geometry.vertex_layout.texcoord0.size == 3:
+		mesh_data.uv0_v3.append(m_Geometry.m_UVWs[source_index])
+	else:
+		mesh_data.uv0_v2.append(m_Geometry.m_UVs[source_index])
+
+func _append_welded_quad_tris(base: int) -> void:
+	mesh_data.triangles.append(base)
+	mesh_data.triangles.append(base + 1)
+	mesh_data.triangles.append(base + 3)
+	mesh_data.triangles.append(base)
+	mesh_data.triangles.append(base + 3)
+	mesh_data.triangles.append(base + 2)
+
 func update_position_impl(position: Vector3, orientation: Quaternion, pressure: float) -> bool:
 	var smoothed_pressure := get_smoothed_pressure(pressure, position)
 	var spawn_interval := get_spawn_interval(smoothed_pressure)
@@ -239,6 +319,34 @@ func update_position_impl(position: Vector3, orientation: Quaternion, pressure: 
 	var quad_right := right * pressured_size_value * 0.5
 	var previous_initial_index := m_InitialQuadIndex
 	var size_shrink := m_LastSizeShrink
+	var is_break := false
+	if m_AllowStripBreak and not m_PreviewMode:
+		var segment_length := m_LeadingQuadIndex - m_InitialQuadIndex
+		if segment_length >= quads_per:
+			var dot_right := m_LastQuadForward.dot(quad_center + quad_right - m_LastQuadCenter)
+			var dot_left := m_LastQuadForward.dot(quad_center - quad_right - m_LastQuadCenter)
+			if m_LastQuadForward.dot(quad_center - m_LastSpawnXf.translation) <= 0.0:
+				is_break = true
+				update_uvs_for_segment(m_InitialQuadIndex, m_LeadingQuadIndex, pressured_size_value)
+				m_InitialQuadIndex = m_LeadingQuadIndex
+			elif (dot_left < 0.0 and dot_right > 0.0) or (dot_left > 0.0 and dot_right < 0.0):
+				var end_point_left := m_LastQuadCenter - m_LastQuadRight
+				var end_point_right := m_LastQuadCenter + m_LastQuadRight
+				if dot_left < 0.0:
+					move_length = (quad_center + quad_right - end_point_right).length()
+					quad_right = quad_center - end_point_left
+				else:
+					move_length = (quad_center - quad_right - end_point_left).length()
+					quad_right = end_point_right - quad_center
+				var new_pressured_size := 2.0 * quad_right.length()
+				size_shrink = m_LastSizeShrink + (pressured_size_value - new_pressured_size)
+				pressured_size_value = new_pressured_size
+				var preferred_forward := quad_center - m_LastSpawnXf.translation
+				quad_forward = quad_right.cross(preferred_forward.cross(quad_right))
+				if not quad_forward.is_zero_approx():
+					quad_forward = quad_forward.normalized() * quad_center.distance_to(m_LastQuadCenter) * 0.5
+			elif generate_new_quad:
+				size_shrink = m_LastSizeShrink - min(m_LastSizeShrink, move_length)
 	var previous_leading_index := m_LeadingQuadIndex
 	var earliest_quad := append_leading_quad(generate_new_quad, pressured_opacity(smoothed_pressure), quad_center, quad_forward, surface_normal, quad_right)
 	update_uvs(min(previous_initial_index, earliest_quad), m_LeadingQuadIndex, pressured_size_value)
@@ -256,6 +364,7 @@ func update_position_impl(position: Vector3, orientation: Quaternion, pressure: 
 		m_LeadingSegmentInitialQuadIndex = m_InitialQuadIndex
 		m_InitialQuadIndex = previous_initial_index
 		m_LeadingQuadIndex = previous_leading_index
+		assert(m_LeadingSegmentInitialQuadIndex == (m_LeadingQuadIndex if is_break else m_InitialQuadIndex))
 	return generate_new_quad
 
 func is_out_of_verts() -> bool:

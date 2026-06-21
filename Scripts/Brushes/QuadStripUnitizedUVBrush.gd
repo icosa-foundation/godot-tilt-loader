@@ -21,6 +21,11 @@ func update_uvs(quad0: int, quad1: int, _size: float) -> void:
 		quad0 * 6,
 		quad1 * 6
 	)
+	if m_EnableBackfaces:
+		for offset in range(quads_created, 0, -quads_per_solid):
+			var index := (quad1 - offset) * 6
+			BaseBrushScript.mirror_quad_face(m_Geometry.m_UVs, index)
+			BaseBrushScript.mirror_tangents(m_Geometry.m_Tangents, index)
 
 func update_uvs_for_quad(_quad_index: int) -> void:
 	pass

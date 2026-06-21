@@ -11,6 +11,7 @@ func _run() -> void:
 	_check_flat_uv_metadata()
 	_check_midpoint_plus_offset_metadata()
 	_check_thick_uv_metadata()
+	_check_catalog_quad_strip_prefab_routes()
 	if _failures == 0:
 		print("GDSCRIPT_REGISTRY_METADATA: all checks passed")
 
@@ -46,12 +47,51 @@ func _check_thick_uv_metadata() -> void:
 	_expect(brush is ThickGeometryBrush, "ThickDistance creates thick brush")
 	_expect_equal((brush as ThickGeometryBrush).m_uvStyle, ThickGeometryBrush.UVStyle.DISTANCE, "ThickDistance uv style")
 
+func _check_catalog_quad_strip_prefab_routes() -> void:
+	var manifest := _load_manifest()
+	BrushCatalog.init(manifest)
+	BrushRuntimeRegistry.register_supported_brushes(manifest)
+	var compatibility := {}
+	for brush in manifest.CompatibilityBrushes:
+		compatibility[_brush_key(brush)] = true
+	var checked := 0
+	for desc in manifest.Brushes:
+		if desc == null or compatibility.has(_brush_key(desc)):
+			continue
+		var prefab := String(desc.prefab_fields.get("prefab_name", ""))
+		if not ["Line", "LineWithWidth", "UnitizedUV", "DistanceUV"].has(prefab):
+			continue
+		var brush := BrushRuntimeRegistry.create_brush_for_descriptor(desc)
+		match prefab:
+			"Line", "LineWithWidth":
+				_expect(brush is QuadStripBrushStretchUV, "%s routes to QuadStripBrushStretchUV" % desc.m_DurableName)
+				if brush is QuadStripBrushStretchUV:
+					_expect_equal((brush as QuadStripBrushStretchUV).m_StoreWidthInTexcoord0Z, bool(desc.prefab_fields.get("m_StoreWidthInTexcoord0Z", false)), "%s width metadata" % desc.m_DurableName)
+			"UnitizedUV":
+				_expect(brush is QuadStripUnitizedUVBrush, "%s routes to QuadStripUnitizedUVBrush" % desc.m_DurableName)
+			"DistanceUV":
+				_expect(brush is QuadStripBrushDistanceUV, "%s routes to QuadStripBrushDistanceUV" % desc.m_DurableName)
+		if brush != null:
+			brush.free()
+		checked += 1
+	_expect(checked > 0, "catalog contains normal quad-strip brushes")
+
 func _create_brush(prefab_name: String, fields: Dictionary, durable_name: String) -> BaseBrushScript:
 	var desc := BrushDescriptor.new()
 	desc.m_DurableName = durable_name
 	desc.prefab_fields = fields.duplicate(true)
 	desc.prefab_fields["prefab_name"] = prefab_name
 	return BrushRuntimeRegistry.create_brush_for_descriptor(desc)
+
+func _load_manifest() -> TiltBrushManifest:
+	var project_path := ProjectSettings.globalize_path("res://")
+	var manifest := UnityAssetLoader.load_manifest(project_path.path_join("Manifest.asset"))
+	var experimental := UnityAssetLoader.load_manifest(project_path.path_join("Manifest_Experimental.asset"))
+	manifest.append_from(experimental)
+	return manifest
+
+func _brush_key(brush: BrushDescriptor) -> String:
+	return brush.m_Guid.strip_edges().to_lower().replace("-", "") if brush != null else ""
 
 func _expect(condition: bool, label: String) -> void:
 	if not condition:

@@ -61,7 +61,7 @@ func _build_direct(desc: BrushDescriptor, points: Array[Dictionary], size: float
 		var point := points[index]
 		brush.update_position_ls(TrTransform.trs(point.position, point.orientation, scale), point.pressure)
 	brush.apply_changes_to_visuals()
-	brush.finalize_solitary_brush()
+	brush.finalize_for_runtime()
 	var result := MeshData.new()
 	result.copy_from(brush.mesh_data)
 	brush.free()
@@ -100,7 +100,7 @@ func _build_with_pointer_math(desc: BrushDescriptor, points: Array[Dictionary], 
 		var point := points[index]
 		brush.update_position_ls(TrTransform.trs(point.position, point.orientation, scale), point.pressure)
 	brush.apply_changes_to_visuals()
-	brush.finalize_solitary_brush()
+	brush.finalize_for_runtime()
 	var result := MeshData.new()
 	result.copy_from(brush.mesh_data)
 	brush.free()

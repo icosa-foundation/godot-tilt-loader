@@ -35,7 +35,7 @@ func update_uvs_for_segment(quad0: int, quad1: int, size: float) -> void:
 		if solid == solid0:
 			var random01 := m_rng.in01(solid0 * current_stride)
 			prev_u = random01
-			var num_v: int = max(m_Desc.m_TextureAtlasV, 1)
+			var num_v: int = m_Desc.m_TextureAtlasV
 			var atlas: int = int(random01 * 3331.0) % num_v
 			prev_v0 = atlas / float(num_v)
 			prev_v1 = (atlas + 1) / float(num_v)
@@ -51,6 +51,8 @@ func update_uvs_for_segment(quad0: int, quad1: int, size: float) -> void:
 		m_Geometry.m_UVs[vert + 1] = Vector2(next_u, prev_v0)
 		m_Geometry.m_UVs[vert + 4] = Vector2(next_u, prev_v0)
 		m_Geometry.m_UVs[vert + 5] = Vector2(next_u, prev_v1)
+		if m_EnableBackfaces:
+			BaseBrushScript.mirror_quad_face(m_Geometry.m_UVs, vert)
 	var total_dist := 0.0
 	for solid in range(solid1 - 1, solid0 - 1, -1):
 		var leading_a: float = min(1.0, total_dist / fade_distance)
@@ -69,11 +71,19 @@ func update_uvs_for_segment(quad0: int, quad1: int, size: float) -> void:
 		m_Geometry.m_Colors[vert + 1] = leading_color
 		m_Geometry.m_Colors[vert + 4] = leading_color
 		m_Geometry.m_Colors[vert + 5] = leading_color
+		if m_EnableBackfaces:
+			BaseBrushScript.mirror_quad_face(m_Geometry.m_Colors, vert)
+		if solid != solid0 and is_equal_approx(m_Geometry.m_Colors[vert - 6 + 5].a, trailing_a):
+			break
 	lazy_update_tangents_for_segment(quad0, quad1)
 
 func apply_changes_to_visuals() -> void:
 	flush_tangent_request()
 	super.apply_changes_to_visuals()
+
+func finalize_batched_brush() -> void:
+	flush_tangent_request()
+	super.finalize_batched_brush()
 
 func lazy_update_tangents_for_segment(quad0: int, quad1: int) -> void:
 	if has_tangent_request() and _tangent_request_back != quad0:
@@ -99,6 +109,9 @@ func flush_tangent_request() -> void:
 		solid0 * stride(),
 		solid1 * stride()
 	)
+	if m_EnableBackfaces:
+		for solid in range(solid0, solid1):
+			BaseBrushScript.mirror_tangents(m_Geometry.m_Tangents, solid * stride())
 
 func update_uvs(quad0: int, quad1: int, size: float) -> void:
 	update_uvs_for_segment(m_InitialQuadIndex, quad1, size)

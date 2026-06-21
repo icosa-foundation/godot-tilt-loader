@@ -188,7 +188,7 @@ func detach_line(discard: bool) -> void:
 		m_CurrentLine.destroy_mesh()
 		m_CurrentLine.queue_free()
 	else:
-		m_CurrentLine.finalize_solitary_brush()
+		m_CurrentLine.finalize_for_runtime()
 		_log_live_stroke_summary("FINAL", m_CurrentLine)
 		_compare_live_stroke_to_recorded_replay(m_CurrentLine)
 	m_CurrentLine = null

@@ -41,7 +41,7 @@ static func create_brush_for_stroke(stroke: Stroke, canvas: CanvasScript = null)
 		var point := stroke.m_ControlPoints[index]
 		brush.update_position_ls(TrTransform.trs(point.m_Pos, point.m_Orient, stroke.m_BrushScale), point.m_Pressure)
 	brush.apply_changes_to_visuals()
-	brush.finalize_solitary_brush()
+	brush.finalize_for_runtime()
 	return brush
 
 static func build_mesh_data_for_stroke(stroke: Stroke) -> MeshData:
