@@ -7,11 +7,31 @@ func _init() -> void:
 	quit(1 if _failures > 0 else 0)
 
 func _run() -> void:
+	_check_layout_and_spawn_interval()
 	_check_single_segment_topology()
 	_check_two_segment_shared_ring_topology()
 	_check_flip_branch_adds_ring_face_and_extra_ring()
+	_check_close_segment_break_restarts_stroke()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_SQUARE3DPRINT: all checks passed")
+
+func _check_layout_and_spawn_interval() -> void:
+	var brush := _make_square3d_brush()
+	var layout := brush.get_vertex_layout(brush.m_Desc)
+
+	_expect_equal(layout.texcoord0.size, 0, "square3d uv0 omitted")
+	_expect_equal(layout.texcoord1.size, 0, "square3d uv1 omitted")
+	_expect(not layout.bUseNormals, "square3d normals omitted")
+	_expect(layout.bUseColors, "square3d colors enabled")
+	_expect(not layout.bUseTangents, "square3d tangents omitted")
+	_expect_close(brush.get_spawn_interval(0.0), 0.05, "square3d default dense spawn interval")
+
+	brush.m_tessellation = 0.0
+	_expect_close(brush.get_spawn_interval(1.0), 0.5, "square3d sparse spawn interval clamps to max")
+	brush.m_tessellation = 1.0
+	brush.m_LastSpawnXf = TrTransform.trs(Vector3.ZERO, Quaternion.IDENTITY, 10.0)
+	_expect_close(brush.get_spawn_interval(1.0), 0.1, "square3d dense spawn interval clamps to pointer min")
+	brush.free()
 
 func _check_single_segment_topology() -> void:
 	var brush := _make_square3d_brush()
@@ -76,6 +96,35 @@ func _check_flip_branch_adds_ring_face_and_extra_ring() -> void:
 	_expect_equal(brush.m_knots[2].nVert, 28, "square3d flip second knot adds closing and current rings")
 	_expect_equal(brush.m_knots[2].nTri, 36, "square3d flip second knot tris include ring face")
 	_expect_equal(brush.m_geometry.m_Tris.slice(90, 108), [14, 13, 12, 15, 14, 12, 16, 15, 12, 17, 16, 12, 18, 17, 12, 19, 18, 12], "square3d flip closing ring face tris")
+	brush.free()
+
+func _check_close_segment_break_restarts_stroke() -> void:
+	var brush := _make_square3d_brush()
+	var orientation := _orientation_with_up_along_x()
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, orientation, 1.0), 1.0), "square3d close first update keeps")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(2.0, 0.0, 0.0), orientation, 1.0), 1.0), "square3d close second update keeps")
+	brush.apply_changes_to_visuals()
+
+	var close_knot := brush.m_knots[2]
+	close_knot.point.m_Pos = brush.m_knots[1].point.m_Pos + Vector3(0.001, 0.0, 0.0)
+	close_knot.smoothedPos = close_knot.point.m_Pos
+	brush.m_knots[2] = close_knot
+	brush.control_points_changed(2)
+
+	_expect(brush.check_knot_invariants(), "square3d close restart knot invariants")
+	_expect_equal(brush.m_geometry.num_verts(), 48, "square3d close restart vertex count")
+	_expect_equal(brush.m_geometry.num_tri_indices(), 264, "square3d close restart triangle index count")
+	_expect_equal(brush.m_knots[1].nVert, 24, "square3d close first segment closed verts")
+	_expect_equal(brush.m_knots[1].nTri, 44, "square3d close first segment closed tris")
+	_expect(not brush.m_knots[2].has_geometry(), "square3d close knot has no geometry")
+	_expect_equal(brush.m_knots[2].nVert, 0, "square3d close knot vertex count")
+	_expect_equal(brush.m_knots[2].nTri, 0, "square3d close knot triangle count")
+	_expect_equal(brush.m_knots[2].qFrame, Quaternion(0.0, 0.0, 0.0, 0.0), "square3d close knot clears frame")
+	_expect(brush.m_knots[3].has_geometry(), "square3d close restart has geometry")
+	_expect_equal(brush.m_knots[3].iVert, 24, "square3d close restart vertex start")
+	_expect_equal(brush.m_knots[3].iTri, 44, "square3d close restart triangle start")
+	_expect_equal(brush.m_knots[3].nVert, 24, "square3d close restart verts")
+	_expect_equal(brush.m_knots[3].nTri, 44, "square3d close restart tris")
 	brush.free()
 
 func _make_square3d_brush() -> Square3DPrintBrush:
