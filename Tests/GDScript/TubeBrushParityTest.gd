@@ -9,6 +9,7 @@ func _init() -> void:
 func _run() -> void:
 	_check_default_soft_tube()
 	_check_hard_edge_radius_uv_layout()
+	_check_distance_uv_atlas_branch()
 	_check_stretch_uvs()
 	_check_shape_modifier_updates_vertices()
 	if _failures == 0:
@@ -52,6 +53,21 @@ func _check_hard_edge_radius_uv_layout() -> void:
 	_expect_vec3_close(brush.m_geometry.m_Vertices[12], brush.m_geometry.m_Vertices[13], "tube hard front duplicate edge")
 	brush.free()
 
+func _check_distance_uv_atlas_branch() -> void:
+	var brush := _make_tube_brush(false, true, false, false, 8, 4)
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "tube atlas update keeps")
+	brush.apply_changes_to_visuals()
+
+	var random01 := brush.m_rng.in01(brush.m_knots[1].iVert - 1)
+	var atlas := int(random01 * 3331.0) % brush.m_Desc.m_TextureAtlasV
+	var v0 := atlas / float(brush.m_Desc.m_TextureAtlasV)
+	var v1 := (atlas + 1.0) / float(brush.m_Desc.m_TextureAtlasV)
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[8].x, random01, "tube atlas u")
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[8].y, v0, "tube atlas v0")
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[16].y, v1, "tube atlas v1")
+	brush.finalize_solitary_brush()
+	brush.free()
+
 func _check_stretch_uvs() -> void:
 	var brush := _make_tube_brush(false, true, true)
 	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "tube stretch first update keeps")
@@ -81,13 +97,13 @@ func _check_shape_modifier_updates_vertices() -> void:
 	plain.free()
 	shaped.free()
 
-func _make_tube_brush(hard_edges: bool = false, end_caps: bool = true, stretch_uvs: bool = false, radius_in_uv0_z: bool = false, points_in_closed_circle: int = 8) -> TubeBrush:
+func _make_tube_brush(hard_edges: bool = false, end_caps: bool = true, stretch_uvs: bool = false, radius_in_uv0_z: bool = false, points_in_closed_circle: int = 8, texture_atlas_v: int = 1) -> TubeBrush:
 	var desc := BrushDescriptor.new()
 	desc.m_DurableName = "Tube"
 	desc.m_RenderBackfaces = false
 	desc.m_BackIsInvisible = false
 	desc.m_M11Compatibility = false
-	desc.m_TextureAtlasV = 1
+	desc.m_TextureAtlasV = texture_atlas_v
 	desc.m_TileRate = 1.0
 	desc.m_PressureSizeRange = Vector2(1.0, 1.0)
 	desc.m_PressureOpacityRange = Vector2(1.0, 1.0)

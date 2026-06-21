@@ -182,14 +182,14 @@ func on_changed_make_geometry(knot_index: int) -> void:
 			if is_start:
 				var random01 := m_rng.in01(cur.iVert - 1)
 				u0 = random01
-				var num_v: int = max(m_Desc.m_TextureAtlasV, 1)
+				var num_v: int = m_Desc.m_TextureAtlasV
 				var atlas := int(random01 * 3331.0) % num_v
 				v0 = atlas / float(num_v)
 				v1 = (atlas + 1.0) / float(num_v)
 				var prev_size := pressured_size(prev.smoothedPressure)
 				var prev_radius := prev_size * 0.5
 				var prev_circumference := TWO_PI * prev_radius
-				var prev_u_rate := m_Desc.m_TileRate / prev_circumference if prev_circumference != 0.0 else 0.0
+				var prev_u_rate := m_Desc.m_TileRate / prev_circumference
 				if m_EndCaps:
 					make_cap_verts(cur, m_PointsInClosedCircle, prev.smoothedPos - forward * prev_radius * m_CapAspect, prev.smoothedPos, prev_radius, u0, v0, v1, -prev_u_rate, up, right, forward)
 				make_closed_circle(cur, prev.smoothedPos, prev_radius, m_PointsInClosedCircle, up, right, forward, u0, v0, v1)
@@ -215,7 +215,7 @@ func on_changed_make_geometry(knot_index: int) -> void:
 			var size := pressured_size(cur.smoothedPressure)
 			var radius := size * 0.5
 			var circumference := TWO_PI * radius
-			var u_rate := m_Desc.m_TileRate / circumference if circumference != 0.0 else 0.0
+			var u_rate := m_Desc.m_TileRate / circumference
 			var u1 := u0 + cur.length * u_rate
 			make_closed_circle(cur, cur.smoothedPos, radius, m_PointsInClosedCircle, up, right, forward, u1, v0, v1)
 			if is_end and m_EndCaps:
