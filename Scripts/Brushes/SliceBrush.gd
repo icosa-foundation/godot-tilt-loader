@@ -133,7 +133,7 @@ static func compute_minimal_rotation_frame(tangent: Vector3, previous_frame: Var
 		var desired_up := Basis(bootstrap_orientation) * Vector3.UP
 		if abs(desired_up.dot(tangent)) > 0.99:
 			desired_up = Basis(bootstrap_orientation) * Vector3.RIGHT
-		return Basis.looking_at(tangent, desired_up).get_rotation_quaternion()
+		return Basis.looking_at(-tangent, desired_up).get_rotation_quaternion()
 	var previous_tangent := Basis(previous_frame as Quaternion) * Vector3.FORWARD * -1.0
 	var minimal := QuaternionUtils.from_to_rotation(previous_tangent, tangent)
 	return (minimal * (previous_frame as Quaternion)).normalized()

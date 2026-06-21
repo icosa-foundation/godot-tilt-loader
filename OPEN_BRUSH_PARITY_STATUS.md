@@ -32,7 +32,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `TetraBrush.gd` | `TetraBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Texture atlas count handling now matches Open Brush directly, with distance atlas and texture-edge chop coverage. Needs full branch audit. |
 | `SquareBrush.gd` | `SquareBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Needs full branch audit. |
 | `Square3DPrintBrush.gd` | `Square3DPrintBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Tests now cover straight topology, shared-ring continuation, and parity-flip ring-face insertion. Needs full branch audit. |
-| `SliceBrush.gd` | `SliceBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Needs full branch audit. |
+| `SliceBrush.gd` | `SliceBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Initial frame direction now matches Open Brush `Quaternion.LookRotation` semantics, with normal-direction coverage. Needs full branch audit. |
 | `PrintableBrush.gd` | `PrintableBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Needs full branch audit. |
 | `PbrBrushScript.gd` | `PbrBrushScript.cs` | Not fully audited | Material/export interaction needs separation from mesh parity. |
 | `EnvironmentBrushScript.gd` | `EnvironmentBrushScript.cs` | Not fully audited | Need confirm whether this participates in runtime mesh generation. |
@@ -92,6 +92,7 @@ Implemented so far:
 - Open Brush `BlocksBrushScript` explicit no-op batched finalization behavior.
 - Open Brush `TetraBrush` texture atlas count handling and distance atlas branch coverage, including texture edge chop.
 - Open Brush `Square3DPrintBrush` parity-flip topology branch coverage for double-back strokes.
+- Open Brush `SliceBrush` initial frame direction/normal orientation behavior.
 
 Focused tests added/updated:
 
@@ -114,6 +115,8 @@ Focused tests added/updated:
   - checks Thick distance and stretch UV texture atlas branch formulas for `m_TextureAtlasV > 1`.
 - Existing focused brush tests for `HullBrush`, `ConcaveHullBrush`, `SprayBrush`, `MidpointPlusLifetimeSprayBrush`, `TubeBrush`, `SliceBrush`, `PrintableBrush`, `SquareBrush`, `Square3DPrintBrush`, and `TetraBrush`
   - now check generated vertex colors use Unity `Color32` byte truncation at their covered write points.
+- `Tests/GDScript/SliceBrushParityTest.gd`
+  - checks shared-quad geometry, UVW distance accumulation, triangle winding, opaque `Color32` writes, and Open Brush normal direction for initial/front quads.
 - `Tests/GDScript/Square3DPrintBrushParityTest.gd`
   - checks single-segment topology, shared-ring continuation topology, and flip-branch topology where Open Brush closes the previous ring face and adds an extra current-orientation ring.
 - `Tests/GDScript/TetraBrushParityTest.gd`

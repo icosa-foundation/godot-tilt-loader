@@ -44,7 +44,8 @@ func _check_slice_geometry_path() -> void:
 	_expect_equal(brush.m_geometry.m_Texcoord0.v3[3], Vector3(1.0, 0.0, 0.0), "slice first uvw corner")
 	_expect_close(brush.m_geometry.m_Texcoord0.v3[4].z, 0.1, "slice first distance")
 	_expect_close(brush.m_geometry.m_Texcoord0.v3[8].z, 0.2, "slice second distance")
-	_expect_close(brush.m_geometry.m_Normals[0].length(), 1.0, "slice normal length")
+	_expect_vec3_close(brush.m_geometry.m_Normals[0], Vector3.RIGHT, "slice initial normal direction")
+	_expect_vec3_close(brush.m_geometry.m_Normals[4], Vector3.RIGHT, "slice first front normal direction")
 	_expect_color_close(brush.m_geometry.m_Colors[0], _color32(Color(0.8, 0.3, 0.2, 1.0)), "slice color32 alpha forced opaque")
 	_expect_close(brush.m_geometry.m_Vertices[0].distance_to(brush.m_geometry.m_Vertices[2]), sqrt(2.0), "slice first quad diagonal")
 	var center_a := _quad_center(brush.m_geometry.m_Vertices, 4)
@@ -66,6 +67,11 @@ func _quad_center(vertices: Array[Vector3], start: int) -> Vector3:
 func _expect_equal(actual: Variant, expected: Variant, label: String) -> void:
 	if actual != expected:
 		_fail("%s expected %s but got %s" % [label, expected, actual])
+
+func _expect_vec3_close(actual: Vector3, expected: Vector3, label: String) -> void:
+	_expect_close(actual.x, expected.x, "%s x" % label)
+	_expect_close(actual.y, expected.y, "%s y" % label)
+	_expect_close(actual.z, expected.z, "%s z" % label)
 
 func _expect_close(actual: float, expected: float, label: String) -> void:
 	if abs(actual - expected) > 1e-5:
