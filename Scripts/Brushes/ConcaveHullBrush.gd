@@ -203,14 +203,15 @@ func create_smooth_geometry(knot: Knot, hull: Dictionary) -> void:
 			append_tri(knot, temp_indices[int(indices[0])], temp_indices[int(indices[fan + 2])], temp_indices[int(indices[fan + 1])])
 
 func append_vert(knot: Knot, position: Vector3, normal: Vector3) -> void:
+	var color := _to_color32(m_Color)
 	m_geometry.m_Vertices.append(position)
 	m_geometry.m_Normals.append(normal)
-	m_geometry.m_Colors.append(m_Color)
+	m_geometry.m_Colors.append(color)
 	knot.nVert += 1
 	if m_bDoubleSided:
 		m_geometry.m_Vertices.append(position)
 		m_geometry.m_Normals.append(-normal)
-		m_geometry.m_Colors.append(m_Color)
+		m_geometry.m_Colors.append(color)
 		knot.nVert += 1
 
 func append_tri(knot: Knot, vp0: int, vp1: int, vp2: int) -> void:

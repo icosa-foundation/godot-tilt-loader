@@ -98,6 +98,7 @@ func make_quad(knot: Knot, center: Vector3, half_size: float, up: Vector3, rt: V
 func append_vert(knot: Knot, position: Vector3, normal: Vector3, u: float, v: float, w: float) -> void:
 	var color := m_Color
 	color.a = 1.0
+	color = _to_color32(color)
 	var uvw := Vector3(u, v, w)
 	var index := knot.iVert + knot.nVert
 	knot.nVert += 1

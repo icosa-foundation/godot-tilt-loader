@@ -193,5 +193,6 @@ func my_set_vert(i_vert: int, vp: int, vertex: Vector3, normal: Vector3) -> void
 	m_geometry.m_Normals[index] = normal
 	var color := m_Color
 	color.a = 1.0
+	color = _to_color32(color)
 	m_geometry.m_Colors[index] = color
 	m_geometry.m_Texcoord0.v2[index] = Vector2(0.5, 0.5)

@@ -64,6 +64,7 @@ func _check_hull_brush_tetrahedron_conversion() -> void:
 	_expect_equal(brush.m_geometry.m_Texcoord0.v3.size(), brush.m_geometry.num_verts(), "hull uv count")
 	_expect_close(brush.m_geometry.m_Texcoord0.v3[0].z, 1.0, "hull uv stores base size")
 	_expect_close(brush.m_geometry.m_Normals[0].length(), 1.0, "hull smoothed normal length")
+	_expect_color_close(brush.m_geometry.m_Colors[0], _color32(Color(0.7, 0.4, 0.9, 1.0)), "hull color32 color")
 	brush.finalize_solitary_brush()
 	_expect(brush.m_geometry == null, "hull releases geometry")
 	_expect(brush.mesh_data.vertices.size() >= 4, "hull finalized vertices")
@@ -186,6 +187,23 @@ func _expect_vec3_close(actual: Vector3, expected: Vector3, label: String) -> vo
 func _expect_close(actual: float, expected: float, label: String) -> void:
 	if absf(actual - expected) > 1e-5:
 		_fail("%s expected %.8f but got %.8f" % [label, expected, actual])
+
+func _expect_color_close(actual: Color, expected: Color, label: String) -> void:
+	_expect_close(actual.r, expected.r, "%s r" % label)
+	_expect_close(actual.g, expected.g, "%s g" % label)
+	_expect_close(actual.b, expected.b, "%s b" % label)
+	_expect_close(actual.a, expected.a, "%s a" % label)
+
+func _color32_channel(value: float) -> float:
+	return float(int(clamp(value, 0.0, 1.0) * 255.0)) / 255.0
+
+func _color32(value: Color) -> Color:
+	return Color(
+		_color32_channel(value.r),
+		_color32_channel(value.g),
+		_color32_channel(value.b),
+		_color32_channel(value.a)
+	)
 
 func _fail(message: String) -> void:
 	_failures += 1

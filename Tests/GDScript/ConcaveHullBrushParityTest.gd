@@ -28,7 +28,7 @@ func _check_cube_window_geometry() -> void:
 	_expect_equal(brush.m_geometry.m_Normals.size(), brush.m_geometry.num_verts(), "concave normal count")
 	_expect_equal(brush.m_geometry.m_Colors.size(), brush.m_geometry.num_verts(), "concave color count")
 	_expect_close(brush.m_geometry.m_Normals[0].length(), 1.0, "concave normal length")
-	_expect_close(brush.m_geometry.m_Colors[0].a, 1.0, "concave color alpha")
+	_expect_color_close(brush.m_geometry.m_Colors[0], _color32(Color(0.95, 0.55, 0.25, 1.0)), "concave color32 color")
 	brush.finalize_solitary_brush()
 	_expect(brush.m_geometry == null, "concave releases geometry")
 	_expect(brush.mesh_data.vertices.size() >= 8, "concave finalized vertices")
@@ -69,6 +69,23 @@ func _expect_equal(actual: Variant, expected: Variant, label: String) -> void:
 func _expect_close(actual: float, expected: float, label: String) -> void:
 	if absf(actual - expected) > 1e-5:
 		_fail("%s expected %.8f but got %.8f" % [label, expected, actual])
+
+func _expect_color_close(actual: Color, expected: Color, label: String) -> void:
+	_expect_close(actual.r, expected.r, "%s r" % label)
+	_expect_close(actual.g, expected.g, "%s g" % label)
+	_expect_close(actual.b, expected.b, "%s b" % label)
+	_expect_close(actual.a, expected.a, "%s a" % label)
+
+func _color32_channel(value: float) -> float:
+	return float(int(clamp(value, 0.0, 1.0) * 255.0)) / 255.0
+
+func _color32(value: Color) -> Color:
+	return Color(
+		_color32_channel(value.r),
+		_color32_channel(value.g),
+		_color32_channel(value.b),
+		_color32_channel(value.a)
+	)
 
 func _fail(message: String) -> void:
 	_failures += 1

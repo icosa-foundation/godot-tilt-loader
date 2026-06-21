@@ -32,7 +32,7 @@ func _check_midpoint_geometry_and_uv1() -> void:
 	_expect_equal(brush.m_geometry.m_Texcoord1.v4[MidpointPlusLifetimeSprayBrush.BR], Vector4(-0.5, 0.5, 0.0, 0.0), "midpoint uv1 br")
 	_expect_equal(brush.m_geometry.m_Texcoord1.v4[MidpointPlusLifetimeSprayBrush.FL], Vector4(0.5, -0.5, 0.0, 0.0), "midpoint uv1 fl")
 	_expect_close(brush.m_geometry.m_Tangents[0].length(), sqrt(2.0), "midpoint tangent length includes handedness")
-	_expect_equal(brush.m_geometry.m_Colors[0], Color(0.4, 0.8, 0.2, 1.0), "midpoint color")
+	_expect_color_close(brush.m_geometry.m_Colors[0], _color32(Color(0.45, 0.8, 0.2, 1.0)), "midpoint color32 color")
 	brush.free()
 
 func _check_finalize_removes_hanging_particle() -> void:
@@ -64,7 +64,7 @@ func _make_midpoint_brush() -> MidpointPlusLifetimeSprayBrush:
 
 	var brush := MidpointPlusLifetimeSprayBrush.new()
 	brush.m_BaseSize_PS = 1.0
-	brush.m_Color = Color(0.4, 0.8, 0.2, 1.0)
+	brush.m_Color = Color(0.45, 0.8, 0.2, 1.0)
 	brush.set_random_seed(0)
 	brush.init_brush(desc, TrTransform.identity())
 	brush.set_random_seed(0)
@@ -86,6 +86,23 @@ func _expect_vec3_close(actual: Vector3, expected: Vector3, label: String) -> vo
 func _expect_close(actual: float, expected: float, label: String) -> void:
 	if abs(actual - expected) > 1e-5:
 		_fail("%s expected %.8f but got %.8f" % [label, expected, actual])
+
+func _expect_color_close(actual: Color, expected: Color, label: String) -> void:
+	_expect_close(actual.r, expected.r, "%s r" % label)
+	_expect_close(actual.g, expected.g, "%s g" % label)
+	_expect_close(actual.b, expected.b, "%s b" % label)
+	_expect_close(actual.a, expected.a, "%s a" % label)
+
+func _color32_channel(value: float) -> float:
+	return float(int(clamp(value, 0.0, 1.0) * 255.0)) / 255.0
+
+func _color32(value: Color) -> Color:
+	return Color(
+		_color32_channel(value.r),
+		_color32_channel(value.g),
+		_color32_channel(value.b),
+		_color32_channel(value.a)
+	)
 
 func _fail(message: String) -> void:
 	_failures += 1

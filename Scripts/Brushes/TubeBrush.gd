@@ -469,7 +469,7 @@ func append_displacement(knot: Knot, value: Vector3) -> void:
 func append_vert(knot: Knot, position: Vector3, normal: Vector3, color_value: Color, tangent: Vector3, uv: Vector2, radius: float) -> void:
 	var index := knot.iVert + knot.nVert
 	knot.nVert += 1
-	var color := color_value
+	var color := _to_color32(color_value)
 	var tangent4 := Vector4(tangent.x, tangent.y, tangent.z, 1.0)
 	if index == m_geometry.m_Vertices.size():
 		m_geometry.m_Vertices.append(position)

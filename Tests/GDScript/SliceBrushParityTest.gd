@@ -45,7 +45,7 @@ func _check_slice_geometry_path() -> void:
 	_expect_close(brush.m_geometry.m_Texcoord0.v3[4].z, 0.1, "slice first distance")
 	_expect_close(brush.m_geometry.m_Texcoord0.v3[8].z, 0.2, "slice second distance")
 	_expect_close(brush.m_geometry.m_Normals[0].length(), 1.0, "slice normal length")
-	_expect_equal(brush.m_geometry.m_Colors[0], Color(0.8, 0.3, 0.2, 1.0), "slice color alpha forced opaque")
+	_expect_color_close(brush.m_geometry.m_Colors[0], _color32(Color(0.8, 0.3, 0.2, 1.0)), "slice color32 alpha forced opaque")
 	_expect_close(brush.m_geometry.m_Vertices[0].distance_to(brush.m_geometry.m_Vertices[2]), sqrt(2.0), "slice first quad diagonal")
 	var center_a := _quad_center(brush.m_geometry.m_Vertices, 4)
 	var center_b := _quad_center(brush.m_geometry.m_Vertices, 8)
@@ -70,6 +70,23 @@ func _expect_equal(actual: Variant, expected: Variant, label: String) -> void:
 func _expect_close(actual: float, expected: float, label: String) -> void:
 	if abs(actual - expected) > 1e-5:
 		_fail("%s expected %.8f but got %.8f" % [label, expected, actual])
+
+func _expect_color_close(actual: Color, expected: Color, label: String) -> void:
+	_expect_close(actual.r, expected.r, "%s r" % label)
+	_expect_close(actual.g, expected.g, "%s g" % label)
+	_expect_close(actual.b, expected.b, "%s b" % label)
+	_expect_close(actual.a, expected.a, "%s a" % label)
+
+func _color32_channel(value: float) -> float:
+	return float(int(clamp(value, 0.0, 1.0) * 255.0)) / 255.0
+
+func _color32(value: Color) -> Color:
+	return Color(
+		_color32_channel(value.r),
+		_color32_channel(value.g),
+		_color32_channel(value.b),
+		_color32_channel(value.a)
+	)
 
 func _fail(message: String) -> void:
 	_failures += 1

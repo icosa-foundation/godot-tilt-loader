@@ -23,17 +23,17 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `FlatGeometryBrush.gd` | `FlatGeometryBrush.cs` | Partially tested | Existing parity tests cover selected behavior. Needs full branch audit. |
 | `ThickGeometryBrush.gd` | `ThickGeometryBrush.cs` | Partially tested | Existing parity tests cover selected behavior. Needs full branch audit. |
 | `TubeBrush.gd` | `TubeBrush.cs` | Partially tested | Existing parity tests cover selected behavior. Needs full branch audit. |
-| `HullBrush.gd` | `HullBrush.cs` | Partially tested | Native hull backend and degenerate cases need explicit parity review. |
-| `ConcaveHullBrush.gd` | `ConcaveHullBrush.cs` | Partially tested | Known degenerate hull behavior needs explicit classification. |
-| `SprayBrush.gd` | `SprayBrush.cs` | Partially tested | Particle layout and seed behavior need full audit. |
-| `GeniusParticlesBrush.gd` | `GeniusParticlesBrush.cs` | Partially tested | Particle layout and seed behavior need full audit. |
+| `HullBrush.gd` | `HullBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Native hull backend and degenerate cases need explicit parity review. |
+| `ConcaveHullBrush.gd` | `ConcaveHullBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Known degenerate hull behavior needs explicit classification. |
+| `SprayBrush.gd` | `SprayBrush.cs` | Partially tested | Shared `GeometryBrush.SetVert` color parity is covered. Particle layout and seed behavior need full audit. |
+| `GeniusParticlesBrush.gd` | `GeniusParticlesBrush.cs` | Partially tested | Shared `GeometryBrush.SetVert` color parity is covered. Particle layout and seed behavior need full audit. |
 | `BubbleWandBrush.gd` | `BubbleWandBrush.cs` | Partially tested | Needs full branch audit. |
 | `BlocksBrushScript.gd` | `BlocksBrushScript.cs` | Partially tested | Needs full branch audit. |
-| `TetraBrush.gd` | `TetraBrush.cs` | Partially tested | Needs full branch audit. |
-| `SquareBrush.gd` | `SquareBrush.cs` | Partially tested | Needs full branch audit. |
-| `Square3DPrintBrush.gd` | `Square3DPrintBrush.cs` | Partially tested | Needs full branch audit. |
-| `SliceBrush.gd` | `SliceBrush.cs` | Partially tested | Needs full branch audit. |
-| `PrintableBrush.gd` | `PrintableBrush.cs` | Partially tested | Needs full branch audit. |
+| `TetraBrush.gd` | `TetraBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Needs full branch audit. |
+| `SquareBrush.gd` | `SquareBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Needs full branch audit. |
+| `Square3DPrintBrush.gd` | `Square3DPrintBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Needs full branch audit. |
+| `SliceBrush.gd` | `SliceBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Needs full branch audit. |
+| `PrintableBrush.gd` | `PrintableBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Needs full branch audit. |
 | `PbrBrushScript.gd` | `PbrBrushScript.cs` | Not fully audited | Material/export interaction needs separation from mesh parity. |
 | `EnvironmentBrushScript.gd` | `EnvironmentBrushScript.cs` | Not fully audited | Need confirm whether this participates in runtime mesh generation. |
 | `SvgBrushScript.gd` | `SvgBrushScript.cs` | Not fully audited | Need confirm whether this participates in runtime mesh generation. |
@@ -73,6 +73,7 @@ Implemented so far:
 - backface UV/tangent mirroring for `QuadStripUnitizedUVBrush`.
 - Open Brush `Color32` alpha truncation for `QuadStripBrushDistanceUV` opacity fade.
 - Open Brush `GeometryBrush.SetVert` `Color32` truncation for shared flat/thick geometry brush color and alpha writes.
+- Open Brush `Color32` truncation for direct vertex-color writes in hull, concave hull, tube, tetra, square, square 3D print, slice, and printable brush classes.
 
 Focused tests added/updated:
 
@@ -90,6 +91,8 @@ Focused tests added/updated:
   - checks generated flat geometry vertex colors use Unity `Color32` byte truncation for RGB and alpha.
 - `Tests/GDScript/ThickGeometryBrushParityTest.gd`
   - checks generated thick geometry vertex colors use Unity `Color32` byte truncation for RGB and alpha.
+- Existing focused brush tests for `HullBrush`, `ConcaveHullBrush`, `SprayBrush`, `MidpointPlusLifetimeSprayBrush`, `TubeBrush`, `SliceBrush`, `PrintableBrush`, `SquareBrush`, `Square3DPrintBrush`, and `TetraBrush`
+  - now check generated vertex colors use Unity `Color32` byte truncation at their covered write points.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd`
   - walks the real manifest/catalog and verifies all normal `Line`, `LineWithWidth`, `UnitizedUV`, and `DistanceUV` prefabs route to the repaired quad-strip runtime classes.
 - `Tests/GDScript/CafeStrokeFixturesReplayTest.gd`

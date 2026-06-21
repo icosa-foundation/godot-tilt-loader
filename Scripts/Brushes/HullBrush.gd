@@ -234,15 +234,16 @@ func get_vertex_layout(_desc: BrushDescriptor) -> GeometryPool.VertexLayout:
 
 func append_vert(knot: Knot, position: Vector3, normal: Vector3) -> void:
 	var uv := Vector3(0.0, 0.0, m_BaseSize_PS)
+	var color := _to_color32(m_Color)
 	m_geometry.m_Vertices.append(position)
 	m_geometry.m_Normals.append(normal)
-	m_geometry.m_Colors.append(m_Color)
+	m_geometry.m_Colors.append(color)
 	m_geometry.m_Texcoord0.v3.append(uv)
 	knot.nVert += 1
 	if m_bDoubleSided:
 		m_geometry.m_Vertices.append(position)
 		m_geometry.m_Normals.append(-normal)
-		m_geometry.m_Colors.append(m_Color)
+		m_geometry.m_Colors.append(color)
 		m_geometry.m_Texcoord0.v3.append(uv)
 		knot.nVert += 1
 

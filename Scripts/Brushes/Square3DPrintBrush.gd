@@ -291,13 +291,14 @@ func get_vertex_layout(_desc: BrushDescriptor) -> GeometryPool.VertexLayout:
 
 func append_vert_square(knot: Knot, position: Vector3, color_value: Color) -> void:
 	var index := knot.iVert + knot.nVert
+	var color := _to_color32(color_value)
 	knot.nVert += 1
 	if index == m_geometry.m_Vertices.size():
 		m_geometry.m_Vertices.append(position)
-		m_geometry.m_Colors.append(color_value)
+		m_geometry.m_Colors.append(color)
 	else:
 		m_geometry.m_Vertices[index] = position
-		m_geometry.m_Colors[index] = color_value
+		m_geometry.m_Colors[index] = color
 
 func get_spawn_interval(_pressure01: float) -> float:
 	var ring_distance_meters_ls := lerpf(K_RING_SPARSE_DISTANCE_METERS_LS, K_RING_DENSE_DISTANCE_METERS_LS, m_tessellation)

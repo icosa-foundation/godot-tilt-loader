@@ -48,7 +48,7 @@ func _check_square_brush_geometry() -> void:
 	_expect_vec3_close(brush.m_geometry.m_Normals[SquareBrush.FBR_R], Vector3.UP, "square right normal")
 	_expect_vec3_close(brush.m_geometry.m_Normals[SquareBrush.FTL_T], Vector3.BACK, "square top normal")
 	_expect_equal(brush.m_geometry.m_Texcoord0.v2[SquareBrush.FBL_L], Vector2(0.5, 0.5), "square default uv")
-	_expect_equal(brush.m_geometry.m_Colors[SquareBrush.FBL_L], Color(0.25, 0.5, 0.75, 1.0), "square color alpha forced opaque")
+	_expect_color_close(brush.m_geometry.m_Colors[SquareBrush.FBL_L], _color32(Color(0.25, 0.5, 0.75, 1.0)), "square color32 alpha forced opaque")
 
 	brush.finalize_solitary_brush()
 	_expect_equal(brush.mesh_data.vertices.size(), 16, "square finalized vertex count")
@@ -71,6 +71,23 @@ func _expect_vec3_close(actual: Vector3, expected: Vector3, label: String) -> vo
 func _expect_close(actual: float, expected: float, label: String) -> void:
 	if abs(actual - expected) > 1e-5:
 		_fail("%s expected %.8f but got %.8f" % [label, expected, actual])
+
+func _expect_color_close(actual: Color, expected: Color, label: String) -> void:
+	_expect_close(actual.r, expected.r, "%s r" % label)
+	_expect_close(actual.g, expected.g, "%s g" % label)
+	_expect_close(actual.b, expected.b, "%s b" % label)
+	_expect_close(actual.a, expected.a, "%s a" % label)
+
+func _color32_channel(value: float) -> float:
+	return float(int(clamp(value, 0.0, 1.0) * 255.0)) / 255.0
+
+func _color32(value: Color) -> Color:
+	return Color(
+		_color32_channel(value.r),
+		_color32_channel(value.g),
+		_color32_channel(value.b),
+		_color32_channel(value.a)
+	)
 
 func _fail(message: String) -> void:
 	_failures += 1
