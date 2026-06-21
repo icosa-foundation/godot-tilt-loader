@@ -17,8 +17,8 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `BaseBrushScript.gd` | `BaseBrushScript.cs` | Not fully audited | Core lifecycle and coordinate shims need line-by-line comparison. |
 | `GeometryBrush.gd` | `GeometryBrush.cs` | Partially audited, active repair started | Shared `SetVert` now uses Open Brush `Color32` truncation for RGB and alpha. Batched finalization now copies/releases geometry directly instead of re-entering subclass solitary finalizers. Lifecycle/finalization still needs full audit before child classes can be considered complete. |
 | `QuadStripBrush.gd` | `QuadStripBrush.cs` | Partially audited, active repair started | Sharp-bend shrink/break behavior, double-sided backside consistency, backface color/hue-shift behavior, append-time `Color32` truncation, and single-sided batched weld finalization have been ported. Full line-by-line audit still required. |
-| `QuadStripBrushStretchUV.gd` | `QuadStripBrushStretchUV.cs` | Partially tested | UV tests exist. Needs line-by-line audit after base `QuadStripBrush` settles. |
-| `QuadStripBrushDistanceUV.gd` | `QuadStripBrushDistanceUV.cs` | Partially audited, active repair started | Backface UV/color/tangent mirroring has been ported and tested. Needs full line-by-line audit. |
+| `QuadStripBrushStretchUV.gd` | `QuadStripBrushStretchUV.cs` | Partially audited, active repair started | UV tests cover stretch remapping, width-in-UV0.z export, backface mirroring, and texture atlas branch behavior. Needs full line-by-line audit after base `QuadStripBrush` settles. |
+| `QuadStripBrushDistanceUV.gd` | `QuadStripBrushDistanceUV.cs` | Partially audited, active repair started | Backface UV/color/tangent mirroring has been ported and tested. UV tests now cover distance atlas branch behavior and `Color32` fade quantization. Needs full line-by-line audit. |
 | `QuadStripUnitizedUVBrush.gd` | `QuadStripUnitizedUVBrush.cs` | Partially audited, active repair started | Backface UV/tangent mirroring has been ported and tested. Needs full line-by-line audit. |
 | `FlatGeometryBrush.gd` | `FlatGeometryBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Batched finalization now trims short post-break tails like Open Brush. Needs full branch audit. |
 | `ThickGeometryBrush.gd` | `ThickGeometryBrush.cs` | Partially tested | Existing parity tests cover selected behavior. Needs full branch audit. |
@@ -84,6 +84,7 @@ Implemented so far:
 - Open Brush explicit `GeniusParticlesBrush.FinalizeBatchedBrush` behavior, with `GeometryBrush` batched finalization made non-reentrant for subclasses.
 - Open Brush `SprayBrush.CalculateSalt` modulo behavior for dense knots.
 - Removal of the unused non-Open-Brush `MidpointPlusLifetimeSprayBrush.create_particle_geometry` helper.
+- Open Brush texture-atlas branch coverage for `QuadStripBrushStretchUV` and `QuadStripBrushDistanceUV`.
 
 Focused tests added/updated:
 
@@ -95,6 +96,7 @@ Focused tests added/updated:
   - checks double-sided append-time backface color pattern and hue shifting,
   - checks double-sided DistanceUV backface UV/color/tangent channel mirroring,
   - checks double-sided UnitizedUV backface UV/tangent channel mirroring,
+  - checks StretchUV and DistanceUV texture atlas branch formulas for `m_TextureAtlasV > 1`,
   - checks DistanceUV fade opacity is quantized to Unity `Color32` byte alpha,
   - checks quad-strip append-time colors, opacity, previous-edge carryover, and hue-shifted backfaces use Unity `Color32` byte truncation.
 - `Tests/GDScript/FlatGeometryBrushParityTest.gd`

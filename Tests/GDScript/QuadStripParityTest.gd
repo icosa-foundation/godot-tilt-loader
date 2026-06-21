@@ -11,8 +11,10 @@ func _run() -> void:
 	_check_unitized_uv_brush()
 	_check_unitized_uv_backfaces()
 	_check_stretch_uv_brush()
+	_check_stretch_uv_atlas_branch()
 	_check_stretch_uv_live_preview_preserves_width_uv()
 	_check_distance_uv_brush()
+	_check_distance_uv_atlas_branch()
 	_check_distance_uv_color32_alpha_quantization()
 	_check_distance_uv_backfaces()
 	_check_append_color32_quantization()
@@ -79,6 +81,22 @@ func _check_stretch_uv_brush() -> void:
 	brush.finalize_solitary_brush()
 	brush.free()
 
+func _check_stretch_uv_atlas_branch() -> void:
+	var brush := _make_quad_brush(QuadStripBrushStretchUV.new(), false)
+	brush.m_Desc.m_TextureAtlasV = 4
+	_seed_two_quads(brush)
+	brush.update_uvs(0, 2, 1.0)
+	brush.flush_update_uv_request()
+	var random01 := brush.m_rng.in01(0)
+	var atlas := int(random01 * brush.m_Desc.m_TextureAtlasV)
+	var y_start := atlas / float(brush.m_Desc.m_TextureAtlasV)
+	var y_end := (atlas + 1) / float(brush.m_Desc.m_TextureAtlasV)
+	_expect_close(brush.m_Geometry.m_UVs[0].y, y_start, "stretch atlas first y")
+	_expect_close(brush.m_Geometry.m_UVs[2].y, y_end, "stretch atlas second y")
+	_expect_close(brush.m_Geometry.m_UVs[5].y, y_end, "stretch atlas final y")
+	brush.finalize_solitary_brush()
+	brush.free()
+
 func _check_stretch_uv_live_preview_preserves_width_uv() -> void:
 	var stretch_brush := QuadStripBrushStretchUV.new()
 	stretch_brush.m_StoreWidthInTexcoord0Z = true
@@ -105,6 +123,23 @@ func _check_distance_uv_brush() -> void:
 	_expect_close(brush.m_Geometry.m_Colors[0].a, 0.0, "distance trailing start alpha")
 	_expect_close(brush.m_Geometry.m_Colors[1].a, 1.0, "distance leading alpha")
 	_expect_close(brush.m_Geometry.m_Tangents[0].length(), sqrt(2.0), "distance tangent length includes handedness")
+	brush.finalize_solitary_brush()
+	brush.free()
+
+func _check_distance_uv_atlas_branch() -> void:
+	var brush := _make_quad_brush(QuadStripBrushDistanceUV.new(), false)
+	brush.m_Desc.m_TextureAtlasV = 4
+	_seed_two_quads(brush)
+	brush.update_uvs(0, 2, 1.0)
+	brush.flush_tangent_request()
+	var random01 := brush.m_rng.in01(0)
+	var atlas := int(random01 * 3331.0) % brush.m_Desc.m_TextureAtlasV
+	var y_start := atlas / float(brush.m_Desc.m_TextureAtlasV)
+	var y_end := (atlas + 1) / float(brush.m_Desc.m_TextureAtlasV)
+	_expect_close(brush.m_Geometry.m_UVs[0].x, random01, "distance atlas random u")
+	_expect_close(brush.m_Geometry.m_UVs[0].y, y_start, "distance atlas first y")
+	_expect_close(brush.m_Geometry.m_UVs[2].y, y_end, "distance atlas second y")
+	_expect_close(brush.m_Geometry.m_UVs[5].y, y_end, "distance atlas final y")
 	brush.finalize_solitary_brush()
 	brush.free()
 
