@@ -107,7 +107,7 @@ Implemented so far:
 - Open Brush fake layout brushes (`PbrBrushScript`, `EnvironmentBrushScript`, `SvgBrushScript`) are classified as non-mesh layout providers with explicit no-op batched finalization.
 - Current Godot parity tests and probes are classified in `OPEN_BRUSH_PARITY_TEST_INVENTORY.md`, including the remaining evidence gap that no authoritative Open Brush reference mesh fixtures have been exported yet.
 - An Open Brush reference mesh fixture harness now exists at `Tests/GDScript/OpenBrushReferenceMeshFixtureTest.gd`. It scans `Resources/Fixtures/OpenBrushReferenceMeshes/*.json`, replays each referenced stroke through Godot, and compares vertex positions, triangle indices, and primary diffuse UV0 against Open Brush-exported mesh data.
-- The Unity-side exporter source now exists at `Tools/OpenBrushReferenceMeshExport/OpenBrushReferenceMeshExportTest.cs`. It is intended for the Open Brush Unity editor test assembly and exports finalized `BatchSubset` mesh data for the cafe Ink fixture.
+- The Unity-side exporter source now exists at `Tools/OpenBrushReferenceMeshExport/OpenBrushReferenceMeshExportTest.cs`. It is installed in the Open Brush Unity editor test assembly and exports finalized `BatchSubset` mesh data for the cafe Ink fixture.
 
 Focused tests added/updated:
 
@@ -218,6 +218,14 @@ Heavier cafe importer validation also run:
 ```
 
 Result: command exited successfully.
+
+Open Brush Unity editor project compile check also run after installing the exporter:
+
+```powershell
+dotnet build Assembly-CSharp-Editor.csproj
+```
+
+Result: command exited successfully with existing warning noise.
 
 Known validation noise:
 

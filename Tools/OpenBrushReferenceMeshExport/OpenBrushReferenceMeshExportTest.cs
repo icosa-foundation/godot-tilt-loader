@@ -82,7 +82,7 @@ namespace TiltBrush
 
         private static string FindGodotRoot()
         {
-            string configuredRoot = Environment.GetEnvironmentVariable(kGodotRootEnvVar);
+            string configuredRoot = System.Environment.GetEnvironmentVariable(kGodotRootEnvVar);
             if (!string.IsNullOrEmpty(configuredRoot))
             {
                 return configuredRoot;
