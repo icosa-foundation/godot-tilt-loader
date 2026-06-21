@@ -8,6 +8,8 @@ func _init() -> void:
 
 func _run() -> void:
 	_check_position_and_fuse_helpers()
+	_check_num_used_verts_edge_cases()
+	_check_preview_reset_layout_and_indices()
 	_check_unitized_uv_brush()
 	_check_unitized_uv_complete_layout_and_noops()
 	_check_unitized_uv_backfaces()
@@ -47,6 +49,55 @@ func _check_position_and_fuse_helpers() -> void:
 	brush.fuse_quads(verts, normals, 0, 6, true)
 	_expect_vec3_close(verts[1], verts[6], "fuse top")
 	_expect_vec3_close(verts[5], verts[8], "fuse bottom")
+	brush.free()
+
+func _check_num_used_verts_edge_cases() -> void:
+	var single := _make_quad_brush(QuadStripBrushStretchUV.new(), false)
+	single.m_LeadingQuadIndex = 2
+	single.m_LastSegmentLengthSolids = 0
+	single.m_LeadingSegmentInitialQuadIndex = null
+	_expect_equal(single.get_num_used_verts(), 12, "single-sided drops unattached leading edge only")
+	single.m_LastSegmentLengthSolids = 1
+	_expect_equal(single.get_num_used_verts(), 6, "single-sided drops previous lone segment")
+	single.m_LastSegmentLengthSolids = 0
+	single.m_LeadingSegmentInitialQuadIndex = 1
+	_expect_equal(single.get_num_used_verts(), 6, "single-sided drops one-solid leading segment")
+	single.m_LeadingSegmentInitialQuadIndex = 0
+	_expect_equal(single.get_num_used_verts(), 18, "single-sided includes multi-solid leading segment")
+	_expect(not single.should_discard(), "single-sided non-empty strip is kept")
+	single.m_LeadingQuadIndex = 0
+	single.m_LeadingSegmentInitialQuadIndex = null
+	_expect(single.should_discard(), "single-sided empty strip is discarded")
+	single.free()
+
+	var double := _make_quad_brush(QuadStripBrushStretchUV.new(), true)
+	double.m_LeadingQuadIndex = 4
+	double.m_LastSegmentLengthSolids = 0
+	double.m_LeadingSegmentInitialQuadIndex = null
+	_expect_equal(double.get_num_used_verts(), 24, "double-sided drops unattached leading edge only")
+	double.m_LastSegmentLengthSolids = 1
+	_expect_equal(double.get_num_used_verts(), 12, "double-sided drops previous lone segment")
+	double.m_LastSegmentLengthSolids = 0
+	double.m_LeadingSegmentInitialQuadIndex = 2
+	_expect_equal(double.get_num_used_verts(), 12, "double-sided drops one-solid leading segment")
+	double.m_LeadingSegmentInitialQuadIndex = 0
+	_expect_equal(double.get_num_used_verts(), 36, "double-sided includes multi-solid leading segment")
+	double.free()
+
+func _check_preview_reset_layout_and_indices() -> void:
+	var stretch := QuadStripBrushStretchUV.new()
+	stretch.m_StoreWidthInTexcoord0Z = true
+	var brush := _make_quad_brush(stretch, false)
+	brush.m_LeadingQuadIndex = 3
+	brush.m_InitialQuadIndex = 2
+	brush.m_LastQuadRight = Vector3.RIGHT
+	brush.reset_brush_for_preview(TrTransform.identity())
+	_expect_equal(brush.m_LeadingQuadIndex, 0, "preview reset clears leading quad index")
+	_expect_equal(brush.m_InitialQuadIndex, 0, "preview reset clears initial quad index")
+	_expect_vec3_close(brush.m_LastQuadRight, Vector3.ZERO, "preview reset clears last quad right")
+	_expect_equal(brush.m_Geometry.vertex_layout.texcoord0.size, 3, "preview reset restores subclass vertex layout")
+	_expect(brush.m_Geometry.num_verts() >= 24, "preview reset keeps enough vertices for old leading plus new solid")
+	brush.finalize_solitary_brush()
 	brush.free()
 
 func _check_unitized_uv_brush() -> void:

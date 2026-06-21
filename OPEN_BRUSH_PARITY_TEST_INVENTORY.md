@@ -24,7 +24,7 @@ The key distinction is source authority. Current focused brush tests prove trans
 
 | Test | Primary category | What it proves | Current limitation |
 | --- | --- | --- | --- |
-| `Tests/GDScript/QuadStripParityTest.gd` | `generated mesh parity` | Quad-strip UV modes, stretch/distance pending-request behavior, unitized no-op hooks, backfaces, bend/shrink/break behavior, color quantization, and batched weld finalization. | Source-derived expectations, not C# reference fixture comparison. |
+| `Tests/GDScript/QuadStripParityTest.gd` | `generated mesh parity` | Quad-strip used-vertex edge cases, preview reset contract, UV modes, stretch/distance pending-request behavior, unitized no-op hooks, backfaces, bend/shrink/break behavior, color quantization, and batched weld finalization. | Source-derived expectations, not C# reference fixture comparison. |
 | `Tests/GDScript/FlatGeometryBrushParityTest.gd` | `generated mesh parity` | Flat distance/stretch geometry branches and tail trimming finalization behavior. | Does not cover every branch or reference fixture shape. |
 | `Tests/GDScript/FlatStripCatalogReplayTest.gd` | `generated mesh parity` | Every normal catalog quad-strip and flat-geometry prefab replays through the shared runtime path with descriptor-driven UV0/UV1/normal/color/tangent channel layouts, including `LineWithWidth` and `MidpointPlusOffset` channel behavior. | Stable Godot catalog replay, not Open Brush reference mesh comparison. |
 | `Tests/GDScript/ThickGeometryBrushParityTest.gd` | `generated mesh parity` | Thick distance/stretch UV geometry and atlas branches. | Does not cover every branch or reference fixture shape. |
