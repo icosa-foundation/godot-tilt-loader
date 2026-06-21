@@ -9,6 +9,7 @@ func _init() -> void:
 func _run() -> void:
 	_check_single_segment_topology()
 	_check_two_segment_shared_ring_topology()
+	_check_flip_branch_adds_ring_face_and_extra_ring()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_SQUARE3DPRINT: all checks passed")
 
@@ -55,6 +56,26 @@ func _check_two_segment_shared_ring_topology() -> void:
 	_expect_equal(brush.m_knots[2].nTri, 30, "square3d second knot tris")
 	_expect_vec3_close(brush.m_geometry.m_Vertices[12], brush.m_geometry.m_Vertices[12], "square3d shared ring stable")
 	_expect(brush.m_geometry.m_Tris[90] >= 12, "square3d second knot tris use rewound base")
+	brush.free()
+
+func _check_flip_branch_adds_ring_face_and_extra_ring() -> void:
+	var brush := _make_square3d_brush()
+	var orientation := _orientation_with_up_along_x()
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, orientation, 1.0), 1.0), "square3d flip first update keeps")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.LEFT, orientation, 1.0), 1.0), "square3d flip second update keeps")
+	brush.apply_changes_to_visuals()
+
+	_expect(brush.check_knot_invariants(), "square3d flip knot invariants")
+	_expect(brush.alignment_parity_reverses(brush.m_knots[2], brush.m_knots[1]), "square3d flip branch active")
+	_expect_equal(brush.m_geometry.num_verts(), 40, "square3d flip vertex count")
+	_expect_equal(brush.m_geometry.num_tri_indices(), 198, "square3d flip triangle index count")
+	_expect_equal(brush.m_knots[1].iVert, 0, "square3d flip first knot vertex start")
+	_expect_equal(brush.m_knots[1].nVert, 20, "square3d flip first knot verts")
+	_expect_equal(brush.m_knots[1].nTri, 30, "square3d flip first knot tris")
+	_expect_equal(brush.m_knots[2].iVert, 12, "square3d flip second knot rewinds shared ring")
+	_expect_equal(brush.m_knots[2].nVert, 28, "square3d flip second knot adds closing and current rings")
+	_expect_equal(brush.m_knots[2].nTri, 36, "square3d flip second knot tris include ring face")
+	_expect_equal(brush.m_geometry.m_Tris.slice(90, 108), [14, 13, 12, 15, 14, 12, 16, 15, 12, 17, 16, 12, 18, 17, 12, 19, 18, 12], "square3d flip closing ring face tris")
 	brush.free()
 
 func _make_square3d_brush() -> Square3DPrintBrush:
