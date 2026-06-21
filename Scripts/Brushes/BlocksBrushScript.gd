@@ -31,5 +31,8 @@ func init_undo_clone(_clone: Node3D) -> void:
 func finalize_solitary_brush() -> void:
 	pass
 
+func finalize_batched_brush() -> void:
+	pass
+
 func apply_changes_to_visuals() -> void:
 	pass

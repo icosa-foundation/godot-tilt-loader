@@ -28,6 +28,8 @@ func _check_blocks_brush_noop_contract() -> void:
 	_expect(brush.update_position_ls(TrTransform.t(Vector3.RIGHT), 0.5), "blocks update returns true")
 	brush.apply_changes_to_visuals()
 	brush.finalize_solitary_brush()
+	brush.finalize_for_runtime()
+	_expect_equal(brush.mesh_data.vertex_count(), 0, "blocks runtime finalize remains no-op")
 	brush.free()
 
 func _expect(condition: bool, label: String) -> void:
