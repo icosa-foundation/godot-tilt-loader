@@ -99,7 +99,9 @@ func _check_shape_modifier_updates_vertices() -> void:
 
 func _make_tube_brush(hard_edges: bool = false, end_caps: bool = true, stretch_uvs: bool = false, radius_in_uv0_z: bool = false, points_in_closed_circle: int = 8, texture_atlas_v: int = 1) -> TubeBrush:
 	var desc := BrushDescriptor.new()
-	desc.m_DurableName = "Tube"
+	desc.name = "LightWire"
+	desc.m_Guid = "4391aaaa-df81-4396-9e33-31e4e4930b27"
+	desc.m_DurableName = "LightWire"
 	desc.m_RenderBackfaces = false
 	desc.m_BackIsInvisible = false
 	desc.m_M11Compatibility = false

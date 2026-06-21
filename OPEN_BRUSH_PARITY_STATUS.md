@@ -96,6 +96,7 @@ Implemented so far:
 - Open Brush texture-atlas branch coverage for `QuadStripBrushStretchUV` and `QuadStripBrushDistanceUV`.
 - Open Brush `ThickGeometryBrush` texture atlas count handling and atlas branch coverage for distance/stretch UVs.
 - Open Brush `TubeBrush` texture atlas count handling and direct UV-rate division behavior, with atlas branch coverage for distance UVs.
+- Catalog replay coverage now verifies every normal tube-derived brush, including `BubbleWand`, generates complete descriptor-driven mesh channels through the shared runtime replay path.
 - Open Brush `BubbleWandBrush` finalization control flow, UVW formula behavior, and UV1 original-position storage coverage.
 - Open Brush `BlocksBrushScript` explicit no-op batched finalization behavior.
 - Open Brush `TetraBrush` texture atlas count handling and distance atlas branch coverage, including texture edge chop.
@@ -122,6 +123,7 @@ Implemented so far:
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd` now checks all seven normal catalog `GeniusParticle` brushes initialize the Open Brush particle formulas from their real descriptor metadata, including particle rate, particle speed, random alpha, initial rotation range, spawn interval, particle size scale, and UV channel layout.
 - `Tests/GDScript/GeniusParticlesCatalogReplayTest.gd` now replays every normal catalog `GeniusParticle` brush through the shared runtime replay path and verifies generated particle mesh channel completeness: vertices, triangle indices, normals, colors, UV0 Vector4, UV1 Vector3, and no tangents.
 - `Tests/GDScript/SprayCatalogReplayTest.gd` now replays every normal catalog `Spray` and `MiddpointPlusLifetimeGeomSpray` brush through the shared runtime replay path and verifies generated particle mesh channel completeness for UV0, UV1, normals, colors, and tangents.
+- `Tests/GDScript/TubeCatalogReplayTest.gd` now replays every normal catalog tube-derived prefab through the shared runtime replay path and verifies descriptor-driven UV0, UV1, normal, color, tangent, and runtime-class channel expectations, including the BubbleWand-specific no-tangent/UV1 Vector4 layout.
 - `Tests/GDScript/LiveVsTiltUvParityTest.gd` now compares vertex positions as well as primary UVs and includes the promoted normal brushes `DotMarker`, `Plasma`, and `TaperedMarker_Flat` across direct replay, memory replay, pointer math, and live object paths.
 
 Focused tests added/updated:
@@ -163,6 +165,9 @@ Focused tests added/updated:
   - checks Tetra distance and unitized UV geometry, generated topology, vertex color truncation, and distance UV texture atlas branch formulas for `m_TextureAtlasV > 1` with texture edge chop.
 - `Tests/GDScript/TubeBrushParityTest.gd`
   - checks default soft tube geometry, hard-edge radius-in-UV layout, stretch UV remapping, shape modifier displacement, and distance UV texture atlas branch formulas for `m_TextureAtlasV > 1`.
+- `Tests/GDScript/TubeCatalogReplayTest.gd`
+  - replays all normal catalog `TubeDistanceUV`, `TubeDistanceUVSin`, `TubeStretchUV`, `Tube_Petal`, `Tube_Rain`, `Tube_Sparks`, `Tube_Spikes`, `Tube_Tapered`, `TubeBrush_Comet`, `Lofted`, and `LoftedHueShift` brushes through `BrushStrokeReplay`,
+  - verifies each replay produces non-empty mesh data with complete descriptor-driven UV0, UV1, normal, color, and tangent channel layouts, including BubbleWand routing and UV channel behavior.
 - `Tests/GDScript/BubbleWandBrushParityTest.gd`
   - checks BubbleWand layout, Tube-derived generated geometry, UVW post-processing formula across cap/ring/mid/tail vertices, computed bubble radius/center, finalization smoothing, release time capture, and original geometry position storage in UV1.
 - `Tests/GDScript/BlocksBrushParityTest.gd`
