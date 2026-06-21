@@ -10,6 +10,7 @@ func _run() -> void:
 	App.force_deterministic_birth_time_for_export = true
 	_check_particle_geometry()
 	_check_texture_atlas_uvs()
+	_check_randomized_alpha_offset_and_roll_formula()
 	_check_finalize_removes_hanging_particle()
 	_check_batched_finalize_removes_hanging_particle()
 	_check_preview_decay_uses_elapsed_time()
@@ -61,6 +62,26 @@ func _check_texture_atlas_uvs() -> void:
 	_expect_vec4_close(brush.m_geometry.m_Texcoord0.v4[GeniusParticlesBrush.FL], GeniusParticlesBrush.TEXTURE_ATLAS_50 + offset + uv0, "genius atlas fl uv")
 	_expect_vec4_close(brush.m_geometry.m_Texcoord0.v4[GeniusParticlesBrush.BR], GeniusParticlesBrush.TEXTURE_ATLAS_05 + offset + uv0, "genius atlas br uv")
 	_expect_vec4_close(brush.m_geometry.m_Texcoord0.v4[GeniusParticlesBrush.FR], GeniusParticlesBrush.TEXTURE_ATLAS_55 + offset + uv0, "genius atlas fr uv")
+	brush.free()
+
+func _check_randomized_alpha_offset_and_roll_formula() -> void:
+	var brush := _make_genius_brush(1, 0.5, true, 0.25, 60.0)
+	_expect(not brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "genius random branch update waits for travelled distance")
+	brush.apply_changes_to_visuals()
+
+	var knot_index := 1
+	var particle_index := 0
+	var salt := brush.calculate_salt(knot_index, particle_index)
+	var knot := brush.m_knots[knot_index]
+	var expected_size := brush.pressured_random_size(knot.smoothedPressure, salt + GeniusParticlesBrush.K_SALT_PRESSURE)
+	var expected_center := brush.m_rng.on_unit_sphere(salt + GeniusParticlesBrush.K_SALT_ON_SPHERE) * expected_size * brush.m_ParticleSizeScale
+	var expected_alpha := _color32_channel(brush.m_rng.in01(salt + GeniusParticlesBrush.K_SALT_ALPHA))
+	var expected_roll := deg_to_rad(brush.m_rng.in_range(salt + GeniusParticlesBrush.K_SALT_ROLL, -30.0, 30.0))
+
+	_expect_vec3_close(brush.m_geometry.m_Normals[GeniusParticlesBrush.BR], expected_center, "genius random offset center")
+	_expect_close(brush.m_geometry.m_Colors[GeniusParticlesBrush.BR].a, expected_alpha, "genius randomized alpha color32")
+	_expect_close(brush.m_geometry.m_Texcoord0.v4[GeniusParticlesBrush.BR].z, expected_roll, "genius roll packed in uv0 z")
+	_expect_vec3_close(brush.m_geometry.m_Texcoord1.v3[GeniusParticlesBrush.BR], Vector3.ZERO, "genius random branch source particle position")
 	brush.free()
 
 func _check_finalize_removes_hanging_particle() -> void:
@@ -124,7 +145,13 @@ func _check_particle_birth_time_matches_open_brush_sign() -> void:
 	_expect(preview.m_geometry.m_Texcoord0.v4[0].w < 0.0, "genius preview birth time is negative")
 	preview.free()
 
-func _make_genius_brush(texture_atlas_v: int = 1) -> GeniusParticlesBrush:
+func _make_genius_brush(
+	texture_atlas_v: int = 1,
+	particle_speed: float = 0.0,
+	randomize_alpha: bool = false,
+	size_variance: float = 0.0,
+	initial_rotation_range: float = 0.0
+) -> GeniusParticlesBrush:
 	var desc := BrushDescriptor.new()
 	desc.m_DurableName = "GeniusParticles"
 	desc.m_RenderBackfaces = false
@@ -135,11 +162,11 @@ func _make_genius_brush(texture_atlas_v: int = 1) -> GeniusParticlesBrush:
 	desc.m_PressureSizeRange = Vector2(1.0, 1.0)
 	desc.m_PressureOpacityRange = Vector2(1.0, 1.0)
 	desc.m_Opacity = 1.0
-	desc.m_SizeVariance = 0.0
+	desc.m_SizeVariance = size_variance
 	desc.m_ParticleRate = 0.1
-	desc.m_ParticleSpeed = 0.0
-	desc.m_ParticleInitialRotationRange = 0.0
-	desc.m_RandomizeAlpha = false
+	desc.m_ParticleSpeed = particle_speed
+	desc.m_ParticleInitialRotationRange = initial_rotation_range
+	desc.m_RandomizeAlpha = randomize_alpha
 	desc.m_BrushSizeRange = Vector2(1.0, 2.0)
 
 	var brush := GeniusParticlesBrush.new()
@@ -168,6 +195,9 @@ func _expect_vec4_close(actual: Vector4, expected: Vector4, label: String) -> vo
 	_expect_close(actual.y, expected.y, "%s y" % label)
 	_expect_close(actual.z, expected.z, "%s z" % label)
 	_expect_close(actual.w, expected.w, "%s w" % label)
+
+func _color32_channel(value: float) -> float:
+	return float(int(clamp(value, 0.0, 1.0) * 255.0)) / 255.0
 
 func _expect_close(actual: float, expected: float, label: String) -> void:
 	if absf(actual - expected) > 1e-5:
