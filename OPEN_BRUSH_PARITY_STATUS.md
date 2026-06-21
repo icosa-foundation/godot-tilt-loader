@@ -298,6 +298,16 @@ Additional validation after adding the missing catalog material assets and fixin
 
 Result: all three commands exited successfully. The previous `Digital`, `Race`, `PassthroughHull`, and `Slice.gdshader` material/shader failures no longer appear.
 
+Additional validation after correcting stale shader UIDs in Godot brush materials:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatStripCatalogReplayTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/CafeStrokeFixturesReplayTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/TiltImporterRuntimeReplayTest.gd
+```
+
+Result: all three commands exited successfully. The previous shader UID warnings for `Electricity.tres`, `Stars.tres`, and the cafe-imported `Snow`, `Dots`, `Smoke`, `Embers`, and `Bubbles` materials no longer appear.
+
 Open Brush Unity editor project compile check also run after installing the exporter:
 
 ```powershell
@@ -310,9 +320,7 @@ Known validation noise:
 
 - Godot reported an existing resource-leak warning after a scene-style test.
 - Catalog loading now explicitly logs unsupported experimental ParentBrush composite skips instead of missing GUID or duplicate GUID warnings.
-- Cafe importer validation reports legacy GUID remaps, compatibility-brush skips, and several material UID warnings; these do not currently fail the runtime replay test.
-- The cafe Stars fixture reports a material UID warning for `Stars.tres`; this does not currently fail fixture replay.
-- `FlatStripCatalogReplayTest.gd` still reports an existing invalid UID warning for `Electricity.tres`; this does not currently fail mesh replay assertions.
+- Cafe importer validation reports legacy GUID remaps; these do not currently fail the runtime replay test.
 
 ## Next Required Work
 
@@ -324,4 +332,3 @@ Known validation noise:
 4. Convert current helper tests into generated-mesh parity tests where possible.
 5. Audit all remaining brush classes line-by-line against the reference source.
 6. Remove or quarantine any remaining production fallback geometry paths for normal brushes.
-7. Fix or explicitly classify remaining material UID warnings surfaced by catalog and cafe replay coverage.
