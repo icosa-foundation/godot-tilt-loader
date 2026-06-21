@@ -320,5 +320,4 @@ func _make_initial_knot(local_pointer_xf: TrTransform, pressure: float) -> Knot:
 	knot.point = ControlPoint.create(local_pointer_xf.translation, local_pointer_xf.rotation, pressure, 0)
 	knot.length = 0.0
 	knot.smoothedPos = local_pointer_xf.translation
-	knot.smoothedPressure = pressure
 	return knot

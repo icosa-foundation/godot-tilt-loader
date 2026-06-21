@@ -115,6 +115,9 @@ func _check_geometry_brush_lifecycle() -> void:
 
 	_expect_equal(brush.m_knots.size(), 2, "initial knot count")
 	_expect(brush.check_knot_invariants(), "initial knot invariants")
+	_expect_close(brush.m_knots[0].point.m_Pressure, 1.0, "initial knot point pressure")
+	_expect_close(brush.m_knots[0].smoothedPressure, 0.0, "initial knot smoothed pressure default")
+	_expect_close(brush.m_knots[1].smoothedPressure, 0.0, "initial duplicate smoothed pressure default")
 	_expect_close(brush.pressured_size(0.5), 1.2, "pressured size")
 	_expect_close(brush.pressured_opacity(0.5), 0.5, "pressured opacity")
 

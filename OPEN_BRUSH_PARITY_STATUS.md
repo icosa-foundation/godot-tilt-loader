@@ -15,7 +15,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | Godot class | Open Brush source | Status | Notes |
 | --- | --- | --- | --- |
 | `BaseBrushScript.gd` | `BaseBrushScript.cs` | Not fully audited | Core lifecycle and coordinate shims need line-by-line comparison. |
-| `GeometryBrush.gd` | `GeometryBrush.cs` | Partially audited, active repair started | Shared `SetVert` now uses Open Brush `Color32` truncation for RGB and alpha. Batched finalization now copies/releases geometry directly instead of re-entering subclass solitary finalizers. Lifecycle/finalization still needs full audit before child classes can be considered complete. |
+| `GeometryBrush.gd` | `GeometryBrush.cs` | Partially audited, active repair started | Shared `SetVert` now uses Open Brush `Color32` truncation for RGB and alpha. Initial knot smoothed pressure now matches Open Brush struct defaults. Batched finalization now copies/releases geometry directly instead of re-entering subclass solitary finalizers. Lifecycle/finalization still needs full audit before child classes can be considered complete. |
 | `QuadStripBrush.gd` | `QuadStripBrush.cs` | Partially audited, active repair started | Sharp-bend shrink/break behavior, double-sided backside consistency, backface color/hue-shift behavior, append-time `Color32` truncation, and single-sided batched weld finalization have been ported. Full line-by-line audit still required. |
 | `QuadStripBrushStretchUV.gd` | `QuadStripBrushStretchUV.cs` | Partially audited, active repair started | UV tests cover stretch remapping, width-in-UV0.z export, backface mirroring, and texture atlas branch behavior. Needs full line-by-line audit after base `QuadStripBrush` settles. |
 | `QuadStripBrushDistanceUV.gd` | `QuadStripBrushDistanceUV.cs` | Partially audited, active repair started | Backface UV/color/tangent mirroring has been ported and tested. UV tests now cover distance atlas branch behavior and `Color32` fade quantization. Needs full line-by-line audit. |
@@ -96,6 +96,7 @@ Implemented so far:
 - Open Brush `HullBrush` `SimplifyAtEnd` batched finalization route and simplification tolerance pass.
 - Open Brush `MathUtils.ComputeMinimalRotationFrame` forward-axis convention for Godot `Basis.looking_at`.
 - Open Brush `TubeBrush` routing through shared `MathUtils.ComputeMinimalRotationFrame` instead of a local alternate frame path.
+- Open Brush `GeometryBrush` initial knot `smoothedPressure` default behavior before the first update.
 
 Focused tests added/updated:
 
@@ -143,6 +144,8 @@ Focused tests added/updated:
   - verifies every mesh-affecting prefab field in the active manifest/catalog is applied to the created runtime brush instance, including quad-strip width storage, flat/thick/tube UV style, flat offset flags, hull parameters, concave hull parameters, and tube shape parameters.
 - `Tests/GDScript/UtilityParityTest.gd`
   - checks shared utility behavior including `MathUtils.ComputeMinimalRotationFrame` forward-axis parity.
+- `Tests/GDScript/BrushLifecycleParityTest.gd`
+  - checks shared geometry brush lifecycle, including initial knot defaults, first-update dirty tracking, geometry resize/copy, and finalization release behavior.
 - `Tests/GDScript/CafeStrokeFixturesReplayTest.gd`
   - replays checked-in cafe stroke fixtures through `OpenBrushStrokeBridge` and `BrushStrokeReplay` without loading the full cafe `.tilt`,
   - verifies the cafe legacy Ink GUID resolves to the runtime `Ink` descriptor and `QuadStripBrushStretchUV`,
