@@ -7,8 +7,11 @@ func _init() -> void:
 	quit(1 if _failures > 0 else 0)
 
 func _run() -> void:
+	App.force_deterministic_birth_time_for_export = true
 	_check_midpoint_geometry_and_uv1()
 	_check_finalize_preserves_generated_particles()
+	App.force_deterministic_birth_time_for_export = false
+	_check_midpoint_birth_time_in_uv1()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_MIDPOINTSPRAY: all checks passed")
 
@@ -47,6 +50,13 @@ func _check_finalize_preserves_generated_particles() -> void:
 	_expect_vec3_close(brush.mesh_data.vertices[4], expected_vertices[4], "midpoint finalize preserves second particle br")
 	_expect_vec4_close(brush.mesh_data.uv1_v4[4], expected_uv1[4], "midpoint finalize preserves second particle uv1")
 	_expect(brush.m_geometry == null, "midpoint releases geometry")
+	brush.free()
+
+func _check_midpoint_birth_time_in_uv1() -> void:
+	var brush := _make_midpoint_brush()
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(2.0, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "midpoint birth time update keeps")
+	brush.apply_changes_to_visuals()
+	_expect(brush.m_geometry.m_Texcoord1.v4[MidpointPlusLifetimeSprayBrush.BR].w > 0.0, "midpoint uv1 birth time is positive")
 	brush.free()
 
 func _make_midpoint_brush() -> MidpointPlusLifetimeSprayBrush:

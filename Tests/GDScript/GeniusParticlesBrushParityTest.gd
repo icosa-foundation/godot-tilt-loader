@@ -7,9 +7,13 @@ func _init() -> void:
 	quit(1 if _failures > 0 else 0)
 
 func _run() -> void:
+	App.force_deterministic_birth_time_for_export = true
 	_check_particle_geometry()
 	_check_finalize_removes_hanging_particle()
+	_check_batched_finalize_removes_hanging_particle()
 	_check_preview_decay_uses_elapsed_time()
+	App.force_deterministic_birth_time_for_export = false
+	_check_particle_birth_time_matches_open_brush_sign()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_GENIUSPARTICLES: all checks passed")
 
@@ -51,6 +55,20 @@ func _check_finalize_removes_hanging_particle() -> void:
 	_expect_vec3_close(brush.mesh_data.uv1_v3[16], Vector3.ZERO, "genius single-stroke final particle reset to initial position")
 	brush.free()
 
+func _check_batched_finalize_removes_hanging_particle() -> void:
+	var brush := _make_genius_brush()
+	_expect(not brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "genius batched finalize update waits for travelled distance")
+	brush.apply_changes_to_visuals()
+	brush.finalize_for_runtime()
+
+	_expect(brush.m_geometry == null, "genius batched releases geometry")
+	_expect_equal(brush.mesh_data.vertices.size(), 20, "genius batched finalized vertex count")
+	_expect_equal(brush.mesh_data.triangles.size(), 30, "genius batched finalized tri count")
+	_expect_equal(brush.mesh_data.uv0_v4.size(), 20, "genius batched finalized uv0 count")
+	_expect_equal(brush.mesh_data.uv1_v3.size(), 20, "genius batched finalized uv1 count")
+	_expect_vec3_close(brush.mesh_data.uv1_v3[16], Vector3.ZERO, "genius batched single-stroke final particle reset to initial position")
+	brush.free()
+
 func _check_preview_decay_uses_elapsed_time() -> void:
 	var brush := _make_genius_brush()
 	brush.set_preview_mode()
@@ -69,6 +87,20 @@ func _check_preview_decay_uses_elapsed_time() -> void:
 	_expect_equal(brush.m_DecayedKnots, 1, "genius preview decay increments decayed knot count")
 	_expect_equal(brush.m_knots.size(), initial_knots - 1, "genius preview decay shifts initial knot")
 	brush.free()
+
+func _check_particle_birth_time_matches_open_brush_sign() -> void:
+	var brush := _make_genius_brush()
+	_expect(not brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "genius birth time update waits")
+	brush.apply_changes_to_visuals()
+	_expect(brush.m_geometry.m_Texcoord0.v4[0].w > 0.0, "genius non-preview birth time is positive")
+	brush.free()
+
+	var preview := _make_genius_brush()
+	preview.set_preview_mode()
+	_expect(not preview.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "genius preview birth time update waits")
+	preview.apply_changes_to_visuals()
+	_expect(preview.m_geometry.m_Texcoord0.v4[0].w < 0.0, "genius preview birth time is negative")
+	preview.free()
 
 func _make_genius_brush() -> GeniusParticlesBrush:
 	var desc := BrushDescriptor.new()

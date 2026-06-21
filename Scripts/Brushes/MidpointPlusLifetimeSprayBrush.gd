@@ -109,7 +109,7 @@ func on_changed_make_geometry(knot_index: int) -> void:
 				if m_Desc.m_RandomizeAlpha:
 					alpha = m_rng.in_range(salt + K_SALT_ALPHA, 0.0, 1.0)
 
-				var creation_time := 0.0
+				var creation_time := _knot_creation_time_since_level_load(cur)
 				set_vert(vert_index, BR, center - forward_offset + right_offset, cur.nSurface, m_Color, alpha)
 				set_uv1(vert_index, BR, _offset4(-forward_offset + right_offset, creation_time))
 				set_vert(vert_index, BL, center - forward_offset - right_offset, cur.nSurface, m_Color, alpha)
@@ -187,3 +187,8 @@ func get_num_quads_allowed() -> int:
 
 func _offset4(offset: Vector3, time: float) -> Vector4:
 	return Vector4(offset.x, offset.y, offset.z, time)
+
+static func _knot_creation_time_since_level_load(knot: Knot) -> float:
+	if App.force_deterministic_birth_time_for_export:
+		return 0.0
+	return App.sketch_time_to_level_load_time(float(knot.point.m_TimestampMs) * 0.001)

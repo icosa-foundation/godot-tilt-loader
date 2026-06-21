@@ -175,7 +175,7 @@ func debug_get_geometry() -> Dictionary:
 		"nTris": m_geometry.m_Tris.size()
 	}
 
-func finalize_solitary_brush() -> void:
+func _finalize_geometry_mesh() -> void:
 	if m_geometry == null:
 		return
 	m_geometry.copy_to_mesh_data(mesh_data)
@@ -184,6 +184,12 @@ func finalize_solitary_brush() -> void:
 	GeometryPool.release(m_geometry)
 	m_geometry = null
 	update_visible_mesh()
+
+func finalize_solitary_brush() -> void:
+	_finalize_geometry_mesh()
+
+func finalize_batched_brush() -> void:
+	_finalize_geometry_mesh()
 
 func apply_changes_to_visuals() -> void:
 	if m_geometry == null or not m_geometry.verify_sizes():

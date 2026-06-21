@@ -7,9 +7,13 @@ const UNITS_TO_METERS := 0.1
 @export var EnableXR := false
 
 static var m_sketch_time_base := 0.0
+static var force_deterministic_birth_time_for_export := false
 
 static func current_sketch_time() -> float:
 	return Time.get_ticks_msec() / 1000.0 - m_sketch_time_base
+
+static func sketch_time_to_level_load_time(sketch_time: float) -> float:
+	return sketch_time + m_sketch_time_base
 
 func _ready() -> void:
 	if DisplayServer.get_name() == "headless":

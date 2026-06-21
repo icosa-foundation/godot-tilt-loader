@@ -15,7 +15,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | Godot class | Open Brush source | Status | Notes |
 | --- | --- | --- | --- |
 | `BaseBrushScript.gd` | `BaseBrushScript.cs` | Not fully audited | Core lifecycle and coordinate shims need line-by-line comparison. |
-| `GeometryBrush.gd` | `GeometryBrush.cs` | Partially audited, active repair started | Shared `SetVert` now uses Open Brush `Color32` truncation for RGB and alpha. Lifecycle/finalization still needs full audit before child classes can be considered complete. |
+| `GeometryBrush.gd` | `GeometryBrush.cs` | Partially audited, active repair started | Shared `SetVert` now uses Open Brush `Color32` truncation for RGB and alpha. Batched finalization now copies/releases geometry directly instead of re-entering subclass solitary finalizers. Lifecycle/finalization still needs full audit before child classes can be considered complete. |
 | `QuadStripBrush.gd` | `QuadStripBrush.cs` | Partially audited, active repair started | Sharp-bend shrink/break behavior, double-sided backside consistency, backface color/hue-shift behavior, append-time `Color32` truncation, and single-sided batched weld finalization have been ported. Full line-by-line audit still required. |
 | `QuadStripBrushStretchUV.gd` | `QuadStripBrushStretchUV.cs` | Partially tested | UV tests exist. Needs line-by-line audit after base `QuadStripBrush` settles. |
 | `QuadStripBrushDistanceUV.gd` | `QuadStripBrushDistanceUV.cs` | Partially audited, active repair started | Backface UV/color/tangent mirroring has been ported and tested. Needs full line-by-line audit. |
@@ -26,7 +26,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `HullBrush.gd` | `HullBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Native hull backend and degenerate cases need explicit parity review. |
 | `ConcaveHullBrush.gd` | `ConcaveHullBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Known degenerate hull behavior needs explicit classification. |
 | `SprayBrush.gd` | `SprayBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Particle layout and seed behavior still need full audit. |
-| `GeniusParticlesBrush.gd` | `GeniusParticlesBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Particle layout and seed behavior still need full audit. |
+| `GeniusParticlesBrush.gd` | `GeniusParticlesBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Batched finalization now explicitly runs particle finalization like Open Brush. UV0.w now stores Open Brush particle birth time, negative in preview mode. Particle layout and seed behavior still need full audit. |
 | `BubbleWandBrush.gd` | `BubbleWandBrush.cs` | Partially tested | Needs full branch audit. |
 | `BlocksBrushScript.gd` | `BlocksBrushScript.cs` | Partially tested | Needs full branch audit. |
 | `TetraBrush.gd` | `TetraBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Needs full branch audit. |
@@ -37,7 +37,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `PbrBrushScript.gd` | `PbrBrushScript.cs` | Not fully audited | Material/export interaction needs separation from mesh parity. |
 | `EnvironmentBrushScript.gd` | `EnvironmentBrushScript.cs` | Not fully audited | Need confirm whether this participates in runtime mesh generation. |
 | `SvgBrushScript.gd` | `SvgBrushScript.cs` | Not fully audited | Need confirm whether this participates in runtime mesh generation. |
-| `MidpointPlusLifetimeSprayBrush.gd` | `MidpointPlusLifetimeSprayBrush.cs` | Partially audited, active repair started | Removed non-Open-Brush finalization rewrite copied from Genius-style particle behavior; finalization now preserves generated midpoint particles. Particle layout, seed behavior, and lifetime data still need full audit. |
+| `MidpointPlusLifetimeSprayBrush.gd` | `MidpointPlusLifetimeSprayBrush.cs` | Partially audited, active repair started | Removed non-Open-Brush finalization rewrite copied from Genius-style particle behavior; finalization now preserves generated midpoint particles. UV1.w now stores Open Brush particle birth time. Particle layout and seed behavior still need full audit. |
 
 ## Missing Godot Runtime Equivalents To Investigate
 
@@ -80,6 +80,8 @@ Implemented so far:
 - Open Brush `Color32` alpha truncation for `QuadStripBrushDistanceUV` opacity fade.
 - Open Brush `GeometryBrush.SetVert` `Color32` truncation for shared flat/thick geometry brush color and alpha writes.
 - Open Brush `Color32` truncation for direct vertex-color writes in hull, concave hull, tube, tetra, square, square 3D print, slice, and printable brush classes.
+- Open Brush particle birth-time packing for `GeniusParticlesBrush` UV0.w and `MidpointPlusLifetimeSprayBrush` UV1.w.
+- Open Brush explicit `GeniusParticlesBrush.FinalizeBatchedBrush` behavior, with `GeometryBrush` batched finalization made non-reentrant for subclasses.
 
 Focused tests added/updated:
 
@@ -103,9 +105,9 @@ Focused tests added/updated:
 - `Tests/GDScript/SprayBrushParityTest.gd`
   - checks Spray geometry layout, double-sided output, UV/tangent generation, and preview decay aging with elapsed time.
 - `Tests/GDScript/GeniusParticlesBrushParityTest.gd`
-  - checks Genius particle geometry layout, generated UV channels, hanging-particle finalization, single-particle pressure behavior, and preview decay aging with elapsed time.
+  - checks Genius particle geometry layout, generated UV channels, solitary and batched hanging-particle finalization, single-particle pressure behavior, preview decay aging with elapsed time, and Open Brush birth-time sign packing in UV0.w.
 - `Tests/GDScript/MidpointSprayBrushParityTest.gd`
-  - checks Midpoint Plus Lifetime Spray geometry layout, generated UV0/UV1 channels, tangent/color output, and finalization preserving the generated particle mesh rather than applying Genius Particles hanging-particle removal.
+  - checks Midpoint Plus Lifetime Spray geometry layout, generated UV0/UV1 channels, tangent/color output, finalization preserving the generated particle mesh rather than applying Genius Particles hanging-particle removal, and Open Brush birth-time packing in UV1.w.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd`
   - walks the real manifest/catalog and verifies all normal `Line`, `LineWithWidth`, `UnitizedUV`, and `DistanceUV` prefabs route to the repaired quad-strip runtime classes.
   - verifies every mesh-affecting prefab field in the active manifest/catalog is applied to the created runtime brush instance, including quad-strip width storage, flat/thick/tube UV style, flat offset flags, hull parameters, concave hull parameters, and tube shape parameters.
