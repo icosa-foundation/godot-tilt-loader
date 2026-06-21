@@ -40,6 +40,14 @@ class TestGeometryBrush:
 		m_geometry.m_Tris[1] = 1
 		m_geometry.m_Tris[2] = 2
 
+class TestBaseBrush:
+	extends BaseBrushScript
+
+	var should_generate := true
+
+	func update_position_impl(_position: Vector3, _orientation: Quaternion, _pressure: float) -> bool:
+		return should_generate
+
 var _failures := 0
 
 func _init() -> void:
@@ -93,6 +101,41 @@ func _check_base_helpers() -> void:
 	var frame := BaseBrushScript.compute_surface_frame_new(Vector3.RIGHT, Vector3.FORWARD * -1.0, Quaternion.IDENTITY)
 	_expect_close(frame.right.length(), 1.0, "surface frame right length")
 	_expect_close(frame.normal.length(), 1.0, "surface frame normal length")
+	_expect_vec3_close(frame.right, Vector3.RIGHT, "surface frame right exact")
+	_expect_vec3_close(frame.normal, Vector3.UP, "surface frame normal exact")
+
+	var desc := BrushDescriptor.new()
+	desc.m_DurableName = "BaseLifecycleProbe"
+	desc.m_RenderBackfaces = true
+	desc.m_PressureSizeRange = Vector2(0.25, 1.0)
+	desc.m_PressureOpacityRange = Vector2(0.1, 0.9)
+	desc.m_Opacity = 0.5
+	desc.m_SizeVariance = 0.2
+
+	var brush := TestBaseBrush.new()
+	brush.m_BaseSize_PS = 2.0
+	brush.m_Color = Color(0.1, 0.2, 0.3, 1.0)
+	brush.init_brush(desc, TrTransform.trs(Vector3(1.0, 2.0, 3.0), Quaternion.IDENTITY, 4.0))
+	_expect(brush.m_EnableBackfaces, "init_brush copies backface flag")
+	_expect_close(brush.stroke_scale(), 4.0, "stroke scale")
+	_expect_close(brush.local_to_pointer(), 0.25, "local to pointer")
+	_expect_close(brush.pointer_to_local(), 4.0, "pointer to local")
+	_expect_close(brush.base_size_ls(), 8.0, "base size local space")
+	_expect_close(brush.pressured_size(0.5), 5.0, "base pressured size")
+	_expect_close(brush.pressured_opacity(0.5), 0.25, "base pressured opacity")
+
+	brush.set_random_seed(1234)
+	_expect_equal(brush.random_seed(), 1234, "random seed setter")
+	var prior_xf := brush.m_LastSpawnXf
+	brush.should_generate = false
+	_expect(not brush.update_position_ls(TrTransform.trs(Vector3(9.0, 0.0, 0.0), Quaternion.IDENTITY, 2.0), 1.0), "failed base update returns false")
+	_expect_vec3_close(brush.m_LastSpawnXf.translation, prior_xf.translation, "failed update preserves last spawn translation")
+	_expect_close(brush.m_LastSpawnXf.scale, prior_xf.scale, "failed update preserves last spawn scale")
+	brush.should_generate = true
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(9.0, 0.0, 0.0), Quaternion.IDENTITY, 2.0), 1.0), "successful base update returns true")
+	_expect_vec3_close(brush.m_LastSpawnXf.translation, Vector3(9.0, 0.0, 0.0), "successful update stores last spawn translation")
+	_expect_close(brush.m_LastSpawnXf.scale, 2.0, "successful update stores last spawn scale")
+	brush.free()
 
 func _check_geometry_brush_lifecycle() -> void:
 	var desc := BrushDescriptor.new()
@@ -135,7 +178,7 @@ func _check_geometry_brush_lifecycle() -> void:
 	_expect(brush.m_geometry == null, "finalize releases geometry")
 	_expect_equal(brush.mesh_data.triangles, [0, 1, 2], "finalize mesh triangles")
 
-	canvas.queue_free()
+	canvas.free()
 
 func _expect(condition: bool, label: String) -> void:
 	if not condition:

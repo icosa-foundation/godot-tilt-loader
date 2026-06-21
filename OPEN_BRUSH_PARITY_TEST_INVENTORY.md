@@ -51,7 +51,7 @@ The key distinction is source authority. Current focused brush tests prove trans
 
 | Test | Primary category | What it proves | Current limitation |
 | --- | --- | --- | --- |
-| `Tests/GDScript/BrushLifecycleParityTest.gd` | `lifecycle parity` | Shared geometry brush lifecycle, initial knot defaults, dirty tracking, resizing, finalization release, and base helpers. | Shared lifecycle only; not every subclass path. |
+| `Tests/GDScript/BrushLifecycleParityTest.gd` | `lifecycle parity` | Shared base brush helpers, pointer/local scale conversions, surface frame output, random seed setter, `m_LastSpawnXf` update gating, geometry brush lifecycle, initial knot defaults, dirty tracking, resizing, and finalization release. | Shared lifecycle only; not every subclass path. |
 | `Tests/GDScript/PointerScriptParityTest.gd` | `path equivalence` | Pointer stroke lifecycle, control point replacement, and recreation from memory. | Limited sample strokes. |
 | `Tests/GDScript/LiveVsTiltUvParityTest.gd` | `path equivalence` | Direct replay, pointer-memory replay, pointer math, and live object path produce matching vertices and primary UVs for selected brushes, including promoted normal brushes. | Compares Godot paths to each other, not Open Brush reference meshes. |
 | `Tests/GDScript/TiltBridgeReplayParityTest.gd` | `path equivalence` | `.tilt` scene builder runtime mesh data matches bridge-created stroke replay for sample cafe strokes. | Checks first supported sample strokes only. |

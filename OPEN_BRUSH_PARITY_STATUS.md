@@ -18,7 +18,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 
 | Godot class | Open Brush source | Status | Notes |
 | --- | --- | --- | --- |
-| `BaseBrushScript.gd` | `BaseBrushScript.cs` | Not fully audited | Core lifecycle and coordinate shims need line-by-line comparison. |
+| `BaseBrushScript.gd` | `BaseBrushScript.cs` | Partially audited, active repair started | Lifecycle helper coverage now includes scale conversions, random seed setter, exact surface-frame output, pressured size/opacity, backface init, and `m_LastSpawnXf` update gating. Core lifecycle and coordinate shims still need full line-by-line comparison. |
 | `GeometryBrush.gd` | `GeometryBrush.cs` | Partially audited, active repair started | Shared `SetVert` now uses Open Brush `Color32` truncation for RGB and alpha. Initial knot smoothed pressure now matches Open Brush struct defaults. Batched finalization now copies/releases geometry directly instead of re-entering subclass solitary finalizers. Lifecycle/finalization still needs full audit before child classes can be considered complete. |
 | `QuadStripBrush.gd` | `QuadStripBrush.cs` | Partially audited, active repair started | Sharp-bend shrink/break behavior, double-sided backside consistency, backface color/hue-shift behavior, append-time `Color32` truncation, and single-sided batched weld finalization have been ported. Full line-by-line audit still required. |
 | `QuadStripBrushStretchUV.gd` | `QuadStripBrushStretchUV.cs` | Partially audited, active repair started | UV tests cover stretch remapping, width-in-UV0.z export, backface mirroring, and texture atlas branch behavior. Needs full line-by-line audit after base `QuadStripBrush` settles. |
@@ -110,6 +110,7 @@ Implemented so far:
 - Open Brush `ConcaveHullBrush` knot-conversion formulas are now covered directly for every conversion mode, and smooth cube hull geometry is covered through the native polygon-face triangulation adaptation.
 - Open Brush `MathUtils.ComputeMinimalRotationFrame` forward-axis convention for Godot `Basis.looking_at`.
 - Open Brush `TubeBrush` routing through shared `MathUtils.ComputeMinimalRotationFrame` instead of a local alternate frame path.
+- Open Brush `BaseBrushScript` lifecycle helper behavior for pointer/local scale conversions, random seed setter, exact identity-orientation `ComputeSurfaceFrameNew`, pressured size/opacity formulas, backface initialization, and `m_LastSpawnXf` update gating.
 - Open Brush `GeometryBrush` initial knot `smoothedPressure` default behavior before the first update.
 - Direct runtime finalization for `QuadStripBrushDistanceUV` now flushes pending tangent requests like the visual update path, matching the established stretch UV finalization behavior.
 - Open Brush fake layout brushes (`PbrBrushScript`, `EnvironmentBrushScript`, `SvgBrushScript`) are classified as non-mesh layout providers with explicit no-op batched finalization.
@@ -208,6 +209,7 @@ Focused tests added/updated:
 - `Tests/GDScript/UtilityParityTest.gd`
   - checks shared utility behavior including `MathUtils.ComputeMinimalRotationFrame` forward-axis parity.
 - `Tests/GDScript/BrushLifecycleParityTest.gd`
+  - checks shared base brush lifecycle helpers, including pointer/local scale conversions, random seed setter, exact surface frame output, pressured size/opacity, backface initialization, and `m_LastSpawnXf` update gating,
   - checks shared geometry brush lifecycle, including initial knot defaults, first-update dirty tracking, geometry resize/copy, and finalization release behavior.
 - `Tests/GDScript/LayoutBrushParityTest.gd`
   - checks fake layout brush vertex layouts and no-op update/solitary/runtime finalization contracts for PBR, environment, and SVG layout providers.
@@ -272,6 +274,14 @@ $godot = "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win
 ```
 
 Result: command exited successfully.
+
+Additional validation after expanding `BaseBrushScript` lifecycle-helper coverage:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushLifecycleParityTest.gd
+```
+
+Result: command exited successfully without cleanup warnings.
 
 Heavier cafe importer validation also run:
 
