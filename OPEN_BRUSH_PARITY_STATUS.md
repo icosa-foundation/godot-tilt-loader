@@ -34,7 +34,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `BubbleWandBrush.gd` | `BubbleWandBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. BubbleWand-specific UVW post-processing, original-position UV1 storage, and direct finalization control flow now have focused coverage. Needs full branch audit. |
 | `BlocksBrushScript.gd` | `BlocksBrushScript.cs` | Partially audited, active repair started | Existing parity tests cover the no-op contract and vertex layout. Batched finalization is now explicitly no-op like Open Brush. Needs full catalog usage audit. |
 | `TetraBrush.gd` | `TetraBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Texture atlas count handling now matches Open Brush directly, with distance atlas and texture-edge chop coverage. Needs full branch audit. |
-| `SquareBrush.gd` | `SquareBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Tests now cover straight topology, shared-ring continuation, and sharp-turn segment break behavior. Needs full branch audit. |
+| `SquareBrush.gd` | `SquareBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Tests now cover layout/spawn interval, straight topology, shared-ring continuation, sharp-turn segment break behavior, sub-minimum segment break/restart behavior, and invisible-back frame selection. Needs full reference fixture comparison. |
 | `Square3DPrintBrush.gd` | `Square3DPrintBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Tests now cover straight topology, shared-ring continuation, and parity-flip ring-face insertion. Needs full branch audit. |
 | `SliceBrush.gd` | `SliceBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Initial frame direction now matches Open Brush `ComputeSurfaceFrameNew` + `Quaternion.LookRotation` semantics. Spawn interval/layout, shared-quad continuation, short-segment break/restart behavior, UVW distance reset, and penultimate detection now have focused coverage. Full reference fixture comparison still required. |
 | `PrintableBrush.gd` | `PrintableBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Tests now cover straight topology, envelope behavior, shared-ring continuation, and sharp-turn segment break behavior. Needs full branch audit. |
@@ -119,7 +119,8 @@ Implemented so far:
 - Open Brush `BlocksBrushScript` explicit no-op batched finalization behavior.
 - Open Brush `TetraBrush` texture atlas count handling and distance atlas branch coverage, including texture edge chop.
 - Catalog replay coverage now verifies every remaining active normal solid/hull/square/slice prefab family generates complete descriptor-driven mesh channels through the shared runtime replay path.
-- Open Brush `SquareBrush` and `PrintableBrush` shared-ring continuation and sharp-turn segment-break topology now have focused lifecycle coverage.
+- Open Brush `SquareBrush` layout/spawn interval, shared-ring continuation, sharp-turn segment-break topology, sub-minimum segment break/restart behavior, and invisible-back frame selection now have focused lifecycle coverage.
+- Open Brush `PrintableBrush` shared-ring continuation and sharp-turn segment-break topology now have focused lifecycle coverage.
 - Open Brush `Square3DPrintBrush` parity-flip topology branch coverage for double-back strokes.
 - Open Brush `SliceBrush` initial frame direction/normal orientation behavior, routed through the shared `ComputeSurfaceFrameNew` parity helper.
 - Open Brush `SliceBrush` spawn interval formula, UV0 Vector3/no-tangent layout, short-segment strip-break/restart path, UVW distance reset, and penultimate detection now have focused coverage.
@@ -199,7 +200,7 @@ Focused tests added/updated:
 - `Tests/GDScript/Square3DPrintBrushParityTest.gd`
   - checks single-segment topology, shared-ring continuation topology, and flip-branch topology where Open Brush closes the previous ring face and adds an extra current-orientation ring.
 - `Tests/GDScript/SquareBrushParityTest.gd`
-  - checks straight segment topology, shared-ring continuation, sharp-turn segment break topology, caps, normals, default UVs, and opaque `Color32` writes.
+  - checks layout flags, spawn interval formula, straight segment topology, shared-ring continuation, sharp-turn segment break topology, sub-minimum segment break/restart behavior, invisible-back frame selection, caps, normals, default UVs, and opaque `Color32` writes.
 - `Tests/GDScript/PrintableBrushParityTest.gd`
   - checks straight segment topology, envelope behavior, shared-ring continuation, sharp-turn segment break topology, caps, normals, default UVs, and opaque `Color32` writes.
 - `Tests/GDScript/TetraBrushParityTest.gd`
@@ -509,6 +510,16 @@ Additional validation after adding `SliceBrush` short-segment restart and spawn-
 
 ```powershell
 & "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SliceBrushParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SolidCatalogReplayTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushClassInventoryCoverageTest.gd
+```
+
+Result: all three commands exited successfully.
+
+Additional validation after adding `SquareBrush` layout, short-segment restart, and invisible-back frame coverage:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SquareBrushParityTest.gd
 & "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SolidCatalogReplayTest.gd
 & "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushClassInventoryCoverageTest.gd
 ```
