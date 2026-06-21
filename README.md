@@ -14,11 +14,68 @@ This Godot 4.5+ project ports the Open Brush/Tilt Brush stroke generation runtim
 
 1. Open the repository root as the Godot project.
 2. Install addon dependencies with gd-plug for Icosa `.tilt` loading and brush materials.
-3. Press Play to run `Scenes/TiltEvidenceViewer.tscn`.
-4. Run `Scenes/StrokeDrawingTest.tscn` for desktop pointer testing.
-5. Run `Scenes/XrStrokeDrawingTest.tscn` for XR testing when OpenXR is available.
+3. Press Play to run the current main scene. At the time of writing this is `Scenes/XrStrokeDrawingTest.tscn`.
+4. Run `Scenes/TiltEvidenceViewer.tscn` when you specifically want to view the cafe `.tilt` file.
+5. Run `Scenes/StrokeDrawingTest.tscn` for desktop pointer testing without XR.
 
 The project loads `Resources/BrushCatalog/brush_catalog.json`, a generated catalog containing the brush descriptor and prefab settings that used to come from Unity YAML assets.
+
+## Project Scenes
+
+The project has three `.tscn` entry scenes. They are intentionally different test surfaces; do not treat them as interchangeable.
+
+### `Scenes/TiltEvidenceViewer.tscn`
+
+Purpose: view the cafe Tilt Brush file and capture evidence renders.
+
+This scene uses `Scripts/TiltEvidenceViewer.gd`. By default it targets:
+
+```text
+res://Temp/TiltEvidence/brush_cafe_experimental.tilt
+```
+
+The script reads the `.tilt` file for metadata and thumbnail data, then loads the Godot-imported `PackedScene` for the same `.tilt` resource and displays it. It is the scene to open when checking the cafe sketch visually. It also supports screenshot-oriented command-line options such as `--quit-after-screenshot`, `--render-output=...`, `--thumbnail-output=...`, `--log-output=...`, `--camera-mode=...`, and `--only-brushes=...`.
+
+Important distinction: this is a cafe `.tilt` viewing/evidence scene, not the live drawing scene.
+
+### `Scenes/StrokeDrawingTest.tscn`
+
+Purpose: desktop live stroke drawing without XR.
+
+This scene uses `Scenes/MinimalExample.gd`, `Scripts/SimpleDrawingController.gd`, `Scripts/PointerScript.gd`, and `Scripts/BrushSystemSetup.gd`. It initializes the brush catalog, defaults to the Ink brush, and lets a desktop pointer draw into a generated `CanvasScript`.
+
+Controls:
+
+- Hold `Space` to draw.
+- Move the mouse to move the pointer on the drawing plane.
+- Press `M` to toggle automated torus-knot pointer motion.
+- Press `Left` / `Right` to cycle brushes.
+- Press `1` through `5` to change color.
+- Press `C` to clear the canvas.
+- Hold `R` to reset pointer/drawing state.
+
+This scene is the quickest way to debug live mesh generation without headset/OpenXR variables.
+
+### `Scenes/XrStrokeDrawingTest.tscn`
+
+Purpose: XR live stroke drawing proof of concept.
+
+This is currently the project main scene in `project.godot`. It uses `Scripts/App.gd` with `EnableXR = true`, plus `Scenes/MinimalXrExample.gd`, `PointerScript`, and `BrushSystemSetup`. The scene contains an `XROrigin3D`, `XRCamera3D`, left/right `XRController3D` nodes, visible controller/ray meshes, a blue debug background, a floor plane, and reference cubes so black-screen/controller-visibility problems are easier to separate from drawing problems.
+
+Controls are read from OpenXR actions:
+
+- Right trigger action `trigger_click`: draw.
+- Left thumbstick action `primary`: cycle supported runtime brushes.
+- Right thumbstick action `primary`: adjust brush size.
+- Left controller `by_button`: clear the canvas.
+
+XR logs are written to:
+
+```text
+C:/Users/andyb/AppData/Roaming/Godot/app_userdata/open-brush-stroke-gen-godot/xr_debug.log
+```
+
+XR can be overridden at launch with `--disable-xr` or `--enable-xr`; otherwise `App.gd` follows the scene's `EnableXR` setting.
 
 ## Addon Dependencies
 
