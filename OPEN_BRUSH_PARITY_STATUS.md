@@ -108,6 +108,7 @@ Implemented so far:
 - Current Godot parity tests and probes are classified in `OPEN_BRUSH_PARITY_TEST_INVENTORY.md`, including the remaining evidence gap that no authoritative Open Brush reference mesh fixtures have been exported yet.
 - An Open Brush reference mesh fixture harness now exists at `Tests/GDScript/OpenBrushReferenceMeshFixtureTest.gd`. It scans `Resources/Fixtures/OpenBrushReferenceMeshes/*.json`, replays each referenced stroke through Godot, and compares vertex positions, triangle indices, normals, colors, tangents, and full-width UV0/UV1/UV2 data against Open Brush-exported mesh data.
 - The Unity-side exporter source now exists at `Tools/OpenBrushReferenceMeshExport/OpenBrushReferenceMeshExportTest.cs`. It is installed in the Open Brush Unity editor test assembly and exports finalized `BatchSubset` mesh data plus `GeometryPool` layout/channel data for the representative cafe Ink, DuctTapeGeometry, Stars, Sparks, and MatteHull fixtures.
+- `Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd` now keeps the representative cafe fixture contract executable by checking that the Unity exporter source and reference fixture README list the same Ink, DuctTapeGeometry, Stars, Sparks, and MatteHull fixture set.
 
 Focused tests added/updated:
 
@@ -182,6 +183,10 @@ Focused tests added/updated:
   - supports referenced stroke fixtures via `source_stroke_fixture`,
   - compares positions, triangle indices, normals, colors, tangents, and full-width UV0/UV1/UV2 values directly from `MeshData`,
   - accepts `--require-open-brush-reference-fixtures` to fail when no fixtures are present.
+- `Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd`
+  - checks the checked-in Unity exporter source still includes the representative cafe fixture export set,
+  - checks the reference fixture README names the same representative cafe fixtures,
+  - verifies the explicit `OpenBrushReferenceExport` category and `ExportRepresentativeCafeFixtures` entry point are present.
 - `Tests/GDScript/CafeStrokeFixtureExtractProbe.gd`
   - extracts a source fixture from `res://Temp/TiltEvidence/brush_cafe_experimental.tilt`,
   - defaults to stroke index 150 and accepts `--source-stroke-index=...`,

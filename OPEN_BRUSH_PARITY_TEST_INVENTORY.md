@@ -17,6 +17,7 @@ The key distinction is source authority. Current focused brush tests prove trans
 | `visual smoke test` | Exercises a scene/tool intended primarily for human inspection. |
 | `diagnostic probe` | Prints data or extracts fixtures; not part of the normal pass/fail parity suite. |
 | `Open Brush reference mesh parity` | Compares Godot output against authoritative Open Brush mesh fixtures. The harness exists, but no authoritative fixtures are checked in yet. |
+| `reference fixture contract` | Verifies the checked-in lightweight cafe fixtures, Unity exporter source, and reference fixture documentation stay aligned. |
 
 ## Focused Brush Tests
 
@@ -50,6 +51,7 @@ The key distinction is source authority. Current focused brush tests prove trans
 | `Tests/GDScript/TiltBridgeReplayParityTest.gd` | `path equivalence` | `.tilt` scene builder runtime mesh data matches bridge-created stroke replay for sample cafe strokes. | Checks first supported sample strokes only. |
 | `Tests/GDScript/TiltImporterRuntimeReplayTest.gd` | `importer path test` | Importer has no old fallback tessellator entry points and cafe `.tilt` rebuilds through runtime brushes with substantial geometry. | Heavy scene-level check, not per-brush numeric reference parity. |
 | `Tests/GDScript/CafeStrokeFixturesReplayTest.gd` | `generated mesh parity` | Lightweight extracted cafe fixtures replay through runtime classes with stable counts, channels, descriptor resolution, and bounds. | Stable Godot fixture replay, not Open Brush reference mesh comparison. |
+| `Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd` | `reference fixture contract` | Verifies the Unity exporter source and reference fixture README still include the representative cafe fixture set: Ink, DuctTapeGeometry, Stars, Sparks, and MatteHull. | Contract coverage only; it does not generate or compare Open Brush mesh data. |
 | `Tests/GDScript/OpenBrushReferenceMeshFixtureTest.gd` | `Open Brush reference mesh parity` | Scans `Resources/Fixtures/OpenBrushReferenceMeshes/*.json`, replays each referenced stroke through Godot, and compares positions, triangle indices, normals, colors, tangents, and full-width UV0/UV1/UV2 against Open Brush-exported fixture data. | Harness only until authoritative Open Brush C# mesh fixture JSON files are generated and checked in. |
 | `Tests/GDScript/SingleBrushStrokeInspectorTest.gd` | `visual smoke test` | Single-brush inspector can instantiate and step through supported brush strokes for inspection. | Human-inspection support, not numeric parity proof. |
 | `Tests/GDScript/MinimalExamplesParityTest.gd` | `visual smoke test` | 2D and XR example setup/drawing paths can be constructed without the full runtime. | Scene setup only; not enough to prove brush mesh parity. |
