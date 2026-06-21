@@ -94,6 +94,7 @@ Implemented so far:
 - Catalog replay coverage now verifies all normal `Spray` and `MiddpointPlusLifetimeGeomSpray` brushes generate complete particle mesh channels through the shared runtime replay path.
 - Removal of the unused non-Open-Brush `MidpointPlusLifetimeSprayBrush.create_particle_geometry` helper.
 - Open Brush texture-atlas branch coverage for `QuadStripBrushStretchUV` and `QuadStripBrushDistanceUV`.
+- Catalog replay coverage now verifies every normal quad-strip and flat-geometry prefab family generates complete descriptor-driven mesh channels through the shared runtime replay path.
 - Open Brush `ThickGeometryBrush` texture atlas count handling and atlas branch coverage for distance/stretch UVs.
 - Open Brush `TubeBrush` texture atlas count handling and direct UV-rate division behavior, with atlas branch coverage for distance UVs.
 - Catalog replay coverage now verifies every normal tube-derived brush, including `BubbleWand`, generates complete descriptor-driven mesh channels through the shared runtime replay path.
@@ -121,6 +122,7 @@ Implemented so far:
 - `Tests/GDScript/BrushRuntimeRegistryParityTest.gd` now checks that a normal brush descriptor with no runtime factory is not registered and that replaying it through `BrushStrokeReplay` returns no mesh instead of generating fallback geometry.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd` now checks all 97 merged-manifest normal brushes route to the expected runtime class and verifies the expected normal prefab-family counts, including the merged `Line` count of 20.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd` now checks all seven normal catalog `GeniusParticle` brushes initialize the Open Brush particle formulas from their real descriptor metadata, including particle rate, particle speed, random alpha, initial rotation range, spawn interval, particle size scale, and UV channel layout.
+- `Tests/GDScript/FlatStripCatalogReplayTest.gd` now replays every normal catalog `Line`, `LineWithWidth`, `DistanceUV`, `UnitizedUV`, `FlatDistance`, `FlatStretch`, and `MidpointPlusOffset` brush through the shared runtime path and verifies descriptor-driven UV0, UV1, normal, color, tangent, and runtime-class expectations.
 - `Tests/GDScript/GeniusParticlesCatalogReplayTest.gd` now replays every normal catalog `GeniusParticle` brush through the shared runtime replay path and verifies generated particle mesh channel completeness: vertices, triangle indices, normals, colors, UV0 Vector4, UV1 Vector3, and no tangents.
 - `Tests/GDScript/SprayCatalogReplayTest.gd` now replays every normal catalog `Spray` and `MiddpointPlusLifetimeGeomSpray` brush through the shared runtime replay path and verifies generated particle mesh channel completeness for UV0, UV1, normals, colors, and tangents.
 - `Tests/GDScript/TubeCatalogReplayTest.gd` now replays every normal catalog tube-derived prefab through the shared runtime replay path and verifies descriptor-driven UV0, UV1, normal, color, tangent, and runtime-class channel expectations, including the BubbleWand-specific no-tangent/UV1 Vector4 layout.
@@ -143,6 +145,9 @@ Focused tests added/updated:
 - `Tests/GDScript/FlatGeometryBrushParityTest.gd`
   - checks generated flat geometry vertex colors use Unity `Color32` byte truncation for RGB and alpha.
   - checks batched finalization trims short non-compatibility post-break tails before mesh export, matching Open Brush `FinalizeBatchedBrush`.
+- `Tests/GDScript/FlatStripCatalogReplayTest.gd`
+  - replays all normal catalog `Line`, `LineWithWidth`, `DistanceUV`, `UnitizedUV`, `FlatDistance`, `FlatStretch`, and `MidpointPlusOffset` brushes through `BrushStrokeReplay`,
+  - verifies each replay produces non-empty mesh data with complete descriptor-driven UV0, UV1, normal, color, and tangent channel layouts, including `LineWithWidth` width-in-UV0.z and `MidpointPlusOffset` UV1 offset behavior.
 - `Tests/GDScript/ThickGeometryBrushParityTest.gd`
   - checks generated thick geometry vertex colors use Unity `Color32` byte truncation for RGB and alpha.
   - checks Thick distance and stretch UV texture atlas branch formulas for `m_TextureAtlasV > 1`.
@@ -277,6 +282,7 @@ Known validation noise:
 - Catalog loading now explicitly logs unsupported experimental ParentBrush composite skips instead of missing GUID or duplicate GUID warnings.
 - Cafe importer validation reports legacy GUID remaps, compatibility-brush skips, and several material UID warnings; these do not currently fail the runtime replay test.
 - The cafe Stars fixture reports a material UID warning for `Stars.tres`; this does not currently fail fixture replay.
+- `FlatStripCatalogReplayTest.gd` exposes existing missing Godot material assets for the normal Open Brush `Digital` and `Race` brushes. Open Brush has Unity `.mat`/`.shader` assets for both under `Assets/Resources/X/Brushes`, but the Icosa Godot material tree does not currently contain converted `.tres` materials for them. The mesh replay assertions still pass for both brushes.
 
 ## Next Required Work
 
