@@ -17,6 +17,8 @@ func _check_live_brush_uses_icosa_material() -> void:
 	var resolved: Material = BrushMaterialResolverScript.find_material(desc)
 	_expect(resolved != null, "Ink resolves Icosa material")
 	_expect(_has_brush_texture(resolved), "Ink material keeps brush textures")
+	if resolved is StandardMaterial3D:
+		_expect_equal((resolved as StandardMaterial3D).cull_mode, BaseMaterial3D.CULL_BACK, "generated Ink material culls duplicated backfaces")
 
 	var brush := BaseBrushScript.new()
 	brush.m_Desc = desc
@@ -32,7 +34,7 @@ func _check_live_brush_uses_icosa_material() -> void:
 	if mesh_instance != null and mesh_instance.mesh != null:
 		var live_material: Material = mesh_instance.mesh.surface_get_material(0)
 		_expect(live_material != null, "live brush assigns a surface material")
-		_expect(not live_material is StandardMaterial3D or _has_brush_texture(live_material), "live brush does not use plain fallback material")
+		_expect(not live_material is StandardMaterial3D or _has_brush_texture(live_material), "live brush uses a real brush material")
 		_expect(_has_brush_texture(live_material), "live brush assigned material keeps textures")
 	brush.free()
 
@@ -65,3 +67,8 @@ func _expect(condition: bool, message: String) -> void:
 	if not condition:
 		_failures += 1
 		push_error("BrushMaterialResolverParityTest: %s" % message)
+
+func _expect_equal(actual: Variant, expected: Variant, message: String) -> void:
+	if actual != expected:
+		_failures += 1
+		push_error("BrushMaterialResolverParityTest: %s expected %s but got %s" % [message, expected, actual])

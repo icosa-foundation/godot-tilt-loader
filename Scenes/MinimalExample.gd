@@ -94,7 +94,7 @@ func draw_stroke(path: Array[TrTransform], brush: BrushDescriptor, color: Color)
 	var smoothing := 0.0
 	var control_points: Array[ControlPoint] = []
 	var time := 0
-	for vertex_index in range(maxi(0, path.size() - 1)):
+	for vertex_index in range(path.size()):
 		var xf := path[vertex_index]
 		var next_position := path[(vertex_index + 1) % path.size()].translation
 		_add_control_point(control_points, xf.translation, xf.rotation, xf.scale, time)

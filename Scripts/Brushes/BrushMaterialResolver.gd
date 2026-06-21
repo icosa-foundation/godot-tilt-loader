@@ -41,6 +41,7 @@ static func find_material_for_descriptor(desc: BrushDescriptor) -> Material:
 		material = open_brush.find_matching_brush_material(desc.m_DurableName)
 	if material != null:
 		material = _prepare_live_material(material)
+		_apply_generated_geometry_culling(material, desc)
 
 	_material_cache[cache_key] = material
 	return material
@@ -96,6 +97,12 @@ static func _prepare_live_material(source: Material) -> Material:
 	if material is ShaderMaterial:
 		_apply_default_light_params(material as ShaderMaterial)
 	return material
+
+static func _apply_generated_geometry_culling(material: Material, desc: BrushDescriptor) -> void:
+	if desc == null or not desc.m_RenderBackfaces:
+		return
+	if material is BaseMaterial3D:
+		(material as BaseMaterial3D).cull_mode = BaseMaterial3D.CULL_BACK
 
 static func _apply_default_light_params(material: ShaderMaterial) -> void:
 	var shader: Shader = material.shader

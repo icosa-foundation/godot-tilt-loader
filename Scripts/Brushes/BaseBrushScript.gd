@@ -157,15 +157,9 @@ func update_visible_mesh() -> void:
 	if _mesh_instance.mesh != null and _mesh_instance.mesh.get_surface_count() > 0:
 		var material := BrushMaterialResolverScript.find_material(m_Desc)
 		if material == null:
-			material = _make_runtime_material()
+			push_error("BaseBrushScript: missing brush material for %s (%s)" % [m_Desc.m_DurableName, m_Desc.m_Guid])
+			return
 		_mesh_instance.mesh.surface_set_material(0, material)
-
-func _make_runtime_material() -> Material:
-	var material := StandardMaterial3D.new()
-	material.vertex_color_use_as_albedo = true
-	material.albedo_color = m_Color
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED if m_EnableBackfaces else BaseMaterial3D.CULL_BACK
-	return material
 
 func pressured_size(pressure01: float) -> float:
 	var multiplier := lerpf(m_Desc.pressure_size_min(m_PreviewMode), 1.0, pressure01)

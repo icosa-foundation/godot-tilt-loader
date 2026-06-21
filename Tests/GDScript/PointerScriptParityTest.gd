@@ -40,7 +40,7 @@ func _init() -> void:
 	quit(1 if _failures > 0 else 0)
 
 func _run() -> void:
-	BaseBrushScript.register_brush_type("PointerTest", func(_desc: BrushDescriptor) -> BaseBrushScript: return PointerTestBrush.new())
+	BaseBrushScript.register_brush_type("Ink", func(_desc: BrushDescriptor) -> BaseBrushScript: return PointerTestBrush.new())
 	_check_brush_size_mapping()
 	_check_control_point_replacement()
 	_check_line_lifecycle()
@@ -128,8 +128,8 @@ func _check_recreate_line_from_memory() -> void:
 
 func _make_desc() -> BrushDescriptor:
 	var desc := BrushDescriptor.new()
-	desc.m_DurableName = "PointerTest"
-	desc.m_Guid = "11111111-1111-4111-8111-111111111111"
+	desc.m_DurableName = "Ink"
+	desc.m_Guid = "c0012095-3ffd-4040-8ee1-fc180d346eaa"
 	desc.m_RenderBackfaces = false
 	desc.m_M11Compatibility = false
 	desc.m_PressureSizeRange = Vector2(1.0, 1.0)

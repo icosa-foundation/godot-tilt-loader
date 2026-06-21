@@ -40,7 +40,7 @@ func _init() -> void:
 	quit(1 if _failures > 0 else 0)
 
 func _run() -> void:
-	BaseBrushScript.register_brush_type("MinimalTest", func(_desc: BrushDescriptor) -> BaseBrushScript: return MinimalTestBrush.new())
+	BaseBrushScript.register_brush_type("Ink", func(_desc: BrushDescriptor) -> BaseBrushScript: return MinimalTestBrush.new())
 	_check_minimal_example_setup_and_draw()
 	_check_minimal_xr_setup_without_runtime()
 	BaseBrushScript.clear_brush_types()
@@ -106,8 +106,8 @@ func _check_minimal_xr_setup_without_runtime() -> void:
 
 func _make_desc() -> BrushDescriptor:
 	var desc := BrushDescriptor.new()
-	desc.m_DurableName = "MinimalTest"
-	desc.m_Guid = "22222222-2222-4222-8222-222222222222"
+	desc.m_DurableName = "Ink"
+	desc.m_Guid = "c0012095-3ffd-4040-8ee1-fc180d346eaa"
 	desc.m_RenderBackfaces = false
 	desc.m_M11Compatibility = false
 	desc.m_PressureSizeRange = Vector2(1.0, 1.0)

@@ -10,6 +10,7 @@ func _run() -> void:
 	_check_position_and_fuse_helpers()
 	_check_unitized_uv_brush()
 	_check_stretch_uv_brush()
+	_check_stretch_uv_live_preview_preserves_width_uv()
 	_check_distance_uv_brush()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_QUADSTRIP: all checks passed")
@@ -57,6 +58,21 @@ func _check_stretch_uv_brush() -> void:
 	brush.finalize_solitary_brush()
 	brush.free()
 
+func _check_stretch_uv_live_preview_preserves_width_uv() -> void:
+	var stretch_brush := QuadStripBrushStretchUV.new()
+	stretch_brush.m_StoreWidthInTexcoord0Z = true
+	var brush := _make_quad_brush(stretch_brush, false)
+	_seed_two_quads(brush)
+	brush.update_uvs(0, 2, 1.0)
+	brush.apply_changes_to_visuals()
+	_expect_equal(brush.mesh_data.uv0_v2.size(), 0, "stretch preview does not export competing uv0 v2")
+	_expect_equal(brush.mesh_data.uv0_v3.size(), 12, "stretch preview exports uv0 v3")
+	_expect_close(brush.mesh_data.uv0_v3[0].z, 1.0, "stretch preview exports width in uv0 z")
+	var arrays := brush.mesh_data.to_mesh_arrays()
+	_expect(arrays[Mesh.ARRAY_CUSTOM0] is PackedFloat32Array, "stretch preview exports uv0 z custom data")
+	brush.finalize_solitary_brush()
+	brush.free()
+
 func _check_distance_uv_brush() -> void:
 	var brush := _make_quad_brush(QuadStripBrushDistanceUV.new(), false)
 	_seed_two_quads(brush)
@@ -72,7 +88,8 @@ func _check_distance_uv_brush() -> void:
 
 func _make_quad_brush(brush: QuadStripBrush, backfaces: bool) -> QuadStripBrush:
 	var desc := BrushDescriptor.new()
-	desc.m_DurableName = "TestQuad"
+	desc.m_DurableName = "Ink"
+	desc.m_Guid = "c0012095-3ffd-4040-8ee1-fc180d346eaa"
 	desc.m_RenderBackfaces = backfaces
 	desc.m_BackIsInvisible = false
 	desc.m_TextureAtlasV = 1

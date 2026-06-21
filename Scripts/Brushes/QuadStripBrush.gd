@@ -82,19 +82,9 @@ func get_vertex_layout(_desc: BrushDescriptor) -> GeometryPool.VertexLayout:
 	)
 
 func finalize_solitary_brush() -> void:
-	var used_verts := get_num_used_verts()
-	mesh_data.clear()
 	if m_Geometry == null:
 		return
-	mesh_data.vertices.assign(m_Geometry.m_Vertices.slice(0, used_verts))
-	mesh_data.triangles.assign(m_Geometry.m_Tris.slice(0, used_verts))
-	mesh_data.normals.assign(m_Geometry.m_Normals.slice(0, used_verts))
-	if m_Geometry.vertex_layout != null and m_Geometry.vertex_layout.texcoord0.size == 3:
-		mesh_data.uv0_v3.assign(m_Geometry.m_UVWs.slice(0, used_verts))
-	else:
-		mesh_data.uv0_v2.assign(m_Geometry.m_UVs.slice(0, used_verts))
-	mesh_data.colors.assign(m_Geometry.m_Colors.slice(0, used_verts))
-	mesh_data.tangents.assign(m_Geometry.m_Tangents.slice(0, used_verts))
+	_copy_master_geometry_to_mesh_data(get_num_used_verts())
 	update_visible_mesh()
 	MasterBrush.ensure_shared_pool()
 	MasterBrush.shared_pool.put(m_Geometry)
@@ -209,14 +199,22 @@ func get_smoothed_pressure(pressure01: float, position: Vector3) -> float:
 func apply_changes_to_visuals() -> void:
 	if m_Geometry == null:
 		return
-	mesh_data.clear()
-	mesh_data.vertices.assign(m_Geometry.m_Vertices)
-	mesh_data.triangles.assign(m_Geometry.m_Tris)
-	mesh_data.normals.assign(m_Geometry.m_Normals)
-	mesh_data.colors.assign(m_Geometry.m_Colors)
-	mesh_data.uv0_v2.assign(m_Geometry.m_UVs)
-	mesh_data.tangents.assign(m_Geometry.m_Tangents)
+	_copy_master_geometry_to_mesh_data(get_num_used_verts())
 	update_visible_mesh()
+
+func _copy_master_geometry_to_mesh_data(used_verts: int) -> void:
+	mesh_data.clear()
+	if m_Geometry == null or used_verts <= 0:
+		return
+	mesh_data.vertices.assign(m_Geometry.m_Vertices.slice(0, used_verts))
+	mesh_data.triangles.assign(m_Geometry.m_Tris.slice(0, used_verts))
+	mesh_data.normals.assign(m_Geometry.m_Normals.slice(0, used_verts))
+	if m_Geometry.vertex_layout != null and m_Geometry.vertex_layout.texcoord0.size == 3:
+		mesh_data.uv0_v3.assign(m_Geometry.m_UVWs.slice(0, used_verts))
+	else:
+		mesh_data.uv0_v2.assign(m_Geometry.m_UVs.slice(0, used_verts))
+	mesh_data.colors.assign(m_Geometry.m_Colors.slice(0, used_verts))
+	mesh_data.tangents.assign(m_Geometry.m_Tangents.slice(0, used_verts))
 
 func update_position_impl(position: Vector3, orientation: Quaternion, pressure: float) -> bool:
 	var smoothed_pressure := get_smoothed_pressure(pressure, position)

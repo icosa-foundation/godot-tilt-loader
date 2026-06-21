@@ -3,7 +3,8 @@ extends RefCounted
 
 const _BrushMaterialResolver := preload("res://Scripts/Brushes/BrushMaterialResolver.gd")
 const _BrushRuntimeRegistry := preload("res://Scripts/Brushes/BrushRuntimeRegistry.gd")
-const _TrTransform := preload("res://Scripts/TrTransform.gd")
+const _BrushStrokeReplay := preload("res://Scripts/Brushes/BrushStrokeReplay.gd")
+const _StrokeBridge := preload("res://addons/open_brush_stroke_integration/open_brush_stroke_bridge.gd")
 
 const IMPORT_LOG_PREFIX := "TILT_RUNTIME_IMPORT"
 
@@ -12,6 +13,7 @@ var _runtime_manifest: TiltBrushManifest = null
 var error_count := 0
 var warning_count := 0
 var _logged_messages := {}
+var _stroke_bridge := _StrokeBridge.new()
 
 func build_scene(tilt_data: Dictionary) -> Node3D:
 	var root := Node3D.new()
@@ -135,42 +137,11 @@ func _build_runtime_mesh_data(desc: BrushDescriptor, stroke: Dictionary, scene_s
 	if control_points.size() < 2:
 		_log_import_warning("stroke %d has fewer than two control points" % stroke_index)
 		return null
-
-	var first_cp: Dictionary = control_points[0]
-	var first_pos: Vector3 = first_cp.get("position", Vector3.ZERO) * scene_scale
-	var first_orientation: Quaternion = first_cp.get("orientation", Quaternion.IDENTITY)
-	var first_pressure := float(first_cp.get("pressure", 1.0))
-	var stroke_scale := float(stroke.get("brush_scale", 1.0)) * scene_scale
-	var stroke_size := float(stroke.get("brush_size", 0.01))
-	var stroke_color: Color = stroke.get("color", Color.WHITE)
-	var stroke_seed := int(stroke.get("seed", 0))
-
-	var brush: BaseBrushScript = _BrushRuntimeRegistry.create_brush_for_descriptor(desc)
-	if brush == null:
-		_log_import_error("factory returned null for %s (%s)" % [desc.m_DurableName, _prefab_name(desc)])
+	var runtime_stroke: Stroke = _stroke_bridge.stroke_from_icosa_stroke(stroke, null, scene_scale, desc)
+	if runtime_stroke == null:
+		_log_import_error("failed to convert stroke %d brush %s to runtime stroke" % [stroke_index, desc.m_DurableName])
 		return null
-
-	brush.m_BaseSize_PS = stroke_size
-	brush.m_Color = stroke_color
-	brush.set_is_loading()
-	brush.set_random_seed(stroke_seed)
-	brush.init_brush(desc, _TrTransform.trs(first_pos, first_orientation, stroke_scale))
-	brush.set_random_seed(stroke_seed)
-
-	for i in range(1, control_points.size()):
-		var cp: Dictionary = control_points[i]
-		var position: Vector3 = cp.get("position", Vector3.ZERO) * scene_scale
-		var orientation: Quaternion = cp.get("orientation", Quaternion.IDENTITY)
-		var pressure := float(cp.get("pressure", first_pressure))
-		brush.update_position_ls(_TrTransform.trs(position, orientation, stroke_scale), pressure)
-
-	brush.apply_changes_to_visuals()
-	brush.finalize_solitary_brush()
-
-	var result := MeshData.new()
-	result.copy_from(brush.mesh_data)
-	brush.free()
-	return result
+	return _BrushStrokeReplay.build_mesh_data_for_stroke(runtime_stroke)
 
 func _build_mesh_instance(desc: BrushDescriptor, mesh_data: MeshData, node_name: String) -> MeshInstance3D:
 	if mesh_data == null or mesh_data.is_empty():

@@ -30,17 +30,21 @@ func convert_tilt_data_to_strokes(tilt_data: Dictionary, canvas: CanvasScript = 
 				output.append(stroke)
 	return output
 
-func stroke_from_icosa_stroke(stroke_data: Dictionary, canvas: CanvasScript = null, scene_scale: float = 1.0) -> Stroke:
+func stroke_from_icosa_stroke(stroke_data: Dictionary, canvas: CanvasScript = null, scene_scale: float = 1.0, desc: BrushDescriptor = null) -> Stroke:
 	var control_points: Array = stroke_data.get("control_points", [])
 	if control_points.is_empty():
+		return null
+	if desc == null:
+		desc = _resolve_descriptor(stroke_data)
+	if desc == null:
 		return null
 
 	var stroke := Stroke.new()
 	stroke.m_Type = Stroke.Type.NOT_CREATED
 	stroke.m_IntendedCanvas = canvas
-	stroke.m_BrushGuid = String(stroke_data.get("brush_guid", ""))
-	stroke.m_BrushScale = 1.0
-	stroke.m_BrushSize = float(stroke_data.get("brush_size", 1.0)) * scene_scale
+	stroke.m_BrushGuid = desc.m_Guid
+	stroke.m_BrushScale = float(stroke_data.get("brush_scale", 1.0)) * scene_scale
+	stroke.m_BrushSize = float(stroke_data.get("brush_size", 1.0))
 	stroke.m_Color = stroke_data.get("color", Color.WHITE)
 	stroke.m_Seed = int(stroke_data.get("seed", 0))
 	stroke.m_ControlPoints = []
@@ -60,6 +64,20 @@ func stroke_from_icosa_stroke(stroke_data: Dictionary, canvas: CanvasScript = nu
 	if stroke.m_ControlPoints.is_empty():
 		return null
 	return stroke
+
+func _resolve_descriptor(stroke_data: Dictionary) -> BrushDescriptor:
+	var guid := String(stroke_data.get("brush_guid", ""))
+	var desc := BrushCatalog.get_brush(guid)
+	if desc != null:
+		return desc
+	if not _ensure_open_brush():
+		return null
+	_open_brush.ensure_loaded()
+	var mapped_name: String = _open_brush.resolve_brush_name(guid)
+	desc = BrushCatalog.get_brush_by_durable_name(mapped_name)
+	if desc == null:
+		push_error("OpenBrushStrokeBridge: unresolved brush guid %s" % guid)
+	return desc
 
 func recreate_strokes(canvas: CanvasScript, pointer: PointerScript, strokes: Array[Stroke]) -> Array[Stroke]:
 	var recreated: Array[Stroke] = []

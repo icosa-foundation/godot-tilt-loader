@@ -49,8 +49,6 @@ func update_uvs_for_segment(segment_back: int, segment_front: int, _size: float)
 func apply_changes_to_visuals() -> void:
 	flush_update_uv_request()
 	super.apply_changes_to_visuals()
-	if m_StoreWidthInTexcoord0Z:
-		mesh_data.uv0_v3.assign(m_Geometry.m_UVWs if m_Geometry != null else mesh_data.uv0_v3)
 
 func flush_update_uv_request() -> void:
 	if not has_update_uv_request():

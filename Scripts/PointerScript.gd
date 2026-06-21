@@ -1,6 +1,8 @@
 class_name PointerScript
 extends Node3D
 
+const BrushStrokeReplayScript := preload("res://Scripts/Brushes/BrushStrokeReplay.gd")
+
 var DrawingEnabled := false
 var m_WasDrawingEnabled := false
 var Canvas: CanvasScript:
@@ -58,7 +60,6 @@ func _to_radius(value: float) -> float:
 func get_transform_for_line(line: Node3D, room_xf: TrTransform) -> TrTransform:
 	var room_from_line := Coords.as_room(line) if line.is_inside_tree() else Coords.as_local(line)
 	var xf := TrTransform.trs(room_xf.translation, room_xf.rotation, room_xf.scale)
-	xf.translation -= xf.forward() * App.UNITS_TO_METERS
 	xf.scale = 1.0
 	return room_from_line.inverse().multiplied(xf)
 
@@ -77,16 +78,6 @@ func update_line_from_control_point(control_point: ControlPoint) -> void:
 	var scale := m_CurrentLine.stroke_scale()
 	m_CurrentLine.update_position_ls(TrTransform.trs(control_point.m_Pos, control_point.m_Orient, scale), control_point.m_Pressure)
 
-func update_line_from_stroke(stroke: Stroke) -> void:
-	if m_CurrentLine == null:
-		return
-	var scale := m_CurrentLine.stroke_scale()
-	for index in range(stroke.m_ControlPoints.size()):
-		if index < stroke.m_ControlPointsToDrop.size() and stroke.m_ControlPointsToDrop[index]:
-			continue
-		var point := stroke.m_ControlPoints[index]
-		m_CurrentLine.update_position_ls(TrTransform.trs(point.m_Pos, point.m_Orient, scale), point.m_Pressure)
-
 func update_line_visuals() -> void:
 	if m_CurrentLine != null:
 		m_CurrentLine.apply_changes_to_visuals()
@@ -102,19 +93,10 @@ func create_new_line(canvas: CanvasScript, xf_cs: TrTransform, override_desc: Br
 	m_CurrentLine = BaseBrushScript.create_brush(canvas, xf_cs, desc, m_CurrentColor, m_CurrentBrushSize)
 
 func recreate_line_from_memory(stroke: Stroke) -> void:
-	if stroke.m_Type != Stroke.Type.NOT_CREATED:
-		push_error("Unexpected stroke state recreating line")
-		return
-	if begin_line_from_memory(stroke, stroke.canvas()) == null:
+	var canvas := stroke.canvas()
+	if not BrushStrokeReplayScript.attach_brush_to_stroke(stroke, canvas):
 		push_error("Unexpected error recreating line")
 		return
-	update_line_from_stroke(stroke)
-	m_CurrentLine.apply_changes_to_visuals()
-	m_CurrentLine.finalize_solitary_brush()
-	stroke.m_Type = Stroke.Type.BRUSH_STROKE
-	stroke.m_IntendedCanvas = null
-	stroke.m_Object = m_CurrentLine
-	m_CurrentLine.stroke = stroke
 	m_CurrentLine = null
 
 func begin_line_from_memory(stroke: Stroke, canvas: CanvasScript) -> Node3D:

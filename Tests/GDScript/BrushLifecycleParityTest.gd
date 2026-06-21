@@ -96,7 +96,8 @@ func _check_base_helpers() -> void:
 
 func _check_geometry_brush_lifecycle() -> void:
 	var desc := BrushDescriptor.new()
-	desc.m_DurableName = "Test"
+	desc.m_DurableName = "Ink"
+	desc.m_Guid = "c0012095-3ffd-4040-8ee1-fc180d346eaa"
 	desc.m_RenderBackfaces = false
 	desc.m_M11Compatibility = false
 	desc.m_PressureSizeRange = Vector2(0.2, 1.0)
