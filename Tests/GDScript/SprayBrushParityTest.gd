@@ -96,7 +96,9 @@ func _check_preview_decay_bookkeeping() -> void:
 
 func _make_spray_brush(backfaces: bool) -> SprayBrush:
 	var desc := BrushDescriptor.new()
-	desc.m_DurableName = "Spray"
+	desc.name = "Splatter"
+	desc.m_Guid = "8dc4a70c-d558-4efd-a5ed-d4e860f40dc3"
+	desc.m_DurableName = "Splatter"
 	desc.m_RenderBackfaces = backfaces
 	desc.m_BackIsInvisible = false
 	desc.m_M11Compatibility = false

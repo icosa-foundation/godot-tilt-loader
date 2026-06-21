@@ -61,7 +61,9 @@ func _check_midpoint_birth_time_in_uv1() -> void:
 
 func _make_midpoint_brush() -> MidpointPlusLifetimeSprayBrush:
 	var desc := BrushDescriptor.new()
-	desc.m_DurableName = "MidpointSpray"
+	desc.name = "HyperGrid"
+	desc.m_Guid = "6a1cf9f9-032c-45ec-9b6e-a6680bee32e9"
+	desc.m_DurableName = "HyperGrid"
 	desc.m_RenderBackfaces = false
 	desc.m_BackIsInvisible = false
 	desc.m_M11Compatibility = false
