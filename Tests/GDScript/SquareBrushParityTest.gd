@@ -15,7 +15,9 @@ func _run() -> void:
 
 func _check_square_brush_geometry() -> void:
 	var desc := BrushDescriptor.new()
-	desc.m_DurableName = "Square"
+	desc.name = "SquarePaper"
+	desc.m_Guid = "3d9755da-56c7-7294-9b1d-5ec349975f52"
+	desc.m_DurableName = "SquarePaper"
 	desc.m_RenderBackfaces = false
 	desc.m_BackIsInvisible = false
 	desc.m_M11Compatibility = false
@@ -98,7 +100,9 @@ func _check_square_brush_sharp_turn_breaks_segment() -> void:
 
 func _make_square_brush() -> SquareBrush:
 	var desc := BrushDescriptor.new()
-	desc.m_DurableName = "Square"
+	desc.name = "SquarePaper"
+	desc.m_Guid = "3d9755da-56c7-7294-9b1d-5ec349975f52"
+	desc.m_DurableName = "SquarePaper"
 	desc.m_RenderBackfaces = false
 	desc.m_BackIsInvisible = false
 	desc.m_M11Compatibility = false

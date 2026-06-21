@@ -80,7 +80,9 @@ func _check_flip_branch_adds_ring_face_and_extra_ring() -> void:
 
 func _make_square3d_brush() -> Square3DPrintBrush:
 	var desc := BrushDescriptor.new()
-	desc.m_DurableName = "Square3DPrint"
+	desc.name = "Square3DPrintBrush"
+	desc.m_Guid = "d3f3b18a-da03-f694-b838-28ba8e749a98"
+	desc.m_DurableName = "3D Printing Brush"
 	desc.m_RenderBackfaces = false
 	desc.m_BackIsInvisible = false
 	desc.m_M11Compatibility = false

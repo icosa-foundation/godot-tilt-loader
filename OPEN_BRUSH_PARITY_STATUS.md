@@ -101,6 +101,7 @@ Implemented so far:
 - Open Brush `BubbleWandBrush` finalization control flow, UVW formula behavior, and UV1 original-position storage coverage.
 - Open Brush `BlocksBrushScript` explicit no-op batched finalization behavior.
 - Open Brush `TetraBrush` texture atlas count handling and distance atlas branch coverage, including texture edge chop.
+- Catalog replay coverage now verifies every remaining active normal solid/hull/square/slice prefab family generates complete descriptor-driven mesh channels through the shared runtime replay path.
 - Open Brush `SquareBrush` and `PrintableBrush` shared-ring continuation and sharp-turn segment-break topology now have focused lifecycle coverage.
 - Open Brush `Square3DPrintBrush` parity-flip topology branch coverage for double-back strokes.
 - Open Brush `SliceBrush` initial frame direction/normal orientation behavior, routed through the shared `ComputeSurfaceFrameNew` parity helper.
@@ -126,6 +127,7 @@ Implemented so far:
 - `Tests/GDScript/GeniusParticlesCatalogReplayTest.gd` now replays every normal catalog `GeniusParticle` brush through the shared runtime replay path and verifies generated particle mesh channel completeness: vertices, triangle indices, normals, colors, UV0 Vector4, UV1 Vector3, and no tangents.
 - `Tests/GDScript/SprayCatalogReplayTest.gd` now replays every normal catalog `Spray` and `MiddpointPlusLifetimeGeomSpray` brush through the shared runtime replay path and verifies generated particle mesh channel completeness for UV0, UV1, normals, colors, and tangents.
 - `Tests/GDScript/TubeCatalogReplayTest.gd` now replays every normal catalog tube-derived prefab through the shared runtime replay path and verifies descriptor-driven UV0, UV1, normal, color, tangent, and runtime-class channel expectations, including the BubbleWand-specific no-tangent/UV1 Vector4 layout.
+- `Tests/GDScript/SolidCatalogReplayTest.gd` now replays every normal catalog `ThickDistance`, `HullPrefab`, `HullPrefabPassthrough`, `HullPrefabSmooth`, `ConcaveHullPrefab`, `Square3DPrintBrush`, `SquareBrush_prefab`, and `Slice` brush through the shared runtime path and verifies descriptor-driven UV0, normal, color, tangent, and runtime-class expectations.
 - `Tests/GDScript/LiveVsTiltUvParityTest.gd` now compares vertex positions as well as primary UVs and includes the promoted normal brushes `DotMarker`, `Plasma`, and `TaperedMarker_Flat` across direct replay, memory replay, pointer math, and live object paths.
 
 Focused tests added/updated:
@@ -153,6 +155,9 @@ Focused tests added/updated:
   - checks Thick distance and stretch UV texture atlas branch formulas for `m_TextureAtlasV > 1`.
 - Existing focused brush tests for `HullBrush`, `ConcaveHullBrush`, `SprayBrush`, `MidpointPlusLifetimeSprayBrush`, `TubeBrush`, `SliceBrush`, `PrintableBrush`, `SquareBrush`, `Square3DPrintBrush`, and `TetraBrush`
   - now check generated vertex colors use Unity `Color32` byte truncation at their covered write points.
+- `Tests/GDScript/SolidCatalogReplayTest.gd`
+  - replays all normal catalog `ThickDistance`, `HullPrefab`, `HullPrefabPassthrough`, `HullPrefabSmooth`, `ConcaveHullPrefab`, `Square3DPrintBrush`, `SquareBrush_prefab`, and `Slice` brushes through `BrushStrokeReplay`,
+  - verifies each replay produces non-empty mesh data with the expected descriptor-driven channel layout: thick UV0/tangents, hull UV0 Vector3/no tangents, concave hull no UV/tangents, square UV0/no tangents, 3D print color-only geometry, and Slice UV0 Vector3/no tangents.
 - `Tests/GDScript/ConcaveHullBrushParityTest.gd`
   - checks exact source-derived vertex generation for Rapidograph, Quill Pen, Tetrahedron, Octahedron, and Cube knot conversion modes,
   - checks ConcaveHull smooth cube geometry exports shared vertices, double-wound triangles, normalized normals, and correct fan-triangulated index counts through the native hull backend.
@@ -283,6 +288,7 @@ Known validation noise:
 - Cafe importer validation reports legacy GUID remaps, compatibility-brush skips, and several material UID warnings; these do not currently fail the runtime replay test.
 - The cafe Stars fixture reports a material UID warning for `Stars.tres`; this does not currently fail fixture replay.
 - `FlatStripCatalogReplayTest.gd` exposes existing missing Godot material assets for the normal Open Brush `Digital` and `Race` brushes. Open Brush has Unity `.mat`/`.shader` assets for both under `Assets/Resources/X/Brushes`, but the Icosa Godot material tree does not currently contain converted `.tres` materials for them. The mesh replay assertions still pass for both brushes.
+- `SolidCatalogReplayTest.gd` exposes existing material/shader gaps: Open Brush has a Unity `PassthroughHull.mat` under `Assets/Resources/X/Brushes/PassthroughHull`, but the Icosa Godot material tree does not contain a converted `PassthroughHull.tres`; `Slice.gdshader` also fails to compile in headless validation because it references `CUSTOM0` directly. The mesh replay assertions still pass for both affected brushes.
 
 ## Next Required Work
 

@@ -92,7 +92,9 @@ func _check_stretch_uv_atlas_branch() -> void:
 
 func _make_thick_brush(uv_style: int, texture_atlas_v: int = 1) -> ThickGeometryBrush:
 	var desc := BrushDescriptor.new()
-	desc.m_DurableName = "Thick"
+	desc.name = "ThickGeometry"
+	desc.m_Guid = "39ee7377-7a9e-47a7-a0f8-0c77712f75d3"
+	desc.m_DurableName = "ThickGeometry"
 	desc.m_RenderBackfaces = false
 	desc.m_BackIsInvisible = false
 	desc.m_M11Compatibility = true
