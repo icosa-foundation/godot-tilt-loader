@@ -34,7 +34,7 @@ This scene uses `Scripts/TiltEvidenceViewer.gd`. By default it targets:
 res://Temp/TiltEvidence/brush_cafe_experimental.tilt
 ```
 
-The script reads the `.tilt` file for metadata and thumbnail data, then loads the Godot-imported `PackedScene` for the same `.tilt` resource and displays it. It is the scene to open when checking the cafe sketch visually. It also supports screenshot-oriented command-line options such as `--quit-after-screenshot`, `--render-output=...`, `--thumbnail-output=...`, `--log-output=...`, `--camera-mode=...`, and `--only-brushes=...`.
+The script reads the `.tilt` file and, by default, rebuilds the scene through the current runtime stroke-generation path. That default avoids masking runtime bugs behind Godot's imported `PackedScene` cache. For fast cached viewing, run with `--imported-packed-scene` or `--load-mode=imported_packed_scene`. It also supports screenshot-oriented command-line options such as `--quit-after-screenshot`, `--render-output=...`, `--thumbnail-output=...`, `--log-output=...`, `--camera-mode=...`, `--only-brushes=...`, and `--load-mode=runtime_rebuild`.
 
 Important distinction: this is a cafe `.tilt` viewing/evidence scene, not the live drawing scene.
 

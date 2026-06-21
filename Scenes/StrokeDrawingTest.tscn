@@ -22,6 +22,12 @@ script = ExtResource("3_setup")
 script = ExtResource("1_8ve2m")
 BrushSystemPath = NodePath("../BrushSystemSetup")
 PointerPath = NodePath("Pointer")
+ShowTiltPathReference = true
+TiltPathReferenceFile = "res://Temp/TiltEvidence/brush_cafe_experimental.tilt"
+TiltPathReferenceBrush = "Ink"
+TiltPathReferenceStrokeIndex = 0
+TiltPathReferenceOffset = Vector3(0, -2.5, 0)
+TiltPathReferenceVisualScale = 5.0
 
 [node name="Pointer" type="Node3D" parent="Canvas"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5672777, 0, 2.082432)

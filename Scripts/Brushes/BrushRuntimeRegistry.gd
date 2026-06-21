@@ -94,22 +94,26 @@ static func _prefab_has_factory(prefab: String) -> bool:
 static func _create_brush(prefab: String, fields: Dictionary, durable_name: String) -> BaseBrushScript:
 	var brush: BaseBrushScript = null
 	match prefab:
-		"Line", "LineWithWidth", "UnitizedUV":
+		"Line":
+			brush = QuadStripBrushStretchUV.new()
+		"LineWithWidth":
+			brush = QuadStripBrushStretchUV.new()
+		"UnitizedUV":
 			brush = QuadStripUnitizedUVBrush.new()
 		"DistanceUV":
 			brush = QuadStripBrushDistanceUV.new()
 		"FlatDistance":
 			brush = FlatGeometryBrush.new()
-			brush.m_uvStyle = FlatGeometryBrush.UVStyle.DISTANCE
 		"FlatStretch":
 			brush = FlatGeometryBrush.new()
-			brush.m_uvStyle = FlatGeometryBrush.UVStyle.STRETCH
 		"GeniusParticle":
 			brush = GeniusParticlesBrush.new()
 		"Spray":
 			brush = SprayBrush.new()
-		"MiddpointPlusLifetimeGeomSpray", "MidpointPlusOffset":
+		"MiddpointPlusLifetimeGeomSpray":
 			brush = MidpointPlusLifetimeSprayBrush.new()
+		"MidpointPlusOffset":
+			brush = FlatGeometryBrush.new()
 		"ConcaveHullPrefab":
 			brush = ConcaveHullBrush.new()
 		"HullPrefab", "HullPrefabPassthrough", "HullPrefabSmooth":
@@ -140,6 +144,10 @@ static func _apply_prefab_fields(brush: BaseBrushScript, fields: Dictionary) -> 
 		_apply_tube_fields(brush as TubeBrush, fields)
 	elif brush is QuadStripBrushStretchUV:
 		(brush as QuadStripBrushStretchUV).m_StoreWidthInTexcoord0Z = bool(fields.get("m_StoreWidthInTexcoord0Z", (brush as QuadStripBrushStretchUV).m_StoreWidthInTexcoord0Z))
+	elif brush is FlatGeometryBrush:
+		_apply_flat_fields(brush as FlatGeometryBrush, fields)
+	elif brush is ThickGeometryBrush:
+		(brush as ThickGeometryBrush).m_uvStyle = int(fields.get("m_uvStyle", (brush as ThickGeometryBrush).m_uvStyle))
 	elif brush is HullBrush:
 		_apply_hull_fields(brush as HullBrush, fields)
 	elif brush is ConcaveHullBrush:
@@ -156,6 +164,10 @@ static func _apply_tube_fields(brush: TubeBrush, fields: Dictionary) -> void:
 	brush.m_PetalDisplacementAmt = float(fields.get("m_PetalDisplacementAmt", brush.m_PetalDisplacementAmt))
 	brush.m_PetalDisplacementExp = float(fields.get("m_PetalDisplacementExp", brush.m_PetalDisplacementExp))
 	brush.m_BreakAngleMultiplier = float(fields.get("m_BreakAngleMultiplier", brush.m_BreakAngleMultiplier))
+
+static func _apply_flat_fields(brush: FlatGeometryBrush, fields: Dictionary) -> void:
+	brush.m_uvStyle = int(fields.get("m_uvStyle", brush.m_uvStyle))
+	brush.m_bOffsetInTexcoord1 = bool(fields.get("m_bOffsetInTexcoord1", brush.m_bOffsetInTexcoord1))
 
 static func _apply_hull_fields(brush: HullBrush, fields: Dictionary) -> void:
 	brush.m_Faceted = bool(fields.get("m_Faceted", brush.m_Faceted))

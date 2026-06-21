@@ -1,11 +1,21 @@
 class_name MinimalExample
 extends Node3D
 
+const TiltSceneBuilderScript := preload("res://addons/open_brush_stroke_integration/open_brush_tilt_scene_builder.gd")
+const TiltReaderScript := preload("res://addons/open_brush_stroke_integration/open_brush_tilt_reader.gd")
+const OpenBrushScript := preload("res://addons/icosa/open_brush/open_brush.gd")
+
 @export var BrushSystemPath: NodePath
 @export var PointerPath: NodePath
 @export var m_ManifestStandard: TiltBrushManifest
 @export var m_ManifestExperimental: TiltBrushManifest
 @export var m_DefaultBrush: BrushDescriptor
+@export var ShowTiltPathReference := false
+@export var TiltPathReferenceFile := "res://Temp/TiltEvidence/brush_cafe_experimental.tilt"
+@export var TiltPathReferenceBrush := "Ink"
+@export var TiltPathReferenceStrokeIndex := 0
+@export var TiltPathReferenceOffset := Vector3(-4.0, -3.0, 0.0)
+@export var TiltPathReferenceVisualScale := 4.0
 
 var BrushSystem: BrushSystemSetup
 var m_Pointer: PointerScript
@@ -29,6 +39,7 @@ func _ready() -> void:
 		m_Pointer.Canvas = m_Canvas
 		if _runtimeBrush != null:
 			m_Pointer.m_CurrentBrush = _runtimeBrush
+			_apply_pointer_brush_size_range(_runtimeBrush)
 			m_Pointer.m_CurrentColor = Color(0.2, 0.5, 1.0, 1.0)
 			m_Pointer.BrushSize01 = 0.5
 			m_Pointer.m_CurrentPressure = 1.0
@@ -36,6 +47,8 @@ func _ready() -> void:
 			push_error("No brush available for pointer")
 	else:
 		push_warning("No Pointer assigned to MinimalExample")
+	if ShowTiltPathReference:
+		add_tilt_path_reference_stroke()
 
 func _initialize_brush_catalog() -> void:
 	if BrushSystem != null:
@@ -87,6 +100,50 @@ func draw_circle() -> void:
 		path.append(TrTransform.trs(Vector3(cos(angle) * radius, sin(angle) * radius, 0.0), Quaternion.IDENTITY, 1.0))
 	draw_stroke(path, _runtimeBrush if _runtimeBrush != null else m_DefaultBrush, Color.BLUE)
 
+func add_tilt_path_reference_stroke() -> Node3D:
+	var tilt_data := _single_tilt_reference_stroke_data()
+	if tilt_data.is_empty():
+		push_error("MinimalExample: cannot create Tilt-path reference from %s" % TiltPathReferenceFile)
+		return null
+	var builder := TiltSceneBuilderScript.new()
+	var scene := builder.build_scene(tilt_data)
+	scene.name = "TiltPathReferenceStroke"
+	scene.position = TiltPathReferenceOffset
+	scene.scale = Vector3.ONE * TiltPathReferenceVisualScale
+	add_child(scene)
+	return scene
+
+func _single_tilt_reference_stroke_data() -> Dictionary:
+	var reader := TiltReaderScript.new()
+	var tilt_data: Dictionary = reader.load_tilt(TiltPathReferenceFile)
+	var error := String(tilt_data.get("error", ""))
+	if not error.is_empty():
+		push_error("MinimalExample: Tilt reference reader error: %s" % error)
+		return {}
+	var source_stroke := _find_tilt_reference_stroke(tilt_data)
+	if source_stroke.is_empty():
+		push_error("MinimalExample: no %s stroke found in %s" % [TiltPathReferenceBrush, TiltPathReferenceFile])
+		return {}
+	return {
+		"metadata": tilt_data.get("metadata", {}),
+		"strokes": [source_stroke],
+	}
+
+func _find_tilt_reference_stroke(tilt_data: Dictionary) -> Dictionary:
+	var ob = OpenBrushScript.new()
+	ob.ensure_loaded()
+	var matches: Array[Dictionary] = []
+	for stroke in tilt_data.get("strokes", []):
+		if not stroke is Dictionary:
+			continue
+		var brush_name: String = ob.resolve_brush_name(String(stroke.get("brush_guid", "")))
+		if brush_name == TiltPathReferenceBrush:
+			matches.append(stroke)
+	if matches.is_empty():
+		return {}
+	var index := clampi(TiltPathReferenceStrokeIndex, 0, matches.size() - 1)
+	return matches[index]
+
 func draw_stroke(path: Array[TrTransform], brush: BrushDescriptor, color: Color) -> Stroke:
 	if brush == null or m_Canvas == null or m_Pointer == null:
 		push_error("MinimalExample: cannot draw stroke without brush, canvas, and pointer")
@@ -125,3 +182,9 @@ func draw_stroke(path: Array[TrTransform], brush: BrushDescriptor, color: Color)
 
 func _add_control_point(output: Array[ControlPoint], position: Vector3, orientation: Quaternion, pressure: float, timestamp: int) -> void:
 	output.append(ControlPoint.create(position, orientation, pressure, timestamp))
+
+func _apply_pointer_brush_size_range(brush: BrushDescriptor) -> void:
+	if m_Pointer == null or brush == null:
+		return
+	if brush.m_BrushSizeRange.x > 0.0 and brush.m_BrushSizeRange.y >= brush.m_BrushSizeRange.x:
+		m_Pointer.m_BrushSizeRange = brush.m_BrushSizeRange

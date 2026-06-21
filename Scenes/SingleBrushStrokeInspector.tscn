@@ -1,0 +1,57 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://Scenes/MinimalExample.gd" id="1_canvas"]
+[ext_resource type="Script" path="res://Scripts/App.gd" id="2_app"]
+[ext_resource type="Script" path="res://Scripts/PointerScript.gd" id="3_pointer"]
+[ext_resource type="Script" path="res://Scripts/BrushSystemSetup.gd" id="4_setup"]
+[ext_resource type="Script" path="res://Scripts/SingleBrushStrokeInspector.gd" id="5_inspector"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_pointer"]
+radius = 0.1
+height = 0.2
+
+[node name="SingleBrushStrokeInspector" type="Node3D"]
+
+[node name="App" type="Node3D" parent="."]
+script = ExtResource("2_app")
+
+[node name="BrushSystemSetup" type="Node3D" parent="."]
+script = ExtResource("4_setup")
+
+[node name="Canvas" type="Node3D" parent="."]
+script = ExtResource("1_canvas")
+BrushSystemPath = NodePath("../BrushSystemSetup")
+PointerPath = NodePath("Pointer")
+ShowTiltPathReference = false
+
+[node name="Pointer" type="Node3D" parent="Canvas"]
+script = ExtResource("3_pointer")
+
+[node name="PointerVisual" type="MeshInstance3D" parent="Canvas/Pointer"]
+mesh = SubResource("SphereMesh_pointer")
+
+[node name="InspectorController" type="Node3D" parent="."]
+script = ExtResource("5_inspector")
+CanvasPath = NodePath("../Canvas")
+BrushSystemPath = NodePath("../BrushSystemSetup")
+LabelPath = NodePath("../HUD/BrushName")
+StrokeSize = 4.5
+StrokeRadius = 12.0
+StrokeSegments = 96
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 18)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.25, 0.433013, 0, 0.866025, 0.5, -0.5, -0.433013, 0.75, 2, 3, 6)
+light_energy = 1.6
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="BrushName" type="Label" parent="HUD"]
+offset_left = 18.0
+offset_top = 18.0
+offset_right = 780.0
+offset_bottom = 62.0
+theme_override_font_sizes/font_size = 26
+text = "Brush"

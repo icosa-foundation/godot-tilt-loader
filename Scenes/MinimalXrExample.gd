@@ -24,7 +24,6 @@ var m_Canvas: CanvasScript
 var _runtimeBrush: BrushDescriptor
 var _leftController: XRController3D
 var _rightController: XRController3D
-var _logFile: FileAccess
 var _currentBrushIndex := 0
 var _lastLeftThumbstickX := 0.0
 var _leftThumbstickTriggered := false
@@ -74,11 +73,13 @@ func setup() -> void:
 		return
 	m_Canvas = CanvasScript.new()
 	m_Canvas.name = "CanvasScript"
+	m_Canvas.scale = Vector3.ONE * App.UNITS_TO_METERS
 	xr_origin.add_child(m_Canvas)
 	if m_Pointer != null:
 		m_Pointer.Canvas = m_Canvas
 		if _runtimeBrush != null:
 			m_Pointer.m_CurrentBrush = _runtimeBrush
+			_apply_pointer_brush_size_range(_runtimeBrush)
 		m_Pointer.m_CurrentColor = PointerColor
 		m_Pointer.BrushSize01 = PointerSize01
 		m_Pointer.m_CurrentPressure = 1.0
@@ -108,11 +109,14 @@ func _process(delta: float) -> void:
 
 func log_debug(message: String) -> void:
 	print(message)
-	if _logFile == null:
-		_logFile = FileAccess.open("user://xr_debug.log", FileAccess.WRITE)
-	if _logFile != null:
-		_logFile.store_line("[%.2f] %s" % [Time.get_ticks_msec() / 1000.0, message])
-		_logFile.flush()
+	var file := FileAccess.open("user://xr_debug.log", FileAccess.READ_WRITE)
+	if file == null:
+		file = FileAccess.open("user://xr_debug.log", FileAccess.WRITE)
+	if file == null:
+		return
+	file.seek_end()
+	file.store_line("[%.2f] %s" % [Time.get_ticks_msec() / 1000.0, message])
+	file.flush()
 
 func clear_canvas() -> void:
 	if m_Canvas != null:
@@ -134,6 +138,7 @@ func handle_left_thumbstick() -> void:
 			if BrushRuntimeRegistryScript.is_supported(candidate):
 				_runtimeBrush = candidate
 				m_Pointer.m_CurrentBrush = _runtimeBrush
+				_apply_pointer_brush_size_range(_runtimeBrush)
 				m_Pointer.BrushSize01 = DefaultBrushSize
 				log_debug("XRDEBUG: Selected brush %s" % _runtimeBrush.m_DurableName)
 				break
@@ -157,3 +162,9 @@ func _first_supported_brush() -> BrushDescriptor:
 		if BrushRuntimeRegistryScript.is_supported(brush):
 			return brush
 	return null
+
+func _apply_pointer_brush_size_range(brush: BrushDescriptor) -> void:
+	if m_Pointer == null or brush == null:
+		return
+	if brush.m_BrushSizeRange.x > 0.0 and brush.m_BrushSizeRange.y >= brush.m_BrushSizeRange.x:
+		m_Pointer.m_BrushSizeRange = brush.m_BrushSizeRange

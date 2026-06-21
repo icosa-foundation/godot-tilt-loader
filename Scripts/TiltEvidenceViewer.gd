@@ -5,14 +5,23 @@ extends Node3D
 @export var RenderOutputPath := "user://tilt_accurate_render.png"
 @export var ThumbnailOutputPath := "user://tilt_reference_thumbnail.png"
 @export var LogPath := "user://tilt_accurate_render.log"
+@export_enum("runtime_rebuild", "imported_packed_scene") var SceneLoadMode := 0
 @export var CameraMode := "cafe"
 @export var AutoOrbit := true
+@export var EnableFlyCamera := true
+@export var FlyMoveSpeed := 5.0
+@export var FlyFastMultiplier := 4.0
+@export var MouseLookSensitivity := 0.003
+@export var OrthographicZoomStep := 0.9
+@export var CameraNear := 0.005
 @export var OnlyBrushes := PackedStringArray()
 @export var ForceDoubleSided := false
 @export var NormalizeOpaqueHullMaterials := true
 
-const TILT_IMPORTER_PATH := "res://addons/open_brush_stroke_integration/open_brush_tilt_scene_importer.gd"
 const TILT_READER_PATH := "res://addons/open_brush_stroke_integration/open_brush_tilt_reader.gd"
+const TILT_SCENE_BUILDER_PATH := "res://addons/open_brush_stroke_integration/open_brush_tilt_scene_builder.gd"
+const LOAD_MODE_RUNTIME_REBUILD := 0
+const LOAD_MODE_IMPORTED_PACKED_SCENE := 1
 const OPAQUE_HULL_MATERIALS := {
 	"MatteHull": true,
 	"ConcaveHull": true,
@@ -42,6 +51,9 @@ var _camera: Camera3D = null
 var _camera_target := Vector3.ZERO
 var _camera_distance := 10.0
 var _orbit_angle := 0.0
+var _fly_camera_active := false
+var _camera_yaw := 0.0
+var _camera_pitch := 0.0
 
 func _ready() -> void:
 	_apply_command_line_args()
@@ -60,17 +72,12 @@ func _ready() -> void:
 		return
 	_save_thumbnail(tilt_data.get("thumbnail", PackedByteArray()))
 
-	var imported := load(TiltFilePath)
-	if imported is PackedScene:
-		_scene_root = imported.instantiate()
-	else:
-		_fail("TILT_EVIDENCE: %s did not load as an imported PackedScene; run Godot import first" % TiltFilePath)
-		return
+	_scene_root = _load_tilt_scene(tilt_data)
 	if _scene_root == null:
-		_fail("TILT_EVIDENCE: imported scene instantiated as null")
+		_fail("TILT_EVIDENCE: scene load returned null")
 		return
 
-	_scene_root.name = "ImportedTiltScene"
+	_scene_root.name = "TiltSceneRuntimeRebuild" if SceneLoadMode == LOAD_MODE_RUNTIME_REBUILD else "TiltSceneImportedPackedScene"
 	add_child(_scene_root)
 	_apply_brush_filter(_scene_root)
 	if NormalizeOpaqueHullMaterials:
@@ -85,7 +92,7 @@ func _ready() -> void:
 
 	_add_camera(stats.bounds)
 	_add_world()
-	_log("TILT_EVIDENCE: imported strokes=%d mesh_instances=%d vertices=%d triangles=%d materials=%s bounds_min=%s bounds_max=%s" % [
+	_log("TILT_EVIDENCE: scene strokes=%d mesh_instances=%d vertices=%d triangles=%d materials=%s bounds_min=%s bounds_max=%s" % [
 		tilt_data.get("strokes", []).size(),
 		stats.mesh_instances,
 		stats.vertices,
@@ -100,18 +107,70 @@ func _ready() -> void:
 	if _quit_after_screenshot:
 		get_tree().quit(0)
 
+func _load_tilt_scene(tilt_data: Dictionary) -> Node3D:
+	if SceneLoadMode == LOAD_MODE_IMPORTED_PACKED_SCENE:
+		_log("TILT_EVIDENCE: load_mode=imported_packed_scene path=%s" % TiltFilePath)
+		return _load_imported_packed_scene()
+
+	_log("TILT_EVIDENCE: load_mode=runtime_rebuild path=%s" % TiltFilePath)
+	var builder_script := load(TILT_SCENE_BUILDER_PATH)
+	if builder_script == null:
+		_fail("TILT_EVIDENCE: missing scene builder at %s" % TILT_SCENE_BUILDER_PATH)
+		return null
+	var builder = builder_script.new()
+	return builder.build_scene(tilt_data)
+
+func _load_imported_packed_scene() -> Node3D:
+	var imported := load(TiltFilePath)
+	if not imported is PackedScene:
+		_fail("TILT_EVIDENCE: %s did not load as an imported PackedScene; run Godot import first" % TiltFilePath)
+		return null
+	var scene := (imported as PackedScene).instantiate()
+	if not scene is Node3D:
+		_fail("TILT_EVIDENCE: imported PackedScene root is not Node3D")
+		return null
+	return scene as Node3D
+
 func _save_render_after_frames() -> void:
 	for _frame in range(5):
 		await get_tree().process_frame
 	_save_render()
 
 func _process(delta: float) -> void:
-	if not AutoOrbit or _camera == null:
+	if _camera == null:
+		return
+	if EnableFlyCamera and _has_fly_camera_movement():
+		AutoOrbit = false
+		_process_fly_camera(delta)
+		return
+	if not AutoOrbit:
 		return
 	_orbit_angle += delta * 0.18
 	var direction := Vector3(sin(_orbit_angle) * 0.65, 0.38, cos(_orbit_angle)).normalized()
 	_camera.position = _camera_target + direction * _camera_distance
 	_camera.look_at(_camera_target, Vector3.UP)
+	_capture_camera_angles()
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not EnableFlyCamera or _camera == null:
+		return
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_RIGHT:
+			_fly_camera_active = event.pressed
+			AutoOrbit = false
+			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED if _fly_camera_active else Input.MOUSE_MODE_VISIBLE)
+		elif event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			_zoom_camera(OrthographicZoomStep)
+		elif event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			_zoom_camera(1.0 / OrthographicZoomStep)
+	elif event is InputEventMouseMotion and _fly_camera_active:
+		_camera_yaw -= event.relative.x * MouseLookSensitivity
+		_camera_pitch -= event.relative.y * MouseLookSensitivity
+		_camera_pitch = clampf(_camera_pitch, -1.45, 1.45)
+		_apply_fly_camera_rotation()
+	elif event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		_fly_camera_active = false
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
 func _apply_command_line_args() -> void:
 	for arg in OS.get_cmdline_user_args():
@@ -125,10 +184,20 @@ func _apply_command_line_args() -> void:
 			ThumbnailOutputPath = arg.trim_prefix("--thumbnail-output=")
 		elif arg.begins_with("--log-output="):
 			LogPath = arg.trim_prefix("--log-output=")
+		elif arg.begins_with("--load-mode="):
+			_set_load_mode(arg.trim_prefix("--load-mode="))
+		elif arg == "--runtime-rebuild":
+			SceneLoadMode = LOAD_MODE_RUNTIME_REBUILD
+		elif arg == "--imported-packed-scene":
+			SceneLoadMode = LOAD_MODE_IMPORTED_PACKED_SCENE
 		elif arg.begins_with("--camera-mode="):
 			CameraMode = arg.trim_prefix("--camera-mode=")
+		elif arg.begins_with("--camera-near="):
+			CameraNear = maxf(float(arg.trim_prefix("--camera-near=")), 0.0001)
 		elif arg == "--no-orbit":
 			AutoOrbit = false
+		elif arg == "--no-fly-camera":
+			EnableFlyCamera = false
 		elif arg.begins_with("--only-brushes="):
 			OnlyBrushes = PackedStringArray()
 			for brush_name in arg.trim_prefix("--only-brushes=").split(",", false):
@@ -137,6 +206,15 @@ func _apply_command_line_args() -> void:
 			ForceDoubleSided = true
 		elif arg == "--no-normalize-hull-materials":
 			NormalizeOpaqueHullMaterials = false
+
+func _set_load_mode(value: String) -> void:
+	match value:
+		"runtime_rebuild":
+			SceneLoadMode = LOAD_MODE_RUNTIME_REBUILD
+		"imported_packed_scene":
+			SceneLoadMode = LOAD_MODE_IMPORTED_PACKED_SCENE
+		_:
+			_fail("TILT_EVIDENCE: unknown load mode '%s'; expected runtime_rebuild or imported_packed_scene" % value)
 
 func _apply_brush_filter(root: Node) -> void:
 	if OnlyBrushes.is_empty():
@@ -276,6 +354,7 @@ func _add_camera(bounds: Dictionary) -> void:
 	camera.name = "EvidenceCamera"
 	camera.current = true
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
+	camera.near = CameraNear
 	var effective_mode := CameraMode
 	if effective_mode == "auto":
 		effective_mode = "overview" if not OnlyBrushes.is_empty() else "detail"
@@ -298,6 +377,61 @@ func _add_camera(bounds: Dictionary) -> void:
 	add_child(camera)
 	camera.look_at(_camera_target, Vector3.UP)
 	_camera = camera
+	_capture_camera_angles()
+
+func _has_fly_camera_movement() -> bool:
+	return _fly_camera_active \
+		or Input.is_key_pressed(KEY_W) \
+		or Input.is_key_pressed(KEY_A) \
+		or Input.is_key_pressed(KEY_S) \
+		or Input.is_key_pressed(KEY_D) \
+		or Input.is_key_pressed(KEY_Q) \
+		or Input.is_key_pressed(KEY_E) \
+		or Input.is_key_pressed(KEY_SPACE) \
+		or Input.is_key_pressed(KEY_CTRL)
+
+func _process_fly_camera(delta: float) -> void:
+	var basis := _camera.global_transform.basis
+	var direction := Vector3.ZERO
+	if Input.is_key_pressed(KEY_W):
+		direction -= basis.z
+	if Input.is_key_pressed(KEY_S):
+		direction += basis.z
+	if Input.is_key_pressed(KEY_A):
+		direction -= basis.x
+	if Input.is_key_pressed(KEY_D):
+		direction += basis.x
+	if Input.is_key_pressed(KEY_Q) or Input.is_key_pressed(KEY_CTRL):
+		direction -= Vector3.UP
+	if Input.is_key_pressed(KEY_E) or Input.is_key_pressed(KEY_SPACE):
+		direction += Vector3.UP
+	if direction == Vector3.ZERO:
+		return
+	var speed := FlyMoveSpeed
+	if Input.is_key_pressed(KEY_SHIFT):
+		speed *= FlyFastMultiplier
+	_camera.global_position += direction.normalized() * speed * delta
+
+func _capture_camera_angles() -> void:
+	if _camera == null:
+		return
+	var forward := -_camera.global_transform.basis.z.normalized()
+	_camera_pitch = asin(clampf(forward.y, -1.0, 1.0))
+	_camera_yaw = atan2(-forward.x, -forward.z)
+
+func _apply_fly_camera_rotation() -> void:
+	if _camera == null:
+		return
+	_camera.rotation = Vector3(_camera_pitch, _camera_yaw, 0.0)
+
+func _zoom_camera(factor: float) -> void:
+	if _camera == null:
+		return
+	AutoOrbit = false
+	if _camera.projection == Camera3D.PROJECTION_ORTHOGONAL:
+		_camera.size = clampf(_camera.size * factor, 0.05, 200.0)
+	else:
+		_camera.global_position -= _camera.global_transform.basis.z * FlyMoveSpeed * (1.0 - factor)
 
 func _add_world() -> void:
 	var world := WorldEnvironment.new()

@@ -46,13 +46,13 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if Pointer == null:
 		return
-	var space_pressed := Input.is_physical_key_pressed(KEY_SPACE)
+	var draw_pressed := Input.is_physical_key_pressed(KEY_SPACE) or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
 	var m_pressed := Input.is_physical_key_pressed(KEY_M)
 	var c_pressed := Input.is_physical_key_pressed(KEY_C)
 	var r_pressed := Input.is_physical_key_pressed(KEY_R)
-	if space_pressed and not _isDrawing:
+	if draw_pressed and not _isDrawing:
 		start_drawing()
-	elif not space_pressed and _isDrawing:
+	elif not draw_pressed and _isDrawing:
 		stop_drawing()
 	if m_pressed and not _mKeyWasPressed:
 		_moveMode = not _moveMode
@@ -134,3 +134,5 @@ func cycle_brush(direction: int) -> void:
 		return
 	_currentBrushIndex = (_currentBrushIndex + direction + _availableBrushes.size()) % _availableBrushes.size()
 	Pointer.m_CurrentBrush = _availableBrushes[_currentBrushIndex]
+	if Pointer.m_CurrentBrush.m_BrushSizeRange.x > 0.0:
+		Pointer.m_BrushSizeRange = Pointer.m_CurrentBrush.m_BrushSizeRange

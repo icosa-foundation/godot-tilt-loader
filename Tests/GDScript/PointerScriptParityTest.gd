@@ -88,7 +88,8 @@ func _check_line_lifecycle() -> void:
 	_expect_equal(canvas.get_child_count(), 1, "pointer line parented to canvas")
 	pointer.position = Vector3.RIGHT
 	pointer.update_line_from_object()
-	_expect_equal(pointer.m_ControlPoints.size(), 1, "pointer update records control point")
+	_expect_equal(pointer.m_ControlPoints.size(), 2, "pointer create and update record control points")
+	_expect_vec3_close(pointer.m_ControlPoints[0].m_Pos, Vector3.ZERO, "pointer initial control point")
 	_expect(pointer.m_CurrentLine.mesh_data.vertices.size() == 3, "pointer update applies visuals")
 	pointer.detach_line(false)
 	_expect(pointer.m_CurrentLine == null, "pointer detach clears current line")

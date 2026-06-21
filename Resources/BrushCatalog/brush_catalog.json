@@ -851,7 +851,8 @@
         "prefab_path": "Resources/BrushPrefabs/Geom/MidpointPlusOffset.prefab",
         "prefab_name": "MidpointPlusOffset",
         "script_guid": "6e9fc06b6930627419225b72afd6d948",
-        "m_uvStyle": 1
+        "m_uvStyle": 1,
+        "m_bOffsetInTexcoord1": true
       }
     },
     "4e0276a2779e02649886e0eabd8cc6f0": {
@@ -908,7 +909,8 @@
         "prefab_path": "Resources/BrushPrefabs/Geom/MidpointPlusOffset.prefab",
         "prefab_name": "MidpointPlusOffset",
         "script_guid": "6e9fc06b6930627419225b72afd6d948",
-        "m_uvStyle": 1
+        "m_uvStyle": 1,
+        "m_bOffsetInTexcoord1": true
       }
     },
     "c969cee8911aa4d4293ee395f822a70c": {
@@ -1022,7 +1024,8 @@
         "prefab_path": "Resources/BrushPrefabs/Geom/MidpointPlusOffset.prefab",
         "prefab_name": "MidpointPlusOffset",
         "script_guid": "6e9fc06b6930627419225b72afd6d948",
-        "m_uvStyle": 1
+        "m_uvStyle": 1,
+        "m_bOffsetInTexcoord1": true
       }
     },
     "ebea59c8451485a4fa398d5c45688a1a": {

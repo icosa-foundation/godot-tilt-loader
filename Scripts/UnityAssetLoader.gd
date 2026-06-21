@@ -372,6 +372,8 @@ static func _load_prefab_fields(descriptor: BrushDescriptor, asset_file_path: St
 			descriptor.prefab_fields["m_BreakAngleMultiplier"] = _parse_float_value(trimmed)
 		elif trimmed.begins_with("m_StoreWidthInTexcoord0Z:"):
 			descriptor.prefab_fields["m_StoreWidthInTexcoord0Z"] = _parse_bool_value(trimmed)
+		elif trimmed.begins_with("m_bOffsetInTexcoord1:"):
+			descriptor.prefab_fields["m_bOffsetInTexcoord1"] = _parse_bool_value(trimmed)
 		elif trimmed.begins_with("m_Faceted:"):
 			descriptor.prefab_fields["m_Faceted"] = _parse_bool_value(trimmed)
 		elif trimmed.begins_with("m_TrackInterior:"):
