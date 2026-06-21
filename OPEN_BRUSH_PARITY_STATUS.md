@@ -113,6 +113,7 @@ Implemented so far:
 - Open Brush `GeometryBrush` initial knot `smoothedPressure` default behavior before the first update.
 - Direct runtime finalization for `QuadStripBrushDistanceUV` now flushes pending tangent requests like the visual update path, matching the established stretch UV finalization behavior.
 - Open Brush fake layout brushes (`PbrBrushScript`, `EnvironmentBrushScript`, `SvgBrushScript`) are classified as non-mesh layout providers with explicit no-op batched finalization.
+- Converted Godot brush material coverage now exists for the catalog `Digital`, `Race`, and `PassthroughHull` normal brushes, and `Slice.gdshader` now stages CUSTOM0 data through a vertex varying so headless shader validation compiles.
 - Current Godot parity tests and probes are classified in `OPEN_BRUSH_PARITY_TEST_INVENTORY.md`, including the remaining evidence gap that no authoritative Open Brush reference mesh fixtures have been exported yet.
 - An Open Brush reference mesh fixture harness now exists at `Tests/GDScript/OpenBrushReferenceMeshFixtureTest.gd`. It scans `Resources/Fixtures/OpenBrushReferenceMeshes/*.json`, replays each referenced stroke through Godot, and compares vertex positions, triangle indices, normals, colors, tangents, and full-width UV0/UV1/UV2 data against Open Brush-exported mesh data.
 - The Unity-side exporter source now exists at `Tools/OpenBrushReferenceMeshExport/OpenBrushReferenceMeshExportTest.cs`. It is installed in the Open Brush Unity editor test assembly and exports finalized `BatchSubset` mesh data plus `GeometryPool` layout/channel data for the representative cafe Ink, DuctTapeGeometry, Stars, Sparks, and MatteHull fixtures.
@@ -287,6 +288,16 @@ Additional validation after removing unused `GeometryPool` fallback fill behavio
 
 Result: both commands exited successfully. A repository search now leaves `fallback` mentions only in test/probe assertions or documentation, not in production runtime/importer fallback geometry paths.
 
+Additional validation after adding the missing catalog material assets and fixing `Slice.gdshader` CUSTOM0 access:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SliceBrushParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SolidCatalogReplayTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatStripCatalogReplayTest.gd
+```
+
+Result: all three commands exited successfully. The previous `Digital`, `Race`, `PassthroughHull`, and `Slice.gdshader` material/shader failures no longer appear.
+
 Open Brush Unity editor project compile check also run after installing the exporter:
 
 ```powershell
@@ -301,8 +312,7 @@ Known validation noise:
 - Catalog loading now explicitly logs unsupported experimental ParentBrush composite skips instead of missing GUID or duplicate GUID warnings.
 - Cafe importer validation reports legacy GUID remaps, compatibility-brush skips, and several material UID warnings; these do not currently fail the runtime replay test.
 - The cafe Stars fixture reports a material UID warning for `Stars.tres`; this does not currently fail fixture replay.
-- `FlatStripCatalogReplayTest.gd` exposes existing missing Godot material assets for the normal Open Brush `Digital` and `Race` brushes. Open Brush has Unity `.mat`/`.shader` assets for both under `Assets/Resources/X/Brushes`, but the Icosa Godot material tree does not currently contain converted `.tres` materials for them. The mesh replay assertions still pass for both brushes.
-- `SolidCatalogReplayTest.gd` exposes existing material/shader gaps: Open Brush has a Unity `PassthroughHull.mat` under `Assets/Resources/X/Brushes/PassthroughHull`, but the Icosa Godot material tree does not contain a converted `PassthroughHull.tres`; `Slice.gdshader` also fails to compile in headless validation because it references `CUSTOM0` directly. The mesh replay assertions still pass for both affected brushes.
+- `FlatStripCatalogReplayTest.gd` still reports an existing invalid UID warning for `Electricity.tres`; this does not currently fail mesh replay assertions.
 
 ## Next Required Work
 
@@ -314,4 +324,4 @@ Known validation noise:
 4. Convert current helper tests into generated-mesh parity tests where possible.
 5. Audit all remaining brush classes line-by-line against the reference source.
 6. Remove or quarantine any remaining production fallback geometry paths for normal brushes.
-7. Fix or explicitly classify material/shader gaps surfaced by catalog replay coverage (`Digital`, `Race`, `PassthroughHull`, and `Slice.gdshader`).
+7. Fix or explicitly classify remaining material UID warnings surfaced by catalog and cafe replay coverage.
