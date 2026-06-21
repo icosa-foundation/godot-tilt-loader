@@ -1,5 +1,15 @@
 extends SceneTree
 
+class EndSimplifyProbeHullBrush:
+	extends HullBrush
+
+	var saw_end_simplify := false
+
+	func on_changed_make_geometry(is_end: bool = false) -> void:
+		if is_end:
+			saw_end_simplify = true
+		super.on_changed_make_geometry(is_end)
+
 var _failures := 0
 
 func _init() -> void:
@@ -13,6 +23,7 @@ func _run() -> void:
 	_check_hull_brush_double_sided_geometry()
 	_check_hull_brush_faceted_cube_native_polygon_faces()
 	_check_hull_brush_track_interior_keeps_boundary()
+	_check_hull_brush_simplify_at_end_finalization_route()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_HULLBRUSH: all checks passed")
 
@@ -141,6 +152,21 @@ func _check_hull_brush_track_interior_keeps_boundary() -> void:
 	for index in range(8):
 		_expect(not bool(brush.m_AllVertices[index].interior), "hull track interior keeps boundary %d" % index)
 	_expect(bool(brush.m_AllVertices[8].interior), "hull track interior marks center")
+	brush.free()
+
+func _check_hull_brush_simplify_at_end_finalization_route() -> void:
+	var brush := EndSimplifyProbeHullBrush.new()
+	brush.m_KnotConversion = HullBrush.KnotConversion.TETRAHEDRON
+	brush.m_SimplifyMode = HullBrush.SimplifyMode.SIMPLIFY_AT_END
+	brush.m_Simplification_PS = 0.001
+	brush.m_BaseSize_PS = 1.0
+	brush.m_Color = Color(0.7, 0.4, 0.9, 1.0)
+	brush.init_brush(_make_desc(false), TrTransform.identity())
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "hull simplify-at-end update keeps")
+	brush.apply_changes_to_visuals()
+	brush.finalize_batched_brush()
+	_expect(brush.saw_end_simplify, "hull batched finalization runs end simplification pass")
+	_expect(brush.m_geometry == null, "hull simplify-at-end releases geometry")
 	brush.free()
 
 func _unique_normal_count(normals: Array[Vector3]) -> int:

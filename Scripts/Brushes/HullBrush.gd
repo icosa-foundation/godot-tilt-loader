@@ -53,6 +53,11 @@ func reset_brush_for_preview(local_pointer_xf: TrTransform) -> void:
 	super.reset_brush_for_preview(local_pointer_xf)
 	create_vertices_from_knots(0)
 
+func finalize_batched_brush() -> void:
+	if m_SimplifyMode == SimplifyMode.SIMPLIFY_AT_END:
+		on_changed_make_geometry(true)
+	super.finalize_batched_brush()
+
 func resize_vertices(desired: int) -> void:
 	if m_AllVertices.size() > desired:
 		m_AllVertices = m_AllVertices.slice(0, desired)
@@ -131,7 +136,7 @@ func create_vertices_from_knots(knot_index: int) -> void:
 							_set_vertex(vertex0 + 1 + ring * K_DIRECTED_SPHERE_RING_POINTS + ring_point, center + point)
 							point = q_theta * point
 
-func on_changed_make_geometry(_is_end: bool = false) -> void:
+func on_changed_make_geometry(is_end: bool = false) -> void:
 	if m_knots.size() < 2:
 		return
 	var input: Array[Vector3] = []
@@ -160,6 +165,28 @@ func on_changed_make_geometry(_is_end: bool = false) -> void:
 	m_geometry.m_Texcoord0.v3.clear()
 	m_geometry.m_Tris.clear()
 
+	var simplify := (
+		(is_end and m_SimplifyMode == SimplifyMode.SIMPLIFY_AT_END)
+		or (not is_end and m_SimplifyMode == SimplifyMode.SIMPLIFY_INTERACTIVELY and record_interior)
+	)
+	if simplify and m_Simplification_PS > 0.0:
+		var simplified := create_hull(input, m_Simplification_PS)
+		if not bool(simplified.ok):
+			m_knots[1] = knot
+			return
+		var simplified_lookup := {}
+		for point in simplified.points:
+			simplified_lookup[_point_key(point)] = true
+		var simplified_indices: Array[int] = []
+		for index in input_indices:
+			var vertex := m_AllVertices[index]
+			if simplified_lookup.has(_point_key(vertex.position)):
+				simplified_indices.append(index)
+		input.clear()
+		for point in simplified.points:
+			input.append(point)
+		input_indices = simplified_indices
+
 	var hull := create_hull(input)
 	if bool(hull.ok):
 		if record_interior:
@@ -170,10 +197,10 @@ func on_changed_make_geometry(_is_end: bool = false) -> void:
 			create_smooth_geometry(knot, hull)
 	m_knots[1] = knot
 
-func create_hull(input: Array[Vector3]) -> Dictionary:
+func create_hull(input: Array[Vector3], tolerance_meters_ps: float = K_TOLERANCE_METERS_PS) -> Dictionary:
 	if input.size() < 4:
 		return {"ok": false, "points": [], "faces": []}
-	return ConvexHullUtil.create(input, K_TOLERANCE_METERS_PS * App.METERS_TO_UNITS * pointer_to_local())
+	return ConvexHullUtil.create(input, tolerance_meters_ps * App.METERS_TO_UNITS * pointer_to_local())
 
 func record_interior_vertices(input_indices: Array[int], hull_points: Array) -> void:
 	var hull_lookup := {}

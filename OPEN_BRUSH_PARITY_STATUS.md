@@ -23,7 +23,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `FlatGeometryBrush.gd` | `FlatGeometryBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Batched finalization now trims short post-break tails like Open Brush. Needs full branch audit. |
 | `ThickGeometryBrush.gd` | `ThickGeometryBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Texture atlas count handling now matches Open Brush directly, with distance/stretch atlas branch coverage. Needs full branch audit. |
 | `TubeBrush.gd` | `TubeBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Texture atlas count handling and UV-rate division now match Open Brush directly, with distance atlas branch coverage. Needs full branch audit. |
-| `HullBrush.gd` | `HullBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Native hull backend and degenerate cases need explicit parity review. |
+| `HullBrush.gd` | `HullBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Batched finalization now runs the Open Brush `SimplifyAtEnd` geometry pass and simplification tolerance path. Native hull backend and degenerate cases need explicit parity review. |
 | `ConcaveHullBrush.gd` | `ConcaveHullBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Known degenerate hull behavior needs explicit classification. |
 | `SprayBrush.gd` | `SprayBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Random salt wraparound now matches Open Brush `kSaltMaxQuadsPerKnot`. Particle layout still needs full audit. |
 | `GeniusParticlesBrush.gd` | `GeniusParticlesBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Batched finalization now explicitly runs particle finalization like Open Brush. UV0.w now stores Open Brush particle birth time, negative in preview mode. Texture atlas UVs and finalization/length-cache control flow now have focused parity coverage. Particle layout and seed behavior still need full audit. |
@@ -93,6 +93,7 @@ Implemented so far:
 - Open Brush `TetraBrush` texture atlas count handling and distance atlas branch coverage, including texture edge chop.
 - Open Brush `Square3DPrintBrush` parity-flip topology branch coverage for double-back strokes.
 - Open Brush `SliceBrush` initial frame direction/normal orientation behavior, routed through the shared `ComputeSurfaceFrameNew` parity helper.
+- Open Brush `HullBrush` `SimplifyAtEnd` batched finalization route and simplification tolerance pass.
 
 Focused tests added/updated:
 
@@ -115,6 +116,8 @@ Focused tests added/updated:
   - checks Thick distance and stretch UV texture atlas branch formulas for `m_TextureAtlasV > 1`.
 - Existing focused brush tests for `HullBrush`, `ConcaveHullBrush`, `SprayBrush`, `MidpointPlusLifetimeSprayBrush`, `TubeBrush`, `SliceBrush`, `PrintableBrush`, `SquareBrush`, `Square3DPrintBrush`, and `TetraBrush`
   - now check generated vertex colors use Unity `Color32` byte truncation at their covered write points.
+- `Tests/GDScript/HullBrushParityTest.gd`
+  - checks convex hull helper coverage, tetrahedron conversion, double-sided hull geometry, faceted polygonal cube faces, interior tracking, and the `SimplifyAtEnd` batched finalization route.
 - `Tests/GDScript/SliceBrushParityTest.gd`
   - checks shared-quad geometry, UVW distance accumulation, triangle winding, opaque `Color32` writes, and Open Brush normal direction for initial/front quads.
 - `Tests/GDScript/Square3DPrintBrushParityTest.gd`
