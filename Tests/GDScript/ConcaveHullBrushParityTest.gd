@@ -7,9 +7,81 @@ func _init() -> void:
 	quit(1 if _failures > 0 else 0)
 
 func _run() -> void:
+	_check_all_knot_conversion_vertices()
 	_check_cube_window_geometry()
+	_check_smooth_cube_hull_geometry()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_CONCAVEHULL: all checks passed")
+
+func _check_all_knot_conversion_vertices() -> void:
+	var center := Vector3(10.0, 20.0, 30.0)
+	var half_size := 1.0
+	var h := half_size / sqrt(3.0)
+	var cases := [
+		{
+			"label": "rapidograph",
+			"conversion": ConcaveHullBrush.KnotConversion.RAPIDOGRAPH,
+			"expected": [
+				center,
+			],
+		},
+		{
+			"label": "quill pen",
+			"conversion": ConcaveHullBrush.KnotConversion.QUILL_PEN,
+			"expected": [
+				center - Vector3.RIGHT * half_size,
+				center + Vector3.RIGHT * half_size,
+			],
+		},
+		{
+			"label": "tetrahedron",
+			"conversion": ConcaveHullBrush.KnotConversion.TETRAHEDRON,
+			"expected": [
+				center + Vector3(-h, -h, -h),
+				center + Vector3(+h, +h, -h),
+				center + Vector3(+h, -h, +h),
+				center + Vector3(-h, +h, +h),
+			],
+		},
+		{
+			"label": "octahedron",
+			"conversion": ConcaveHullBrush.KnotConversion.OCTAHEDRON,
+			"expected": [
+				center + Vector3.RIGHT * half_size,
+				center - Vector3.RIGHT * half_size,
+				center + Vector3.UP * half_size,
+				center - Vector3.UP * half_size,
+				center + Vector3.BACK * half_size,
+				center - Vector3.BACK * half_size,
+			],
+		},
+		{
+			"label": "cube",
+			"conversion": ConcaveHullBrush.KnotConversion.CUBE,
+			"expected": [
+				center + Vector3(-half_size, -half_size, -half_size),
+				center + Vector3(-half_size, -half_size, +half_size),
+				center + Vector3(-half_size, +half_size, -half_size),
+				center + Vector3(-half_size, +half_size, +half_size),
+				center + Vector3(+half_size, -half_size, -half_size),
+				center + Vector3(+half_size, -half_size, +half_size),
+				center + Vector3(+half_size, +half_size, -half_size),
+				center + Vector3(+half_size, +half_size, +half_size),
+			],
+		},
+	]
+	for test_case in cases:
+		var brush := _make_concave_brush()
+		brush.m_KnotConversion = int(test_case.conversion)
+		brush.m_BaseSize_PS = half_size * 2.0
+		brush.m_knots.clear()
+		brush.m_knots.append(_make_knot(center, Quaternion.IDENTITY, 1.0))
+		brush.create_vertices_from_knots(0)
+		var expected: Array = test_case.expected
+		_expect_equal(brush.m_AllVertices.size(), expected.size(), "%s conversion vertex count" % test_case.label)
+		for index in range(expected.size()):
+			_expect_vec3_close(brush.m_AllVertices[index], expected[index], "%s conversion vertex %d" % [test_case.label, index])
+		brush.free()
 
 func _check_cube_window_geometry() -> void:
 	var brush := _make_concave_brush()
@@ -32,6 +104,36 @@ func _check_cube_window_geometry() -> void:
 	brush.finalize_solitary_brush()
 	_expect(brush.m_geometry == null, "concave releases geometry")
 	_expect(brush.mesh_data.vertices.size() >= 8, "concave finalized vertices")
+	brush.free()
+
+func _check_smooth_cube_hull_geometry() -> void:
+	var input: Array[Vector3] = []
+	for x in [-1.0, 1.0]:
+		for y in [-1.0, 1.0]:
+			for z in [-1.0, 1.0]:
+				input.append(Vector3(x, y, z))
+	var hull := ConvexHullUtil.create(input)
+	_expect(hull.ok, "concave smooth cube creates hull")
+
+	var fan_triangle_count := 0
+	for face in hull.faces:
+		fan_triangle_count += face.indices.size() - 2
+		_expect_close(face.normal.length(), 1.0, "concave smooth cube face normal length")
+	_expect_equal(fan_triangle_count, 12, "concave smooth cube fan triangle count")
+
+	var brush := _make_concave_brush()
+	brush.m_geometry.m_Vertices.clear()
+	brush.m_geometry.m_Normals.clear()
+	brush.m_geometry.m_Colors.clear()
+	brush.m_geometry.m_Tris.clear()
+	var knot := GeometryBrush.Knot.new()
+	brush.create_smooth_geometry(knot, hull)
+
+	_expect_equal(knot.nVert, 8, "concave smooth cube shared vertex count")
+	_expect_equal(knot.nTri, 24, "concave smooth cube double-wound triangle count")
+	_expect_equal(brush.m_geometry.m_Tris.size(), 72, "concave smooth cube index count")
+	_expect_equal(brush.m_geometry.m_Normals.size(), 8, "concave smooth cube normal count")
+	_expect_close(brush.m_geometry.m_Normals[0].length(), 1.0, "concave smooth cube normal length")
 	brush.free()
 
 func _make_concave_brush() -> ConcaveHullBrush:
@@ -58,6 +160,13 @@ func _make_concave_brush() -> ConcaveHullBrush:
 	brush.set_random_seed(0)
 	return brush
 
+func _make_knot(position: Vector3, orientation: Quaternion, pressure: float) -> GeometryBrush.Knot:
+	var knot := GeometryBrush.Knot.new()
+	knot.point = ControlPoint.create(position, orientation, pressure, 0)
+	knot.smoothedPos = position
+	knot.smoothedPressure = pressure
+	return knot
+
 func _expect(condition: bool, label: String) -> void:
 	if not condition:
 		_fail(label)
@@ -69,6 +178,11 @@ func _expect_equal(actual: Variant, expected: Variant, label: String) -> void:
 func _expect_close(actual: float, expected: float, label: String) -> void:
 	if absf(actual - expected) > 1e-5:
 		_fail("%s expected %.8f but got %.8f" % [label, expected, actual])
+
+func _expect_vec3_close(actual: Vector3, expected: Vector3, label: String) -> void:
+	_expect_close(actual.x, expected.x, "%s x" % label)
+	_expect_close(actual.y, expected.y, "%s y" % label)
+	_expect_close(actual.z, expected.z, "%s z" % label)
 
 func _expect_color_close(actual: Color, expected: Color, label: String) -> void:
 	_expect_close(actual.r, expected.r, "%s r" % label)
