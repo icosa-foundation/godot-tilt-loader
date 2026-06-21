@@ -186,7 +186,7 @@ func on_changed_stretch_uvs(changed_knot: int) -> void:
 			knot1 += 1
 
 		var random01 := m_rng.in01(m_knots[knot0].iVert - 1)
-		var num_v: int = max(m_Desc.m_TextureAtlasV, 1)
+		var num_v: int = m_Desc.m_TextureAtlasV
 		var atlas := int(random01 * 3331.0) % num_v
 		var v0 := (atlas + m_TextureEdgeChop) / float(num_v)
 		var v1 := (atlas + 1.0 - m_TextureEdgeChop) / float(num_v)
@@ -228,7 +228,7 @@ func on_changed_distance_uvs(knot_index: int) -> void:
 			else:
 				var random01 := m_rng.in01(cur.iVert - 1)
 				u0 = random01
-				var num_v: int = max(m_Desc.m_TextureAtlasV, 1)
+				var num_v: int = m_Desc.m_TextureAtlasV
 				var atlas := int(random01 * 3331.0) % num_v
 				v0 = (atlas + m_TextureEdgeChop) / float(num_v)
 				v1 = (atlas + 1.0 - m_TextureEdgeChop) / float(num_v)

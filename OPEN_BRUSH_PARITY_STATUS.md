@@ -21,7 +21,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `QuadStripBrushDistanceUV.gd` | `QuadStripBrushDistanceUV.cs` | Partially audited, active repair started | Backface UV/color/tangent mirroring has been ported and tested. UV tests now cover distance atlas branch behavior and `Color32` fade quantization. Needs full line-by-line audit. |
 | `QuadStripUnitizedUVBrush.gd` | `QuadStripUnitizedUVBrush.cs` | Partially audited, active repair started | Backface UV/tangent mirroring has been ported and tested. Needs full line-by-line audit. |
 | `FlatGeometryBrush.gd` | `FlatGeometryBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Batched finalization now trims short post-break tails like Open Brush. Needs full branch audit. |
-| `ThickGeometryBrush.gd` | `ThickGeometryBrush.cs` | Partially tested | Existing parity tests cover selected behavior. Needs full branch audit. |
+| `ThickGeometryBrush.gd` | `ThickGeometryBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Texture atlas count handling now matches Open Brush directly, with distance/stretch atlas branch coverage. Needs full branch audit. |
 | `TubeBrush.gd` | `TubeBrush.cs` | Partially tested | Existing parity tests cover selected behavior. Needs full branch audit. |
 | `HullBrush.gd` | `HullBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Native hull backend and degenerate cases need explicit parity review. |
 | `ConcaveHullBrush.gd` | `ConcaveHullBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Known degenerate hull behavior needs explicit classification. |
@@ -85,6 +85,7 @@ Implemented so far:
 - Open Brush `SprayBrush.CalculateSalt` modulo behavior for dense knots.
 - Removal of the unused non-Open-Brush `MidpointPlusLifetimeSprayBrush.create_particle_geometry` helper.
 - Open Brush texture-atlas branch coverage for `QuadStripBrushStretchUV` and `QuadStripBrushDistanceUV`.
+- Open Brush `ThickGeometryBrush` texture atlas count handling and atlas branch coverage for distance/stretch UVs.
 
 Focused tests added/updated:
 
@@ -104,6 +105,7 @@ Focused tests added/updated:
   - checks batched finalization trims short non-compatibility post-break tails before mesh export, matching Open Brush `FinalizeBatchedBrush`.
 - `Tests/GDScript/ThickGeometryBrushParityTest.gd`
   - checks generated thick geometry vertex colors use Unity `Color32` byte truncation for RGB and alpha.
+  - checks Thick distance and stretch UV texture atlas branch formulas for `m_TextureAtlasV > 1`.
 - Existing focused brush tests for `HullBrush`, `ConcaveHullBrush`, `SprayBrush`, `MidpointPlusLifetimeSprayBrush`, `TubeBrush`, `SliceBrush`, `PrintableBrush`, `SquareBrush`, `Square3DPrintBrush`, and `TetraBrush`
   - now check generated vertex colors use Unity `Color32` byte truncation at their covered write points.
 - `Tests/GDScript/SprayBrushParityTest.gd`

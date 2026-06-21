@@ -8,7 +8,9 @@ func _init() -> void:
 
 func _run() -> void:
 	_check_distance_uv_geometry()
+	_check_distance_uv_atlas_branch()
 	_check_stretch_uv_geometry()
+	_check_stretch_uv_atlas_branch()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_THICKBRUSH: all checks passed")
 
@@ -37,6 +39,23 @@ func _check_distance_uv_geometry() -> void:
 	_expect(brush.m_geometry == null, "thick releases geometry")
 	brush.free()
 
+func _check_distance_uv_atlas_branch() -> void:
+	var brush := _make_thick_brush(ThickGeometryBrush.UVStyle.DISTANCE, 4)
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "thick distance atlas update keeps")
+	brush.apply_changes_to_visuals()
+
+	var random01 := brush.m_rng.in01(brush.m_knots[1].iVert - 1)
+	var atlas := int(random01 * 3331.0) % brush.m_Desc.m_TextureAtlasV
+	var v0 := (atlas + brush.m_TextureEdgeChop) / float(brush.m_Desc.m_TextureAtlasV)
+	var v1 := (atlas + 1.0 - brush.m_TextureEdgeChop) / float(brush.m_Desc.m_TextureAtlasV)
+	var vmid := (v0 + v1) * 0.5
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[ThickGeometryBrush.BLT].x, random01, "thick distance atlas initial u")
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[ThickGeometryBrush.BLT].y, v0, "thick distance atlas left y")
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[ThickGeometryBrush.BRT].y, v1, "thick distance atlas right y")
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[ThickGeometryBrush.BMT].y, vmid, "thick distance atlas middle y")
+	brush.finalize_solitary_brush()
+	brush.free()
+
 func _check_stretch_uv_geometry() -> void:
 	var brush := _make_thick_brush(ThickGeometryBrush.UVStyle.STRETCH)
 	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "thick stretch first update keeps")
@@ -53,13 +72,31 @@ func _check_stretch_uv_geometry() -> void:
 	brush.finalize_solitary_brush()
 	brush.free()
 
-func _make_thick_brush(uv_style: int) -> ThickGeometryBrush:
+func _check_stretch_uv_atlas_branch() -> void:
+	var brush := _make_thick_brush(ThickGeometryBrush.UVStyle.STRETCH, 4)
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "thick stretch atlas first update keeps")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(2.0, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "thick stretch atlas second update keeps")
+	brush.apply_changes_to_visuals()
+
+	var random01 := brush.m_rng.in01(brush.m_knots[1].iVert - 1)
+	var atlas := int(random01 * 3331.0) % brush.m_Desc.m_TextureAtlasV
+	var v0 := (atlas + brush.m_TextureEdgeChop) / float(brush.m_Desc.m_TextureAtlasV)
+	var v1 := (atlas + 1.0 - brush.m_TextureEdgeChop) / float(brush.m_Desc.m_TextureAtlasV)
+	var vmid := (v0 + v1) * 0.5
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[ThickGeometryBrush.BLT].y, v0, "thick stretch atlas left y")
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[ThickGeometryBrush.BRT].y, v1, "thick stretch atlas right y")
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[ThickGeometryBrush.BMT].y, vmid, "thick stretch atlas middle y")
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[6 + ThickGeometryBrush.FLT].y, v0, "thick stretch atlas second left y")
+	brush.finalize_solitary_brush()
+	brush.free()
+
+func _make_thick_brush(uv_style: int, texture_atlas_v: int = 1) -> ThickGeometryBrush:
 	var desc := BrushDescriptor.new()
 	desc.m_DurableName = "Thick"
 	desc.m_RenderBackfaces = false
 	desc.m_BackIsInvisible = false
 	desc.m_M11Compatibility = true
-	desc.m_TextureAtlasV = 1
+	desc.m_TextureAtlasV = texture_atlas_v
 	desc.m_TileRate = 1.0
 	desc.m_PressureSizeRange = Vector2(1.0, 1.0)
 	desc.m_PressureOpacityRange = Vector2(1.0, 1.0)
