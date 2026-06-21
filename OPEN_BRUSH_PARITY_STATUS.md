@@ -236,6 +236,7 @@ Focused tests added/updated:
 - `Tests/GDScript/BrushClassInventoryCoverageTest.gd`
   - checks `OPEN_BRUSH_BRUSH_CLASS_INVENTORY.md` lists every expected runtime brush class,
   - checks all registry-supported normal prefab families, compatibility prefab families, and source-only Open Brush classes are documented,
+  - checks representative audit-status snippets stay current for BaseBrush, layout brush, and source-only class coverage,
   - parses `Resources/BrushCatalog/brush_catalog.json` and verifies every referenced catalog prefab appears in the inventory.
 - `Tests/GDScript/BrushCatalogParityTest.gd`
   - now checks manifest merging de-duplicates by brush GUID and removes a brush from compatibility when an appended manifest lists it as a normal brush.
@@ -350,6 +351,14 @@ Exporter contract validation after the runner guard change:
 
 ```powershell
 & "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd
+```
+
+Result: command exited successfully.
+
+Additional validation after tightening brush class inventory status coverage:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushClassInventoryCoverageTest.gd
 ```
 
 Result: command exited successfully.

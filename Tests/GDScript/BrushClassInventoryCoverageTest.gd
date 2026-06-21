@@ -88,6 +88,18 @@ const SOURCE_ONLY_CLASSES := [
 	"ParentBrush.cs",
 ]
 
+const EXPECTED_STATUS_SNIPPETS := [
+	"BaseBrushScript.gd` | `BaseBrushScript.cs`",
+	"Partially audited; lifecycle helper coverage includes scale conversions",
+	"GeometryBrush.gd` | `GeometryBrush.cs`",
+	"Partially audited.",
+	"PbrBrushScript.gd` | `PbrBrushScript.cs`",
+	"Audited as non-mesh layout provider.",
+	"ParentBrush.cs` is the abstract Open Brush source helper",
+	"Most mesh",
+	"classes remain marked partially audited until line-by-line source comparison",
+]
+
 var _failures := 0
 
 
@@ -113,6 +125,8 @@ func _check_inventory_text(inventory: String) -> void:
 		_expect(inventory.contains("`%s`" % source_file), "%s unsupported parent class is listed" % source_file)
 	for source_file in SOURCE_ONLY_CLASSES:
 		_expect(inventory.contains("`%s`" % source_file), "%s source-only class is listed" % source_file)
+	for snippet in EXPECTED_STATUS_SNIPPETS:
+		_expect(inventory.contains(snippet), "inventory status snippet is current: %s" % snippet)
 
 
 func _check_catalog_prefabs_are_documented(inventory: String) -> void:
