@@ -29,7 +29,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `TubeBrush.gd` | `TubeBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Texture atlas count handling, UV-rate division, and minimal-frame routing now match Open Brush directly, with distance atlas branch coverage. Needs full branch audit. |
 | `HullBrush.gd` | `HullBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Batched finalization now runs the Open Brush `SimplifyAtEnd` geometry pass and simplification tolerance path. Native hull backend and degenerate cases need explicit parity review. |
 | `ConcaveHullBrush.gd` | `ConcaveHullBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Source-formula knot conversions and smooth hull geometry now have focused parity coverage. Known degenerate hull behavior needs explicit classification. |
-| `SprayBrush.gd` | `SprayBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Random salt wraparound now matches Open Brush `kSaltMaxQuadsPerKnot`. Particle layout still needs full audit. |
+| `SprayBrush.gd` | `SprayBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Random salt wraparound now matches Open Brush `kSaltMaxQuadsPerKnot`. Spawn interval, random size, rotation variance, position variance, randomized alpha, atlas UV selection, multi-particle spacing, and tangent/backface output now have focused source-formula coverage. Full Open Brush reference fixture comparison still required. |
 | `GeniusParticlesBrush.gd` | `GeniusParticlesBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Batched finalization now explicitly runs particle finalization like Open Brush. UV0.w now stores Open Brush particle birth time, negative in preview mode. Texture atlas UVs, randomized alpha/offset/roll branches, pointer-travel distance override, straight-edge proxy flag, decay length-cache reduction, salt offset after decay, and finalization/length-cache control flow now have focused parity coverage. Particle layout and seed behavior still need full reference fixture comparison. |
 | `BubbleWandBrush.gd` | `BubbleWandBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. BubbleWand-specific UVW post-processing, original-position UV1 storage, and direct finalization control flow now have focused coverage. Needs full branch audit. |
 | `BlocksBrushScript.gd` | `BlocksBrushScript.cs` | Partially audited, active repair started | Existing parity tests cover the no-op contract and vertex layout. Batched finalization is now explicitly no-op like Open Brush. Needs full catalog usage audit. |
@@ -101,6 +101,7 @@ Implemented so far:
 - Open Brush `GeniusParticlesBrush` randomized alpha, size variance, positional scatter, and roll packing formulas now have focused coverage.
 - Open Brush `GeniusParticlesBrush` pointer-travel distance override, straight-edge proxy flag, preview decay length-cache reduction, and decayed-knot salt offset now have focused coverage.
 - Open Brush `SprayBrush.CalculateSalt` modulo behavior for dense knots.
+- Open Brush `SprayBrush` spawn interval formula and seeded random particle layout branches now have focused coverage, including random size, rotation variance, position scatter, randomized alpha, atlas UV selection, multi-particle spacing, and tangent/backface sign output.
 - Catalog replay coverage now verifies all normal `Spray` and `MiddpointPlusLifetimeGeomSpray` brushes generate complete particle mesh channels through the shared runtime replay path.
 - Removal of the unused non-Open-Brush `MidpointPlusLifetimeSprayBrush.create_particle_geometry` helper.
 - Removal of unused `GeometryPool.append_mesh_data` fallback color/texcoord fill parameters; mesh appends now require complete source channel data instead of carrying dormant substitute-channel behavior.
@@ -210,7 +211,7 @@ Focused tests added/updated:
 - `Tests/GDScript/BlocksBrushParityTest.gd`
   - checks BlocksBrush layout flags, no-op update/spawn contract, solitary finalization, and runtime batched finalization no-op behavior.
 - `Tests/GDScript/SprayBrushParityTest.gd`
-  - checks Spray geometry layout, double-sided output, single-sided descriptor handling, UV/tangent generation, batched runtime finalization, Open Brush salt wraparound, and preview decay aging with elapsed time.
+  - checks Spray geometry layout, double-sided output, single-sided descriptor handling, spawn interval metadata, seeded random size/rotation/position/alpha formulas, atlas UV selection, UV/tangent generation, batched runtime finalization, Open Brush salt wraparound, and preview decay aging with elapsed time.
 - `Tests/GDScript/SprayCatalogReplayTest.gd`
   - replays all four normal catalog `Spray` brushes and all three normal catalog `MiddpointPlusLifetimeGeomSpray` brushes through `BrushStrokeReplay`,
   - verifies each replay produces particle-quad-aligned mesh data with complete normal/color/UV0/tangent channels and the expected UV1 presence or absence for each prefab family.
@@ -475,6 +476,14 @@ Additional validation after adding `GeniusParticlesBrush` pointer-travel, decay 
 ```
 
 Result: all three commands exited successfully.
+
+Additional validation after adding `SprayBrush` seeded particle layout and spawn-interval coverage:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SprayBrushParityTest.gd
+```
+
+Result: command exited successfully.
 
 Open Brush Unity editor project compile check also run after installing the exporter:
 
