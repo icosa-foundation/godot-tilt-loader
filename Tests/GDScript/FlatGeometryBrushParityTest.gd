@@ -9,6 +9,7 @@ func _init() -> void:
 func _run() -> void:
 	_check_distance_uv_double_sided_geometry()
 	_check_stretch_uv_mode()
+	_check_batched_finalization_trims_short_post_break_tail()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_FLATBRUSH: all checks passed")
 
@@ -54,6 +55,20 @@ func _check_stretch_uv_mode() -> void:
 	brush.finalize_solitary_brush()
 	brush.free()
 
+func _check_batched_finalization_trims_short_post_break_tail() -> void:
+	var brush := _make_flat_brush(FlatGeometryBrush.UVStyle.DISTANCE, false)
+	brush.m_bM11Compatibility = false
+	_seed_short_post_break_tail(brush)
+	_expect_equal(brush.m_geometry.num_verts(), 10, "flat batched seeded vertex count")
+	_expect_equal(brush.m_geometry.num_tri_indices(), 18, "flat batched seeded tri index count")
+
+	brush.finalize_batched_brush()
+
+	_expect_equal(brush.m_knots.size(), 4, "flat batched trims short tail knots")
+	_expect_equal(brush.mesh_data.vertices.size(), 6, "flat batched trimmed vertex count")
+	_expect_equal(brush.mesh_data.triangles.size(), 12, "flat batched trimmed tri index count")
+	brush.free()
+
 func _make_flat_brush(uv_style: int, backfaces: bool) -> FlatGeometryBrush:
 	var desc := BrushDescriptor.new()
 	desc.m_DurableName = "Flat"
@@ -75,6 +90,24 @@ func _make_flat_brush(uv_style: int, backfaces: bool) -> FlatGeometryBrush:
 	brush.init_brush(desc, TrTransform.identity())
 	brush.set_random_seed(0)
 	return brush
+
+func _seed_short_post_break_tail(brush: FlatGeometryBrush) -> void:
+	brush.m_knots.clear()
+	brush.m_knots.append(_make_knot(0, 0, 0, 0))
+	brush.m_knots.append(_make_knot(0, 4, 0, 2))
+	brush.m_knots.append(_make_knot(2, 4, 2, 2))
+	brush.m_knots.append(_make_knot(6, 0, 4, 0))
+	brush.m_knots.append(_make_knot(6, 4, 4, 2))
+	brush.resize_geometry()
+
+func _make_knot(i_vert: int, n_vert: int, i_tri: int, n_tri: int) -> GeometryBrush.Knot:
+	var knot := GeometryBrush.Knot.new()
+	knot.iVert = i_vert
+	knot.nVert = n_vert
+	knot.iTri = i_tri
+	knot.nTri = n_tri
+	knot.point = ControlPoint.create(Vector3.ZERO, Quaternion.IDENTITY, 1.0, 0)
+	return knot
 
 func _expect(condition: bool, label: String) -> void:
 	if not condition:

@@ -20,7 +20,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `QuadStripBrushStretchUV.gd` | `QuadStripBrushStretchUV.cs` | Partially tested | UV tests exist. Needs line-by-line audit after base `QuadStripBrush` settles. |
 | `QuadStripBrushDistanceUV.gd` | `QuadStripBrushDistanceUV.cs` | Partially audited, active repair started | Backface UV/color/tangent mirroring has been ported and tested. Needs full line-by-line audit. |
 | `QuadStripUnitizedUVBrush.gd` | `QuadStripUnitizedUVBrush.cs` | Partially audited, active repair started | Backface UV/tangent mirroring has been ported and tested. Needs full line-by-line audit. |
-| `FlatGeometryBrush.gd` | `FlatGeometryBrush.cs` | Partially tested | Existing parity tests cover selected behavior. Needs full branch audit. |
+| `FlatGeometryBrush.gd` | `FlatGeometryBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Batched finalization now trims short post-break tails like Open Brush. Needs full branch audit. |
 | `ThickGeometryBrush.gd` | `ThickGeometryBrush.cs` | Partially tested | Existing parity tests cover selected behavior. Needs full branch audit. |
 | `TubeBrush.gd` | `TubeBrush.cs` | Partially tested | Existing parity tests cover selected behavior. Needs full branch audit. |
 | `HullBrush.gd` | `HullBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Native hull backend and degenerate cases need explicit parity review. |
@@ -95,6 +95,7 @@ Focused tests added/updated:
   - checks quad-strip append-time colors, opacity, previous-edge carryover, and hue-shifted backfaces use Unity `Color32` byte truncation.
 - `Tests/GDScript/FlatGeometryBrushParityTest.gd`
   - checks generated flat geometry vertex colors use Unity `Color32` byte truncation for RGB and alpha.
+  - checks batched finalization trims short non-compatibility post-break tails before mesh export, matching Open Brush `FinalizeBatchedBrush`.
 - `Tests/GDScript/ThickGeometryBrushParityTest.gd`
   - checks generated thick geometry vertex colors use Unity `Color32` byte truncation for RGB and alpha.
 - Existing focused brush tests for `HullBrush`, `ConcaveHullBrush`, `SprayBrush`, `MidpointPlusLifetimeSprayBrush`, `TubeBrush`, `SliceBrush`, `PrintableBrush`, `SquareBrush`, `Square3DPrintBrush`, and `TetraBrush`

@@ -83,6 +83,10 @@ func finalize_solitary_brush() -> void:
 	trim_short_stroke_after_break()
 	super.finalize_solitary_brush()
 
+func finalize_batched_brush() -> void:
+	trim_short_stroke_after_break()
+	super.finalize_batched_brush()
+
 func on_changed_frame_knots(knot_index: int) -> void:
 	var min_move := K_MIN_MOVE_LENGTH_METERS_PS * App.METERS_TO_UNITS * pointer_to_local()
 	var knot_start := knot_index - 1 if m_knots[knot_index - 1].has_geometry() else knot_index
