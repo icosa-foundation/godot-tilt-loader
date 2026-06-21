@@ -94,6 +94,7 @@ Implemented so far:
 - Open Brush `Square3DPrintBrush` parity-flip topology branch coverage for double-back strokes.
 - Open Brush `SliceBrush` initial frame direction/normal orientation behavior, routed through the shared `ComputeSurfaceFrameNew` parity helper.
 - Open Brush `HullBrush` `SimplifyAtEnd` batched finalization route and simplification tolerance pass.
+- Open Brush `MathUtils.ComputeMinimalRotationFrame` forward-axis convention for Godot `Basis.looking_at`.
 
 Focused tests added/updated:
 
@@ -139,6 +140,8 @@ Focused tests added/updated:
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd`
   - walks the real manifest/catalog and verifies all normal `Line`, `LineWithWidth`, `UnitizedUV`, and `DistanceUV` prefabs route to the repaired quad-strip runtime classes.
   - verifies every mesh-affecting prefab field in the active manifest/catalog is applied to the created runtime brush instance, including quad-strip width storage, flat/thick/tube UV style, flat offset flags, hull parameters, concave hull parameters, and tube shape parameters.
+- `Tests/GDScript/UtilityParityTest.gd`
+  - checks shared utility behavior including `MathUtils.ComputeMinimalRotationFrame` forward-axis parity.
 - `Tests/GDScript/CafeStrokeFixturesReplayTest.gd`
   - replays checked-in cafe stroke fixtures through `OpenBrushStrokeBridge` and `BrushStrokeReplay` without loading the full cafe `.tilt`,
   - verifies the cafe legacy Ink GUID resolves to the runtime `Ink` descriptor and `QuadStripBrushStretchUV`,
