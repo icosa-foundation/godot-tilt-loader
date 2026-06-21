@@ -8,6 +8,7 @@ func _init() -> void:
 
 func _run() -> void:
 	_check_distance_uv_geometry()
+	_check_distance_uv_atlas_branch()
 	_check_unitized_uv_geometry()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_TETRABRUSH: all checks passed")
@@ -41,6 +42,22 @@ func _check_distance_uv_geometry() -> void:
 	_expect(brush.m_geometry == null, "tetra releases geometry")
 	brush.free()
 
+func _check_distance_uv_atlas_branch() -> void:
+	var brush := _make_tetra_brush(TetraBrush.UVStyle.DISTANCE, 4)
+	brush.m_TextureEdgeChop = 0.125
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "tetra atlas update keeps")
+	brush.apply_changes_to_visuals()
+
+	var random01 := brush.m_rng.in01(brush.m_knots[1].iVert - 1)
+	var atlas := int(random01 * 3331.0) % brush.m_Desc.m_TextureAtlasV
+	var v0 := (atlas + brush.m_TextureEdgeChop) / float(brush.m_Desc.m_TextureAtlasV)
+	var v1 := (atlas + 1.0 - brush.m_TextureEdgeChop) / float(brush.m_Desc.m_TextureAtlasV)
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[0].x, random01, "tetra atlas u")
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[0].y, v0, "tetra atlas v0")
+	_expect_close(brush.m_geometry.m_Texcoord0.v2[3].y, v1, "tetra atlas v1")
+	brush.finalize_solitary_brush()
+	brush.free()
+
 func _check_unitized_uv_geometry() -> void:
 	var brush := _make_tetra_brush(TetraBrush.UVStyle.UNITIZED)
 	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "tetra unitized update keeps")
@@ -52,13 +69,13 @@ func _check_unitized_uv_geometry() -> void:
 	brush.finalize_solitary_brush()
 	brush.free()
 
-func _make_tetra_brush(uv_style: int) -> TetraBrush:
+func _make_tetra_brush(uv_style: int, texture_atlas_v: int = 1) -> TetraBrush:
 	var desc := BrushDescriptor.new()
 	desc.m_DurableName = "Tetra"
 	desc.m_RenderBackfaces = false
 	desc.m_BackIsInvisible = false
 	desc.m_M11Compatibility = false
-	desc.m_TextureAtlasV = 1
+	desc.m_TextureAtlasV = texture_atlas_v
 	desc.m_TileRate = 1.0
 	desc.m_PressureSizeRange = Vector2(1.0, 1.0)
 	desc.m_PressureOpacityRange = Vector2(1.0, 1.0)

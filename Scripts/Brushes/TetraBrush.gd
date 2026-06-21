@@ -100,7 +100,7 @@ func on_changed_make_geometry(knot_index: int) -> void:
 
 			var random01 := m_rng.in01(cur.iVert - 1)
 			var u0 := 0.0 if m_uvStyle == UVStyle.UNITIZED else random01
-			var num_v: int = max(m_Desc.m_TextureAtlasV, 1)
+			var num_v: int = m_Desc.m_TextureAtlasV
 			var atlas := int(random01 * 3331.0) % num_v
 			var v0 := (atlas + m_TextureEdgeChop) / float(num_v)
 			var v1 := (atlas + 1.0 - m_TextureEdgeChop) / float(num_v)

@@ -29,7 +29,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `GeniusParticlesBrush.gd` | `GeniusParticlesBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Batched finalization now explicitly runs particle finalization like Open Brush. UV0.w now stores Open Brush particle birth time, negative in preview mode. Texture atlas UVs and finalization/length-cache control flow now have focused parity coverage. Particle layout and seed behavior still need full audit. |
 | `BubbleWandBrush.gd` | `BubbleWandBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. BubbleWand-specific UVW post-processing, original-position UV1 storage, and direct finalization control flow now have focused coverage. Needs full branch audit. |
 | `BlocksBrushScript.gd` | `BlocksBrushScript.cs` | Partially audited, active repair started | Existing parity tests cover the no-op contract and vertex layout. Batched finalization is now explicitly no-op like Open Brush. Needs full catalog usage audit. |
-| `TetraBrush.gd` | `TetraBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Needs full branch audit. |
+| `TetraBrush.gd` | `TetraBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Texture atlas count handling now matches Open Brush directly, with distance atlas and texture-edge chop coverage. Needs full branch audit. |
 | `SquareBrush.gd` | `SquareBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Needs full branch audit. |
 | `Square3DPrintBrush.gd` | `Square3DPrintBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Needs full branch audit. |
 | `SliceBrush.gd` | `SliceBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Needs full branch audit. |
@@ -90,6 +90,7 @@ Implemented so far:
 - Open Brush `TubeBrush` texture atlas count handling and direct UV-rate division behavior, with atlas branch coverage for distance UVs.
 - Open Brush `BubbleWandBrush` finalization control flow, UVW formula behavior, and UV1 original-position storage coverage.
 - Open Brush `BlocksBrushScript` explicit no-op batched finalization behavior.
+- Open Brush `TetraBrush` texture atlas count handling and distance atlas branch coverage, including texture edge chop.
 
 Focused tests added/updated:
 
@@ -112,6 +113,8 @@ Focused tests added/updated:
   - checks Thick distance and stretch UV texture atlas branch formulas for `m_TextureAtlasV > 1`.
 - Existing focused brush tests for `HullBrush`, `ConcaveHullBrush`, `SprayBrush`, `MidpointPlusLifetimeSprayBrush`, `TubeBrush`, `SliceBrush`, `PrintableBrush`, `SquareBrush`, `Square3DPrintBrush`, and `TetraBrush`
   - now check generated vertex colors use Unity `Color32` byte truncation at their covered write points.
+- `Tests/GDScript/TetraBrushParityTest.gd`
+  - checks Tetra distance and unitized UV geometry, generated topology, vertex color truncation, and distance UV texture atlas branch formulas for `m_TextureAtlasV > 1` with texture edge chop.
 - `Tests/GDScript/TubeBrushParityTest.gd`
   - checks default soft tube geometry, hard-edge radius-in-UV layout, stretch UV remapping, shape modifier displacement, and distance UV texture atlas branch formulas for `m_TextureAtlasV > 1`.
 - `Tests/GDScript/BubbleWandBrushParityTest.gd`
