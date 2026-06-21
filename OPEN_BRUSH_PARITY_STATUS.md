@@ -117,6 +117,7 @@ Implemented so far:
 - `TiltBrushManifest.append_from()` now de-duplicates merged manifests by brush GUID instead of object identity and lets normal-brush entries take precedence over compatibility entries. This removes duplicate catalog GUID warnings and registers 97 live normal brushes when `Manifest.asset` and `Manifest_Experimental.asset` are combined.
 - `Tests/GDScript/BrushRuntimeRegistryParityTest.gd` now explicitly checks the promoted normal brushes that used to be masked by compatibility entries: `DotMarker` routes to `SprayBrush`, `Plasma` routes to `QuadStripBrushDistanceUV`, and `TaperedMarker_Flat` routes to `FlatGeometryBrush`.
 - `Tests/GDScript/BrushRuntimeRegistryParityTest.gd` now checks that a normal brush descriptor with no runtime factory is not registered and that replaying it through `BrushStrokeReplay` returns no mesh instead of generating fallback geometry.
+- `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd` now checks all 97 merged-manifest normal brushes route to the expected runtime class and verifies the expected normal prefab-family counts, including the merged `Line` count of 20.
 
 Focused tests added/updated:
 
@@ -204,6 +205,8 @@ Focused tests added/updated:
 - `Tests/GDScript/BrushRuntimeRegistryParityTest.gd`
   - now checks `DotMarker`, `Plasma`, and `TaperedMarker_Flat` remain normal live brushes after `Manifest_Experimental` is merged over `Manifest`.
   - now checks an unknown normal prefab with no factory fails replay without producing fallback mesh data.
+- `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd`
+  - now checks every normal merged-manifest prefab family has the expected route and count before validating mesh-affecting prefab fields.
 - `Tests/GDScript/CafeStrokeFixtureExtractProbe.gd`
   - extracts a source fixture from `res://Temp/TiltEvidence/brush_cafe_experimental.tilt`,
   - defaults to stroke index 150 and accepts `--source-stroke-index=...`,
@@ -252,7 +255,7 @@ Result: command exited successfully with existing warning noise.
 Known validation noise:
 
 - Godot reported an existing resource-leak warning after a scene-style test.
-- Catalog loading still reports existing missing GUID and duplicate GUID warnings.
+- Catalog loading now explicitly logs unsupported experimental ParentBrush composite skips instead of missing GUID or duplicate GUID warnings.
 - Cafe importer validation reports legacy GUID remaps, compatibility-brush skips, and several material UID warnings; these do not currently fail the runtime replay test.
 - The cafe Stars fixture reports a material UID warning for `Stars.tres`; this does not currently fail fixture replay.
 

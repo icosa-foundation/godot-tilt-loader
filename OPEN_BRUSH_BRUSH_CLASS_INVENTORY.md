@@ -71,7 +71,7 @@ The normal live registry currently has factories for these prefab families:
 
 | Prefab family | Runtime class | Active normal brush count | Durable-name examples |
 | --- | --- | --- | --- |
-| `Line` | `QuadStripBrushStretchUV` | 22 | `Ink`, `Light`, `VelvetInk`, `WetPaint` |
+| `Line` | `QuadStripBrushStretchUV` | 20 | `Ink`, `Light`, `VelvetInk`, `WetPaint` |
 | `LineWithWidth` | `QuadStripBrushStretchUV` | 1 | `Hypercolor` |
 | `DistanceUV` | `QuadStripBrushDistanceUV` | 19 | `DuctTape`, `Marker`, `Paper`, `Rainbow` |
 | `UnitizedUV` | `QuadStripUnitizedUVBrush` | 1 | `Wireframe` |

@@ -2,6 +2,38 @@ extends SceneTree
 
 var _failures := 0
 
+const EXPECTED_NORMAL_PREFAB_COUNTS := {
+	"ConcaveHullPrefab": 1,
+	"DistanceUV": 19,
+	"FlatDistance": 1,
+	"FlatStretch": 2,
+	"GeniusParticle": 7,
+	"HullPrefab": 4,
+	"HullPrefabPassthrough": 1,
+	"HullPrefabSmooth": 1,
+	"Line": 20,
+	"LineWithWidth": 1,
+	"Lofted": 1,
+	"LoftedHueShift": 1,
+	"MiddpointPlusLifetimeGeomSpray": 3,
+	"MidpointPlusOffset": 3,
+	"Slice": 1,
+	"Spray": 4,
+	"Square3DPrintBrush": 1,
+	"SquareBrush_prefab": 1,
+	"ThickDistance": 1,
+	"Tube_Petal": 1,
+	"Tube_Rain": 1,
+	"Tube_Sparks": 1,
+	"Tube_Spikes": 1,
+	"Tube_Tapered": 1,
+	"TubeBrush_Comet": 1,
+	"TubeDistanceUV": 14,
+	"TubeDistanceUVSin": 1,
+	"TubeStretchUV": 2,
+	"UnitizedUV": 1,
+}
+
 func _init() -> void:
 	_run()
 	quit(1 if _failures > 0 else 0)
@@ -12,6 +44,7 @@ func _run() -> void:
 	_check_midpoint_plus_offset_metadata()
 	_check_thick_uv_metadata()
 	_check_catalog_quad_strip_prefab_routes()
+	_check_all_normal_catalog_prefabs_route_to_expected_runtime_classes()
 	_check_all_catalog_mesh_metadata_is_applied()
 	if _failures == 0:
 		print("GDSCRIPT_REGISTRY_METADATA: all checks passed")
@@ -76,6 +109,99 @@ func _check_catalog_quad_strip_prefab_routes() -> void:
 			brush.free()
 		checked += 1
 	_expect(checked > 0, "catalog contains normal quad-strip brushes")
+
+func _check_all_normal_catalog_prefabs_route_to_expected_runtime_classes() -> void:
+	var manifest := _load_manifest()
+	BrushCatalog.init(manifest)
+	BrushRuntimeRegistry.register_supported_brushes(manifest)
+	var compatibility := {}
+	for brush in manifest.CompatibilityBrushes:
+		compatibility[_brush_key(brush)] = true
+	var actual_counts := {}
+	var checked := 0
+	for desc in manifest.Brushes:
+		if desc == null or compatibility.has(_brush_key(desc)):
+			continue
+		var prefab := String(desc.prefab_fields.get("prefab_name", ""))
+		actual_counts[prefab] = int(actual_counts.get(prefab, 0)) + 1
+		var brush := BrushRuntimeRegistry.create_brush_for_descriptor(desc)
+		_expect(brush != null, "%s creates runtime brush for prefab %s" % [desc.m_DurableName, prefab])
+		if brush != null:
+			_expect_equal(_runtime_class_name(brush), _expected_runtime_class_name(desc), "%s runtime route" % desc.m_DurableName)
+			brush.free()
+		checked += 1
+	_expect_equal(checked, 97, "merged manifest normal live brush count")
+	for prefab in EXPECTED_NORMAL_PREFAB_COUNTS.keys():
+		_expect_equal(int(actual_counts.get(prefab, 0)), int(EXPECTED_NORMAL_PREFAB_COUNTS[prefab]), "%s merged normal prefab count" % prefab)
+	for prefab in actual_counts.keys():
+		_expect(EXPECTED_NORMAL_PREFAB_COUNTS.has(prefab), "%s has documented expected normal prefab count" % prefab)
+
+func _expected_runtime_class_name(desc: BrushDescriptor) -> String:
+	var prefab := String(desc.prefab_fields.get("prefab_name", ""))
+	match prefab:
+		"Line", "LineWithWidth":
+			return "QuadStripBrushStretchUV"
+		"UnitizedUV":
+			return "QuadStripUnitizedUVBrush"
+		"DistanceUV":
+			return "QuadStripBrushDistanceUV"
+		"FlatDistance", "FlatStretch", "MidpointPlusOffset":
+			return "FlatGeometryBrush"
+		"GeniusParticle":
+			return "GeniusParticlesBrush"
+		"Spray":
+			return "SprayBrush"
+		"MiddpointPlusLifetimeGeomSpray":
+			return "MidpointPlusLifetimeSprayBrush"
+		"ConcaveHullPrefab":
+			return "ConcaveHullBrush"
+		"HullPrefab", "HullPrefabPassthrough", "HullPrefabSmooth":
+			return "HullBrush"
+		"Square3DPrintBrush":
+			return "Square3DPrintBrush"
+		"SquareBrush_prefab":
+			return "SquareBrush"
+		"Slice":
+			return "SliceBrush"
+		"ThickDistance":
+			return "ThickGeometryBrush"
+		"TubeDistanceUV", "TubeDistanceUVSin", "TubeStretchUV", "Tube_Petal", "Tube_Rain", "Tube_Sparks", "Tube_Spikes", "Tube_Tapered", "TubeBrush_Comet", "Lofted", "LoftedHueShift":
+			return "BubbleWandBrush" if desc.m_DurableName == "BubbleWand" else "TubeBrush"
+		_:
+			return "<unknown>"
+
+func _runtime_class_name(brush: BaseBrushScript) -> String:
+	if brush is BubbleWandBrush:
+		return "BubbleWandBrush"
+	if brush is TubeBrush:
+		return "TubeBrush"
+	if brush is QuadStripBrushStretchUV:
+		return "QuadStripBrushStretchUV"
+	if brush is QuadStripBrushDistanceUV:
+		return "QuadStripBrushDistanceUV"
+	if brush is QuadStripUnitizedUVBrush:
+		return "QuadStripUnitizedUVBrush"
+	if brush is FlatGeometryBrush:
+		return "FlatGeometryBrush"
+	if brush is ThickGeometryBrush:
+		return "ThickGeometryBrush"
+	if brush is GeniusParticlesBrush:
+		return "GeniusParticlesBrush"
+	if brush is SprayBrush:
+		return "SprayBrush"
+	if brush is MidpointPlusLifetimeSprayBrush:
+		return "MidpointPlusLifetimeSprayBrush"
+	if brush is ConcaveHullBrush:
+		return "ConcaveHullBrush"
+	if brush is HullBrush:
+		return "HullBrush"
+	if brush is Square3DPrintBrush:
+		return "Square3DPrintBrush"
+	if brush is SquareBrush:
+		return "SquareBrush"
+	if brush is SliceBrush:
+		return "SliceBrush"
+	return brush.get_class()
 
 func _check_all_catalog_mesh_metadata_is_applied() -> void:
 	var manifest := _load_manifest()
