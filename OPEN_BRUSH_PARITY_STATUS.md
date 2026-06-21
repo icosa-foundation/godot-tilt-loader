@@ -118,6 +118,7 @@ Implemented so far:
 - `Tests/GDScript/BrushRuntimeRegistryParityTest.gd` now explicitly checks the promoted normal brushes that used to be masked by compatibility entries: `DotMarker` routes to `SprayBrush`, `Plasma` routes to `QuadStripBrushDistanceUV`, and `TaperedMarker_Flat` routes to `FlatGeometryBrush`.
 - `Tests/GDScript/BrushRuntimeRegistryParityTest.gd` now checks that a normal brush descriptor with no runtime factory is not registered and that replaying it through `BrushStrokeReplay` returns no mesh instead of generating fallback geometry.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd` now checks all 97 merged-manifest normal brushes route to the expected runtime class and verifies the expected normal prefab-family counts, including the merged `Line` count of 20.
+- `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd` now checks all seven normal catalog `GeniusParticle` brushes initialize the Open Brush particle formulas from their real descriptor metadata, including particle rate, particle speed, random alpha, initial rotation range, spawn interval, particle size scale, and UV channel layout.
 - `Tests/GDScript/LiveVsTiltUvParityTest.gd` now compares vertex positions as well as primary UVs and includes the promoted normal brushes `DotMarker`, `Plasma`, and `TaperedMarker_Flat` across direct replay, memory replay, pointer math, and live object paths.
 
 Focused tests added/updated:
@@ -173,6 +174,7 @@ Focused tests added/updated:
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd`
   - walks the real manifest/catalog and verifies all normal `Line`, `LineWithWidth`, `UnitizedUV`, and `DistanceUV` prefabs route to the repaired quad-strip runtime classes.
   - verifies every mesh-affecting prefab field in the active manifest/catalog is applied to the created runtime brush instance, including quad-strip width storage, flat/thick/tube UV style, flat offset flags, hull parameters, concave hull parameters, and tube shape parameters.
+  - verifies all normal catalog `GeniusParticle` brushes use nonzero Open Brush particle formula inputs and initialize spawn interval, particle size scale, random alpha, initial rotation range, and UV channel layout from descriptor metadata.
 - `Tests/GDScript/UtilityParityTest.gd`
   - checks shared utility behavior including `MathUtils.ComputeMinimalRotationFrame` forward-axis parity.
 - `Tests/GDScript/BrushLifecycleParityTest.gd`

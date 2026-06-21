@@ -43,6 +43,7 @@ func _run() -> void:
 	_check_flat_uv_metadata()
 	_check_midpoint_plus_offset_metadata()
 	_check_thick_uv_metadata()
+	_check_genius_particle_catalog_metadata()
 	_check_catalog_quad_strip_prefab_routes()
 	_check_all_normal_catalog_prefabs_route_to_expected_runtime_classes()
 	_check_all_catalog_mesh_metadata_is_applied()
@@ -80,6 +81,41 @@ func _check_thick_uv_metadata() -> void:
 	var brush := _create_brush("ThickDistance", {"m_uvStyle": ThickGeometryBrush.UVStyle.DISTANCE}, "ThickGeometry")
 	_expect(brush is ThickGeometryBrush, "ThickDistance creates thick brush")
 	_expect_equal((brush as ThickGeometryBrush).m_uvStyle, ThickGeometryBrush.UVStyle.DISTANCE, "ThickDistance uv style")
+
+func _check_genius_particle_catalog_metadata() -> void:
+	var manifest := _load_manifest()
+	BrushCatalog.init(manifest)
+	BrushRuntimeRegistry.register_supported_brushes(manifest)
+	var compatibility := {}
+	for brush in manifest.CompatibilityBrushes:
+		compatibility[_brush_key(brush)] = true
+
+	var checked := 0
+	for desc in manifest.Brushes:
+		if desc == null or compatibility.has(_brush_key(desc)):
+			continue
+		if String(desc.prefab_fields.get("prefab_name", "")) != "GeniusParticle":
+			continue
+		var brush := BrushRuntimeRegistry.create_brush_for_descriptor(desc)
+		_expect(brush is GeniusParticlesBrush, "%s creates GeniusParticlesBrush" % desc.m_DurableName)
+		if brush == null:
+			continue
+		_expect(desc.m_ParticleRate > 0.0, "%s particle rate is nonzero for Open Brush spawn formula" % desc.m_DurableName)
+		_expect(desc.m_BrushSizeRange.x != 0.0, "%s brush size min is nonzero for Open Brush particle scale formula" % desc.m_DurableName)
+		brush.m_BaseSize_PS = 1.0
+		brush.init_brush(desc, TrTransform.identity())
+		var genius := brush as GeniusParticlesBrush
+		var expected_spawn_interval := (GeniusParticlesBrush.K_SPAWN_INTERVAL_PS * genius.pointer_to_local()) / desc.m_ParticleRate
+		var expected_particle_size_scale := desc.m_ParticleSpeed / desc.m_BrushSizeRange.x
+		_expect_close(genius.m_SpawnInterval, expected_spawn_interval, "%s particle spawn interval" % desc.m_DurableName)
+		_expect_close(genius.m_ParticleSizeScale, expected_particle_size_scale, "%s particle size scale" % desc.m_DurableName)
+		_expect_equal(genius.m_Desc.m_RandomizeAlpha, desc.m_RandomizeAlpha, "%s randomize alpha descriptor" % desc.m_DurableName)
+		_expect_close(genius.m_Desc.m_ParticleInitialRotationRange, desc.m_ParticleInitialRotationRange, "%s initial rotation range descriptor" % desc.m_DurableName)
+		_expect_equal(genius.m_geometry.get_layout().texcoord0.size, 4, "%s GeniusParticle uv0 layout" % desc.m_DurableName)
+		_expect_equal(genius.m_geometry.get_layout().texcoord1.size, 3, "%s GeniusParticle uv1 layout" % desc.m_DurableName)
+		brush.free()
+		checked += 1
+	_expect_equal(checked, EXPECTED_NORMAL_PREFAB_COUNTS["GeniusParticle"], "catalog GeniusParticle metadata count")
 
 func _check_catalog_quad_strip_prefab_routes() -> void:
 	var manifest := _load_manifest()
@@ -309,6 +345,10 @@ func _expect(condition: bool, label: String) -> void:
 func _expect_equal(actual: Variant, expected: Variant, label: String) -> void:
 	if actual != expected:
 		_fail("%s expected %s but got %s" % [label, expected, actual])
+
+func _expect_close(actual: float, expected: float, label: String) -> void:
+	if not is_equal_approx(actual, expected):
+		_fail("%s expected %.8f but got %.8f" % [label, expected, actual])
 
 func _fail(message: String) -> void:
 	_failures += 1

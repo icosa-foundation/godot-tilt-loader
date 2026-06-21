@@ -153,7 +153,9 @@ func _make_genius_brush(
 	initial_rotation_range: float = 0.0
 ) -> GeniusParticlesBrush:
 	var desc := BrushDescriptor.new()
-	desc.m_DurableName = "GeniusParticles"
+	desc.name = "Stars"
+	desc.m_Guid = "0eb4db27-3f82-408d-b5a1-19ebd7d5b711"
+	desc.m_DurableName = "Stars"
 	desc.m_RenderBackfaces = false
 	desc.m_BackIsInvisible = false
 	desc.m_M11Compatibility = false
