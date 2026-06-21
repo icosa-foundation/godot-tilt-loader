@@ -24,7 +24,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `QuadStripBrushStretchUV.gd` | `QuadStripBrushStretchUV.cs` | Partially audited, active repair started | UV method formulas now have line-by-line source comparison coverage for stretch remapping, width-in-UV0.z export, backface mirroring, texture atlas branch behavior, and pending-request union/flush behavior. Godot runtime finalization flushes pending requests before export because this integration does not always pass through Unity's visual mesh update step. Base `QuadStripBrush` still needs full audit. |
 | `QuadStripBrushDistanceUV.gd` | `QuadStripBrushDistanceUV.cs` | Partially audited, active repair started | UV method formulas now have line-by-line source comparison coverage for distance atlas behavior, opacity fade quantization, backface UV/color/tangent mirroring, tangent-request union/flush behavior, preview reset clearing, and the no-op per-quad hook. Godot runtime finalization flushes pending tangents before export for the same integration reason as stretch UV. Base `QuadStripBrush` still needs full audit. |
 | `QuadStripUnitizedUVBrush.gd` | `QuadStripUnitizedUVBrush.cs` | Partially audited, active repair started | Unitized UV method layout, tangent generation range, backface UV/tangent mirroring, and no-op per-quad/per-segment hooks now have line-by-line source comparison coverage. Base `QuadStripBrush` still needs full audit. |
-| `FlatGeometryBrush.gd` | `FlatGeometryBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Distance/stretch UV texture-atlas branches now use the descriptor atlas count directly like Open Brush, with focused atlas coverage. UV1 offset vectors for offset-in-texcoord1 brushes now have focused coverage. Batched finalization trims short post-break tails like Open Brush. Needs full branch audit. |
+| `FlatGeometryBrush.gd` | `FlatGeometryBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Distance/stretch UV texture-atlas branches now use the descriptor atlas count directly like Open Brush, with focused atlas coverage. UV1 offset vectors for offset-in-texcoord1 brushes, non-M11 smoothing/shared-vertex output, continuation tangents, and double-back break behavior now have focused coverage. Batched finalization trims short post-break tails like Open Brush. Needs full branch audit. |
 | `ThickGeometryBrush.gd` | `ThickGeometryBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Texture atlas count handling now matches Open Brush directly, with distance/stretch atlas branch coverage. Needs full branch audit. |
 | `TubeBrush.gd` | `TubeBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Texture atlas count handling, UV-rate division, and minimal-frame routing now match Open Brush directly, with distance atlas branch coverage. Needs full branch audit. |
 | `HullBrush.gd` | `HullBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Batched finalization now runs the Open Brush `SimplifyAtEnd` geometry pass and simplification tolerance path. Native hull backend and degenerate cases need explicit parity review. |
@@ -106,6 +106,7 @@ Implemented so far:
 - Catalog replay coverage now verifies every normal quad-strip and flat-geometry prefab family generates complete descriptor-driven mesh channels through the shared runtime replay path.
 - Open Brush `FlatGeometryBrush` texture atlas count handling now matches Open Brush directly, with distance/stretch atlas branch coverage.
 - Open Brush `FlatGeometryBrush` offset-in-texcoord1 UV1 vector behavior now has focused coverage and remains covered by catalog replay for all normal `MidpointPlusOffset` brushes.
+- Open Brush `FlatGeometryBrush` non-M11 smoothing/shared-vertex output, continuation tangent generation, and double-back break behavior now have focused lifecycle coverage.
 - Open Brush `ThickGeometryBrush` texture atlas count handling and atlas branch coverage for distance/stretch UVs.
 - Open Brush `TubeBrush` texture atlas count handling and direct UV-rate division behavior, with atlas branch coverage for distance UVs.
 - Catalog replay coverage now verifies every normal tube-derived brush, including `BubbleWand`, generates complete descriptor-driven mesh channels through the shared runtime replay path.
@@ -163,6 +164,7 @@ Focused tests added/updated:
   - checks generated flat geometry vertex colors use Unity `Color32` byte truncation for RGB and alpha.
   - checks Flat distance and stretch UV texture atlas branch formulas for `m_TextureAtlasV > 1`.
   - checks `m_bOffsetInTexcoord1` UV1 offset vector layout and exported `MeshData` channel values.
+  - checks non-M11 smoothing/shared-vertex output, continuation tangents, and double-back break behavior through the runtime lifecycle.
   - checks batched finalization trims short non-compatibility post-break tails before mesh export, matching Open Brush `FinalizeBatchedBrush`.
 - `Tests/GDScript/FlatStripCatalogReplayTest.gd`
   - replays all normal catalog `Line`, `LineWithWidth`, `DistanceUV`, `UnitizedUV`, `FlatDistance`, `FlatStretch`, and `MidpointPlusOffset` brushes through `BrushStrokeReplay`,
@@ -426,6 +428,15 @@ Additional validation after adding `FlatGeometryBrush` UV1 offset vector coverag
 
 Result: both commands exited successfully.
 
+Additional validation after adding `FlatGeometryBrush` non-M11 smoothing and break coverage:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatGeometryBrushParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatStripCatalogReplayTest.gd
+```
+
+Result: both commands exited successfully.
+
 Open Brush Unity editor project compile check also run after installing the exporter:
 
 ```powershell
@@ -447,7 +458,7 @@ Known validation noise:
    - compare remaining append/fuse branch details line-by-line,
    - confirm all normal flat strip brushes route through the repaired runtime path.
 2. Continue `FlatGeometryBrush` branch audit:
-   - compare non-M11 clipping/smoothing, break handling, and tangent branches line-by-line.
+   - compare remaining non-M11 size clipping/growth-limit and M11 break-angle branches line-by-line.
 3. Extract additional lightweight real-stroke fixtures for any brush the inspector identifies as suspect.
 4. Generate or import authoritative Open Brush reference mesh fixtures; the current cafe fixture verifies Godot runtime stability for a real stroke but does not yet compare against Open Brush vertex-by-vertex output.
 5. Convert current helper tests into generated-mesh parity tests where possible.

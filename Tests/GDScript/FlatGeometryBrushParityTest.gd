@@ -12,6 +12,8 @@ func _run() -> void:
 	_check_stretch_uv_mode()
 	_check_stretch_uv_atlas_branch()
 	_check_offset_uv1_vectors()
+	_check_non_m11_smoothing_shared_vertices_and_tangents()
+	_check_non_m11_double_back_creates_break()
 	_check_batched_finalization_trims_short_post_break_tail()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_FLATBRUSH: all checks passed")
@@ -111,6 +113,41 @@ func _check_offset_uv1_vectors() -> void:
 	_expect_vec3_close(brush.mesh_data.uv1_v3[FlatGeometryBrush.FL], Vector3(0.0, -0.5, 0.0), "flat finalized offset FL uv1")
 	brush.free()
 
+func _check_non_m11_smoothing_shared_vertices_and_tangents() -> void:
+	var brush := _make_flat_brush(FlatGeometryBrush.UVStyle.DISTANCE, false, false, false)
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "flat non-m11 first update keeps")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(2.0, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "flat non-m11 second update keeps")
+	brush.apply_changes_to_visuals()
+
+	_expect_equal(brush.m_geometry.num_verts(), 6, "flat non-m11 shared vertex count")
+	_expect_equal(brush.m_geometry.num_tri_indices(), 12, "flat non-m11 shared tri count")
+	_expect_equal(brush.m_knots[1].iVert, 0, "flat non-m11 first knot starts at vertex 0")
+	_expect_equal(brush.m_knots[2].iVert, 2, "flat non-m11 second knot shares two verts")
+	_expect_vec3_close(brush.m_geometry.m_Vertices[FlatGeometryBrush.FR], Vector3(1.0, 0.5, 0.0), "flat non-m11 smoothed first FR")
+	_expect_vec3_close(brush.m_geometry.m_Vertices[FlatGeometryBrush.FL], Vector3(1.0, -0.5, 0.0), "flat non-m11 smoothed first FL")
+	_expect_vec3_close(brush.m_geometry.m_Vertices[2 + FlatGeometryBrush.FR], Vector3(1.7, 0.5, 0.0), "flat non-m11 smoothed second FR")
+	_expect_vec3_close(brush.m_geometry.m_Vertices[2 + FlatGeometryBrush.FL], Vector3(1.7, -0.5, 0.0), "flat non-m11 smoothed second FL")
+	_expect(brush.m_geometry.m_Tangents[2 + FlatGeometryBrush.FR].length() > 0.0, "flat non-m11 continuation tangent exists")
+	_expect(brush.m_geometry.m_Tangents[2 + FlatGeometryBrush.FL].length() > 0.0, "flat non-m11 continuation tangent exists FL")
+	brush.finalize_solitary_brush()
+	brush.free()
+
+func _check_non_m11_double_back_creates_break() -> void:
+	var brush := _make_flat_brush(FlatGeometryBrush.UVStyle.DISTANCE, false, false, false)
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "flat non-m11 double-back first update keeps")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(0.5, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "flat non-m11 double-back second update keeps")
+	brush.apply_changes_to_visuals()
+
+	_expect(not brush.m_knots[1].has_geometry(), "flat non-m11 double-back breaks first candidate knot")
+	_expect(brush.m_knots[2].has_geometry(), "flat non-m11 double-back resumes geometry after break")
+	_expect_equal(brush.m_knots[2].iVert, 0, "flat non-m11 post-break geometry restarts without sharing")
+	_expect_equal(brush.m_geometry.num_verts(), 4, "flat non-m11 post-break vertex count")
+	_expect_equal(brush.m_geometry.num_tri_indices(), 6, "flat non-m11 post-break tri count")
+	_expect_vec3_close(brush.m_knots[1].nRight, Vector3.ZERO, "flat non-m11 break clears right")
+	_expect_vec3_close(brush.m_knots[1].nSurface, Vector3.ZERO, "flat non-m11 break clears surface")
+	brush.finalize_solitary_brush()
+	brush.free()
+
 func _check_batched_finalization_trims_short_post_break_tail() -> void:
 	var brush := _make_flat_brush(FlatGeometryBrush.UVStyle.DISTANCE, false)
 	brush.m_bM11Compatibility = false
@@ -125,12 +162,12 @@ func _check_batched_finalization_trims_short_post_break_tail() -> void:
 	_expect_equal(brush.mesh_data.triangles.size(), 12, "flat batched trimmed tri index count")
 	brush.free()
 
-func _make_flat_brush(uv_style: int, backfaces: bool, offset_in_uv1: bool = false) -> FlatGeometryBrush:
+func _make_flat_brush(uv_style: int, backfaces: bool, offset_in_uv1: bool = false, m11_compatibility: bool = true) -> FlatGeometryBrush:
 	var desc := BrushDescriptor.new()
 	desc.m_DurableName = "Flat"
 	desc.m_RenderBackfaces = backfaces
 	desc.m_BackIsInvisible = false
-	desc.m_M11Compatibility = true
+	desc.m_M11Compatibility = m11_compatibility
 	desc.m_TextureAtlasV = 1
 	desc.m_TileRate = 1.0
 	desc.m_PressureSizeRange = Vector2(1.0, 1.0)
