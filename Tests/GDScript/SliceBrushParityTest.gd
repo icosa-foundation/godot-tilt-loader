@@ -7,25 +7,29 @@ func _init() -> void:
 	quit(1 if _failures > 0 else 0)
 
 func _run() -> void:
+	_check_spawn_interval_and_layout()
 	_check_slice_geometry_path()
+	_check_short_segment_break_restarts_slice_strip()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_SLICEBRUSH: all checks passed")
 
-func _check_slice_geometry_path() -> void:
-	var desc := BrushDescriptor.new()
-	desc.m_DurableName = "Slice"
-	desc.m_RenderBackfaces = false
-	desc.m_BackIsInvisible = false
-	desc.m_M11Compatibility = false
-	desc.m_PressureSizeRange = Vector2(1.0, 1.0)
-	desc.m_PressureOpacityRange = Vector2(1.0, 1.0)
-	desc.m_Opacity = 1.0
-	desc.m_SizeVariance = 0.0
+func _check_spawn_interval_and_layout() -> void:
+	var brush := _make_slice_brush()
+	brush.m_Desc.m_PressureSizeRange = Vector2(0.5, 1.0)
+	brush.m_BaseSize_PS = 2.0
 
-	var brush := SliceBrush.new()
-	brush.m_BaseSize_PS = 1.0
-	brush.m_Color = Color(0.8, 0.3, 0.2, 0.25)
-	brush.init_brush(desc, TrTransform.identity())
+	var layout := brush.get_vertex_layout(brush.m_Desc)
+	_expect_equal(layout.texcoord0.size, 3, "slice uv0 size")
+	_expect(layout.bUseNormals, "slice uses normals")
+	_expect(layout.bUseColors, "slice uses colors")
+	_expect(not layout.bUseTangents, "slice omits tangents")
+	_expect_close(brush.get_spawn_interval(0.0), 0.201, "slice spawn interval minimum pressure")
+	_expect_close(brush.get_spawn_interval(0.5), 0.301, "slice spawn interval interpolated pressure")
+	_expect_close(brush.get_spawn_interval(1.0), 0.401, "slice spawn interval full pressure")
+	brush.free()
+
+func _check_slice_geometry_path() -> void:
+	var brush := _make_slice_brush()
 	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "slice first update keeps")
 	_expect(brush.update_position_ls(TrTransform.trs(Vector3(2.0, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "slice second update keeps")
 	brush.apply_changes_to_visuals()
@@ -56,6 +60,47 @@ func _check_slice_geometry_path() -> void:
 	_expect_equal(brush.mesh_data.vertices.size(), 12, "slice finalized vertex count")
 	_expect(brush.m_geometry == null, "slice releases geometry")
 	brush.free()
+
+func _check_short_segment_break_restarts_slice_strip() -> void:
+	var brush := _make_slice_brush()
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "slice break first update keeps")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(2.0, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "slice break second update keeps")
+	brush.apply_changes_to_visuals()
+
+	var short_knot := brush.m_knots[2]
+	short_knot.point.m_Pos = brush.m_knots[1].point.m_Pos + Vector3(0.0001, 0.0, 0.0)
+	brush.m_knots[2] = short_knot
+	brush.control_points_changed(2)
+
+	_expect_equal(brush.m_knots[2].nVert, 0, "slice short segment has no vertices")
+	_expect_equal(brush.m_knots[2].nTri, 0, "slice short segment has no triangles")
+	_expect_equal(brush.m_knots[2].qFrame, Quaternion(0.0, 0.0, 0.0, 0.0), "slice short segment clears frame")
+	_expect(brush.is_penultimate(1), "slice geometry before break is penultimate")
+	_expect(brush.m_knots[3].has_geometry(), "slice strip restarts after break")
+	_expect_equal(brush.m_knots[3].iVert, 8, "slice restarted strip vertex start")
+	_expect_equal(brush.m_knots[3].nVert, 8, "slice restarted strip vertices")
+	_expect_equal(brush.m_geometry.num_verts(), 16, "slice restarted geometry vertex count")
+	_expect_equal(brush.m_geometry.num_tri_indices(), 24, "slice restarted geometry tri count")
+	_expect_close(brush.m_geometry.m_Texcoord0.v3[8].z, 0.0, "slice restarted strip resets uvw distance")
+	_expect_close(brush.m_geometry.m_Texcoord0.v3[12].z, (brush.m_knots[3].point.m_Pos - brush.m_knots[2].point.m_Pos).length() * App.UNITS_TO_METERS, "slice restarted strip front uvw distance")
+	brush.free()
+
+func _make_slice_brush() -> SliceBrush:
+	var desc := BrushDescriptor.new()
+	desc.m_DurableName = "Slice"
+	desc.m_RenderBackfaces = false
+	desc.m_BackIsInvisible = false
+	desc.m_M11Compatibility = false
+	desc.m_PressureSizeRange = Vector2(1.0, 1.0)
+	desc.m_PressureOpacityRange = Vector2(1.0, 1.0)
+	desc.m_Opacity = 1.0
+	desc.m_SizeVariance = 0.0
+
+	var brush := SliceBrush.new()
+	brush.m_BaseSize_PS = 1.0
+	brush.m_Color = Color(0.8, 0.3, 0.2, 0.25)
+	brush.init_brush(desc, TrTransform.identity())
+	return brush
 
 func _expect(condition: bool, label: String) -> void:
 	if not condition:

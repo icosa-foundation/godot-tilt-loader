@@ -36,7 +36,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `TetraBrush.gd` | `TetraBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Texture atlas count handling now matches Open Brush directly, with distance atlas and texture-edge chop coverage. Needs full branch audit. |
 | `SquareBrush.gd` | `SquareBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Tests now cover straight topology, shared-ring continuation, and sharp-turn segment break behavior. Needs full branch audit. |
 | `Square3DPrintBrush.gd` | `Square3DPrintBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Tests now cover straight topology, shared-ring continuation, and parity-flip ring-face insertion. Needs full branch audit. |
-| `SliceBrush.gd` | `SliceBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Initial frame direction now matches Open Brush `ComputeSurfaceFrameNew` + `Quaternion.LookRotation` semantics, with normal-direction coverage. Needs full branch audit. |
+| `SliceBrush.gd` | `SliceBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Initial frame direction now matches Open Brush `ComputeSurfaceFrameNew` + `Quaternion.LookRotation` semantics. Spawn interval/layout, shared-quad continuation, short-segment break/restart behavior, UVW distance reset, and penultimate detection now have focused coverage. Full reference fixture comparison still required. |
 | `PrintableBrush.gd` | `PrintableBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Tests now cover straight topology, envelope behavior, shared-ring continuation, and sharp-turn segment break behavior. Needs full branch audit. |
 | `PbrBrushScript.gd` | `PbrBrushScript.cs` | Audited as non-mesh layout provider | Matches Open Brush fake-brush role: layout only, update returns true, zero used verts, zero spawn interval, and explicit no-op solitary/batched finalization. |
 | `EnvironmentBrushScript.gd` | `EnvironmentBrushScript.cs` | Audited as non-mesh layout provider | Matches Open Brush fake-brush role: layout only, optional UV1 layout, update returns true, zero used verts, zero spawn interval, and explicit no-op solitary/batched finalization. |
@@ -122,6 +122,7 @@ Implemented so far:
 - Open Brush `SquareBrush` and `PrintableBrush` shared-ring continuation and sharp-turn segment-break topology now have focused lifecycle coverage.
 - Open Brush `Square3DPrintBrush` parity-flip topology branch coverage for double-back strokes.
 - Open Brush `SliceBrush` initial frame direction/normal orientation behavior, routed through the shared `ComputeSurfaceFrameNew` parity helper.
+- Open Brush `SliceBrush` spawn interval formula, UV0 Vector3/no-tangent layout, short-segment strip-break/restart path, UVW distance reset, and penultimate detection now have focused coverage.
 - Open Brush `HullBrush` `SimplifyAtEnd` batched finalization route and simplification tolerance pass.
 - Open Brush `ConcaveHullBrush` knot-conversion formulas are now covered directly for every conversion mode, and smooth cube hull geometry is covered through the native polygon-face triangulation adaptation.
 - Open Brush `MathUtils.ComputeMinimalRotationFrame` forward-axis convention for Godot `Basis.looking_at`.
@@ -194,7 +195,7 @@ Focused tests added/updated:
 - `Tests/GDScript/HullBrushParityTest.gd`
   - checks convex hull helper coverage, tetrahedron conversion, double-sided hull geometry, faceted polygonal cube faces, interior tracking, and the `SimplifyAtEnd` batched finalization route.
 - `Tests/GDScript/SliceBrushParityTest.gd`
-  - checks shared-quad geometry, UVW distance accumulation, triangle winding, opaque `Color32` writes, and Open Brush normal direction for initial/front quads.
+  - checks spawn interval formula, UV0 Vector3/no-tangent layout, shared-quad geometry, UVW distance accumulation, short-segment break/restart behavior, penultimate detection, triangle winding, opaque `Color32` writes, and Open Brush normal direction for initial/front quads.
 - `Tests/GDScript/Square3DPrintBrushParityTest.gd`
   - checks single-segment topology, shared-ring continuation topology, and flip-branch topology where Open Brush closes the previous ring face and adds an extra current-orientation ring.
 - `Tests/GDScript/SquareBrushParityTest.gd`
@@ -503,6 +504,16 @@ Additional validation after adding Spray/Midpoint catalog metadata coverage:
 ```
 
 Result: command exited successfully with the known Godot resource-leak warning after test shutdown.
+
+Additional validation after adding `SliceBrush` short-segment restart and spawn-interval coverage:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SliceBrushParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SolidCatalogReplayTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushClassInventoryCoverageTest.gd
+```
+
+Result: all three commands exited successfully.
 
 Open Brush Unity editor project compile check also run after installing the exporter:
 

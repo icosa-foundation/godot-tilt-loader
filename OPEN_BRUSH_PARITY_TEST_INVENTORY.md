@@ -43,7 +43,7 @@ The key distinction is source authority. Current focused brush tests prove trans
 | `Tests/GDScript/TetraBrushParityTest.gd` | `generated mesh parity` | Tetra distance/unitized UV geometry, atlas branch, topology, and color truncation. | Does not cover every pressure/rotation branch. |
 | `Tests/GDScript/SquareBrushParityTest.gd` | `generated mesh parity` | Square straight segment topology, shared-ring continuation, sharp-turn segment break behavior, normals, UV default, caps, and color truncation. | Needs full source audit completion and reference fixture comparison. |
 | `Tests/GDScript/Square3DPrintBrushParityTest.gd` | `generated mesh parity` | Single segment, shared-ring continuation, and flip branch topology. | Needs full branch audit and more shape fixtures. |
-| `Tests/GDScript/SliceBrushParityTest.gd` | `generated mesh parity` | Slice shared-quad geometry, UVW distance, winding, color, and initial normal direction. | Needs full branch audit. |
+| `Tests/GDScript/SliceBrushParityTest.gd` | `generated mesh parity` | Slice spawn interval/layout, shared-quad geometry, UVW distance, short-segment break/restart behavior, penultimate detection, winding, color, and initial normal direction. | Source-derived expectations, not C# reference fixture comparison. |
 | `Tests/GDScript/PrintableBrushParityTest.gd` | `generated mesh parity` | Printable straight segment topology, envelope behavior, shared-ring continuation, sharp-turn segment break behavior, normals, UV default, caps, and color truncation. | Needs full source audit completion and reference fixture comparison. |
 | `Tests/GDScript/LayoutBrushParityTest.gd` | `lifecycle parity` | PBR, Environment, and SVG fake layout brush no-op contracts and layout flags. | Non-mesh provider coverage only. |
 
