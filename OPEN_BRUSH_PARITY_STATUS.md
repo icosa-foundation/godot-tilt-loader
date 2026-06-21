@@ -115,6 +115,7 @@ Implemented so far:
 - `OPEN_BRUSH_BRUSH_CLASS_INVENTORY.md` now records the Phase 1.2 brush class inventory: runtime class, Open Brush source file, catalog prefab families, geometry/UV role, finalization requirement, coverage, and current status. `Tests/GDScript/BrushClassInventoryCoverageTest.gd` keeps that inventory aligned with the catalog prefab families and expected source/runtime classes.
 - The four Open Brush experimental ParentBrush composites (`CandyCane`, `HolidayTree`, `Braid3`, and `Snowflake`) are now explicitly recorded as unsupported catalog brushes instead of surfacing as generic missing GUID warnings during manifest loading.
 - `TiltBrushManifest.append_from()` now de-duplicates merged manifests by brush GUID instead of object identity and lets normal-brush entries take precedence over compatibility entries. This removes duplicate catalog GUID warnings and registers 97 live normal brushes when `Manifest.asset` and `Manifest_Experimental.asset` are combined.
+- `Tests/GDScript/BrushRuntimeRegistryParityTest.gd` now explicitly checks the promoted normal brushes that used to be masked by compatibility entries: `DotMarker` routes to `SprayBrush`, `Plasma` routes to `QuadStripBrushDistanceUV`, and `TaperedMarker_Flat` routes to `FlatGeometryBrush`.
 
 Focused tests added/updated:
 
@@ -199,6 +200,8 @@ Focused tests added/updated:
   - parses `Resources/BrushCatalog/brush_catalog.json` and verifies every referenced catalog prefab appears in the inventory.
 - `Tests/GDScript/BrushCatalogParityTest.gd`
   - now checks manifest merging de-duplicates by brush GUID and removes a brush from compatibility when an appended manifest lists it as a normal brush.
+- `Tests/GDScript/BrushRuntimeRegistryParityTest.gd`
+  - now checks `DotMarker`, `Plasma`, and `TaperedMarker_Flat` remain normal live brushes after `Manifest_Experimental` is merged over `Manifest`.
 - `Tests/GDScript/CafeStrokeFixtureExtractProbe.gd`
   - extracts a source fixture from `res://Temp/TiltEvidence/brush_cafe_experimental.tilt`,
   - defaults to stroke index 150 and accepts `--source-stroke-index=...`,

@@ -7,6 +7,7 @@ var _failures := 0
 func _init() -> void:
 	_check_live_registry_excludes_compatibility_brushes()
 	_check_parent_composite_brushes_are_explicitly_unsupported()
+	_check_experimental_promotions_are_live_brushes()
 	quit(1 if _failures > 0 else 0)
 
 func _check_live_registry_excludes_compatibility_brushes() -> void:
@@ -57,6 +58,53 @@ func _check_parent_composite_brushes_are_explicitly_unsupported() -> void:
 		_expect(not parent_composite_names.has(brush.m_DurableName), "unsupported parent composite is not compatibility brush: %s" % brush.m_DurableName)
 		var prefab := String(brush.prefab_fields.get("prefab_name", ""))
 		_expect(not ["CandyCane_prefab", "HolidayTree_prefab", "Plait_prefab", "Snowflake_prefab"].has(prefab), "unsupported parent composite prefab is not compatibility brush: %s" % prefab)
+
+func _check_experimental_promotions_are_live_brushes() -> void:
+	var manifest := _load_manifest()
+	BrushCatalog.init(manifest)
+	BrushRuntimeRegistryScript.register_supported_brushes(manifest)
+	var expected := {
+		"DotMarker": {
+			"prefab": "Spray",
+			"runtime": "SprayBrush",
+		},
+		"Plasma": {
+			"prefab": "DistanceUV",
+			"runtime": "QuadStripBrushDistanceUV",
+		},
+		"TaperedMarker_Flat": {
+			"prefab": "FlatStretch",
+			"runtime": "FlatGeometryBrush",
+		},
+	}
+	for durable_name in expected.keys():
+		var desc := _find_brush_by_durable_name(manifest.Brushes, durable_name)
+		_expect(desc != null, "promoted brush is present as normal brush: %s" % durable_name)
+		if desc == null:
+			continue
+		_expect(not BrushRuntimeRegistryScript.is_compatibility_brush(manifest, desc), "promoted brush is not compatibility: %s" % durable_name)
+		_expect(BrushRuntimeRegistryScript.is_supported(desc), "promoted brush has live factory: %s" % durable_name)
+		_expect(String(desc.prefab_fields.get("prefab_name", "")) == String(expected[durable_name]["prefab"]), "promoted brush prefab route: %s" % durable_name)
+		var brush := BrushRuntimeRegistryScript.create_brush_for_descriptor(desc)
+		_expect(brush != null, "promoted brush creates runtime instance: %s" % durable_name)
+		if brush != null:
+			_expect(brush.get_class() == String(expected[durable_name]["runtime"]) or _runtime_class_name(brush) == String(expected[durable_name]["runtime"]), "promoted brush runtime class: %s" % durable_name)
+			brush.free()
+
+func _find_brush_by_durable_name(brushes: Array[BrushDescriptor], durable_name: String) -> BrushDescriptor:
+	for brush in brushes:
+		if brush != null and brush.m_DurableName == durable_name:
+			return brush
+	return null
+
+func _runtime_class_name(brush: BaseBrushScript) -> String:
+	if brush is SprayBrush:
+		return "SprayBrush"
+	if brush is QuadStripBrushDistanceUV:
+		return "QuadStripBrushDistanceUV"
+	if brush is FlatGeometryBrush:
+		return "FlatGeometryBrush"
+	return brush.get_class()
 
 func _load_manifest() -> TiltBrushManifest:
 	var manifest := UnityAssetLoader.load_manifest(ProjectSettings.globalize_path("res://").path_join("Manifest.asset"))
