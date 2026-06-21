@@ -19,30 +19,121 @@ Any difference from Open Brush must be documented as one of:
 - a compatibility-brush policy decision,
 - or a bug.
 
-## Current Failure
+## Current Highest-Priority Gap
 
-Flat strip brushes show visible breaks between adjacent quads in the Godot inspector/live drawing path. That indicates the generated strip topology is not matching Open Brush.
+The largest remaining visual gap from quick scene inspection is the `GeniusParticle`
+brush family:
 
-The clearest known divergence is `QuadStripBrush`:
+- `Embers`
+- `Smoke`
+- `Snow`
+- `Stars`
+- `Bubbles`
+- `Dots`
+- `Rising Bubbles`
 
-- Open Brush `QuadStripBrush.UpdatePositionImpl` contains bend handling that detects double-backs, shrinks quad edges, and deliberately starts a new strip segment when needed.
-- The Godot `QuadStripBrush.gd` currently computes the next quad and appends it without the same sharp-bend/shrink/strip-break block.
-- Open Brush updates backside quads after fusing geometry for double-sided strips.
-- The Godot port defines backside consistency helpers but does not call them in all the same places.
-- Open Brush has batched finalization behavior for single-sided quad strips, including welding connected strips into shared vertices.
-- The Godot runtime currently finalizes generated strokes through the solitary brush path.
+These brushes are more fragile than ordinary tube and flat-strip brushes because
+the generated mesh is only part of the contract. The shader also depends on
+Open Brush particle attributes being delivered through the same render-facing
+Godot arrays as imported Tilt/GLTF strokes:
 
-This means the port preserved the broad class shape but not every behavior path.
+- texture UV in `Mesh.ARRAY_TEX_UV`,
+- birth time in `Mesh.ARRAY_TEX_UV2.x`,
+- generated/runtime particle rotation in `Mesh.ARRAY_TEX_UV2.y`,
+- vertex id in `Mesh.ARRAY_CUSTOM0.x`,
+- particle center in `Mesh.ARRAY_CUSTOM0.yzw`,
+- no ordinary normal stream for particle centers.
+
+Godot `ArrayMesh` normalizes tangent vectors at the renderable surface
+boundary, so raw particle rotation cannot be preserved in `TANGENT.z` for live
+generated meshes. Runtime material duplicates for Genius particle shaders must
+read generated rotation from `UV2.y`. The original tangent-compatible value can
+still be emitted for importer comparison, but it is not the generated runtime
+source of truth.
+
+The immediate priority for particle brushes is to compare the GDScript port
+against the Godot .NET C# source, then confirm generated strokes and imported
+Tilt/GLTF strokes reach the particle shaders with the same mesh arrays and
+materials. Do not spend time broadening unrelated tests until this visual gap is
+understood.
+
+Current particle-specific findings:
+
+- live pointer creation now follows the Godot C# lifecycle: creating a brush
+  initializes the line but does not record a synthetic first control point;
+  only control points actually sent through `UpdatePosition_LS` are recorded
+  and replayed,
+- generated 2D/inspector sample strokes now preserve Open Brush stroke
+  semantics by storing path scale in `Stroke.m_BrushScale` rather than
+  control-point pressure,
+- generated `GeniusParticle` mesh data now exports the same shader-facing Godot
+  arrays used by imported Tilt/GLTF particle strokes,
+- generated/runtime particle rotation is preserved through `UV2.y` after
+  `ArrayMesh` creation because Godot normalizes tangent vectors,
+- live, `.tilt` runtime rebuild, and bridge-created strokes now resolve
+  Genius particle materials through the shared `BrushMaterialResolver` path, so
+  the runtime shader channel rewrite is not bypassed,
+- the seven normal `GeniusParticle` materials are now classified explicitly:
+  six billboard-style particle shaders use `CUSTOM0` plus `UV2.y`, while
+  `Rising Bubbles` is the simple UV/COLOR shader outlier and does not require
+  the particle rotation/center contract,
+- generated live meshes now apply catalog `m_BoundsPadding` as
+  `ArrayMesh.custom_aabb` so shader-displaced particle brushes are not culled
+  against their undisplaced source quads,
+- this padding is a Godot rendering integration requirement, not a vertex
+  geometry change.
+- focused path-equivalence validation now reports zero vertex, primary UV,
+  `UV2`, and `CUSTOM0` deltas for representative `Stars` and `Embers`
+  strokes across direct replay, memory replay, pointer math, and live object
+  drawing. This proves the current Godot paths agree with each other; it still
+  does not replace Open Brush C# reference mesh fixture comparison.
 
 ## Working Rules
 
 1. Open Brush source is the authority.
-2. The translated GDScript must be line-by-line comparable to the extracted C# wherever practical.
-3. Do not replace missing behavior with new approximations.
-4. Do not hide missing behavior behind fallback geometry.
-5. Runtime generation, `.tilt` loading, 2D drawing, and XR drawing must call the same brush runtime code for normal brushes.
-6. Unknown normal brushes should fail loudly. They should not silently render with substitute geometry.
-7. Compatibility brushes must be classified explicitly and kept out of the normal live/runtime brush list unless intentionally reimplemented.
+2. The Godot .NET C# port is the immediate conversion oracle for this repo's GDScript port.
+3. The translated GDScript must be directly comparable to the Godot C# implementation wherever practical.
+4. Do not replace missing behavior with new approximations.
+5. Do not hide missing behavior behind fallback geometry.
+6. Runtime generation, `.tilt` loading, 2D drawing, and XR drawing must call the same brush runtime code for normal brushes.
+7. Unknown normal brushes should fail loudly. They should not silently render with substitute geometry.
+8. Compatibility brushes must be classified explicitly and kept out of the normal live/runtime brush list unless intentionally reimplemented.
+9. Tests are confirmation and regression protection. They must not become a substitute for fixing obvious C# to GDScript translation drift.
+
+## Immediate Execution Strategy
+
+The fastest route to working brushes is not broad manual test expansion. The
+priority is to compare the GDScript port against the working Godot .NET C#
+port and fix clear translation discrepancies.
+
+Use this loop:
+
+1. Identify the current visibly broken or suspect brush by durable name, prefab
+   family, and runtime class.
+2. Open the Godot .NET C# brush implementation and the GDScript translation
+   side by side.
+3. Look first for large conversion drift:
+   - missing blocks,
+   - different conditionals,
+   - different vector/axis conventions,
+   - wrong UV channel writes,
+   - missing state reset or finalization logic,
+   - different random/seed/salt handling,
+   - alternate fallback geometry paths,
+   - integration paths that bypass the translated runtime.
+4. Fix clear GDScript translation mismatches directly.
+5. Use upstream Open Brush C# only when the Godot C# behavior itself needs
+   explanation.
+6. Confirm the fix with the smallest useful check:
+   - visual inspector if the bug is visual,
+   - a focused regression test if the mismatch is easy to encode,
+   - C# vs GDScript mesh fixture comparison when numeric proof is needed.
+7. Only expand broad fixture coverage after the currently broken brushes are
+   working.
+
+Current evidence should be kept separate from stale observations. Do not keep
+targeting a brush family because it was broken earlier if visual checks or
+later fixes show it is now healthy.
 
 ## Phase 1: Establish the Parity Baseline
 
@@ -155,7 +246,7 @@ Both loaded and live strokes should resolve materials through the same resolver 
 
 For each brush class:
 
-1. Open the original C# and GDScript side by side.
+1. Open the Godot .NET C# port and GDScript side by side.
 2. Compare fields and defaults.
 3. Compare constructor/init behavior.
 4. Compare control point lifecycle methods.
@@ -164,9 +255,14 @@ For each brush class:
 7. Compare color/normal/tangent generation.
 8. Compare finalization behavior.
 9. Compare random seed usage.
-10. Record every intentional and unintentional difference.
+10. Check that import/live/example paths call the same translated runtime.
+11. Use upstream Open Brush C# to resolve questions about intended behavior.
+12. Record every intentional and unintentional difference.
 
-No method should be marked complete because it looks structurally similar. It is complete only when all branches are accounted for.
+For currently broken brushes, prioritize obvious translation drift over
+comprehensive branch proof. No method should be marked complete because it
+looks structurally similar. It is complete only when all meaningful behavior
+paths are accounted for or proven equivalent by direct C# vs GDScript output.
 
 ### 3.2 Immediate `QuadStripBrush` Repair
 
@@ -414,15 +510,26 @@ Mesh generation parity is acceptable when:
 
 ## Recommended Execution Order
 
-1. Add source snapshot metadata and brush class inventory.
-2. Port the missing `QuadStripBrush` bend/shrink/strip-break logic.
-3. Add failing-then-passing generated mesh tests for wide curved flat strips.
-4. Port missing backside consistency calls.
-5. Audit and repair finalization semantics, especially quad strip welding.
-6. Extract lightweight cafe stroke fixtures.
-7. Replace remaining importer fallback geometry paths with runtime replay or explicit failure.
-8. Add path equivalence tests across runtime replay, `.tilt` import, 2D drawing, and XR drawing.
-9. Audit remaining brush classes line-by-line.
+1. Create or use a local worktree for this repo's `feature/godot` branch so the
+   Godot .NET C# implementation is available as the immediate conversion
+   source. Do not modify unrelated Open Brush checkouts.
+2. Build a current suspect list from visual evidence, not stale assumptions.
+   Record exact brush durable name, prefab family, runtime class, and what is
+   visually wrong.
+3. For the top suspect brush, compare Godot C# vs GDScript side by side and fix
+   obvious translation drift first.
+4. Verify the fix with the visual inspector or the smallest focused regression
+   test that proves the changed behavior.
+5. Repeat for the next suspect brush.
+6. In parallel only where useful, wire compact C# mesh fixture export from the
+   Godot C# port so C# vs GDScript numeric comparison can confirm fixes without
+   relying on manual expectations.
+7. Use upstream Open Brush C# as the authority when the Godot C# branch and
+   GDScript disagree in a way that is not obviously a translation mistake.
+8. Keep runtime replay, `.tilt` import, 2D drawing, and XR drawing on the same
+   translated runtime path; remove fallback geometry from normal brush paths.
+9. Once the known broken brushes are working, broaden C#-vs-GDScript reference
+   fixture coverage across representative brush families.
 10. Remove temporary instrumentation and dead fallback code.
 
 ## Non-Goals
@@ -432,4 +539,3 @@ Mesh generation parity is acceptable when:
 - Optimizing before parity is proven.
 - Treating visual similarity as sufficient proof.
 - Supporting compatibility brushes as live brushes unless they are intentionally reimplemented.
-

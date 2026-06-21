@@ -57,6 +57,7 @@ func _init() -> void:
 func _run() -> void:
 	_check_base_helpers()
 	_check_geometry_brush_lifecycle()
+	_check_bounds_padding_applies_to_generated_mesh()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_BRUSHLIFECYCLE: all checks passed")
 
@@ -179,6 +180,35 @@ func _check_geometry_brush_lifecycle() -> void:
 	_expect_equal(brush.mesh_data.triangles, [0, 1, 2], "finalize mesh triangles")
 
 	canvas.free()
+
+func _check_bounds_padding_applies_to_generated_mesh() -> void:
+	var desc := BrushDescriptor.new()
+	desc.m_DurableName = "Ink"
+	desc.m_Guid = "c0012095-3ffd-4040-8ee1-fc180d346eaa"
+	desc.m_BoundsPadding = 0.5
+
+	var brush := TestBaseBrush.new()
+	get_root().add_child(brush)
+	brush.m_BaseSize_PS = 1.0
+	brush.init_brush(desc, TrTransform.trs(Vector3.ZERO, Quaternion.IDENTITY, 2.0))
+	brush.mesh_data.vertices = [Vector3.ZERO, Vector3.RIGHT, Vector3.UP]
+	brush.mesh_data.triangles = [0, 1, 2]
+	brush.mesh_data.uv0_v2 = [Vector2.ZERO, Vector2.RIGHT, Vector2.UP]
+	brush.mesh_data.colors = [Color.WHITE, Color.WHITE, Color.WHITE]
+	brush.update_visible_mesh()
+
+	var mesh_instance := brush.get_node("GeneratedMesh") as MeshInstance3D
+	_expect(mesh_instance != null, "bounds padding generated mesh instance")
+	if mesh_instance != null:
+		var mesh := mesh_instance.mesh as ArrayMesh
+		_expect(mesh != null, "bounds padding generated array mesh")
+		if mesh != null:
+			var expected_padding := desc.m_BoundsPadding * App.METERS_TO_UNITS * brush.pointer_to_local()
+			var expected := AABB(Vector3.ZERO, Vector3(1.0, 1.0, 0.0)).grow(expected_padding)
+			_expect_vec3_close(mesh.custom_aabb.position, expected.position, "bounds padding custom aabb position")
+			_expect_vec3_close(mesh.custom_aabb.size, expected.size, "bounds padding custom aabb size")
+
+	brush.free()
 
 func _expect(condition: bool, label: String) -> void:
 	if not condition:

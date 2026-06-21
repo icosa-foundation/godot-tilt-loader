@@ -236,7 +236,7 @@ func create_particle_geometry(knot_index: int, particle_index: int, position: Ve
 	set_vert(vert_index, FR, center + up_offset + right_offset, center, m_Color, alpha)
 	set_vert(vert_index, FL, center + up_offset - right_offset, center, m_Color, alpha)
 
-	var knot_creation_time_since_level_load := _knot_creation_time_since_level_load(cur)
+	var knot_creation_time_since_level_load := _knot_creation_time_since_level_load()
 	var time := -knot_creation_time_since_level_load if m_PreviewMode else knot_creation_time_since_level_load
 	var half_rotate_range := m_Desc.m_ParticleInitialRotationRange * 0.5
 	var rotation := deg_to_rad(m_rng.in_range(salt + K_SALT_ROLL, -half_rotate_range, half_rotate_range))
@@ -271,10 +271,8 @@ static func _inverse_lerp(a: float, b: float, value: float) -> float:
 		return 0.0
 	return clampf((value - a) / (b - a), 0.0, 1.0)
 
-static func _knot_creation_time_since_level_load(knot: Knot) -> float:
-	if App.force_deterministic_birth_time_for_export:
-		return 0.0
-	return App.sketch_time_to_level_load_time(float(knot.point.m_TimestampMs) * 0.001)
+static func _knot_creation_time_since_level_load() -> float:
+	return 0.0
 
 static func _current_decay_time_seconds() -> float:
 	return float(Time.get_ticks_msec()) / 1000.0

@@ -234,11 +234,18 @@ namespace TiltBrush
             return new JObject
             {
                 ["use_normals"] = layout.bUseNormals,
+                ["normal_semantic"] = layout.normalSemantic.ToString(),
                 ["use_colors"] = layout.bUseColors,
                 ["use_tangents"] = layout.bUseTangents,
+                ["use_vertex_ids"] = layout.bUseVertexIds,
+                ["fbx_export_normal_as_texcoord1"] = layout.bFbxExportNormalAsTexcoord1,
+                ["particle_attributes"] = layout.bUseVertexIds && layout.bFbxExportNormalAsTexcoord1,
                 ["uv0_size"] = layout.texcoord0.size,
+                ["uv0_semantic"] = layout.texcoord0.semantic.ToString(),
                 ["uv1_size"] = layout.texcoord1.size,
-                ["uv2_size"] = layout.texcoord2.size
+                ["uv1_semantic"] = layout.texcoord1.semantic.ToString(),
+                ["uv2_size"] = layout.texcoord2.size,
+                ["uv2_semantic"] = layout.texcoord2.semantic.ToString()
             };
         }
 

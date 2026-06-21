@@ -9,6 +9,7 @@ func _init() -> void:
 func _run() -> void:
 	App.force_deterministic_birth_time_for_export = true
 	_check_particle_geometry()
+	_check_particle_shader_array_export()
 	_check_texture_atlas_uvs()
 	_check_randomized_alpha_offset_and_roll_formula()
 	_check_distance_tracking_spawn_interval_and_straight_edge_proxy()
@@ -17,7 +18,7 @@ func _run() -> void:
 	_check_preview_decay_uses_elapsed_time()
 	_check_decay_updates_length_cache_and_salt_offset()
 	App.force_deterministic_birth_time_for_export = false
-	_check_particle_birth_time_matches_open_brush_sign()
+	_check_particle_birth_time_matches_godot_csharp_port()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_GENIUSPARTICLES: all checks passed")
 
@@ -30,6 +31,7 @@ func _check_particle_geometry() -> void:
 	_expect_equal(brush.m_geometry.get_layout().texcoord0.size, 4, "genius uv0 size")
 	_expect_equal(brush.m_geometry.get_layout().texcoord1.size, 3, "genius uv1 size")
 	_expect(not brush.m_geometry.get_layout().bUseTangents, "genius layout omits tangents")
+	_expect(brush.mesh_data.use_particle_attributes, "genius mesh data uses particle shader attributes")
 	_expect_equal(brush.m_geometry.num_verts(), 24, "genius vertex count with hanging particle")
 	_expect_equal(brush.m_geometry.num_tri_indices(), 36, "genius tri count with hanging particle")
 	_expect_equal(brush.m_knots[1].nVert, 24, "genius active knot verts include hanging particle")
@@ -43,6 +45,35 @@ func _check_particle_geometry() -> void:
 	_expect_close(brush.m_geometry.m_Texcoord0.v4[1].x, 0.0, "genius uv bl x")
 	_expect_close(brush.m_geometry.m_Texcoord0.v4[3].x, 1.0, "genius uv fl x")
 	_expect_close(brush.m_geometry.m_Texcoord0.v4[0].y, 1.0, "genius uv br y")
+	brush.free()
+
+func _check_particle_shader_array_export() -> void:
+	var brush := _make_genius_brush()
+	_expect(not brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "genius array export update waits")
+	brush.apply_changes_to_visuals()
+
+	var arrays := brush.mesh_data.to_mesh_arrays()
+	_expect(arrays[Mesh.ARRAY_NORMAL] == null, "genius particle array export removes center normals")
+	_expect(arrays[Mesh.ARRAY_TEX_UV] is PackedVector2Array, "genius particle array export writes texture uv")
+	_expect(arrays[Mesh.ARRAY_TEX_UV2] is PackedVector2Array, "genius particle array export writes birth time and rotation uv2")
+	_expect(arrays[Mesh.ARRAY_TANGENT] is PackedFloat32Array, "genius particle array export writes importer-compatible tangent rotation")
+	_expect(arrays[Mesh.ARRAY_CUSTOM0] is PackedFloat32Array, "genius particle array export writes vertex id and center")
+
+	var uv: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV]
+	var uv2: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV2]
+	var tangents: PackedFloat32Array = arrays[Mesh.ARRAY_TANGENT]
+	var custom0: PackedFloat32Array = arrays[Mesh.ARRAY_CUSTOM0]
+	var source_uv0 := brush.mesh_data.uv0_v4[0]
+	var source_center := brush.mesh_data.normals[0]
+
+	_expect_vec2_close(uv[0], Vector2(source_uv0.x, source_uv0.y), "genius exported texture uv")
+	_expect_vec2_close(uv2[0], Vector2(source_uv0.w, source_uv0.z), "genius exported birth time and rotation uv2")
+	_expect_close(tangents[2], source_uv0.z, "genius exported importer-compatible tangent rotation")
+	_expect_close(tangents[3], 1.0, "genius exported tangent handedness")
+	_expect_close(custom0[0], 0.0, "genius exported vertex id")
+	_expect_close(custom0[1], source_center.x, "genius exported center x")
+	_expect_close(custom0[2], source_center.y, "genius exported center y")
+	_expect_close(custom0[3], source_center.z, "genius exported center z")
 	brush.free()
 
 func _check_texture_atlas_uvs() -> void:
@@ -169,18 +200,18 @@ func _check_decay_updates_length_cache_and_salt_offset() -> void:
 	_expect_close(brush.m_LengthsAtKnot[1], length_before - expected_reduction, "genius decay reduces cached length by spawn interval multiples")
 	brush.free()
 
-func _check_particle_birth_time_matches_open_brush_sign() -> void:
+func _check_particle_birth_time_matches_godot_csharp_port() -> void:
 	var brush := _make_genius_brush()
 	_expect(not brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "genius birth time update waits")
 	brush.apply_changes_to_visuals()
-	_expect(brush.m_geometry.m_Texcoord0.v4[0].w > 0.0, "genius non-preview birth time is positive")
+	_expect_close(brush.m_geometry.m_Texcoord0.v4[0].w, 0.0, "genius non-preview birth time matches Godot C# port")
 	brush.free()
 
 	var preview := _make_genius_brush()
 	preview.set_preview_mode()
 	_expect(not preview.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "genius preview birth time update waits")
 	preview.apply_changes_to_visuals()
-	_expect(preview.m_geometry.m_Texcoord0.v4[0].w < 0.0, "genius preview birth time is negative")
+	_expect_close(preview.m_geometry.m_Texcoord0.v4[0].w, 0.0, "genius preview birth time matches Godot C# port")
 	preview.free()
 
 func _make_genius_brush(
@@ -229,6 +260,10 @@ func _expect_vec3_close(actual: Vector3, expected: Vector3, label: String) -> vo
 	_expect_close(actual.x, expected.x, "%s x" % label)
 	_expect_close(actual.y, expected.y, "%s y" % label)
 	_expect_close(actual.z, expected.z, "%s z" % label)
+
+func _expect_vec2_close(actual: Vector2, expected: Vector2, label: String) -> void:
+	_expect_close(actual.x, expected.x, "%s x" % label)
+	_expect_close(actual.y, expected.y, "%s y" % label)
 
 func _expect_vec4_close(actual: Vector4, expected: Vector4, label: String) -> void:
 	_expect_close(actual.x, expected.x, "%s x" % label)

@@ -17,9 +17,10 @@ the explicit `OpenBrushReferenceExport` tests write fixtures here.
 Use `Tools/OpenBrushReferenceMeshExport/RunOpenBrushReferenceMeshExport.ps1`
 from this Godot repo to run the exporter against a separate Open Brush git
 worktree. It sets
-`OPEN_BRUSH_STROKE_GEN_GODOT_ROOT`, captures the Unity log in `Temp/`, and fails
-if Unity reports that the Open Brush project is already open or if any expected
-reference mesh JSON file is missing.
+`OPEN_BRUSH_STROKE_GEN_GODOT_ROOT`, copies the exporter source into
+`Assets/Editor/Tests/OpenBrushReferenceMeshExportTest.cs` in the target worktree,
+captures the Unity log in `Temp/`, and fails if Unity reports that the Open Brush
+project is already open or if any expected reference mesh JSON file is missing.
 
 By default the runner targets
 `C:\Users\andyb\Documents\open-brush-reference-exporter-worktree`. It refuses to
@@ -51,11 +52,18 @@ Fixture schema:
   "mesh": {
     "layout": {
       "use_normals": true,
+      "normal_semantic": "Unspecified",
       "use_colors": true,
       "use_tangents": true,
+      "use_vertex_ids": false,
+      "fbx_export_normal_as_texcoord1": false,
+      "particle_attributes": false,
       "uv0_size": 2,
+      "uv0_semantic": "Unspecified",
       "uv1_size": 0,
-      "uv2_size": 0
+      "uv1_semantic": "Unspecified",
+      "uv2_size": 0,
+      "uv2_semantic": "Unspecified"
     },
     "vertices": [[0.0, 0.0, 0.0]],
     "triangles": [0, 1, 2],
@@ -75,6 +83,12 @@ Rules:
   from Open Brush C# mesh generation, not from Godot.
 - UV arrays preserve the Open Brush `GeometryPool` channel width. A `uv0_size`
   of `4` means each `uv0` row must contain four floats, not just diffuse xy.
+- Layout semantics and particle flags preserve the Open Brush `VertexLayout`
+  contract. GeniusParticle fixtures must carry `particle_attributes: true`
+  from `bUseVertexIds && bFbxExportNormalAsTexcoord1`.
+- For particle fixtures, the Godot comparator derives the render-facing
+  UV/UV2/TANGENT/CUSTOM0 arrays from the raw Open Brush normals and UV0 data and
+  verifies that remap explicitly.
 - Colors are normalized RGBA floats exported from Open Brush `Color32` bytes.
 - Prefer small, targeted strokes that exercise one brush behavior each.
 - Use existing stroke fixtures for stroke input when possible, so only the mesh

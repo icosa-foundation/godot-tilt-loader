@@ -2,17 +2,21 @@
 
 ## Reference Source
 
-- Open Brush path inspected: `C:/Users/andyb/Documents/open-brush-fast`
-- Reference commit: `3d4436ab93843ffd2c56f51222c78e770f20d520`
-- Reference status at time of inspection: dirty worktree with unrelated changes outside `Assets/Scripts/Brushes`.
-- Brush source directory: `Assets/Scripts/Brushes`
+- Source baseline: `OPEN_BRUSH_SOURCE_BASELINE.md`
+- Immediate C# conversion oracle: `origin/feature/godot`
+- Immediate C# oracle commit: `737f46875a97bbb3fc139929f3c029370777d5fa`
+- Historical upstream Open Brush reference commit recorded by prior audits: `3d4436ab93843ffd2c56f51222c78e770f20d520`
+- Current rule: do not use or modify `C:/Users/andyb/Documents/open-brush-fast` for exporter work.
+- Godot C# brush source directory: `Assets/Scripts/Brushes`
 - Godot port directory: `Scripts/Brushes`
 - Current test classification inventory: `OPEN_BRUSH_PARITY_TEST_INVENTORY.md`
 - Brush class inventory: `OPEN_BRUSH_BRUSH_CLASS_INVENTORY.md`
 - Open Brush reference mesh fixture contract: `Resources/Fixtures/OpenBrushReferenceMeshes/README.md`
 - Open Brush reference mesh exporter source: `Tools/OpenBrushReferenceMeshExport/OpenBrushReferenceMeshExportTest.cs`
 
-The commit above is the current mesh-generation parity reference unless this file is deliberately updated.
+The Godot C# commit above is the current immediate conversion reference unless
+this file is deliberately updated. Upstream Open Brush C# remains the intended
+behavior reference when the Godot C# port itself needs explanation.
 
 ## Audit Status
 
@@ -30,7 +34,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `HullBrush.gd` | `HullBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Batched finalization now runs the Open Brush `SimplifyAtEnd` geometry pass and simplification tolerance path. Native hull backend and degenerate cases need explicit parity review. |
 | `ConcaveHullBrush.gd` | `ConcaveHullBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Source-formula knot conversions and smooth hull geometry now have focused parity coverage. Known degenerate hull behavior needs explicit classification. |
 | `SprayBrush.gd` | `SprayBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Random salt wraparound now matches Open Brush `kSaltMaxQuadsPerKnot`. Spawn interval, random size, rotation variance, position variance, randomized alpha, atlas UV selection, multi-particle spacing, and tangent/backface output now have focused source-formula coverage. Full Open Brush reference fixture comparison still required. |
-| `GeniusParticlesBrush.gd` | `GeniusParticlesBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Batched finalization now explicitly runs particle finalization like Open Brush. UV0.w now stores Open Brush particle birth time, negative in preview mode. Texture atlas UVs, randomized alpha/offset/roll branches, pointer-travel distance override, straight-edge proxy flag, decay length-cache reduction, salt offset after decay, and finalization/length-cache control flow now have focused parity coverage. Particle layout and seed behavior still need full reference fixture comparison. |
+| `GeniusParticlesBrush.gd` | `GeniusParticlesBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Batched finalization now explicitly runs particle finalization like Open Brush. UV0.w now matches the Godot C# port's non-`OPENBRUSH` behavior. Generated ArrayMesh export now remaps Genius particle data for the Godot runtime shader contract: UV xy, UV2.x birth time, UV2.y rotation, importer-compatible tangent rotation, and `CUSTOM0` vertex id plus particle center. Generated live meshes now apply catalog `m_BoundsPadding` as `ArrayMesh.custom_aabb` for shader-displaced particle culling without changing vertex geometry. Runtime particle material duplicates read rotation from UV2.y because Godot normalizes renderable tangents. Texture atlas UVs, randomized alpha/offset/roll branches, pointer-travel distance override, straight-edge proxy flag, decay length-cache reduction, salt offset after decay, and finalization/length-cache control flow now have focused parity coverage. Full Open Brush reference fixture comparison remains. |
 | `BubbleWandBrush.gd` | `BubbleWandBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. BubbleWand-specific UVW post-processing, original-position UV1 storage, and direct finalization control flow now have focused coverage. Needs full branch audit. |
 | `BlocksBrushScript.gd` | `BlocksBrushScript.cs` | Partially audited, active repair started | Existing parity tests cover the no-op contract and vertex layout. Batched finalization is now explicitly no-op like Open Brush. Needs full catalog usage audit. |
 | `TetraBrush.gd` | `TetraBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Texture atlas count handling now matches Open Brush directly, with distance atlas and texture-edge chop coverage. Needs full branch audit. |
@@ -95,11 +99,19 @@ Implemented so far:
 - Open Brush `Color32` alpha truncation for `QuadStripBrushDistanceUV` opacity fade.
 - Open Brush `GeometryBrush.SetVert` `Color32` truncation for shared flat/thick geometry brush color and alpha writes.
 - Open Brush `Color32` truncation for direct vertex-color writes in hull, concave hull, tube, tetra, square, square 3D print, slice, and printable brush classes.
-- Open Brush particle birth-time packing for `GeniusParticlesBrush` UV0.w and `MidpointPlusLifetimeSprayBrush` UV1.w.
+- Godot C# port particle birth-time packing for `GeniusParticlesBrush` UV0.w and Open Brush particle birth-time packing for `MidpointPlusLifetimeSprayBrush` UV1.w.
+- Generated Genius particle ArrayMesh export now matches the Godot runtime particle shader contract: normals-as-centers move to `CUSTOM0.yzw`, vertex id goes to `CUSTOM0.x`, UV0.z rotation moves to `UV2.y`, UV0.w birth time moves to `UV2.x`, and texture UV remains UV0.xy. The importer-compatible tangent value is still emitted, but renderable `ArrayMesh` tangent normalization means runtime particle shaders must not use `TANGENT.z` for raw rotation.
+- The standalone Icosa stroke bridge now resolves stroke materials through `BrushMaterialResolver` instead of calling the Icosa helper directly, so bridge-created GeniusParticle strokes receive the same runtime particle shader channel rewrite as live drawing and `.tilt` runtime rebuilds.
+- The standalone Icosa stroke bridge now initializes the merged runtime manifest/catalog on demand before resolving stroke GUIDs, matching the setup assumption used by the `.tilt` scene builder instead of requiring callers to initialize `BrushCatalog` first.
+- GeniusParticle material coverage now classifies the material side explicitly: `Bubbles`, `Dots`, `Embers`, `Smoke`, `Snow`, and `Stars` use the billboard particle shader contract, while `Rising Bubbles` is the simple UV/COLOR shader outlier. All seven generated runtime materials are checked to avoid normalized `TANGENT.z` after resolver processing.
+- Generated live meshes and Tilt runtime-rebuild grouped meshes now apply descriptor `m_BoundsPadding` as `ArrayMesh.custom_aabb`; this currently matters for catalog particle brushes such as `Embers` and `Snow` whose shaders can displace outside the source quad bounds. Runtime replay carries this as `MeshData.bounds_padding_ls` so grouped meshes merge padding by maximum local-space value instead of dropping it.
 - Open Brush explicit `GeniusParticlesBrush.FinalizeBatchedBrush` behavior, with `GeometryBrush` batched finalization made non-reentrant for subclasses.
 - Open Brush `GeniusParticlesBrush` finalization and length-cache update control flow, removing non-reference defensive guards in the covered paths.
 - Open Brush `GeniusParticlesBrush` randomized alpha, size variance, positional scatter, and roll packing formulas now have focused coverage.
 - Open Brush `GeniusParticlesBrush` pointer-travel distance override, straight-edge proxy flag, preview decay length-cache reduction, and decayed-knot salt offset now have focused coverage.
+- Live pointer creation now matches the Godot C# lifecycle more closely: `CreateNewLine` no longer records a synthetic first control point, so recorded live strokes contain only points that were actually passed through `UpdatePosition_LS`. This matters most for `GeniusParticlesBrush`, where first-update state drives pointer-travel distance, particle positions, UVs, and custom particle attributes.
+- `BrushStrokeReplay` now replays every stored control point, matching the Godot C# `UpdateLineFromStroke` path.
+- `MinimalExample.draw_stroke` now treats generated sample path scale as `Stroke.m_BrushScale` and records normal control-point pressure. The previous path passed transform scale through as pressure while hard-coding brush scale, which could make generated 2D/inspector strokes diverge from Tilt replay semantics and distort pressure-sensitive particle formulas.
 - Open Brush `SprayBrush.CalculateSalt` modulo behavior for dense knots.
 - Open Brush `SprayBrush` spawn interval formula and seeded random particle layout branches now have focused coverage, including random size, rotation variance, position scatter, randomized alpha, atlas UV selection, multi-particle spacing, and tangent/backface sign output.
 - Open Brush `MidpointPlusLifetimeSprayBrush` spawn interval formula and seeded random particle layout branches now have focused coverage, including random size, rotation variance, position scatter, randomized alpha, atlas UV selection, multi-particle spacing, tangent output, and UV1 offset packing.
@@ -147,7 +159,9 @@ Implemented so far:
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd` now checks all seven normal catalog `GeniusParticle` brushes initialize the Open Brush particle formulas from their real descriptor metadata, including particle rate, particle speed, random alpha, initial rotation range, spawn interval, particle size scale, and UV channel layout.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd` now checks all normal catalog `Spray` and `MiddpointPlusLifetimeGeomSpray` brushes initialize the Open Brush particle formulas from their real descriptor metadata, including spray rate multiplier, size ratio, spawn interval, UV channel layout, normals, colors, and tangents.
 - `Tests/GDScript/FlatStripCatalogReplayTest.gd` now replays every normal catalog `Line`, `LineWithWidth`, `DistanceUV`, `UnitizedUV`, `FlatDistance`, `FlatStretch`, and `MidpointPlusOffset` brush through the shared runtime path and verifies descriptor-driven UV0, UV1, normal, color, tangent, and runtime-class expectations.
-- `Tests/GDScript/GeniusParticlesCatalogReplayTest.gd` now replays every normal catalog `GeniusParticle` brush through the shared runtime replay path and verifies generated particle mesh channel completeness: vertices, triangle indices, normals, colors, UV0 Vector4, UV1 Vector3, and no tangents.
+- `Tests/GDScript/GeniusParticlesCatalogReplayTest.gd` now replays every normal catalog `GeniusParticle` brush through the shared runtime replay path and verifies generated particle mesh channel completeness: vertices, triangle indices, normals, colors, UV0 Vector4, UV1 Vector3, no source tangents, render-facing arrays for UV, UV2 birth time/rotation, importer-compatible tangent rotation, `CUSTOM0` particle id/center data, and generated mesh bounds padding for `Embers`/`Snow`.
+- `Tests/GDScript/BrushMaterialResolverParityTest.gd` now checks all seven normal catalog `GeniusParticle` brushes resolve to real Icosa shader materials, keep brush textures, and that the duplicated runtime particle-shader materials read the expected `CUSTOM0` particle attributes and `UV2.y` rotation instead of normalized `TANGENT.z`.
+- `Tests/GDScript/LiveVsTiltUvParityTest.gd` now includes representative Genius particle brushes `Stars` and `Embers`, comparing direct runtime replay, pointer memory replay, pointer math, and live object drawing for vertices, primary UVs, UV2 birth/rotation data, `CUSTOM0` particle id/center data, particle attribute flags, and bounds padding.
 - `Tests/GDScript/SprayCatalogReplayTest.gd` now replays every normal catalog `Spray` and `MiddpointPlusLifetimeGeomSpray` brush through the shared runtime replay path and verifies generated particle mesh channel completeness for UV0, UV1, normals, colors, and tangents.
 - `Tests/GDScript/TubeCatalogReplayTest.gd` now replays every normal catalog tube-derived prefab through the shared runtime replay path and verifies descriptor-driven UV0, UV1, normal, color, tangent, and runtime-class channel expectations, including the BubbleWand-specific no-tangent/UV1 Vector4 layout.
 - `Tests/GDScript/SolidCatalogReplayTest.gd` now replays every normal catalog `ThickDistance`, `HullPrefab`, `HullPrefabPassthrough`, `HullPrefabSmooth`, `ConcaveHullPrefab`, `Square3DPrintBrush`, `SquareBrush_prefab`, and `Slice` brush through the shared runtime path and verifies descriptor-driven UV0, normal, color, tangent, and runtime-class expectations.
@@ -220,11 +234,14 @@ Focused tests added/updated:
   - replays all four normal catalog `Spray` brushes and all three normal catalog `MiddpointPlusLifetimeGeomSpray` brushes through `BrushStrokeReplay`,
   - verifies each replay produces particle-quad-aligned mesh data with complete normal/color/UV0/tangent channels and the expected UV1 presence or absence for each prefab family.
 - `Tests/GDScript/GeniusParticlesBrushParityTest.gd`
-  - checks Genius particle geometry layout, generated UV channels, texture atlas UV branch behavior for `m_TextureAtlasV > 1`, pointer-travel distance override, straight-edge proxy flag, solitary and batched hanging-particle finalization, single-particle pressure behavior, preview decay aging with elapsed time, preview length-cache reduction, decayed-knot salt offset, and Open Brush birth-time sign packing in UV0.w.
+  - checks Genius particle geometry layout, generated UV channels, texture atlas UV branch behavior for `m_TextureAtlasV > 1`, pointer-travel distance override, straight-edge proxy flag, generated mesh particle-attribute export flag, solitary and batched hanging-particle finalization, single-particle pressure behavior, preview decay aging with elapsed time, preview length-cache reduction, decayed-knot salt offset, and Godot C# port birth-time packing in UV0.w.
   - checks randomized alpha, position scatter from particle speed, size variance, and roll packing against the source formulas.
+- `Tests/GDScript/MeshDataArrayExportParityTest.gd`
+  - checks ordinary wide-texcoord ArrayMesh export, `MeshData.bounds_padding_ls` copy/merge behavior, and the generated particle mesh export contract used by Genius particle shaders, including surface-level proof that `UV2.y` survives `ArrayMesh` creation as the runtime rotation channel.
 - `Tests/GDScript/GeniusParticlesCatalogReplayTest.gd`
   - replays all seven normal catalog `GeniusParticle` brushes through `BrushStrokeReplay`,
-  - verifies each one produces particle-quad-aligned mesh data with complete normal/color/UV0 Vector4/UV1 Vector3 channels and no tangents.
+  - verifies each one produces particle-quad-aligned mesh data with complete normal/color/UV0 Vector4/UV1 Vector3 channels and no tangents,
+  - verifies each generated catalog stroke exports the render-facing particle arrays needed by the runtime shader: UV, UV2 birth time/rotation, importer-compatible tangent rotation, and `CUSTOM0` vertex id plus particle center.
 - `Tests/GDScript/MidpointSprayBrushParityTest.gd`
   - checks Midpoint Plus Lifetime Spray geometry layout, spawn interval metadata, seeded random size/rotation/position/alpha formulas, atlas UV selection, generated UV0/UV1 channels, UV1 offset packing, tangent/color output, finalization preserving the generated particle mesh rather than applying Genius Particles hanging-particle removal, and Open Brush birth-time packing in UV1.w.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd`
@@ -271,7 +288,8 @@ Focused tests added/updated:
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd`
   - now checks every normal merged-manifest prefab family has the expected route and count before validating mesh-affecting prefab fields.
 - `Tests/GDScript/LiveVsTiltUvParityTest.gd`
-  - now checks vertex and primary-UV equivalence for `Ink`, `Paper`, `TaperedMarker`, `LightWire`, `DotMarker`, `Plasma`, and `TaperedMarker_Flat` across direct runtime replay, pointer-memory replay, pointer math, and live object drawing paths.
+  - now checks vertex and primary-UV equivalence for `Ink`, `Paper`, `TaperedMarker`, `LightWire`, `DotMarker`, `Plasma`, `TaperedMarker_Flat`, `Stars`, and `Embers` across direct runtime replay, pointer-memory replay, pointer math, and live object drawing paths.
+  - for `Stars` and `Embers`, also checks UV2 birth/rotation data, `CUSTOM0` particle id/center data, particle attribute flags, and bounds padding across those paths.
 - `Tests/GDScript/CafeStrokeFixtureExtractProbe.gd`
   - extracts a source fixture from `res://Temp/TiltEvidence/brush_cafe_experimental.tilt`,
   - defaults to stroke index 150 and accepts `--source-stroke-index=...`,
@@ -380,6 +398,21 @@ Exporter contract validation after the runner guard change:
 
 Result: command exited successfully.
 
+Additional validation after making the exporter runner stage the Unity test
+source automatically into the target Open Brush worktree:
+
+```powershell
+powershell.exe -NoProfile -Command "& { `$script = Get-Content -LiteralPath 'Tools\OpenBrushReferenceMeshExport\RunOpenBrushReferenceMeshExport.ps1' -Raw; [scriptblock]::Create(`$script) | Out-Null; Write-Output 'RUNNER_SYNTAX_OK' }"
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd
+git diff --check
+```
+
+Result: all commands exited successfully. The runner now copies
+`Tools/OpenBrushReferenceMeshExport/OpenBrushReferenceMeshExportTest.cs` into
+`Assets/Editor/Tests/OpenBrushReferenceMeshExportTest.cs` in the selected
+Open Brush exporter worktree before launching Unity, removing a manual setup
+step from reference fixture generation.
+
 Additional validation after tightening brush class inventory status coverage:
 
 ```powershell
@@ -481,6 +514,93 @@ Additional validation after adding `GeniusParticlesBrush` pointer-travel, decay 
 ```
 
 Result: all three commands exited successfully.
+
+Additional validation after moving generated/runtime Genius particle rotation off normalized `ArrayMesh` tangents and onto `UV2.y`:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/MeshDataArrayExportParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesBrushParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushMaterialResolverParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesCatalogReplayTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushLifecycleParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/TiltImporterRuntimeReplayTest.gd
+git diff --check
+```
+
+Result: all commands exited successfully. The mesh export test now includes a
+surface-level `ArrayMesh` check that would fail if generated particle rotation
+were still treated as raw `TANGENT.z`. `TiltImporterRuntimeReplayTest.gd` now
+also checks that grouped cafe `Embers` and `Snow` runtime meshes keep custom
+bounds padding.
+
+Additional validation after extending live-vs-replay path equivalence to
+representative Genius particle brushes:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/LiveVsTiltUvParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesCatalogReplayTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/MeshDataArrayExportParityTest.gd
+git diff --check
+```
+
+Result: all commands exited successfully. `LiveVsTiltUvParityTest.gd` now
+reports zero deltas for `Stars` and `Embers` across direct runtime replay,
+pointer-memory replay, pointer math, and live object drawing for vertices,
+primary UVs, UV2 particle birth/rotation, and `CUSTOM0` particle id/center data.
+
+Additional validation after aligning live pointer control-point recording with
+the Godot C# lifecycle and replaying every stored control point:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/PointerScriptParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/LiveVsTiltUvParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesCatalogReplayTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/MeshDataArrayExportParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushMaterialResolverParityTest.gd
+```
+
+Result: all commands exited successfully. `LiveVsTiltUvParityTest.gd` reports
+zero vertex, primary UV, UV2, and `CUSTOM0` deltas for `Stars` and `Embers`
+across direct runtime replay, memory replay, pointer math, and live object
+drawing. This closes the immediate Godot path divergence that was specific to
+Genius particle first-update state; Open Brush reference mesh fixtures are still
+required for final C# parity proof.
+
+Additional validation after correcting generated minimal/inspector stroke
+scale-vs-pressure semantics:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/MinimalExamplesParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SingleBrushStrokeInspectorTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/LiveVsTiltUvParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesCatalogReplayTest.gd
+git diff --check
+```
+
+Result: all commands exited successfully. `MinimalExamplesParityTest.gd` now
+checks that generated path scale becomes `m_BrushScale` and that generated
+control-point pressure remains `1.0` instead of inheriting path scale.
+
+Additional validation after unifying Icosa bridge material resolution through
+`BrushMaterialResolver` and making bridge catalog initialization explicit:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/IcosaBridgeSmokeTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushMaterialResolverParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/TiltBridgeReplayParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/MeshDataArrayExportParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesCatalogReplayTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/LiveVsTiltUvParityTest.gd
+```
+
+Result: all commands exited successfully. The bridge material regression now
+checks `Embers` specifically and verifies that bridge-created GeniusParticle
+materials read generated rotation from `UV2.y` instead of normalized
+`TANGENT.z`. `BrushMaterialResolverParityTest.gd` also classifies the full
+normal GeniusParticle material set as six billboard particle shaders plus the
+simple `Rising Bubbles` UV/COLOR shader outlier, and checks all seven resolved
+runtime shaders have no `TANGENT.z` dependency. `TiltBridgeReplayParityTest.gd`
+still reports zero vertex and UV deltas for the checked cafe strokes.
 
 Additional validation after adding `SprayBrush` seeded particle layout and spawn-interval coverage:
 

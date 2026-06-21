@@ -54,6 +54,7 @@ function Test-LogHasTerminalMarker {
 $logDirectory = Join-Path $GodotRoot "Temp"
 $logPath = Join-Path $logDirectory "open_brush_reference_export.log"
 $outputDirectory = Join-Path $GodotRoot "Resources\Fixtures\OpenBrushReferenceMeshes"
+$exporterSourcePath = Join-Path $GodotRoot "Tools\OpenBrushReferenceMeshExport\OpenBrushReferenceMeshExportTest.cs"
 $mainOpenBrushRoot = "C:\Users\andyb\Documents\open-brush-fast"
 
 $resolvedOpenBrushRoot = (Resolve-Path -LiteralPath $OpenBrushRoot).Path
@@ -71,6 +72,15 @@ if ($resolvedMainOpenBrushRoot -ne $null -and
 New-Item -ItemType Directory -Force -Path $logDirectory | Out-Null
 New-Item -ItemType Directory -Force -Path $outputDirectory | Out-Null
 Remove-Item -LiteralPath $logPath -Force -ErrorAction SilentlyContinue
+
+if (-not (Test-Path -LiteralPath $exporterSourcePath)) {
+    throw "Missing exporter source at $exporterSourcePath"
+}
+
+$exporterTargetDirectory = Join-Path $resolvedOpenBrushRoot "Assets\Editor\Tests"
+$exporterTargetPath = Join-Path $exporterTargetDirectory "OpenBrushReferenceMeshExportTest.cs"
+New-Item -ItemType Directory -Force -Path $exporterTargetDirectory | Out-Null
+Copy-Item -LiteralPath $exporterSourcePath -Destination $exporterTargetPath -Force
 
 $env:OPEN_BRUSH_STROKE_GEN_GODOT_ROOT = $GodotRoot
 & $UnityExe `

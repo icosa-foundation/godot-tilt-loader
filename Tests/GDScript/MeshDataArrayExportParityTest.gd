@@ -4,6 +4,8 @@ var _failures := 0
 
 func _init() -> void:
 	_check_wide_texcoords_are_preserved()
+	_check_particle_attributes_match_gltf_import_remap()
+	_check_bounds_padding_copies_and_merges()
 	quit(1 if _failures > 0 else 0)
 
 func _check_wide_texcoords_are_preserved() -> void:
@@ -47,6 +49,84 @@ func _check_wide_texcoords_are_preserved() -> void:
 
 	var mesh := mesh_data.to_array_mesh()
 	_expect_equal(mesh.get_surface_count(), 1, "array mesh surface count")
+
+func _check_particle_attributes_match_gltf_import_remap() -> void:
+	var mesh_data := MeshData.new()
+	mesh_data.use_particle_attributes = true
+	mesh_data.vertices = [Vector3(1, 2, 3), Vector3(4, 5, 6), Vector3(7, 8, 9)]
+	mesh_data.triangles = [0, 1, 2]
+	mesh_data.normals = [Vector3(10, 11, 12), Vector3(13, 14, 15), Vector3(16, 17, 18)]
+	mesh_data.uv0_v4 = [
+		Vector4(0.1, 0.2, 0.3, 0.4),
+		Vector4(0.5, 0.6, 0.7, 0.8),
+		Vector4(0.9, 1.0, 1.1, 1.2),
+	]
+
+	var arrays: Array = mesh_data.to_mesh_arrays()
+	_expect(arrays[Mesh.ARRAY_NORMAL] == null, "particle export removes center normals")
+	_expect(arrays[Mesh.ARRAY_TEX_UV] is PackedVector2Array, "particle export keeps uv xy")
+	_expect(arrays[Mesh.ARRAY_TEX_UV2] is PackedVector2Array, "particle export writes birth time and rotation uv2")
+	_expect(arrays[Mesh.ARRAY_TANGENT] is PackedFloat32Array, "particle export writes importer-compatible tangent rotation")
+	_expect(arrays[Mesh.ARRAY_CUSTOM0] is PackedFloat32Array, "particle export writes vertex id and center custom0")
+
+	var uv: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV]
+	var uv2: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV2]
+	var tangent: PackedFloat32Array = arrays[Mesh.ARRAY_TANGENT]
+	var custom0: PackedFloat32Array = arrays[Mesh.ARRAY_CUSTOM0]
+
+	_expect_vec2_close(uv[1], Vector2(0.5, 0.6), "particle uv xy")
+	_expect_vec2_close(uv2[1], Vector2(0.8, 0.7), "particle birth time and rotation")
+	_expect_close(tangent[6], 0.7, "particle importer-compatible tangent rotation z")
+	_expect_close(tangent[7], 1.0, "particle tangent w")
+	_expect_close(custom0[4], 1.0, "particle vertex id")
+	_expect_close(custom0[5], 13.0, "particle center x")
+	_expect_close(custom0[6], 14.0, "particle center y")
+	_expect_close(custom0[7], 15.0, "particle center z")
+
+	var mesh := mesh_data.to_array_mesh()
+	_expect_equal(mesh.get_surface_count(), 1, "particle array mesh surface count")
+	if mesh.get_surface_count() == 0:
+		return
+	var surface_arrays := mesh.surface_get_arrays(0)
+	_expect(surface_arrays[Mesh.ARRAY_NORMAL] == null, "particle surface omits center normals")
+	_expect(surface_arrays[Mesh.ARRAY_TEX_UV] is PackedVector2Array, "particle surface keeps uv xy")
+	_expect(surface_arrays[Mesh.ARRAY_TEX_UV2] is PackedVector2Array, "particle surface keeps birth time and rotation uv2")
+	_expect(surface_arrays[Mesh.ARRAY_TANGENT] is PackedFloat32Array, "particle surface keeps tangent array")
+	_expect(surface_arrays[Mesh.ARRAY_CUSTOM0] is PackedFloat32Array, "particle surface keeps vertex id and center custom0")
+	if not (
+		surface_arrays[Mesh.ARRAY_TEX_UV] is PackedVector2Array
+		and surface_arrays[Mesh.ARRAY_TEX_UV2] is PackedVector2Array
+		and surface_arrays[Mesh.ARRAY_TANGENT] is PackedFloat32Array
+		and surface_arrays[Mesh.ARRAY_CUSTOM0] is PackedFloat32Array
+	):
+		return
+	var surface_uv: PackedVector2Array = surface_arrays[Mesh.ARRAY_TEX_UV]
+	var surface_uv2: PackedVector2Array = surface_arrays[Mesh.ARRAY_TEX_UV2]
+	var surface_custom0: PackedFloat32Array = surface_arrays[Mesh.ARRAY_CUSTOM0]
+	_expect_vec2_close(surface_uv[1], Vector2(0.5, 0.6), "particle surface uv xy")
+	_expect_vec2_close(surface_uv2[1], Vector2(0.8, 0.7), "particle surface birth time and rotation")
+	_expect_close(surface_custom0[4], 1.0, "particle surface vertex id")
+	_expect_close(surface_custom0[5], 13.0, "particle surface center x")
+	_expect_close(surface_custom0[6], 14.0, "particle surface center y")
+	_expect_close(surface_custom0[7], 15.0, "particle surface center z")
+
+func _check_bounds_padding_copies_and_merges() -> void:
+	var first := MeshData.new()
+	first.bounds_padding_ls = 2.0
+	first.vertices = [Vector3.ZERO, Vector3.RIGHT, Vector3.UP]
+	first.triangles = [0, 1, 2]
+
+	var copy := MeshData.new()
+	copy.copy_from(first)
+	_expect_close(copy.bounds_padding_ls, 2.0, "bounds padding copies")
+
+	var second := MeshData.new()
+	second.bounds_padding_ls = 5.0
+	second.vertices = [Vector3.BACK, Vector3.FORWARD, Vector3.UP]
+	second.triangles = [0, 1, 2]
+
+	copy.append_mesh_data(second)
+	_expect_close(copy.bounds_padding_ls, 5.0, "bounds padding merges by max")
 
 func _expect(condition: bool, label: String) -> void:
 	if not condition:

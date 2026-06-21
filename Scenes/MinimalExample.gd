@@ -151,10 +151,11 @@ func draw_stroke(path: Array[TrTransform], brush: BrushDescriptor, color: Color)
 	var smoothing := 0.0
 	var control_points: Array[ControlPoint] = []
 	var time := 0
+	var brush_scale := _path_brush_scale(path)
 	for vertex_index in range(path.size()):
 		var xf := path[vertex_index]
 		var next_position := path[(vertex_index + 1) % path.size()].translation
-		_add_control_point(control_points, xf.translation, xf.rotation, xf.scale, time)
+		_add_control_point(control_points, xf.translation, xf.rotation, 1.0, time)
 		time += 1
 		if smoothing > 0.0:
 			_add_control_point(control_points, xf.translation, xf.rotation, xf.scale, time)
@@ -169,7 +170,7 @@ func draw_stroke(path: Array[TrTransform], brush: BrushDescriptor, color: Color)
 	stroke.m_Type = Stroke.Type.NOT_CREATED
 	stroke.m_IntendedCanvas = m_Canvas
 	stroke.m_BrushGuid = brush.m_Guid
-	stroke.m_BrushScale = 1.0
+	stroke.m_BrushScale = brush_scale
 	stroke.m_BrushSize = 1.0
 	stroke.m_Color = color
 	stroke.m_Seed = 0
@@ -179,6 +180,12 @@ func draw_stroke(path: Array[TrTransform], brush: BrushDescriptor, color: Color)
 		stroke.m_ControlPointsToDrop.append(false)
 	m_Pointer.recreate_line_from_memory(stroke)
 	return stroke
+
+func _path_brush_scale(path: Array[TrTransform]) -> float:
+	if path.is_empty():
+		return 1.0
+	var scale := path[0].scale
+	return scale if scale > 0.0 else 1.0
 
 func _add_control_point(output: Array[ControlPoint], position: Vector3, orientation: Quaternion, pressure: float, timestamp: int) -> void:
 	output.append(ControlPoint.create(position, orientation, pressure, timestamp))

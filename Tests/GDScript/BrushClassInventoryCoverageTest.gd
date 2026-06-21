@@ -1,6 +1,7 @@
 extends SceneTree
 
 const INVENTORY_PATH := "res://OPEN_BRUSH_BRUSH_CLASS_INVENTORY.md"
+const SOURCE_BASELINE_PATH := "res://OPEN_BRUSH_SOURCE_BASELINE.md"
 const CATALOG_PATH := "res://Resources/BrushCatalog/brush_catalog.json"
 
 const RUNTIME_CLASSES := [
@@ -109,6 +110,10 @@ func _init() -> void:
 	if not inventory.is_empty():
 		_check_inventory_text(inventory)
 		_check_catalog_prefabs_are_documented(inventory)
+	var source_baseline := _read_text(SOURCE_BASELINE_PATH)
+	_expect(not source_baseline.is_empty(), "source baseline document loads")
+	if not source_baseline.is_empty():
+		_check_source_baseline_text(source_baseline)
 	quit(1 if _failures > 0 else 0)
 
 
@@ -151,6 +156,21 @@ func _check_catalog_prefabs_are_documented(inventory: String) -> void:
 		var prefab := String(fields.get("prefab_name", ""))
 		if prefab != "":
 			_expect(inventory.contains("`%s`" % prefab), "%s unsupported catalog prefab is documented" % prefab)
+
+
+func _check_source_baseline_text(source_baseline: String) -> void:
+	for snippet in [
+		"`origin/feature/godot`",
+		"`737f46875a97bbb3fc139929f3c029370777d5fa`",
+		"`Assets/Scripts/Brushes`",
+		"`Scripts/Brushes`",
+		"`GeniusParticlesBrush.cs` -> `GeniusParticlesBrush.gd`",
+		"`QuadStripBrush.cs` -> `QuadStripBrush.gd`",
+		"`BrushRuntimeRegistry.gd`",
+		"`MeshData.gd`",
+		"do not use or modify that checkout",
+	]:
+		_expect(source_baseline.contains(snippet), "source baseline includes %s" % snippet)
 
 
 func _collect_prefabs_from_guids(descriptors: Dictionary, guids: Array, output: Dictionary) -> void:

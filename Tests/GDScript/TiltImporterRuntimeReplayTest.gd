@@ -62,6 +62,7 @@ func _check_importer_replays_tilt_through_runtime_brushes() -> void:
 		"vertices": 0,
 		"triangles": 0,
 		"materials": 0,
+		"padded_particle_meshes": 0,
 	}
 	_collect_scene_stats(scene, stats)
 	_expect(int(builder.error_count) == 0, "runtime replay has no unresolved normal brush errors")
@@ -69,6 +70,7 @@ func _check_importer_replays_tilt_through_runtime_brushes() -> void:
 	_expect(stats.vertices > 100000, "runtime replay creates substantial geometry")
 	_expect(stats.triangles > 40000, "runtime replay creates substantial triangles")
 	_expect(stats.materials > 50, "runtime replay assigns brush materials")
+	_expect(stats.padded_particle_meshes >= 2, "runtime replay applies custom bounds padding to shader-displaced particle meshes")
 	scene.free()
 
 func _collect_scene_stats(node: Node, stats: Dictionary) -> void:
@@ -83,8 +85,42 @@ func _collect_scene_stats(node: Node, stats: Dictionary) -> void:
 			stats.triangles += indices.size() / 3 if not indices.is_empty() else vertices.size() / 3
 			if mesh.surface_get_material(surface) != null:
 				stats.materials += 1
+		if node.name in ["Embers", "Snow"] and _custom_aabb_grows_surface_bounds(mesh):
+			stats.padded_particle_meshes += 1
 	for child in node.get_children():
 		_collect_scene_stats(child, stats)
+
+func _custom_aabb_grows_surface_bounds(mesh: Mesh) -> bool:
+	if mesh == null or mesh.get_surface_count() == 0:
+		return false
+	var original := _surface_bounds(mesh)
+	var custom: AABB = mesh.custom_aabb
+	return (
+		custom.size.x > original.size.x + 0.001
+		or custom.size.y > original.size.y + 0.001
+		or custom.size.z > original.size.z + 0.001
+	)
+
+func _surface_bounds(mesh: Mesh) -> AABB:
+	var have_vertex := false
+	var min_point := Vector3.ZERO
+	var max_point := Vector3.ZERO
+	for surface in range(mesh.get_surface_count()):
+		var arrays := mesh.surface_get_arrays(surface)
+		var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+		for vertex in vertices:
+			if not have_vertex:
+				min_point = vertex
+				max_point = vertex
+				have_vertex = true
+			else:
+				min_point.x = minf(min_point.x, vertex.x)
+				min_point.y = minf(min_point.y, vertex.y)
+				min_point.z = minf(min_point.z, vertex.z)
+				max_point.x = maxf(max_point.x, vertex.x)
+				max_point.y = maxf(max_point.y, vertex.y)
+				max_point.z = maxf(max_point.z, vertex.z)
+	return AABB(min_point, max_point - min_point) if have_vertex else AABB()
 
 func _read_text(path: String) -> String:
 	var file := FileAccess.open(path, FileAccess.READ)

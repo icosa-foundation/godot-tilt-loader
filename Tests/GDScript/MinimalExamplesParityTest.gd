@@ -61,12 +61,14 @@ func _check_minimal_example_setup_and_draw() -> void:
 	_expect_equal(pointer.Canvas, example.m_Canvas, "minimal assigns pointer canvas")
 	_expect_equal(pointer.m_CurrentBrush, desc, "minimal assigns brush")
 	var stroke := example.draw_stroke([
-		TrTransform.trs(Vector3.ZERO, Quaternion.IDENTITY, 1.0),
-		TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0),
+		TrTransform.trs(Vector3.ZERO, Quaternion.IDENTITY, 2.5),
+		TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 2.5),
 	], desc, Color.BLUE)
 	_expect(stroke != null, "minimal draw stroke returns stroke")
 	_expect_equal(stroke.m_Type, Stroke.Type.BRUSH_STROKE, "minimal recreates stroke")
 	_expect(stroke.m_Object != null, "minimal stroke object exists")
+	_expect_close(stroke.m_BrushScale, 2.5, "minimal draw path scale becomes brush scale")
+	_expect_close(stroke.m_ControlPoints[0].m_Pressure, 1.0, "minimal draw does not treat path scale as pressure")
 	_expect_equal(stroke.m_Object.mesh_data.vertices.size(), 3, "minimal stroke mesh finalized")
 	pointer.free()
 	example.free()

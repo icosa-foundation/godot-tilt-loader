@@ -153,6 +153,8 @@ func _build_mesh_instance(desc: BrushDescriptor, mesh_data: MeshData, node_name:
 
 	var arr_mesh := ArrayMesh.new()
 	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, MeshData.surface_format_flags(arrays))
+	if mesh_data.bounds_padding_ls > 0.0:
+		arr_mesh.custom_aabb = arr_mesh.get_aabb().grow(mesh_data.bounds_padding_ls)
 	var material: Material = _BrushMaterialResolver.find_material_for_descriptor(desc)
 	if material != null:
 		arr_mesh.surface_set_material(0, material)

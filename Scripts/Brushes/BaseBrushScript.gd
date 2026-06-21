@@ -164,11 +164,19 @@ func update_visible_mesh() -> void:
 		add_child(_mesh_instance)
 	_mesh_instance.mesh = mesh_data.to_array_mesh()
 	if _mesh_instance.mesh != null and _mesh_instance.mesh.get_surface_count() > 0:
+		_apply_bounds_padding(_mesh_instance.mesh)
 		var material := BrushMaterialResolverScript.find_material(m_Desc)
 		if material == null:
 			push_error("BaseBrushScript: missing brush material for %s (%s)" % [m_Desc.m_DurableName, m_Desc.m_Guid])
 			return
 		_mesh_instance.mesh.surface_set_material(0, material)
+
+func _apply_bounds_padding(mesh: ArrayMesh) -> void:
+	if m_Desc == null or m_Desc.m_BoundsPadding <= 0.0:
+		return
+	var padding_ls := m_Desc.m_BoundsPadding * App.METERS_TO_UNITS * pointer_to_local()
+	mesh_data.bounds_padding_ls = padding_ls
+	mesh.custom_aabb = mesh.get_aabb().grow(padding_ls)
 
 func pressured_size(pressure01: float) -> float:
 	var multiplier := lerpf(m_Desc.pressure_size_min(m_PreviewMode), 1.0, pressure01)

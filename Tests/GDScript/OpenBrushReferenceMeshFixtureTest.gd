@@ -167,7 +167,17 @@ func _compare_reference_mesh(path: String, desc: BrushDescriptor, reference: Dic
 			size > 0)
 		max_uv_delta = maxf(max_uv_delta, channel_delta)
 
-	print("OPEN_BRUSH_REFERENCE_MESH\tpath=%s\tbrush=%s\tverts=%d\ttris=%d\tmax_position_delta=%.8f\tmax_normal_delta=%.8f\tmax_color_delta=%.8f\tmax_uv_delta=%.8f\tmax_tangent_delta=%.8f" % [
+	var max_particle_render_delta := 0.0
+	if _layout_has_particle_attributes(layout):
+		max_particle_render_delta = _compare_particle_render_arrays(
+			path,
+			actual_mesh,
+			expected_vertices.size(),
+			expected_normals,
+			_vec4_array_list(mesh.get("uv0", [])),
+			uv_tolerance)
+
+	print("OPEN_BRUSH_REFERENCE_MESH\tpath=%s\tbrush=%s\tverts=%d\ttris=%d\tmax_position_delta=%.8f\tmax_normal_delta=%.8f\tmax_color_delta=%.8f\tmax_uv_delta=%.8f\tmax_tangent_delta=%.8f\tmax_particle_render_delta=%.8f" % [
 		path,
 		desc.m_DurableName,
 		actual_mesh.vertices.size(),
@@ -177,6 +187,7 @@ func _compare_reference_mesh(path: String, desc: BrushDescriptor, reference: Dic
 		max_color_delta,
 		max_uv_delta,
 		max_tangent_delta,
+		max_particle_render_delta,
 	])
 
 func _load_json_file(path: String) -> Dictionary:
@@ -304,6 +315,11 @@ func _infer_vector_size(values: Variant) -> int:
 		return first.size()
 	return 0
 
+func _layout_has_particle_attributes(layout: Dictionary) -> bool:
+	if layout.has("particle_attributes"):
+		return bool(layout["particle_attributes"])
+	return bool(layout.get("use_vertex_ids", false)) and bool(layout.get("fbx_export_normal_as_texcoord1", false))
+
 func _max_vec3_delta(actual: Array, expected: Array[Vector3]) -> float:
 	var max_delta := 0.0
 	var count := mini(actual.size(), expected.size())
@@ -381,6 +397,64 @@ func _compare_vector_channel(path: String, channel_name: String, actual: Array, 
 			_expect(false, "%s %s invalid size %d" % [path, channel_name, size])
 			return 0.0
 	_expect(max_delta <= tolerance, "%s %s within tolerance %.8f" % [path, channel_name, tolerance])
+	return max_delta
+
+func _compare_particle_render_arrays(
+	path: String,
+	actual_mesh: MeshData,
+	expected_vertex_count: int,
+	expected_centers: Array[Vector3],
+	expected_uv0: Array[Vector4],
+	tolerance: float) -> float:
+	_expect(actual_mesh.use_particle_attributes, "%s particle render path enabled" % path)
+	_expect(expected_centers.size() == expected_vertex_count, "%s particle source center count" % path)
+	_expect(expected_uv0.size() == expected_vertex_count, "%s particle source uv0 count" % path)
+
+	var arrays := actual_mesh.to_mesh_arrays()
+	_expect(arrays[Mesh.ARRAY_NORMAL] == null, "%s particle render omits normal stream" % path)
+	_expect(arrays[Mesh.ARRAY_TEX_UV] is PackedVector2Array, "%s particle render UV array" % path)
+	_expect(arrays[Mesh.ARRAY_TEX_UV2] is PackedVector2Array, "%s particle render UV2 array" % path)
+	_expect(arrays[Mesh.ARRAY_TANGENT] is PackedFloat32Array, "%s particle render tangent array" % path)
+	_expect(arrays[Mesh.ARRAY_CUSTOM0] is PackedFloat32Array, "%s particle render CUSTOM0 array" % path)
+	if not (
+		arrays[Mesh.ARRAY_TEX_UV] is PackedVector2Array
+		and arrays[Mesh.ARRAY_TEX_UV2] is PackedVector2Array
+		and arrays[Mesh.ARRAY_TANGENT] is PackedFloat32Array
+		and arrays[Mesh.ARRAY_CUSTOM0] is PackedFloat32Array
+	):
+		return INF
+
+	var uv: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV]
+	var uv2: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV2]
+	var tangents: PackedFloat32Array = arrays[Mesh.ARRAY_TANGENT]
+	var custom0: PackedFloat32Array = arrays[Mesh.ARRAY_CUSTOM0]
+	_expect(uv.size() == expected_vertex_count, "%s particle render UV count" % path)
+	_expect(uv2.size() == expected_vertex_count, "%s particle render UV2 count" % path)
+	_expect(tangents.size() == expected_vertex_count * 4, "%s particle render tangent float count" % path)
+	_expect(custom0.size() == expected_vertex_count * 4, "%s particle render CUSTOM0 float count" % path)
+
+	var max_delta := 0.0
+	var count := mini(expected_vertex_count, expected_uv0.size())
+	count = mini(count, expected_centers.size())
+	count = mini(count, uv.size())
+	count = mini(count, uv2.size())
+	for index in range(count):
+		var source_uv := expected_uv0[index]
+		max_delta = maxf(max_delta, uv[index].distance_to(Vector2(source_uv.x, source_uv.y)))
+		max_delta = maxf(max_delta, uv2[index].distance_to(Vector2(source_uv.w, source_uv.z)))
+		if index * 4 + 3 < tangents.size():
+			max_delta = maxf(max_delta, absf(tangents[index * 4] - 0.0))
+			max_delta = maxf(max_delta, absf(tangents[index * 4 + 1] - 0.0))
+			max_delta = maxf(max_delta, absf(tangents[index * 4 + 2] - source_uv.z))
+			max_delta = maxf(max_delta, absf(tangents[index * 4 + 3] - 1.0))
+		if index * 4 + 3 < custom0.size():
+			var center := expected_centers[index]
+			max_delta = maxf(max_delta, absf(custom0[index * 4] - float(index)))
+			max_delta = maxf(max_delta, absf(custom0[index * 4 + 1] - center.x))
+			max_delta = maxf(max_delta, absf(custom0[index * 4 + 2] - center.y))
+			max_delta = maxf(max_delta, absf(custom0[index * 4 + 3] - center.z))
+
+	_expect(max_delta <= tolerance, "%s particle render arrays within tolerance %.8f" % [path, tolerance])
 	return max_delta
 
 func _compare_triangles(path: String, actual: Array[int], expected: Array[int]) -> void:

@@ -113,8 +113,6 @@ func create_new_line(canvas: CanvasScript, xf_cs: TrTransform, override_desc: Br
 	_liveStrokeKeeperCount = 0
 	m_CurrentLine = BaseBrushScript.create_brush(canvas, xf_cs, desc, m_CurrentColor, m_CurrentBrushSize)
 	if m_CurrentLine != null:
-		set_control_point(xf_cs, true)
-		_liveStrokeKeeperCount = 1
 		_log_live_stroke("BEGIN serial=%d brush=%s guid=%s size=%.6f scale=%.6f pos=%s rot=%s canvas_children=%d" % [
 			_liveStrokeSerial,
 			desc.m_DurableName,

@@ -234,6 +234,7 @@ func copy_to_mesh_data(mesh: MeshData, i_vert: int = 0, n_vert: int = -1, i_tri_
 	if n_tri_index < 0:
 		n_tri_index = m_Tris.size()
 	mesh.clear()
+	mesh.use_particle_attributes = _layout.bUseVertexIds and _layout.bFbxExportNormalAsTexcoord1
 	mesh.vertices.assign(m_Vertices.slice(i_vert, i_vert + n_vert))
 	for tri in m_Tris.slice(i_tri_index, i_tri_index + n_tri_index):
 		mesh.triangles.append(tri - i_vert)

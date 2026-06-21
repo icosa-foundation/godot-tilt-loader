@@ -15,6 +15,8 @@ var uv2_v3: Array[Vector3] = []
 var uv2_v4: Array[Vector4] = []
 var colors: Array[Color] = []
 var tangents: Array[Vector4] = []
+var use_particle_attributes := false
+var bounds_padding_ls := 0.0
 
 func clear() -> void:
 	vertices.clear()
@@ -31,6 +33,8 @@ func clear() -> void:
 	uv2_v4.clear()
 	colors.clear()
 	tangents.clear()
+	use_particle_attributes = false
+	bounds_padding_ls = 0.0
 
 func vertex_count() -> int:
 	return vertices.size()
@@ -40,11 +44,16 @@ func is_empty() -> bool:
 
 func copy_from(source: MeshData) -> void:
 	clear()
+	use_particle_attributes = source.use_particle_attributes
+	bounds_padding_ls = source.bounds_padding_ls
 	append_mesh_data(source)
 
 func append_mesh_data(source: MeshData) -> void:
 	if source == null:
 		return
+	if vertices.is_empty():
+		use_particle_attributes = source.use_particle_attributes
+	bounds_padding_ls = maxf(bounds_padding_ls, source.bounds_padding_ls)
 	var vertex_offset := vertices.size()
 	vertices.append_array(source.vertices)
 	for tri in source.triangles:
@@ -100,14 +109,17 @@ func to_mesh_arrays() -> Array:
 
 	arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array(vertices)
 	arrays[Mesh.ARRAY_INDEX] = PackedInt32Array(triangles)
-	if normals.size() == vertices.size():
+	if normals.size() == vertices.size() and not use_particle_attributes:
 		arrays[Mesh.ARRAY_NORMAL] = PackedVector3Array(normals)
-	_add_uv0_arrays(arrays)
-	_add_uv1_arrays(arrays)
-	_add_uv2_arrays(arrays)
+	if use_particle_attributes:
+		_add_particle_arrays(arrays)
+	else:
+		_add_uv0_arrays(arrays)
+		_add_uv1_arrays(arrays)
+		_add_uv2_arrays(arrays)
 	if colors.size() == vertices.size():
 		arrays[Mesh.ARRAY_COLOR] = PackedColorArray(colors)
-	if tangents.size() == vertices.size():
+	if tangents.size() == vertices.size() and not use_particle_attributes:
 		arrays[Mesh.ARRAY_TANGENT] = _pack_tangents(tangents)
 	return arrays
 
@@ -184,6 +196,15 @@ func _add_uv2_arrays(arrays: Array) -> void:
 	elif uv2_v4.size() == vertices.size():
 		arrays[Mesh.ARRAY_CUSTOM2] = _pack_vec4_custom(uv2_v4)
 
+func _add_particle_arrays(arrays: Array) -> void:
+	if uv0_v4.size() != vertices.size() or normals.size() != vertices.size():
+		push_error("Particle mesh export requires uv0_v4 and normals for every vertex")
+		return
+	arrays[Mesh.ARRAY_TEX_UV] = _pack_vec4_xy(uv0_v4)
+	arrays[Mesh.ARRAY_TEX_UV2] = _pack_particle_birth_times(uv0_v4)
+	arrays[Mesh.ARRAY_TANGENT] = _pack_particle_tangents(uv0_v4)
+	arrays[Mesh.ARRAY_CUSTOM0] = _pack_particle_custom0(normals)
+
 static func _pack_vec2_custom(values: Array[Vector2]) -> PackedFloat32Array:
 	var packed := PackedFloat32Array()
 	for value in values:
@@ -221,6 +242,31 @@ static func _pack_vec4_custom(values: Array[Vector4]) -> PackedFloat32Array:
 		packed.append(value.y)
 		packed.append(value.z)
 		packed.append(value.w)
+	return packed
+
+static func _pack_particle_birth_times(values: Array[Vector4]) -> PackedVector2Array:
+	var packed := PackedVector2Array()
+	for value in values:
+		packed.append(Vector2(value.w, value.z))
+	return packed
+
+static func _pack_particle_tangents(values: Array[Vector4]) -> PackedFloat32Array:
+	var packed := PackedFloat32Array()
+	for value in values:
+		packed.append(0.0)
+		packed.append(0.0)
+		packed.append(value.z)
+		packed.append(1.0)
+	return packed
+
+static func _pack_particle_custom0(centers: Array[Vector3]) -> PackedFloat32Array:
+	var packed := PackedFloat32Array()
+	for index in range(centers.size()):
+		var center := centers[index]
+		packed.append(float(index))
+		packed.append(center.x)
+		packed.append(center.y)
+		packed.append(center.z)
 	return packed
 
 static func _pack_tangents(values: Array[Vector4]) -> PackedFloat32Array:

@@ -40,7 +40,7 @@ static func find_material_for_descriptor(desc: BrushDescriptor) -> Material:
 	if material == null and brush_name != desc.m_DurableName and _has_known_material(open_brush, desc.m_DurableName):
 		material = open_brush.find_matching_brush_material(desc.m_DurableName)
 	if material != null:
-		material = _prepare_live_material(material)
+		material = _prepare_live_material(material, desc)
 		_apply_generated_geometry_culling(material, desc)
 
 	_material_cache[cache_key] = material
@@ -67,7 +67,7 @@ static func find_material_for_name(brush_name: String) -> Material:
 	open_brush.ensure_loaded()
 	var material: Material = open_brush.find_matching_brush_material(brush_name)
 	if material != null:
-		material = _prepare_live_material(material)
+		material = _prepare_live_material(material, null)
 	_material_cache[cache_key] = material
 	return material
 
@@ -92,11 +92,26 @@ static func _has_known_material(open_brush: Variant, material_name: String) -> b
 			return true
 	return false
 
-static func _prepare_live_material(source: Material) -> Material:
+static func _prepare_live_material(source: Material, desc: BrushDescriptor) -> Material:
 	var material: Material = source.duplicate()
 	if material is ShaderMaterial:
+		_apply_particle_rotation_channel(material as ShaderMaterial, desc)
 		_apply_default_light_params(material as ShaderMaterial)
 	return material
+
+static func _apply_particle_rotation_channel(material: ShaderMaterial, desc: BrushDescriptor) -> void:
+	if desc == null or String(desc.prefab_fields.get("prefab_name", "")) != "GeniusParticle":
+		return
+	var source_shader := material.shader
+	if source_shader == null:
+		return
+	var code := source_shader.code
+	if not code.contains("TANGENT.z"):
+		return
+	# ArrayMesh normalizes tangent vectors, so generated particle rotation must use a non-tangent channel.
+	var shader := Shader.new()
+	shader.code = code.replace("TANGENT.z", "UV2.y")
+	material.shader = shader
 
 static func _apply_generated_geometry_culling(material: Material, desc: BrushDescriptor) -> void:
 	if desc == null or not desc.m_RenderBackfaces:

@@ -15,6 +15,8 @@ func _init() -> void:
 	_compare_brush("DotMarker")
 	_compare_brush("Plasma")
 	_compare_brush("TaperedMarker_Flat")
+	_compare_brush("Stars")
+	_compare_brush("Embers")
 	quit(1 if _failures > 0 else 0)
 
 func _load_manifest() -> TiltBrushManifest:
@@ -60,7 +62,7 @@ func _build_direct(desc: BrushDescriptor, points: Array[Dictionary], size: float
 	brush.set_random_seed(seed)
 	brush.init_brush(desc, TrTransform.trs(first.position, first.orientation, scale))
 	brush.set_random_seed(seed)
-	for index in range(1, points.size()):
+	for index in range(points.size()):
 		var point := points[index]
 		brush.update_position_ls(TrTransform.trs(point.position, point.orientation, scale), point.pressure)
 	brush.apply_changes_to_visuals()
@@ -99,7 +101,7 @@ func _build_with_pointer_math(desc: BrushDescriptor, points: Array[Dictionary], 
 	brush.set_random_seed(seed)
 	brush.init_brush(desc, first)
 	brush.set_random_seed(seed)
-	for index in range(1, points.size()):
+	for index in range(points.size()):
 		var point := points[index]
 		brush.update_position_ls(TrTransform.trs(point.position, point.orientation, scale), point.pressure)
 	brush.apply_changes_to_visuals()
@@ -124,7 +126,7 @@ func _build_live_from_object(desc: BrushDescriptor, points: Array[Dictionary], s
 	Coords.apply_local(pointer, TrTransform.trs(points[0].position, points[0].orientation, 1.0))
 	pointer.create_new_line(canvas, Coords.as_local(pointer))
 	pointer.m_CurrentLine.set_random_seed(seed)
-	for index in range(1, points.size()):
+	for index in range(points.size()):
 		Coords.apply_local(pointer, TrTransform.trs(points[index].position, points[index].orientation, 1.0))
 		pointer.update_line_from_object()
 	pointer.detach_line(false)
@@ -156,8 +158,54 @@ func _compare_meshes(label: String, a: MeshData, b: MeshData) -> void:
 		max_uv_delta = maxf(max_uv_delta, a_uv[index].distance_to(b_uv[index]))
 	print("LIVE_TILT_UV\t%s\tmax_uv_delta=%.8f" % [label, max_uv_delta])
 	_expect(max_uv_delta < 0.00001, "%s primary uv delta %.8f" % [label, max_uv_delta])
+	_compare_particle_channels(label, a, b)
+
+func _compare_particle_channels(label: String, a: MeshData, b: MeshData) -> void:
+	if not a.use_particle_attributes and not b.use_particle_attributes:
+		return
+	_expect(a.use_particle_attributes == b.use_particle_attributes, "%s particle attribute flag" % label)
+	_expect_close(a.bounds_padding_ls, b.bounds_padding_ls, "%s bounds padding" % label)
+	var a_arrays := a.to_mesh_arrays()
+	var b_arrays := b.to_mesh_arrays()
+	_compare_vec2_array(label, "uv2", a_arrays[Mesh.ARRAY_TEX_UV2], b_arrays[Mesh.ARRAY_TEX_UV2])
+	_compare_float_array(label, "custom0", a_arrays[Mesh.ARRAY_CUSTOM0], b_arrays[Mesh.ARRAY_CUSTOM0])
+
+func _compare_vec2_array(label: String, channel: String, a_value: Variant, b_value: Variant) -> void:
+	_expect(a_value is PackedVector2Array, "%s %s exists on first mesh" % [label, channel])
+	_expect(b_value is PackedVector2Array, "%s %s exists on second mesh" % [label, channel])
+	if not (a_value is PackedVector2Array and b_value is PackedVector2Array):
+		return
+	var a_array: PackedVector2Array = a_value
+	var b_array: PackedVector2Array = b_value
+	_expect(a_array.size() == b_array.size(), "%s %s count" % [label, channel])
+	var count := mini(a_array.size(), b_array.size())
+	var max_delta := 0.0
+	for index in range(count):
+		max_delta = maxf(max_delta, a_array[index].distance_to(b_array[index]))
+	print("LIVE_TILT_UV\t%s\t%s_max_delta=%.8f" % [label, channel, max_delta])
+	_expect(max_delta < 0.00001, "%s %s delta %.8f" % [label, channel, max_delta])
+
+func _compare_float_array(label: String, channel: String, a_value: Variant, b_value: Variant) -> void:
+	_expect(a_value is PackedFloat32Array, "%s %s exists on first mesh" % [label, channel])
+	_expect(b_value is PackedFloat32Array, "%s %s exists on second mesh" % [label, channel])
+	if not (a_value is PackedFloat32Array and b_value is PackedFloat32Array):
+		return
+	var a_array: PackedFloat32Array = a_value
+	var b_array: PackedFloat32Array = b_value
+	_expect(a_array.size() == b_array.size(), "%s %s count" % [label, channel])
+	var count := mini(a_array.size(), b_array.size())
+	var max_delta := 0.0
+	for index in range(count):
+		max_delta = maxf(max_delta, absf(a_array[index] - b_array[index]))
+	print("LIVE_TILT_UV\t%s\t%s_max_delta=%.8f" % [label, channel, max_delta])
+	_expect(max_delta < 0.00001, "%s %s delta %.8f" % [label, channel, max_delta])
 
 func _expect(condition: bool, message: String) -> void:
 	if not condition:
 		_failures += 1
 		push_error("LiveVsTiltUvParityTest: %s" % message)
+
+func _expect_close(actual: float, expected: float, message: String) -> void:
+	if absf(actual - expected) > 0.00001:
+		_failures += 1
+		push_error("LiveVsTiltUvParityTest: %s expected %.8f but got %.8f" % [message, expected, actual])

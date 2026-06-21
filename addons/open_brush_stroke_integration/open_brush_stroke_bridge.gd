@@ -4,8 +4,10 @@ extends RefCounted
 
 const TILT_READER_PATH := "res://addons/open_brush_stroke_integration/open_brush_tilt_reader.gd"
 const ICOSA_OPEN_BRUSH_PATH := "res://addons/icosa/open_brush/open_brush.gd"
+const _BrushMaterialResolver := preload("res://Scripts/Brushes/BrushMaterialResolver.gd")
 
 var _open_brush
+var _runtime_manifest: TiltBrushManifest = null
 
 func _init(open_brush = null) -> void:
 	_open_brush = open_brush
@@ -67,6 +69,10 @@ func stroke_from_icosa_stroke(stroke_data: Dictionary, canvas: CanvasScript = nu
 
 func _resolve_descriptor(stroke_data: Dictionary) -> BrushDescriptor:
 	var guid := String(stroke_data.get("brush_guid", ""))
+	return _resolve_descriptor_by_guid(guid)
+
+func _resolve_descriptor_by_guid(guid: String) -> BrushDescriptor:
+	_ensure_runtime_manifest()
 	var desc := BrushCatalog.get_brush(guid)
 	if desc != null:
 		return desc
@@ -97,11 +103,10 @@ func recreate_strokes(canvas: CanvasScript, pointer: PointerScript, strokes: Arr
 func find_material_for_stroke(stroke: Stroke) -> Material:
 	if stroke == null:
 		return null
-	if not _ensure_open_brush():
+	var desc := _resolve_descriptor_by_guid(stroke.m_BrushGuid)
+	if desc == null:
 		return null
-	_open_brush.ensure_loaded()
-	var brush_name: String = _open_brush.resolve_brush_name(stroke.m_BrushGuid)
-	return _open_brush.find_matching_brush_material(brush_name)
+	return _BrushMaterialResolver.find_material_for_descriptor(desc)
 
 func apply_material_to_stroke(stroke: Stroke) -> void:
 	var material := find_material_for_stroke(stroke)
@@ -112,7 +117,9 @@ func apply_material_to_stroke(stroke: Stroke) -> void:
 func _apply_material_recursive(node: Node, material: Material) -> void:
 	if node is MeshInstance3D:
 		var mesh_instance := node as MeshInstance3D
-		mesh_instance.material_override = material
+		if mesh_instance.mesh != null:
+			for surface_index in range(mesh_instance.mesh.get_surface_count()):
+				mesh_instance.mesh.surface_set_material(surface_index, material)
 	for child in node.get_children():
 		_apply_material_recursive(child, material)
 
@@ -140,3 +147,17 @@ func _ensure_open_brush() -> bool:
 		return false
 	_open_brush = script.new()
 	return true
+
+func _ensure_runtime_manifest() -> TiltBrushManifest:
+	if _runtime_manifest != null:
+		return _runtime_manifest
+	var project_path := ProjectSettings.globalize_path("res://")
+	var manifest := UnityAssetLoader.load_manifest(project_path.path_join("Manifest.asset"))
+	if manifest == null:
+		return null
+	var experimental_manifest := UnityAssetLoader.load_manifest(project_path.path_join("Manifest_Experimental.asset"))
+	if experimental_manifest != null:
+		manifest.append_from(experimental_manifest)
+	BrushCatalog.init(manifest)
+	_runtime_manifest = manifest
+	return _runtime_manifest

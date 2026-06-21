@@ -35,7 +35,7 @@ static func create_brush_for_stroke(stroke: Stroke, canvas: CanvasScript = null)
 
 	brush.set_is_loading()
 	brush.set_random_seed(stroke.m_Seed)
-	for index in range(1, stroke.m_ControlPoints.size()):
+	for index in range(stroke.m_ControlPoints.size()):
 		if index < stroke.m_ControlPointsToDrop.size() and stroke.m_ControlPointsToDrop[index]:
 			continue
 		var point := stroke.m_ControlPoints[index]
@@ -50,6 +50,8 @@ static func build_mesh_data_for_stroke(stroke: Stroke) -> MeshData:
 		return null
 	var result := MeshData.new()
 	result.copy_from(brush.mesh_data)
+	if brush.m_Desc != null and brush.m_Desc.m_BoundsPadding > 0.0:
+		result.bounds_padding_ls = brush.m_Desc.m_BoundsPadding * App.METERS_TO_UNITS * brush.pointer_to_local()
 	brush.free()
 	return result
 
