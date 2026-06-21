@@ -49,6 +49,15 @@ func _check_preview_decay_bookkeeping() -> void:
 	brush.reset_brush_for_preview(TrTransform.identity())
 	_expect(brush.update_position_ls(TrTransform.trs(Vector3(2.0, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "spray preview update keeps")
 	_expect_equal(brush.m_DecayTimers.size(), 1, "spray preview decay timer")
+	var initial_knots := brush.m_knots.size()
+	brush.m_DecayTimers[0] = BaseBrushScript.K_PREVIEW_DURATION - 0.001
+	brush.m_LastDecayTimeSeconds = SprayBrush._current_decay_time_seconds() - 0.01
+
+	brush.decay_brush()
+
+	_expect_equal(brush.m_DecayTimers.size(), 0, "spray preview decay removes expired timer")
+	_expect_equal(brush.m_DecayedKnots, 1, "spray preview decay increments decayed knot count")
+	_expect_equal(brush.m_knots.size(), initial_knots - 1, "spray preview decay shifts initial knot")
 	brush.free()
 
 func _make_spray_brush(backfaces: bool) -> SprayBrush:

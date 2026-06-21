@@ -25,6 +25,7 @@ const TEXTURE_ATLAS_55 := Vector2(0.5, 0.5)
 
 var m_DecayTimers: Array[float] = []
 var m_DecayedKnots := 0
+var m_LastDecayTimeSeconds := -1.0
 
 func _init() -> void:
 	setup_geometry_brush(true, K_VERTS_IN_SOLID, true, false)
@@ -44,6 +45,7 @@ func init_brush(desc: BrushDescriptor, local_pointer_xf: TrTransform) -> void:
 	set_double_sided(desc)
 	m_DecayTimers.clear()
 	m_geometry.set_layout(get_vertex_layout(desc))
+	m_LastDecayTimeSeconds = _current_decay_time_seconds()
 
 func get_vertex_layout(_desc: BrushDescriptor) -> GeometryPool.VertexLayout:
 	return GeometryPool.VertexLayout.create(
@@ -56,9 +58,12 @@ func get_vertex_layout(_desc: BrushDescriptor) -> GeometryPool.VertexLayout:
 	)
 
 func decay_brush() -> void:
+	var now := _current_decay_time_seconds()
+	var delta := maxf(0.0, now - m_LastDecayTimeSeconds) if m_LastDecayTimeSeconds >= 0.0 else 0.0
+	m_LastDecayTimeSeconds = now
 	var knots_to_shift := 0
 	for index in range(m_DecayTimers.size()):
-		m_DecayTimers[index] += 0.0
+		m_DecayTimers[index] += delta
 		if m_DecayTimers[index] > K_PREVIEW_DURATION:
 			knots_to_shift += 1
 	m_DecayTimers = m_DecayTimers.slice(knots_to_shift)
@@ -68,6 +73,7 @@ func decay_brush() -> void:
 func reset_brush_for_preview(local_pointer_xf: TrTransform) -> void:
 	super.reset_brush_for_preview(local_pointer_xf)
 	m_DecayTimers.clear()
+	m_LastDecayTimeSeconds = _current_decay_time_seconds()
 
 func update_position_impl(position: Vector3, orientation: Quaternion, pressure: float) -> bool:
 	var keep := super.update_position_impl(position, orientation, pressure)
@@ -197,3 +203,6 @@ func on_changed_tangents(knot_index: int) -> void:
 func get_num_quads_allowed() -> int:
 	var max_num_verts := 0xffff
 	return min(int((max_num_verts - get_num_used_verts()) / (K_VERTS_IN_SOLID * NS)), K_MAX_QUADS_PER_KNOT)
+
+static func _current_decay_time_seconds() -> float:
+	return float(Time.get_ticks_msec()) / 1000.0
