@@ -14,6 +14,7 @@ func _run() -> void:
 	_check_stretch_uv_atlas_branch()
 	_check_stretch_uv_live_preview_preserves_width_uv()
 	_check_distance_uv_brush()
+	_check_distance_uv_finalize_flushes_tangents()
 	_check_distance_uv_atlas_branch()
 	_check_distance_uv_color32_alpha_quantization()
 	_check_distance_uv_backfaces()
@@ -124,6 +125,16 @@ func _check_distance_uv_brush() -> void:
 	_expect_close(brush.m_Geometry.m_Colors[1].a, 1.0, "distance leading alpha")
 	_expect_close(brush.m_Geometry.m_Tangents[0].length(), sqrt(2.0), "distance tangent length includes handedness")
 	brush.finalize_solitary_brush()
+	brush.free()
+
+func _check_distance_uv_finalize_flushes_tangents() -> void:
+	var brush := _make_quad_brush(QuadStripBrushDistanceUV.new(), false)
+	_seed_two_quads(brush)
+	brush.update_uvs(0, 2, 1.0)
+	_expect(brush.has_tangent_request(), "distance finalize starts with pending tangent request")
+	brush.finalize_solitary_brush()
+	_expect_equal(brush.mesh_data.tangents.size(), 12, "distance finalize exports tangents")
+	_expect(brush.mesh_data.tangents[0].length() > 0.0, "distance finalize computes tangent")
 	brush.free()
 
 func _check_distance_uv_atlas_branch() -> void:

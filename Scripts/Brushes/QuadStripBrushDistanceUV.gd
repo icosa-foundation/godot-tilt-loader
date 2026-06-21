@@ -85,6 +85,10 @@ func finalize_batched_brush() -> void:
 	flush_tangent_request()
 	super.finalize_batched_brush()
 
+func finalize_solitary_brush() -> void:
+	flush_tangent_request()
+	super.finalize_solitary_brush()
+
 func lazy_update_tangents_for_segment(quad0: int, quad1: int) -> void:
 	if has_tangent_request() and _tangent_request_back != quad0:
 		flush_tangent_request()

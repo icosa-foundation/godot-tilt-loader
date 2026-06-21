@@ -18,7 +18,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `GeometryBrush.gd` | `GeometryBrush.cs` | Partially audited, active repair started | Shared `SetVert` now uses Open Brush `Color32` truncation for RGB and alpha. Initial knot smoothed pressure now matches Open Brush struct defaults. Batched finalization now copies/releases geometry directly instead of re-entering subclass solitary finalizers. Lifecycle/finalization still needs full audit before child classes can be considered complete. |
 | `QuadStripBrush.gd` | `QuadStripBrush.cs` | Partially audited, active repair started | Sharp-bend shrink/break behavior, double-sided backside consistency, backface color/hue-shift behavior, append-time `Color32` truncation, and single-sided batched weld finalization have been ported. Full line-by-line audit still required. |
 | `QuadStripBrushStretchUV.gd` | `QuadStripBrushStretchUV.cs` | Partially audited, active repair started | UV tests cover stretch remapping, width-in-UV0.z export, backface mirroring, and texture atlas branch behavior. Needs full line-by-line audit after base `QuadStripBrush` settles. |
-| `QuadStripBrushDistanceUV.gd` | `QuadStripBrushDistanceUV.cs` | Partially audited, active repair started | Backface UV/color/tangent mirroring has been ported and tested. UV tests now cover distance atlas branch behavior and `Color32` fade quantization. Needs full line-by-line audit. |
+| `QuadStripBrushDistanceUV.gd` | `QuadStripBrushDistanceUV.cs` | Partially audited, active repair started | Backface UV/color/tangent mirroring has been ported and tested. UV tests now cover distance atlas branch behavior, `Color32` fade quantization, and direct finalization flushing of pending tangent requests. Needs full line-by-line audit. |
 | `QuadStripUnitizedUVBrush.gd` | `QuadStripUnitizedUVBrush.cs` | Partially audited, active repair started | Backface UV/tangent mirroring has been ported and tested. Needs full line-by-line audit. |
 | `FlatGeometryBrush.gd` | `FlatGeometryBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Batched finalization now trims short post-break tails like Open Brush. Needs full branch audit. |
 | `ThickGeometryBrush.gd` | `ThickGeometryBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Texture atlas count handling now matches Open Brush directly, with distance/stretch atlas branch coverage. Needs full branch audit. |
@@ -97,6 +97,7 @@ Implemented so far:
 - Open Brush `MathUtils.ComputeMinimalRotationFrame` forward-axis convention for Godot `Basis.looking_at`.
 - Open Brush `TubeBrush` routing through shared `MathUtils.ComputeMinimalRotationFrame` instead of a local alternate frame path.
 - Open Brush `GeometryBrush` initial knot `smoothedPressure` default behavior before the first update.
+- Direct runtime finalization for `QuadStripBrushDistanceUV` now flushes pending tangent requests like the visual update path, matching the established stretch UV finalization behavior.
 
 Focused tests added/updated:
 
@@ -110,6 +111,7 @@ Focused tests added/updated:
   - checks double-sided UnitizedUV backface UV/tangent channel mirroring,
   - checks StretchUV and DistanceUV texture atlas branch formulas for `m_TextureAtlasV > 1`,
   - checks DistanceUV fade opacity is quantized to Unity `Color32` byte alpha,
+  - checks DistanceUV direct solitary finalization flushes pending tangent requests before mesh export,
   - checks quad-strip append-time colors, opacity, previous-edge carryover, and hue-shifted backfaces use Unity `Color32` byte truncation.
 - `Tests/GDScript/FlatGeometryBrushParityTest.gd`
   - checks generated flat geometry vertex colors use Unity `Color32` byte truncation for RGB and alpha.
