@@ -31,6 +31,7 @@ func _run() -> void:
 	_check_append_color32_quantization()
 	_check_backface_append_color_pattern()
 	_check_backface_append_hue_shift()
+	_check_new_segment_squashes_previous_lone_segment()
 	_check_sharp_bend_shrinks_quad_strip()
 	_check_double_back_creates_strip_break()
 	_check_disabled_strip_break_keeps_single_segment()
@@ -452,6 +453,35 @@ func _check_backface_append_hue_shift() -> void:
 	_expect_color_close(colors[11], expected, "backface hue color 5")
 	brush.finalize_solitary_brush()
 	brush.free()
+
+func _check_new_segment_squashes_previous_lone_segment() -> void:
+	var single := _make_quad_brush(QuadStripBrushStretchUV.new(), false)
+	single.m_LeadingQuadIndex = 1
+	single.m_InitialQuadIndex = 1
+	single.m_LastSegmentLengthSolids = 1
+	single.m_LastQuadCenter = Vector3(2.0, 3.0, 4.0)
+	single.position_quad(single.m_Geometry.m_Vertices, 0, Vector3.ZERO, Vector3.RIGHT, Vector3.UP)
+	var earliest_single := single.append_leading_quad(true, 1.0, Vector3.RIGHT, Vector3.RIGHT, Vector3.BACK, Vector3.UP)
+	_expect_equal(earliest_single, 0, "single-sided lone segment squash reports previous quad changed")
+	for offset in range(6):
+		_expect_vec3_close(single.m_Geometry.m_Vertices[offset], single.m_LastQuadCenter, "single-sided lone segment squash vertex %d" % offset)
+	single.finalize_solitary_brush()
+	single.free()
+
+	var double := _make_quad_brush(QuadStripBrushStretchUV.new(), true)
+	double.m_LeadingQuadIndex = 2
+	double.m_InitialQuadIndex = 2
+	double.m_LastSegmentLengthSolids = 1
+	double.m_LastQuadCenter = Vector3(5.0, 6.0, 7.0)
+	double.position_quad(double.m_Geometry.m_Vertices, 0, Vector3.ZERO, Vector3.RIGHT, Vector3.UP)
+	BaseBrushScript.create_duplicate_quad(double.m_Geometry.m_Vertices, double.m_Geometry.m_Normals, 1, Vector3.BACK)
+	var earliest_double := double.append_leading_quad(true, 1.0, Vector3.RIGHT, Vector3.RIGHT, Vector3.BACK, Vector3.UP)
+	_expect_equal(earliest_double, 0, "double-sided lone segment squash reports previous quad changed")
+	for offset in range(6):
+		_expect_vec3_close(double.m_Geometry.m_Vertices[offset], double.m_LastQuadCenter, "double-sided lone segment squash vertex %d" % offset)
+	_expect_backface_matches_front(double, 0)
+	double.finalize_solitary_brush()
+	double.free()
 
 func _check_sharp_bend_shrinks_quad_strip() -> void:
 	var brush := _make_quad_brush(QuadStripBrushStretchUV.new(), false)

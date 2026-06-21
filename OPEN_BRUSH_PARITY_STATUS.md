@@ -20,7 +20,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | --- | --- | --- | --- |
 | `BaseBrushScript.gd` | `BaseBrushScript.cs` | Partially audited, active repair started | Lifecycle helper coverage now includes scale conversions, random seed setter, exact surface-frame output, pressured size/opacity, backface init, and `m_LastSpawnXf` update gating. Core lifecycle and coordinate shims still need full line-by-line comparison. |
 | `GeometryBrush.gd` | `GeometryBrush.cs` | Partially audited, active repair started | Shared `SetVert` now uses Open Brush `Color32` truncation for RGB and alpha. Initial knot smoothed pressure now matches Open Brush struct defaults. Batched finalization now copies/releases geometry directly instead of re-entering subclass solitary finalizers. Lifecycle/finalization still needs full audit before child classes can be considered complete. |
-| `QuadStripBrush.gd` | `QuadStripBrush.cs` | Partially audited, active repair started | Spawn interval, pressure smoothing, out-of-verts threshold, small-move no-update behavior, short preview move state restoration, strip-break disabled behavior, sharp-bend shrink/break behavior, double-sided backside consistency, backface color/hue-shift behavior, append-time `Color32` truncation, debug used counts, `GetNumUsedVerts` edge cases, preview reset layout/index behavior, destroy-time geometry-pool release, single-sided batched weld finalization including UV0.z, and double-sided batched non-weld export have focused coverage. Full line-by-line audit and Open Brush reference fixture comparison still required. |
+| `QuadStripBrush.gd` | `QuadStripBrush.cs` | Partially audited, active repair started | Spawn interval, pressure smoothing, out-of-verts threshold, small-move no-update behavior, short preview move state restoration, strip-break disabled behavior, sharp-bend shrink/break behavior, double-sided backside consistency, backface color/hue-shift behavior, append-time `Color32` truncation, previous lone-segment squash cleanup, debug used counts, `GetNumUsedVerts` edge cases, preview reset layout/index behavior, destroy-time geometry-pool release, single-sided batched weld finalization including UV0.z, and double-sided batched non-weld export have focused coverage. Full line-by-line audit and Open Brush reference fixture comparison still required. |
 | `QuadStripBrushStretchUV.gd` | `QuadStripBrushStretchUV.cs` | Partially audited, active repair started | UV method formulas now have line-by-line source comparison coverage for stretch remapping, width-in-UV0.z export, backface mirroring, texture atlas branch behavior, and pending-request union/flush behavior. Godot runtime finalization flushes pending requests before export because this integration does not always pass through Unity's visual mesh update step. Base `QuadStripBrush` still needs full audit. |
 | `QuadStripBrushDistanceUV.gd` | `QuadStripBrushDistanceUV.cs` | Partially audited, active repair started | UV method formulas now have line-by-line source comparison coverage for distance atlas behavior, opacity fade quantization, backface UV/color/tangent mirroring, tangent-request union/flush behavior, preview reset clearing, and the no-op per-quad hook. Godot runtime finalization flushes pending tangents before export for the same integration reason as stretch UV. Base `QuadStripBrush` still needs full audit. |
 | `QuadStripUnitizedUVBrush.gd` | `QuadStripUnitizedUVBrush.cs` | Partially audited, active repair started | Unitized UV method layout, tangent generation range, backface UV/tangent mirroring, and no-op per-quad/per-segment hooks now have line-by-line source comparison coverage. Base `QuadStripBrush` still needs full audit. |
@@ -89,6 +89,7 @@ Implemented so far:
 - pending UV/tangent flushes before batched finalization for stretch and distance UV quad-strip subclasses,
 - Open Brush backface color pattern and `m_BackfaceHueShift` handling in `AppendLeadingQuad`,
 - Open Brush append-time `Color32` truncation for quad-strip vertex colors,
+- Open Brush `AppendLeadingQuad` previous lone-segment squash cleanup for single-sided and double-sided strips,
 - backface UV/color/tangent mirroring for `QuadStripBrushDistanceUV`,
 - backface UV/tangent mirroring for `QuadStripUnitizedUVBrush`.
 - Open Brush `Color32` alpha truncation for `QuadStripBrushDistanceUV` opacity fade.
@@ -155,6 +156,7 @@ Focused tests added/updated:
   - checks double-sided backfaces mirror fused front quads,
   - checks batched finalization welds connected single-sided quad strips to shared-edge topology,
   - checks double-sided append-time backface color pattern and hue shifting,
+  - checks `AppendLeadingQuad` squashes a previous one-solid segment when a new segment starts, including double-sided backside consistency,
   - checks double-sided DistanceUV backface UV/color/tangent channel mirroring,
   - checks double-sided UnitizedUV backface UV/tangent channel mirroring,
   - checks StretchUV and DistanceUV texture atlas branch formulas for `m_TextureAtlasV > 1`,
@@ -412,6 +414,14 @@ Additional validation after adding quad-strip preview-move and strip-break-disab
 Result: command exited successfully.
 
 Additional validation after adding quad-strip destroy-time geometry-pool release coverage:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/QuadStripParityTest.gd
+```
+
+Result: command exited successfully.
+
+Additional validation after adding quad-strip previous lone-segment squash coverage:
 
 ```powershell
 & "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/QuadStripParityTest.gd
