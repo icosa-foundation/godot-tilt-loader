@@ -37,7 +37,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `PbrBrushScript.gd` | `PbrBrushScript.cs` | Not fully audited | Material/export interaction needs separation from mesh parity. |
 | `EnvironmentBrushScript.gd` | `EnvironmentBrushScript.cs` | Not fully audited | Need confirm whether this participates in runtime mesh generation. |
 | `SvgBrushScript.gd` | `SvgBrushScript.cs` | Not fully audited | Need confirm whether this participates in runtime mesh generation. |
-| `MidpointPlusLifetimeSprayBrush.gd` | `MidpointPlusLifetimeSprayBrush.cs` | Not fully audited | Needs particle path and lifetime data audit. |
+| `MidpointPlusLifetimeSprayBrush.gd` | `MidpointPlusLifetimeSprayBrush.cs` | Partially audited, active repair started | Removed non-Open-Brush finalization rewrite copied from Genius-style particle behavior; finalization now preserves generated midpoint particles. Particle layout, seed behavior, and lifetime data still need full audit. |
 
 ## Missing Godot Runtime Equivalents To Investigate
 
@@ -104,6 +104,8 @@ Focused tests added/updated:
   - checks Spray geometry layout, double-sided output, UV/tangent generation, and preview decay aging with elapsed time.
 - `Tests/GDScript/GeniusParticlesBrushParityTest.gd`
   - checks Genius particle geometry layout, generated UV channels, hanging-particle finalization, single-particle pressure behavior, and preview decay aging with elapsed time.
+- `Tests/GDScript/MidpointSprayBrushParityTest.gd`
+  - checks Midpoint Plus Lifetime Spray geometry layout, generated UV0/UV1 channels, tangent/color output, and finalization preserving the generated particle mesh rather than applying Genius Particles hanging-particle removal.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd`
   - walks the real manifest/catalog and verifies all normal `Line`, `LineWithWidth`, `UnitizedUV`, and `DistanceUV` prefabs route to the repaired quad-strip runtime classes.
   - verifies every mesh-affecting prefab field in the active manifest/catalog is applied to the created runtime brush instance, including quad-strip width storage, flat/thick/tube UV style, flat offset flags, hull parameters, concave hull parameters, and tube shape parameters.

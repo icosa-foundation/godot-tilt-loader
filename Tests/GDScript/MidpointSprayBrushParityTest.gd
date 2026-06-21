@@ -8,7 +8,7 @@ func _init() -> void:
 
 func _run() -> void:
 	_check_midpoint_geometry_and_uv1()
-	_check_finalize_removes_hanging_particle()
+	_check_finalize_preserves_generated_particles()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_MIDPOINTSPRAY: all checks passed")
 
@@ -35,13 +35,17 @@ func _check_midpoint_geometry_and_uv1() -> void:
 	_expect_color_close(brush.m_geometry.m_Colors[0], _color32(Color(0.45, 0.8, 0.2, 1.0)), "midpoint color32 color")
 	brush.free()
 
-func _check_finalize_removes_hanging_particle() -> void:
+func _check_finalize_preserves_generated_particles() -> void:
 	var brush := _make_midpoint_brush()
 	_expect(brush.update_position_ls(TrTransform.trs(Vector3(2.0, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "midpoint finalize update keeps")
 	brush.apply_changes_to_visuals()
+	var expected_vertices := brush.m_geometry.m_Vertices.duplicate()
+	var expected_uv1 := brush.m_geometry.m_Texcoord1.v4.duplicate()
 	brush.finalize_solitary_brush()
-	_expect_equal(brush.mesh_data.vertices.size(), 8, "midpoint finalize keeps generated particles")
+	_expect_equal(brush.mesh_data.vertices.size(), expected_vertices.size(), "midpoint finalize keeps generated particles")
 	_expect_equal(brush.mesh_data.triangles.size(), 12, "midpoint finalize tri count")
+	_expect_vec3_close(brush.mesh_data.vertices[4], expected_vertices[4], "midpoint finalize preserves second particle br")
+	_expect_vec4_close(brush.mesh_data.uv1_v4[4], expected_uv1[4], "midpoint finalize preserves second particle uv1")
 	_expect(brush.m_geometry == null, "midpoint releases geometry")
 	brush.free()
 
@@ -82,6 +86,12 @@ func _expect_vec3_close(actual: Vector3, expected: Vector3, label: String) -> vo
 	_expect_close(actual.x, expected.x, "%s x" % label)
 	_expect_close(actual.y, expected.y, "%s y" % label)
 	_expect_close(actual.z, expected.z, "%s z" % label)
+
+func _expect_vec4_close(actual: Vector4, expected: Vector4, label: String) -> void:
+	_expect_close(actual.x, expected.x, "%s x" % label)
+	_expect_close(actual.y, expected.y, "%s y" % label)
+	_expect_close(actual.z, expected.z, "%s z" % label)
+	_expect_close(actual.w, expected.w, "%s w" % label)
 
 func _expect_close(actual: float, expected: float, label: String) -> void:
 	if abs(actual - expected) > 1e-5:

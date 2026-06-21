@@ -164,30 +164,6 @@ func on_changed_tangents(knot_index: int) -> void:
 				set_tangent(vert_index, FL, facing)
 				set_tangent(vert_index, FR, facing)
 
-func finalize_solitary_brush() -> void:
-	finalize_particle_mesh()
-	super.finalize_solitary_brush()
-
-func finalize_particle_mesh() -> void:
-	if m_knots.size() < 2:
-		return
-	var final := m_knots[m_knots.size() - 1]
-	if final.nTri <= K_TRIS_IN_SOLID * NS:
-		m_knots = m_knots.slice(0, m_knots.size() - 1)
-	else:
-		final.nTri -= K_TRIS_IN_SOLID * NS
-		final.nVert -= K_VERTS_IN_SOLID * NS
-		m_knots[m_knots.size() - 1] = final
-	resize_geometry()
-	if m_knots.size() == 2:
-		final = m_knots[1]
-		var last_particle := int(final.nTri / K_TRIS_IN_SOLID) - 1
-		if last_particle >= 0:
-			var pressure: float = max(0.8, final.smoothedPressure)
-			var salt: int = K_SALT_MAX_SALTS_PER_QUAD * (1 * K_SALT_MAX_QUADS_PER_KNOT + last_particle)
-			var size := pressured_random_size(pressure, salt)
-			create_particle_geometry(1, last_particle, m_knots[0].point.m_Pos, size)
-
 func create_particle_geometry(knot_index: int, particle_index: int, position: Vector3, size: float) -> void:
 	var cur := m_knots[knot_index]
 	var vert_index := cur.iVert + particle_index * K_VERTS_IN_SOLID * NS
