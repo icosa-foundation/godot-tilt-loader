@@ -27,9 +27,11 @@ func _check_bubble_geometry_and_uvws() -> void:
 	_expect_equal(brush.m_geometry.m_Texcoord0.v3.size(), 43, "bubble uvw count")
 	_expect_equal(brush.m_geometry.m_Texcoord1.v4.size(), 43, "bubble uv1 count")
 	_expect_equal(brush.m_geometry.m_Tangents.size(), 0, "bubble tangent count")
-	_expect_close(brush.m_geometry.m_Texcoord0.v3[0].x, 0.0, "bubble uvw first u")
-	_expect_close(brush.m_geometry.m_Texcoord0.v3[7].y, 1.0, "bubble uvw first cap v")
-	_expect_close(brush.m_geometry.m_Texcoord0.v3[8].y, 0.0, "bubble uvw first ring v")
+	_check_uvw_formula(brush, 0)
+	_check_uvw_formula(brush, 7)
+	_check_uvw_formula(brush, 8)
+	_check_uvw_formula(brush, 17)
+	_check_uvw_formula(brush, brush.m_geometry.m_Texcoord0.v3.size() - 1)
 	_expect(brush.m_geometry.m_Texcoord0.v3[8].z > 0.0, "bubble moving verts get timestamp")
 	_expect(brush.bubble_radius > 0.0, "bubble computed radius")
 	_expect(brush.bubble_center.distance_to(Vector3(1.0, 0.0, 0.0)) < 0.25, "bubble computed center")
@@ -42,6 +44,7 @@ func _check_finalize_smooths_and_preserves_original_positions() -> void:
 	brush.apply_changes_to_visuals()
 	var original_first_vertex := brush.m_geometry.m_Vertices[0]
 	var original_mid_vertex := brush.m_geometry.m_Vertices[17]
+	var original_last_vertex := brush.m_geometry.m_Vertices[brush.m_geometry.m_Vertices.size() - 1]
 	brush.finalize_solitary_brush()
 
 	_expect(brush.m_geometry == null, "bubble releases geometry")
@@ -49,9 +52,20 @@ func _check_finalize_smooths_and_preserves_original_positions() -> void:
 	_expect_equal(brush.mesh_data.uv1_v4.size(), 43, "bubble finalized uv1 count")
 	_expect_vec4_close(brush.mesh_data.uv1_v4[0], Vector4(original_first_vertex.x, original_first_vertex.y, original_first_vertex.z, 0.0), "bubble stores original first vertex")
 	_expect_vec4_close(brush.mesh_data.uv1_v4[17], Vector4(original_mid_vertex.x, original_mid_vertex.y, original_mid_vertex.z, 0.0), "bubble stores original mid vertex")
+	_expect_vec4_close(brush.mesh_data.uv1_v4[42], Vector4(original_last_vertex.x, original_last_vertex.y, original_last_vertex.z, 0.0), "bubble stores original last vertex")
 	_expect(brush.mesh_data.vertices[0].distance_to(original_first_vertex) > 0.001, "bubble finalize smooths first cap")
 	_expect(brush.release_time > 0.0, "bubble release time")
 	brush.free()
+
+func _check_uvw_formula(brush: BubbleWandBrush, index: int) -> void:
+	var num_uvws := brush.m_geometry.m_Texcoord0.v3.size()
+	var y := float((index + 1) % BubbleWandBrush.K_VERTS_IN_CLOSED_CIRCLE)
+	var expected := Vector3(
+		(index + 1.0 - y) / (num_uvws + 2.0 - BubbleWandBrush.K_VERTS_IN_CLOSED_CIRCLE),
+		y / float(BubbleWandBrush.K_VERTS_IN_CLOSED_CIRCLE - 1),
+		brush.m_geometry.m_Texcoord0.v3[index].z
+	)
+	_expect_vec3_close(brush.m_geometry.m_Texcoord0.v3[index], expected, "bubble uvw formula %d" % index)
 
 func _make_bubble_brush() -> BubbleWandBrush:
 	var desc := BrushDescriptor.new()
@@ -89,6 +103,11 @@ func _expect_vec4_close(actual: Vector4, expected: Vector4, label: String) -> vo
 	_expect_close(actual.y, expected.y, "%s y" % label)
 	_expect_close(actual.z, expected.z, "%s z" % label)
 	_expect_close(actual.w, expected.w, "%s w" % label)
+
+func _expect_vec3_close(actual: Vector3, expected: Vector3, label: String) -> void:
+	_expect_close(actual.x, expected.x, "%s x" % label)
+	_expect_close(actual.y, expected.y, "%s y" % label)
+	_expect_close(actual.z, expected.z, "%s z" % label)
 
 func _expect_close(actual: float, expected: float, label: String) -> void:
 	if absf(actual - expected) > 1e-5:

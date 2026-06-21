@@ -64,8 +64,6 @@ func control_points_changed(knot_index: int) -> void:
 	bubble_center = vertex_sum / float(num_verts) if num_verts > 0 else Vector3.ZERO
 
 func finalize_solitary_brush() -> void:
-	if m_geometry == null:
-		return
 	var num_verts := m_geometry.m_Vertices.size()
 	for index in range(num_verts):
 		var vertex := m_geometry.m_Vertices[index]
