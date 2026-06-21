@@ -55,9 +55,9 @@ func update_uvs_for_segment(quad0: int, quad1: int, size: float) -> void:
 			BaseBrushScript.mirror_quad_face(m_Geometry.m_UVs, vert)
 	var total_dist := 0.0
 	for solid in range(solid1 - 1, solid0 - 1, -1):
-		var leading_a: float = min(1.0, total_dist / fade_distance)
+		var leading_a := _color32_alpha(min(1.0, total_dist / fade_distance))
 		total_dist += solid_length(m_Geometry.m_Vertices, solid)
-		var trailing_a: float = min(1.0, total_dist / fade_distance)
+		var trailing_a := _color32_alpha(min(1.0, total_dist / fade_distance))
 		if solid == solid0:
 			trailing_a = 0.0
 		var vert := solid * current_stride
@@ -118,3 +118,6 @@ func update_uvs(quad0: int, quad1: int, size: float) -> void:
 
 func update_uvs_for_quad(_quad_index: int) -> void:
 	pass
+
+func _color32_alpha(value: float) -> float:
+	return float(int(clamp(value, 0.0, 1.0) * 255.0)) / 255.0

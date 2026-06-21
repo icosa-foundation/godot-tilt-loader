@@ -5,18 +5,22 @@ const SAMPLE_TILT_PATH := "res://Temp/TiltEvidence/brush_cafe_experimental.tilt"
 const SOURCE_STROKE_INDEX := 150
 
 func _init() -> void:
+	var source_stroke_index := SOURCE_STROKE_INDEX
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--source-stroke-index="):
+			source_stroke_index = int(arg.trim_prefix("--source-stroke-index="))
 	var reader_script := load(TILT_READER_PATH)
 	var tilt_data: Dictionary = reader_script.new().load_tilt(SAMPLE_TILT_PATH)
 	var strokes: Array = tilt_data.get("strokes", [])
-	if SOURCE_STROKE_INDEX >= strokes.size():
+	if source_stroke_index >= strokes.size():
 		push_error("CAFE_STROKE_FIXTURE_EXTRACT: source stroke index out of range")
 		quit(1)
 		return
 	var metadata: Dictionary = tilt_data.get("metadata", {})
-	var stroke: Dictionary = strokes[SOURCE_STROKE_INDEX]
+	var stroke: Dictionary = strokes[source_stroke_index]
 	var fixture := {
 		"source_tilt": SAMPLE_TILT_PATH,
-		"source_stroke_index": SOURCE_STROKE_INDEX,
+		"source_stroke_index": source_stroke_index,
 		"scene_scale": _scene_scale(metadata),
 		"brush_guid": String(stroke.get("brush_guid", "")),
 		"brush_size": float(stroke.get("brush_size", 0.0)),
@@ -61,4 +65,3 @@ func _color_array(value: Variant) -> Array:
 	if value is Color:
 		color = value
 	return [color.r, color.g, color.b, color.a]
-

@@ -13,6 +13,7 @@ func _run() -> void:
 	_check_stretch_uv_brush()
 	_check_stretch_uv_live_preview_preserves_width_uv()
 	_check_distance_uv_brush()
+	_check_distance_uv_color32_alpha_quantization()
 	_check_distance_uv_backfaces()
 	_check_backface_append_color_pattern()
 	_check_backface_append_hue_shift()
@@ -103,6 +104,17 @@ func _check_distance_uv_brush() -> void:
 	_expect_close(brush.m_Geometry.m_Colors[0].a, 0.0, "distance trailing start alpha")
 	_expect_close(brush.m_Geometry.m_Colors[1].a, 1.0, "distance leading alpha")
 	_expect_close(brush.m_Geometry.m_Tangents[0].length(), sqrt(2.0), "distance tangent length includes handedness")
+	brush.finalize_solitary_brush()
+	brush.free()
+
+func _check_distance_uv_color32_alpha_quantization() -> void:
+	var brush := _make_quad_brush(QuadStripBrushDistanceUV.new(), false)
+	_seed_two_short_quads(brush)
+	brush.update_uvs(0, 2, 1.0)
+	var expected_alpha := 122.0 / 255.0
+	_expect_close(brush.m_Geometry.m_Colors[6].a, expected_alpha, "distance fade alpha quantizes to Color32")
+	_expect_close(brush.m_Geometry.m_Colors[8].a, expected_alpha, "distance fade mirrored trailing alpha quantizes to Color32")
+	_expect_close(brush.m_Geometry.m_Colors[7].a, 0.0, "distance leading tip alpha remains zero")
 	brush.finalize_solitary_brush()
 	brush.free()
 
@@ -239,6 +251,16 @@ func _seed_two_quads(brush: QuadStripBrush) -> void:
 		brush.m_Geometry.m_Tangents[index] = Vector4.ZERO
 	brush.position_quad(brush.m_Geometry.m_Vertices, 0, Vector3(0.5, 0.0, 0.0), Vector3(0.5, 0.0, 0.0), Vector3(0.0, 0.5, 0.0))
 	brush.position_quad(brush.m_Geometry.m_Vertices, 6, Vector3(1.5, 0.0, 0.0), Vector3(0.5, 0.0, 0.0), Vector3(0.0, 0.5, 0.0))
+
+func _seed_two_short_quads(brush: QuadStripBrush) -> void:
+	brush.m_LeadingQuadIndex = 2
+	brush.m_InitialQuadIndex = 0
+	for index in range(12):
+		brush.m_Geometry.m_Normals[index] = Vector3.BACK
+		brush.m_Geometry.m_Colors[index] = Color.WHITE
+		brush.m_Geometry.m_Tangents[index] = Vector4.ZERO
+	brush.position_quad(brush.m_Geometry.m_Vertices, 0, Vector3(0.06, 0.0, 0.0), Vector3(0.06, 0.0, 0.0), Vector3(0.0, 0.5, 0.0))
+	brush.position_quad(brush.m_Geometry.m_Vertices, 6, Vector3(0.18, 0.0, 0.0), Vector3(0.06, 0.0, 0.0), Vector3(0.0, 0.5, 0.0))
 
 func _seed_two_double_sided_solids(brush: QuadStripBrush) -> void:
 	brush.m_LeadingQuadIndex = 4

@@ -70,6 +70,7 @@ Implemented so far:
 - Open Brush backface color pattern and `m_BackfaceHueShift` handling in `AppendLeadingQuad`,
 - backface UV/color/tangent mirroring for `QuadStripBrushDistanceUV`,
 - backface UV/tangent mirroring for `QuadStripUnitizedUVBrush`.
+- Open Brush `Color32` alpha truncation for `QuadStripBrushDistanceUV` opacity fade.
 
 Focused tests added/updated:
 
@@ -80,9 +81,27 @@ Focused tests added/updated:
   - checks batched finalization welds connected single-sided quad strips to shared-edge topology,
   - checks double-sided append-time backface color pattern and hue shifting,
   - checks double-sided DistanceUV backface UV/color/tangent channel mirroring,
-  - checks double-sided UnitizedUV backface UV/tangent channel mirroring.
+  - checks double-sided UnitizedUV backface UV/tangent channel mirroring,
+  - checks DistanceUV fade opacity is quantized to Unity `Color32` byte alpha.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd`
   - walks the real manifest/catalog and verifies all normal `Line`, `LineWithWidth`, `UnitizedUV`, and `DistanceUV` prefabs route to the repaired quad-strip runtime classes.
+- `Tests/GDScript/CafeStrokeFixturesReplayTest.gd`
+  - replays checked-in cafe stroke fixtures through `OpenBrushStrokeBridge` and `BrushStrokeReplay` without loading the full cafe `.tilt`,
+  - verifies the cafe legacy Ink GUID resolves to the runtime `Ink` descriptor and `QuadStripBrushStretchUV`,
+  - verifies `Resources/Fixtures/cafe_ink_stroke_150.json` produces 600 vertices, 600 indices, full UV0/color channels, and stable cafe-space bounds,
+  - verifies `Resources/Fixtures/cafe_duct_tape_geometry_stroke_496.json` resolves to `DuctTapeGeometry` / `FlatGeometryBrush` and produces 104 vertices, 300 indices, full UV0/color channels, and stable cafe-space bounds,
+  - verifies `Resources/Fixtures/cafe_stars_stroke_130.json` resolves to `Stars` / `GeniusParticlesBrush` and produces 4 vertices, 6 indices, full UV0/color channels, and stable cafe-space bounds,
+  - verifies `Resources/Fixtures/cafe_sparks_stroke_463.json` resolves to `Sparks` / `TubeBrush` and produces 34 vertices, 96 indices, full UV0/color channels, and stable cafe-space bounds,
+  - verifies `Resources/Fixtures/cafe_matte_hull_stroke_11.json` resolves to `MatteHull` / `HullBrush` and produces 36 vertices, 36 indices, full UV0/color channels, and stable cafe-space bounds.
+- `Tests/GDScript/CafeStrokeFixtureExtractProbe.gd`
+  - extracts a source fixture from `res://Temp/TiltEvidence/brush_cafe_experimental.tilt`,
+  - defaults to stroke index 150 and accepts `--source-stroke-index=...`,
+  - this is a fixture-generation probe, not part of the normal fast parity suite.
+- `Tests/GDScript/CafeFixtureCandidateProbe.gd`
+  - lists first runtime-supported cafe stroke candidates by descriptor prefab and runtime class so new fixture choices are reproducible.
+- `Tests/GDScript/TiltImporterRuntimeReplayTest.gd`
+  - verifies the `.tilt` importer and runtime scene builder do not contain the old fallback tessellator entry points,
+  - loads the cafe `.tilt` through runtime replay and checks it creates substantial geometry/material coverage without unresolved normal-brush errors.
 
 Focused validation command run:
 
@@ -93,7 +112,8 @@ $godot = "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win
   "BrushRuntimeRegistryMetadataTest.gd",
   "LiveVsTiltUvParityTest.gd",
   "TiltBridgeReplayParityTest.gd",
-  "SingleBrushStrokeInspectorTest.gd"
+  "SingleBrushStrokeInspectorTest.gd",
+  "CafeStrokeFixturesReplayTest.gd"
 ) | ForEach-Object {
   & $godot --headless --xr-mode off --path . --script "res://Tests/GDScript/$($_)"
   if ($LASTEXITCODE -ne 0) { throw "Test failed: $($_)" }
@@ -102,17 +122,28 @@ $godot = "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win
 
 Result: command exited successfully.
 
+Heavier cafe importer validation also run:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/TiltImporterRuntimeReplayTest.gd
+```
+
+Result: command exited successfully.
+
 Known validation noise:
 
 - Godot reported an existing resource-leak warning after a scene-style test.
 - Catalog loading still reports existing missing GUID and duplicate GUID warnings.
+- Cafe importer validation reports legacy GUID remaps, compatibility-brush skips, and several material UID warnings; these do not currently fail the runtime replay test.
+- The cafe Stars fixture reports a material UID warning for `Stars.tres`; this does not currently fail fixture replay.
 
 ## Next Required Work
 
 1. Continue `QuadStripBrush` and quad-strip subclass audit:
    - compare stretch/distance/unitized UV methods line-by-line for any remaining non-backface differences,
    - confirm all normal flat strip brushes route through the repaired runtime path.
-2. Extract small reference mesh fixtures from Open Brush or the extracted C# runtime.
-3. Convert current helper tests into generated-mesh parity tests where possible.
-4. Audit all remaining brush classes line-by-line against the reference source.
-5. Remove or quarantine any remaining production fallback geometry paths for normal brushes.
+2. Extract additional lightweight real-stroke fixtures for any brush the inspector identifies as suspect.
+3. Generate or import authoritative Open Brush reference mesh fixtures; the current cafe fixture verifies Godot runtime stability for a real stroke but does not yet compare against Open Brush vertex-by-vertex output.
+4. Convert current helper tests into generated-mesh parity tests where possible.
+5. Audit all remaining brush classes line-by-line against the reference source.
+6. Remove or quarantine any remaining production fallback geometry paths for normal brushes.
