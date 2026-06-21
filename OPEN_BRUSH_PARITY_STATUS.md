@@ -37,7 +37,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `SquareBrush.gd` | `SquareBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Tests now cover layout/spawn interval, straight topology, shared-ring continuation, sharp-turn segment break behavior, sub-minimum segment break/restart behavior, and invisible-back frame selection. Needs full reference fixture comparison. |
 | `Square3DPrintBrush.gd` | `Square3DPrintBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Tests now cover straight topology, shared-ring continuation, and parity-flip ring-face insertion. Needs full branch audit. |
 | `SliceBrush.gd` | `SliceBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Initial frame direction now matches Open Brush `ComputeSurfaceFrameNew` + `Quaternion.LookRotation` semantics. Spawn interval/layout, shared-quad continuation, short-segment break/restart behavior, UVW distance reset, and penultimate detection now have focused coverage. Full reference fixture comparison still required. |
-| `PrintableBrush.gd` | `PrintableBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Tests now cover straight topology, envelope behavior, shared-ring continuation, and sharp-turn segment break behavior. Needs full branch audit. |
+| `PrintableBrush.gd` | `PrintableBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Tests now cover layout/spawn interval, straight topology, envelope behavior, shared-ring continuation, sharp-turn segment break behavior, sub-minimum segment break/restart behavior, and invisible-back frame selection. Needs full reference fixture comparison. |
 | `PbrBrushScript.gd` | `PbrBrushScript.cs` | Audited as non-mesh layout provider | Matches Open Brush fake-brush role: layout only, update returns true, zero used verts, zero spawn interval, and explicit no-op solitary/batched finalization. |
 | `EnvironmentBrushScript.gd` | `EnvironmentBrushScript.cs` | Audited as non-mesh layout provider | Matches Open Brush fake-brush role: layout only, optional UV1 layout, update returns true, zero used verts, zero spawn interval, and explicit no-op solitary/batched finalization. |
 | `SvgBrushScript.gd` | `SvgBrushScript.cs` | Audited as non-mesh layout provider | Matches Open Brush fake-brush role: layout only, update returns true, zero used verts, zero spawn interval, and explicit no-op solitary/batched finalization. |
@@ -120,7 +120,7 @@ Implemented so far:
 - Open Brush `TetraBrush` texture atlas count handling and distance atlas branch coverage, including texture edge chop.
 - Catalog replay coverage now verifies every remaining active normal solid/hull/square/slice prefab family generates complete descriptor-driven mesh channels through the shared runtime replay path.
 - Open Brush `SquareBrush` layout/spawn interval, shared-ring continuation, sharp-turn segment-break topology, sub-minimum segment break/restart behavior, and invisible-back frame selection now have focused lifecycle coverage.
-- Open Brush `PrintableBrush` shared-ring continuation and sharp-turn segment-break topology now have focused lifecycle coverage.
+- Open Brush `PrintableBrush` layout/spawn interval, envelope behavior, shared-ring continuation, sharp-turn segment-break topology, sub-minimum segment break/restart behavior, and invisible-back frame selection now have focused lifecycle coverage.
 - Open Brush `Square3DPrintBrush` parity-flip topology branch coverage for double-back strokes.
 - Open Brush `SliceBrush` initial frame direction/normal orientation behavior, routed through the shared `ComputeSurfaceFrameNew` parity helper.
 - Open Brush `SliceBrush` spawn interval formula, UV0 Vector3/no-tangent layout, short-segment strip-break/restart path, UVW distance reset, and penultimate detection now have focused coverage.
@@ -202,7 +202,7 @@ Focused tests added/updated:
 - `Tests/GDScript/SquareBrushParityTest.gd`
   - checks layout flags, spawn interval formula, straight segment topology, shared-ring continuation, sharp-turn segment break topology, sub-minimum segment break/restart behavior, invisible-back frame selection, caps, normals, default UVs, and opaque `Color32` writes.
 - `Tests/GDScript/PrintableBrushParityTest.gd`
-  - checks straight segment topology, envelope behavior, shared-ring continuation, sharp-turn segment break topology, caps, normals, default UVs, and opaque `Color32` writes.
+  - checks layout flags, spawn interval formula, straight segment topology, envelope behavior, shared-ring continuation, sharp-turn segment break topology, sub-minimum segment break/restart behavior, invisible-back frame selection, caps, normals, default UVs, and opaque `Color32` writes.
 - `Tests/GDScript/TetraBrushParityTest.gd`
   - checks Tetra distance and unitized UV geometry, generated topology, vertex color truncation, and distance UV texture atlas branch formulas for `m_TextureAtlasV > 1` with texture edge chop.
 - `Tests/GDScript/TubeBrushParityTest.gd`
@@ -525,6 +525,14 @@ Additional validation after adding `SquareBrush` layout, short-segment restart, 
 ```
 
 Result: all three commands exited successfully.
+
+Additional validation after adding `PrintableBrush` layout, short-segment restart, and invisible-back frame coverage:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/PrintableBrushParityTest.gd
+```
+
+Result: command exited successfully without missing-material warnings.
 
 Open Brush Unity editor project compile check also run after installing the exporter:
 
