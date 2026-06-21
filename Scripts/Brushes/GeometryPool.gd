@@ -254,14 +254,14 @@ func copy_to_mesh_data(mesh: MeshData, i_vert: int = 0, n_vert: int = -1, i_tri_
 	if _layout.bUseTangents:
 		mesh.tangents.assign(m_Tangents.slice(i_vert, i_vert + n_vert))
 
-func append_mesh_data(mesh: MeshData, fallback_color: Variant = null, use_fallback_texcoord: bool = false) -> void:
+func append_mesh_data(mesh: MeshData) -> void:
 	var index_offset := m_Vertices.size()
-	append_vertex_data(mesh, fallback_color, use_fallback_texcoord)
+	append_vertex_data(mesh)
 	for tri in mesh.triangles:
 		m_Tris.append(index_offset + tri)
 	verify_sizes()
 
-func append_vertex_data(mesh: MeshData, fallback_color: Variant = null, use_fallback_texcoord: bool = false) -> void:
+func append_vertex_data(mesh: MeshData) -> void:
 	var mesh_vertex_count := mesh.vertex_count()
 	m_Vertices.append_array(mesh.vertices)
 	if _layout.bUseNormals:
@@ -274,19 +274,15 @@ func append_vertex_data(mesh: MeshData, fallback_color: Variant = null, use_fall
 		var dst := get_texcoord_data(channel)
 		match info.size:
 			2:
-				_copy_texcoord_with_default(dst.v2, mesh.get_uvs(channel, 2), mesh_vertex_count, Vector2.ZERO, use_fallback_texcoord, channel)
+				_copy_texcoord_required(dst.v2, mesh.get_uvs(channel, 2), mesh_vertex_count, channel)
 			3:
-				_copy_texcoord_with_default(dst.v3, mesh.get_uvs(channel, 3), mesh_vertex_count, Vector3.ZERO, use_fallback_texcoord, channel)
+				_copy_texcoord_required(dst.v3, mesh.get_uvs(channel, 3), mesh_vertex_count, channel)
 			4:
-				_copy_texcoord_with_default(dst.v4, mesh.get_uvs(channel, 4), mesh_vertex_count, Vector4.ZERO, use_fallback_texcoord, channel)
+				_copy_texcoord_required(dst.v4, mesh.get_uvs(channel, 4), mesh_vertex_count, channel)
 	if _layout.bUseColors:
 		if mesh.colors.size() != mesh_vertex_count:
-			if fallback_color != null:
-				for _index in range(mesh_vertex_count):
-					m_Colors.append(fallback_color as Color)
-			else:
-				push_error("Missing color")
-				return
+			push_error("Missing color")
+			return
 		else:
 			m_Colors.append_array(mesh.colors)
 	if _layout.bUseTangents:
@@ -367,12 +363,9 @@ func verify_sizes() -> bool:
 		push_error("Arrays not correctly sized")
 	return ok
 
-static func _copy_texcoord_with_default(dst: Array, src: Array, count: int, default_value: Variant, use_fallback: bool, channel: int) -> void:
+static func _copy_texcoord_required(dst: Array, src: Array, count: int, channel: int) -> void:
 	if src.size() == count:
 		dst.append_array(src)
-	elif use_fallback:
-		for _index in range(count):
-			dst.append(default_value)
 	else:
 		push_error("Missing texcoord%d data" % channel)
 

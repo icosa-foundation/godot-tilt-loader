@@ -93,6 +93,7 @@ Implemented so far:
 - Open Brush `SprayBrush.CalculateSalt` modulo behavior for dense knots.
 - Catalog replay coverage now verifies all normal `Spray` and `MiddpointPlusLifetimeGeomSpray` brushes generate complete particle mesh channels through the shared runtime replay path.
 - Removal of the unused non-Open-Brush `MidpointPlusLifetimeSprayBrush.create_particle_geometry` helper.
+- Removal of unused `GeometryPool.append_mesh_data` fallback color/texcoord fill parameters; mesh appends now require complete source channel data instead of carrying dormant substitute-channel behavior.
 - Open Brush texture-atlas branch coverage for `QuadStripBrushStretchUV` and `QuadStripBrushDistanceUV`.
 - Catalog replay coverage now verifies every normal quad-strip and flat-geometry prefab family generates complete descriptor-driven mesh channels through the shared runtime replay path.
 - Open Brush `ThickGeometryBrush` texture atlas count handling and atlas branch coverage for distance/stretch UVs.
@@ -276,6 +277,15 @@ Heavier cafe importer validation also run:
 ```
 
 Result: command exited successfully.
+
+Additional validation after removing unused `GeometryPool` fallback fill behavior:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/GeometryPoolParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/TiltImporterRuntimeReplayTest.gd
+```
+
+Result: both commands exited successfully. A repository search now leaves `fallback` mentions only in test/probe assertions or documentation, not in production runtime/importer fallback geometry paths.
 
 Open Brush Unity editor project compile check also run after installing the exporter:
 
