@@ -21,9 +21,9 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `BaseBrushScript.gd` | `BaseBrushScript.cs` | Partially audited, active repair started | Lifecycle helper coverage now includes scale conversions, random seed setter, exact surface-frame output, pressured size/opacity, backface init, and `m_LastSpawnXf` update gating. Core lifecycle and coordinate shims still need full line-by-line comparison. |
 | `GeometryBrush.gd` | `GeometryBrush.cs` | Partially audited, active repair started | Shared `SetVert` now uses Open Brush `Color32` truncation for RGB and alpha. Initial knot smoothed pressure now matches Open Brush struct defaults. Batched finalization now copies/releases geometry directly instead of re-entering subclass solitary finalizers. Lifecycle/finalization still needs full audit before child classes can be considered complete. |
 | `QuadStripBrush.gd` | `QuadStripBrush.cs` | Partially audited, active repair started | Sharp-bend shrink/break behavior, double-sided backside consistency, backface color/hue-shift behavior, append-time `Color32` truncation, and single-sided batched weld finalization have been ported. Full line-by-line audit still required. |
-| `QuadStripBrushStretchUV.gd` | `QuadStripBrushStretchUV.cs` | Partially audited, active repair started | UV tests cover stretch remapping, width-in-UV0.z export, backface mirroring, and texture atlas branch behavior. Needs full line-by-line audit after base `QuadStripBrush` settles. |
-| `QuadStripBrushDistanceUV.gd` | `QuadStripBrushDistanceUV.cs` | Partially audited, active repair started | Backface UV/color/tangent mirroring has been ported and tested. UV tests now cover distance atlas branch behavior, `Color32` fade quantization, and direct finalization flushing of pending tangent requests. Needs full line-by-line audit. |
-| `QuadStripUnitizedUVBrush.gd` | `QuadStripUnitizedUVBrush.cs` | Partially audited, active repair started | Backface UV/tangent mirroring has been ported and tested. Needs full line-by-line audit. |
+| `QuadStripBrushStretchUV.gd` | `QuadStripBrushStretchUV.cs` | Partially audited, active repair started | UV method formulas now have line-by-line source comparison coverage for stretch remapping, width-in-UV0.z export, backface mirroring, texture atlas branch behavior, and pending-request union/flush behavior. Godot runtime finalization flushes pending requests before export because this integration does not always pass through Unity's visual mesh update step. Base `QuadStripBrush` still needs full audit. |
+| `QuadStripBrushDistanceUV.gd` | `QuadStripBrushDistanceUV.cs` | Partially audited, active repair started | UV method formulas now have line-by-line source comparison coverage for distance atlas behavior, opacity fade quantization, backface UV/color/tangent mirroring, tangent-request union/flush behavior, preview reset clearing, and the no-op per-quad hook. Godot runtime finalization flushes pending tangents before export for the same integration reason as stretch UV. Base `QuadStripBrush` still needs full audit. |
+| `QuadStripUnitizedUVBrush.gd` | `QuadStripUnitizedUVBrush.cs` | Partially audited, active repair started | Unitized UV method layout, tangent generation range, backface UV/tangent mirroring, and no-op per-quad/per-segment hooks now have line-by-line source comparison coverage. Base `QuadStripBrush` still needs full audit. |
 | `FlatGeometryBrush.gd` | `FlatGeometryBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Batched finalization now trims short post-break tails like Open Brush. Needs full branch audit. |
 | `ThickGeometryBrush.gd` | `ThickGeometryBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Texture atlas count handling now matches Open Brush directly, with distance/stretch atlas branch coverage. Needs full branch audit. |
 | `TubeBrush.gd` | `TubeBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. Texture atlas count handling, UV-rate division, and minimal-frame routing now match Open Brush directly, with distance atlas branch coverage. Needs full branch audit. |
@@ -95,6 +95,7 @@ Implemented so far:
 - Removal of the unused non-Open-Brush `MidpointPlusLifetimeSprayBrush.create_particle_geometry` helper.
 - Removal of unused `GeometryPool.append_mesh_data` fallback color/texcoord fill parameters; mesh appends now require complete source channel data instead of carrying dormant substitute-channel behavior.
 - Open Brush texture-atlas branch coverage for `QuadStripBrushStretchUV` and `QuadStripBrushDistanceUV`.
+- Open Brush pending-request behavior coverage for `QuadStripBrushStretchUV` and `QuadStripBrushDistanceUV`, plus complete unitized UV layout/no-op hook coverage for `QuadStripUnitizedUVBrush`.
 - Catalog replay coverage now verifies every normal quad-strip and flat-geometry prefab family generates complete descriptor-driven mesh channels through the shared runtime replay path.
 - Open Brush `ThickGeometryBrush` texture atlas count handling and atlas branch coverage for distance/stretch UVs.
 - Open Brush `TubeBrush` texture atlas count handling and direct UV-rate division behavior, with atlas branch coverage for distance UVs.
@@ -363,6 +364,14 @@ Additional validation after tightening brush class inventory status coverage:
 
 Result: command exited successfully.
 
+Additional validation after tightening quad-strip UV subclass audit coverage:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/QuadStripParityTest.gd
+```
+
+Result: command exited successfully.
+
 Open Brush Unity editor project compile check also run after installing the exporter:
 
 ```powershell
@@ -380,8 +389,8 @@ Known validation noise:
 
 ## Next Required Work
 
-1. Continue `QuadStripBrush` and quad-strip subclass audit:
-   - compare stretch/distance/unitized UV methods line-by-line for any remaining non-backface differences,
+1. Continue base `QuadStripBrush` audit:
+   - compare remaining base topology/finalization methods line-by-line,
    - confirm all normal flat strip brushes route through the repaired runtime path.
 2. Extract additional lightweight real-stroke fixtures for any brush the inspector identifies as suspect.
 3. Generate or import authoritative Open Brush reference mesh fixtures; the current cafe fixture verifies Godot runtime stability for a real stroke but does not yet compare against Open Brush vertex-by-vertex output.

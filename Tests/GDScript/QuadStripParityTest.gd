@@ -9,11 +9,14 @@ func _init() -> void:
 func _run() -> void:
 	_check_position_and_fuse_helpers()
 	_check_unitized_uv_brush()
+	_check_unitized_uv_complete_layout_and_noops()
 	_check_unitized_uv_backfaces()
 	_check_stretch_uv_brush()
+	_check_stretch_uv_request_union_and_segment_flush()
 	_check_stretch_uv_atlas_branch()
 	_check_stretch_uv_live_preview_preserves_width_uv()
 	_check_distance_uv_brush()
+	_check_distance_uv_tangent_request_union_and_preview_reset()
 	_check_distance_uv_finalize_flushes_tangents()
 	_check_distance_uv_atlas_branch()
 	_check_distance_uv_color32_alpha_quantization()
@@ -59,6 +62,31 @@ func _check_unitized_uv_brush() -> void:
 	_expect(brush.m_Geometry == null, "unitized releases geometry")
 	brush.free()
 
+func _check_unitized_uv_complete_layout_and_noops() -> void:
+	var brush := _make_quad_brush(QuadStripUnitizedUVBrush.new(), false)
+	_seed_two_quads(brush)
+	brush.update_uvs(0, 2, 1.0)
+	var expected := [
+		Vector2(0.0, 1.0),
+		Vector2(1.0, 1.0),
+		Vector2(0.0, 0.0),
+		Vector2(0.0, 0.0),
+		Vector2(1.0, 1.0),
+		Vector2(1.0, 0.0),
+	]
+	for quad in range(2):
+		var vert := quad * 6
+		for offset in range(6):
+			_expect_equal(brush.m_Geometry.m_UVs[vert + offset], expected[offset], "unitized complete uv quad %d offset %d" % [quad, offset])
+	var uvs_before := brush.m_Geometry.m_UVs.duplicate()
+	var tangents_before := brush.m_Geometry.m_Tangents.duplicate()
+	brush.update_uvs_for_quad(0)
+	brush.update_uvs_for_segment(0, 2, 1.0)
+	_expect_equal(brush.m_Geometry.m_UVs, uvs_before, "unitized per-quad and per-segment hooks are no-op for uvs")
+	_expect_equal(brush.m_Geometry.m_Tangents, tangents_before, "unitized per-quad and per-segment hooks are no-op for tangents")
+	brush.finalize_solitary_brush()
+	brush.free()
+
 func _check_unitized_uv_backfaces() -> void:
 	var brush := _make_quad_brush(QuadStripUnitizedUVBrush.new(), true)
 	_seed_two_double_sided_solids(brush)
@@ -79,6 +107,23 @@ func _check_stretch_uv_brush() -> void:
 	_expect_close(brush.m_Geometry.m_UVs[1].x, 0.5, "stretch first end x")
 	_expect_close(brush.m_Geometry.m_UVs[7].x, 1.0, "stretch second end x")
 	_expect_equal(brush.m_QuadLengths.slice(0, 2), [1.0, 1.0], "stretch quad lengths")
+	brush.finalize_solitary_brush()
+	brush.free()
+
+func _check_stretch_uv_request_union_and_segment_flush() -> void:
+	var brush := _make_quad_brush(QuadStripBrushStretchUV.new(), false)
+	_seed_two_quads(brush)
+	brush.update_uvs_for_quad(0)
+	brush.update_uvs_for_quad(1)
+	brush.update_uvs_for_segment(0, 1, 1.0)
+	brush.update_uvs_for_segment(0, 2, 1.0)
+	_expect_equal(brush._uv_request_back, 0, "stretch request keeps same segment back")
+	_expect_equal(brush._uv_request_front, 2, "stretch request unions same segment front")
+	brush.update_uvs_for_segment(1, 2, 1.0)
+	_expect_equal(brush._uv_request_back, 1, "stretch request flushes when segment back changes")
+	_expect_equal(brush._uv_request_front, 2, "stretch request stores new segment front")
+	_expect_equal(brush.m_Geometry.m_UVs[0], Vector2(0.0, 0.0), "stretch flushed previous segment uv 0")
+	_expect_equal(brush.m_Geometry.m_UVs[1], Vector2(0.5, 0.0), "stretch flushed previous segment uv 1")
 	brush.finalize_solitary_brush()
 	brush.free()
 
@@ -124,6 +169,22 @@ func _check_distance_uv_brush() -> void:
 	_expect_close(brush.m_Geometry.m_Colors[0].a, 0.0, "distance trailing start alpha")
 	_expect_close(brush.m_Geometry.m_Colors[1].a, 1.0, "distance leading alpha")
 	_expect_close(brush.m_Geometry.m_Tangents[0].length(), sqrt(2.0), "distance tangent length includes handedness")
+	brush.finalize_solitary_brush()
+	brush.free()
+
+func _check_distance_uv_tangent_request_union_and_preview_reset() -> void:
+	var brush := _make_quad_brush(QuadStripBrushDistanceUV.new(), false)
+	_seed_two_quads(brush)
+	brush.lazy_update_tangents_for_segment(0, 1)
+	brush.lazy_update_tangents_for_segment(0, 2)
+	_expect_equal(brush._tangent_request_back, 0, "distance tangent request keeps same segment back")
+	_expect_equal(brush._tangent_request_front, 2, "distance tangent request unions same segment front")
+	brush.lazy_update_tangents_for_segment(1, 2)
+	_expect_equal(brush._tangent_request_back, 1, "distance tangent request flushes when segment back changes")
+	_expect_equal(brush._tangent_request_front, 2, "distance tangent request stores new segment front")
+	_expect(brush.m_Geometry.m_Tangents[0].length() > 0.0, "distance tangent flush computed previous segment")
+	brush.reset_brush_for_preview(TrTransform.identity())
+	_expect(not brush.has_tangent_request(), "distance preview reset clears pending tangent request")
 	brush.finalize_solitary_brush()
 	brush.free()
 
