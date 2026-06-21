@@ -8,6 +8,7 @@
 - Brush source directory: `Assets/Scripts/Brushes`
 - Godot port directory: `Scripts/Brushes`
 - Current test classification inventory: `OPEN_BRUSH_PARITY_TEST_INVENTORY.md`
+- Brush class inventory: `OPEN_BRUSH_BRUSH_CLASS_INVENTORY.md`
 - Open Brush reference mesh fixture contract: `Resources/Fixtures/OpenBrushReferenceMeshes/README.md`
 - Open Brush reference mesh exporter source: `Tools/OpenBrushReferenceMeshExport/OpenBrushReferenceMeshExportTest.cs`
 
@@ -109,6 +110,7 @@ Implemented so far:
 - An Open Brush reference mesh fixture harness now exists at `Tests/GDScript/OpenBrushReferenceMeshFixtureTest.gd`. It scans `Resources/Fixtures/OpenBrushReferenceMeshes/*.json`, replays each referenced stroke through Godot, and compares vertex positions, triangle indices, normals, colors, tangents, and full-width UV0/UV1/UV2 data against Open Brush-exported mesh data.
 - The Unity-side exporter source now exists at `Tools/OpenBrushReferenceMeshExport/OpenBrushReferenceMeshExportTest.cs`. It is installed in the Open Brush Unity editor test assembly and exports finalized `BatchSubset` mesh data plus `GeometryPool` layout/channel data for the representative cafe Ink, DuctTapeGeometry, Stars, Sparks, and MatteHull fixtures.
 - `Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd` now keeps the representative cafe fixture contract executable by checking that the Unity exporter source and reference fixture README list the same Ink, DuctTapeGeometry, Stars, Sparks, and MatteHull fixture set.
+- `OPEN_BRUSH_BRUSH_CLASS_INVENTORY.md` now records the Phase 1.2 brush class inventory: runtime class, Open Brush source file, catalog prefab families, geometry/UV role, finalization requirement, coverage, and current status. `Tests/GDScript/BrushClassInventoryCoverageTest.gd` keeps that inventory aligned with the catalog prefab families and expected source/runtime classes.
 
 Focused tests added/updated:
 
@@ -187,6 +189,10 @@ Focused tests added/updated:
   - checks the checked-in Unity exporter source still includes the representative cafe fixture export set,
   - checks the reference fixture README names the same representative cafe fixtures,
   - verifies the explicit `OpenBrushReferenceExport` category and `ExportRepresentativeCafeFixtures` entry point are present.
+- `Tests/GDScript/BrushClassInventoryCoverageTest.gd`
+  - checks `OPEN_BRUSH_BRUSH_CLASS_INVENTORY.md` lists every expected runtime brush class,
+  - checks all registry-supported normal prefab families, compatibility prefab families, and source-only Open Brush classes are documented,
+  - parses `Resources/BrushCatalog/brush_catalog.json` and verifies every referenced catalog prefab appears in the inventory.
 - `Tests/GDScript/CafeStrokeFixtureExtractProbe.gd`
   - extracts a source fixture from `res://Temp/TiltEvidence/brush_cafe_experimental.tilt`,
   - defaults to stroke index 150 and accepts `--source-stroke-index=...`,

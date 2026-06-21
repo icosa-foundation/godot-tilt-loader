@@ -18,6 +18,7 @@ The key distinction is source authority. Current focused brush tests prove trans
 | `diagnostic probe` | Prints data or extracts fixtures; not part of the normal pass/fail parity suite. |
 | `Open Brush reference mesh parity` | Compares Godot output against authoritative Open Brush mesh fixtures. The harness exists, but no authoritative fixtures are checked in yet. |
 | `reference fixture contract` | Verifies the checked-in lightweight cafe fixtures, Unity exporter source, and reference fixture documentation stay aligned. |
+| `inventory contract` | Verifies checked-in parity inventory documents still cover the current runtime/catalog surface. |
 
 ## Focused Brush Tests
 
@@ -66,6 +67,7 @@ The key distinction is source authority. Current focused brush tests prove trans
 | `Tests/GDScript/BrushCatalogParityTest.gd` | `metadata/material test` | Manifest/catalog loading and representative descriptor fields. | Does not prove every prefab field is applied. |
 | `Tests/GDScript/BrushRuntimeRegistryParityTest.gd` | `metadata/material test` | Live registry excludes compatibility brushes and classifies Open Brush source-only classes. | Registry policy only. |
 | `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd` | `metadata/material test` | Mesh-affecting prefab fields from active catalog are applied to runtime brush instances. | Limited to recognized field set. |
+| `Tests/GDScript/BrushClassInventoryCoverageTest.gd` | `inventory contract` | Verifies `OPEN_BRUSH_BRUSH_CLASS_INVENTORY.md` lists expected runtime classes, registry prefab families, compatibility prefab families, source-only Open Brush classes, and every catalog prefab referenced by `Resources/BrushCatalog/brush_catalog.json`. | Documentation coverage only; it does not prove mesh parity. |
 | `Tests/GDScript/BrushMaterialResolverParityTest.gd` | `metadata/material test` | Live brush material resolution uses the expected shared resolver path. | Material routing only, not mesh parity. |
 | `Tests/GDScript/GeometryPoolParityTest.gd` | `helper-method parity` | GeometryPool append/copy/transform/shift behavior. | Pool behavior only. |
 | `Tests/GDScript/MeshDataArrayExportParityTest.gd` | `helper-method parity` | MeshData export preserves wide texcoord arrays. | Mesh array conversion only. |
