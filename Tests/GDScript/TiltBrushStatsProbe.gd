@@ -1,6 +1,6 @@
 extends SceneTree
 
-const TILT_READER_PATH := "res://addons/icosa/open_brush/open_brush_tilt_reader.gd"
+const TILT_READER_PATH := "res://addons/open_brush_stroke_integration/open_brush_tilt_reader.gd"
 const OPEN_BRUSH_PATH := "res://addons/icosa/open_brush/open_brush.gd"
 
 func _init() -> void:

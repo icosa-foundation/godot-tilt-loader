@@ -11,8 +11,8 @@ extends Node3D
 @export var ForceDoubleSided := false
 @export var NormalizeOpaqueHullMaterials := true
 
-const TILT_IMPORTER_PATH := "res://addons/icosa/open_brush/open_brush_scene.gd"
-const TILT_READER_PATH := "res://addons/icosa/open_brush/open_brush_tilt_reader.gd"
+const TILT_IMPORTER_PATH := "res://addons/open_brush_stroke_integration/open_brush_tilt_scene_importer.gd"
+const TILT_READER_PATH := "res://addons/open_brush_stroke_integration/open_brush_tilt_reader.gd"
 const OPAQUE_HULL_MATERIALS := {
 	"MatteHull": true,
 	"ConcaveHull": true,

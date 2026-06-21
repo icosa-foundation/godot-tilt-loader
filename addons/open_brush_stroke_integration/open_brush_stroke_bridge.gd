@@ -2,7 +2,7 @@
 class_name OpenBrushStrokeBridge
 extends RefCounted
 
-const TILT_READER_PATH := "res://addons/icosa/open_brush/open_brush_tilt_reader.gd"
+const TILT_READER_PATH := "res://addons/open_brush_stroke_integration/open_brush_tilt_reader.gd"
 const ICOSA_OPEN_BRUSH_PATH := "res://addons/icosa/open_brush/open_brush.gd"
 
 var _open_brush

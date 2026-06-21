@@ -3,7 +3,7 @@ extends SceneTree
 const DEFAULT_TILT_PATH := "C:/Users/andyb/Documents/Open Brush/Sketches/allbrushes.tilt"
 const OUTPUT_IMAGE := "user://tilt_file_render_validation.png"
 const OUTPUT_LOG := "user://tilt_file_render_validation.log"
-const TILT_READER_PATH := "res://addons/icosa/open_brush/open_brush_tilt_reader.gd"
+const TILT_READER_PATH := "res://addons/open_brush_stroke_integration/open_brush_tilt_reader.gd"
 
 var _log_file: FileAccess
 

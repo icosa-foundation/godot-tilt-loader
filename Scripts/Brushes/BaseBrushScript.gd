@@ -2,6 +2,7 @@ class_name BaseBrushScript
 extends Node3D
 
 const K_PREVIEW_DURATION := 0.2
+const BrushMaterialResolverScript := preload("res://Scripts/Brushes/BrushMaterialResolver.gd")
 
 var m_bCanBatch := false
 var m_Desc: BrushDescriptor
@@ -154,7 +155,10 @@ func update_visible_mesh() -> void:
 		add_child(_mesh_instance)
 	_mesh_instance.mesh = mesh_data.to_array_mesh()
 	if _mesh_instance.mesh != null and _mesh_instance.mesh.get_surface_count() > 0:
-		_mesh_instance.mesh.surface_set_material(0, _make_runtime_material())
+		var material := BrushMaterialResolverScript.find_material(m_Desc)
+		if material == null:
+			material = _make_runtime_material()
+		_mesh_instance.mesh.surface_set_material(0, material)
 
 func _make_runtime_material() -> Material:
 	var material := StandardMaterial3D.new()

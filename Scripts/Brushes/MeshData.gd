@@ -35,6 +35,33 @@ func clear() -> void:
 func vertex_count() -> int:
 	return vertices.size()
 
+func is_empty() -> bool:
+	return vertices.is_empty() or triangles.is_empty()
+
+func copy_from(source: MeshData) -> void:
+	clear()
+	append_mesh_data(source)
+
+func append_mesh_data(source: MeshData) -> void:
+	if source == null:
+		return
+	var vertex_offset := vertices.size()
+	vertices.append_array(source.vertices)
+	for tri in source.triangles:
+		triangles.append(vertex_offset + tri)
+	normals.append_array(source.normals)
+	uv0_v2.append_array(source.uv0_v2)
+	uv0_v3.append_array(source.uv0_v3)
+	uv0_v4.append_array(source.uv0_v4)
+	uv1_v2.append_array(source.uv1_v2)
+	uv1_v3.append_array(source.uv1_v3)
+	uv1_v4.append_array(source.uv1_v4)
+	uv2_v2.append_array(source.uv2_v2)
+	uv2_v3.append_array(source.uv2_v3)
+	uv2_v4.append_array(source.uv2_v4)
+	colors.append_array(source.colors)
+	tangents.append_array(source.tangents)
+
 func get_uvs(channel: int, size: int) -> Array:
 	match channel:
 		0:
@@ -59,34 +86,42 @@ func set_uvs(channel: int, size: int, values: Array) -> void:
 			push_error("Invalid UV channel %d" % channel)
 
 func to_array_mesh() -> ArrayMesh:
-	var arrays := []
+	var mesh := ArrayMesh.new()
+	var arrays := to_mesh_arrays()
+	if not vertices.is_empty() and not triangles.is_empty():
+		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, surface_format_flags(arrays))
+	return mesh
+
+func to_mesh_arrays() -> Array:
+	var arrays: Array = []
 	arrays.resize(Mesh.ARRAY_MAX)
+	if vertices.is_empty() or triangles.is_empty():
+		return arrays
+
 	arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array(vertices)
 	arrays[Mesh.ARRAY_INDEX] = PackedInt32Array(triangles)
 	if normals.size() == vertices.size():
 		arrays[Mesh.ARRAY_NORMAL] = PackedVector3Array(normals)
-	if uv0_v2.size() == vertices.size():
-		arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array(uv0_v2)
-	elif uv0_v3.size() == vertices.size():
-		var uv2d: Array[Vector2] = []
-		for uv in uv0_v3:
-			uv2d.append(Vector2(uv.x, uv.y))
-		arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array(uv2d)
+	_add_uv0_arrays(arrays)
+	_add_uv1_arrays(arrays)
+	_add_uv2_arrays(arrays)
 	if colors.size() == vertices.size():
 		arrays[Mesh.ARRAY_COLOR] = PackedColorArray(colors)
 	if tangents.size() == vertices.size():
-		var packed_tangents := PackedFloat32Array()
-		for tangent in tangents:
-			packed_tangents.append(tangent.x)
-			packed_tangents.append(tangent.y)
-			packed_tangents.append(tangent.z)
-			packed_tangents.append(tangent.w)
-		arrays[Mesh.ARRAY_TANGENT] = packed_tangents
+		arrays[Mesh.ARRAY_TANGENT] = _pack_tangents(tangents)
+	return arrays
 
-	var mesh := ArrayMesh.new()
-	if not vertices.is_empty() and not triangles.is_empty():
-		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	return mesh
+static func surface_format_flags(arrays: Array) -> int:
+	var format_flags := 0
+	if arrays[Mesh.ARRAY_CUSTOM0] != null:
+		format_flags |= (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT)
+	if arrays[Mesh.ARRAY_CUSTOM1] != null:
+		format_flags |= (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM1_SHIFT)
+	if arrays[Mesh.ARRAY_CUSTOM2] != null:
+		format_flags |= (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT)
+	if arrays[Mesh.ARRAY_CUSTOM3] != null:
+		format_flags |= (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM3_SHIFT)
+	return format_flags
 
 static func _uv_by_size(v2: Array[Vector2], v3: Array[Vector3], v4: Array[Vector4], size: int) -> Array:
 	match size:
@@ -120,3 +155,79 @@ func _set_uv_by_size(channel_name: String, size: int, values: Array) -> void:
 			uv2_v3.assign(duplicate_values)
 		["uv2", 4]:
 			uv2_v4.assign(duplicate_values)
+
+func _add_uv0_arrays(arrays: Array) -> void:
+	if uv0_v2.size() == vertices.size():
+		arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array(uv0_v2)
+	elif uv0_v3.size() == vertices.size():
+		arrays[Mesh.ARRAY_TEX_UV] = _pack_vec3_xy(uv0_v3)
+		arrays[Mesh.ARRAY_CUSTOM0] = _pack_vec3_custom(uv0_v3)
+	elif uv0_v4.size() == vertices.size():
+		arrays[Mesh.ARRAY_TEX_UV] = _pack_vec4_xy(uv0_v4)
+		arrays[Mesh.ARRAY_CUSTOM0] = _pack_vec4_custom(uv0_v4)
+
+func _add_uv1_arrays(arrays: Array) -> void:
+	if uv1_v2.size() == vertices.size():
+		arrays[Mesh.ARRAY_TEX_UV2] = PackedVector2Array(uv1_v2)
+	elif uv1_v3.size() == vertices.size():
+		arrays[Mesh.ARRAY_TEX_UV2] = _pack_vec3_xy(uv1_v3)
+		arrays[Mesh.ARRAY_CUSTOM1] = _pack_vec3_custom(uv1_v3)
+	elif uv1_v4.size() == vertices.size():
+		arrays[Mesh.ARRAY_TEX_UV2] = _pack_vec4_xy(uv1_v4)
+		arrays[Mesh.ARRAY_CUSTOM1] = _pack_vec4_custom(uv1_v4)
+
+func _add_uv2_arrays(arrays: Array) -> void:
+	if uv2_v2.size() == vertices.size():
+		arrays[Mesh.ARRAY_CUSTOM2] = _pack_vec2_custom(uv2_v2)
+	elif uv2_v3.size() == vertices.size():
+		arrays[Mesh.ARRAY_CUSTOM2] = _pack_vec3_custom(uv2_v3)
+	elif uv2_v4.size() == vertices.size():
+		arrays[Mesh.ARRAY_CUSTOM2] = _pack_vec4_custom(uv2_v4)
+
+static func _pack_vec2_custom(values: Array[Vector2]) -> PackedFloat32Array:
+	var packed := PackedFloat32Array()
+	for value in values:
+		packed.append(value.x)
+		packed.append(value.y)
+		packed.append(0.0)
+		packed.append(0.0)
+	return packed
+
+static func _pack_vec3_xy(values: Array[Vector3]) -> PackedVector2Array:
+	var packed := PackedVector2Array()
+	for value in values:
+		packed.append(Vector2(value.x, value.y))
+	return packed
+
+static func _pack_vec3_custom(values: Array[Vector3]) -> PackedFloat32Array:
+	var packed := PackedFloat32Array()
+	for value in values:
+		packed.append(value.x)
+		packed.append(value.y)
+		packed.append(value.z)
+		packed.append(0.0)
+	return packed
+
+static func _pack_vec4_xy(values: Array[Vector4]) -> PackedVector2Array:
+	var packed := PackedVector2Array()
+	for value in values:
+		packed.append(Vector2(value.x, value.y))
+	return packed
+
+static func _pack_vec4_custom(values: Array[Vector4]) -> PackedFloat32Array:
+	var packed := PackedFloat32Array()
+	for value in values:
+		packed.append(value.x)
+		packed.append(value.y)
+		packed.append(value.z)
+		packed.append(value.w)
+	return packed
+
+static func _pack_tangents(values: Array[Vector4]) -> PackedFloat32Array:
+	var packed := PackedFloat32Array()
+	for value in values:
+		packed.append(value.x)
+		packed.append(value.y)
+		packed.append(value.z)
+		packed.append(value.w)
+	return packed

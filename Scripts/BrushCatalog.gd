@@ -12,6 +12,13 @@ static func get_brush(guid: String) -> BrushDescriptor:
 	var key := _canonical_guid(guid)
 	return _guid_to_brush.get(key)
 
+static func get_brush_by_durable_name(durable_name: String) -> BrushDescriptor:
+	var lower := durable_name.to_lower()
+	for brush in _guid_to_brush.values():
+		if brush != null and brush.m_DurableName.to_lower() == lower:
+			return brush
+	return null
+
 static func init(manifest: TiltBrushManifest) -> void:
 	_manifest = manifest
 	_guid_to_brush.clear()

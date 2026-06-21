@@ -1,8 +1,13 @@
 @tool
 extends EditorPlugin
 
+var tilt_scene_importer: OpenBrushTiltSceneImporter
+
 func _enter_tree() -> void:
-	pass
+	tilt_scene_importer = OpenBrushTiltSceneImporter.new()
+	add_scene_format_importer_plugin(tilt_scene_importer)
 
 func _exit_tree() -> void:
-	pass
+	if tilt_scene_importer != null:
+		remove_scene_format_importer_plugin(tilt_scene_importer)
+		tilt_scene_importer = null

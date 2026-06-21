@@ -1,0 +1,87 @@
+extends SceneTree
+
+const TILT_READER_PATH := "res://addons/open_brush_stroke_integration/open_brush_tilt_reader.gd"
+const TILT_IMPORTER_PATH := "res://addons/open_brush_stroke_integration/open_brush_tilt_scene_importer.gd"
+const TILT_SCENE_BUILDER_PATH := "res://addons/open_brush_stroke_integration/open_brush_tilt_scene_builder.gd"
+const SAMPLE_TILT_PATH := "res://Temp/TiltEvidence/brush_cafe_experimental.tilt"
+
+var _failures := 0
+
+func _init() -> void:
+	_check_importer_has_no_fallback_tessellation()
+	_check_importer_replays_tilt_through_runtime_brushes()
+	quit(1 if _failures > 0 else 0)
+
+func _check_importer_has_no_fallback_tessellation() -> void:
+	var source := _read_text(TILT_IMPORTER_PATH) + "\n" + _read_text(TILT_SCENE_BUILDER_PATH)
+	_expect(not source.contains("_tessellate_strokes"), "tilt path has no generic ribbon fallback")
+	_expect(not source.contains("_tessellate_particle_strokes"), "tilt path has no particle fallback")
+	_expect(not source.contains("_uses_runtime_flat_brush"), "tilt path has no brush-family dispatch")
+	_expect(not source.contains("FlatGeometryBrush.gd"), "tilt path does not directly preload flat brush")
+	_expect(not source.contains("QuadStripBrush"), "tilt path does not directly preload quad strip brushes")
+
+func _check_importer_replays_tilt_through_runtime_brushes() -> void:
+	var reader_script := load(TILT_READER_PATH)
+	var builder_script := load(TILT_SCENE_BUILDER_PATH)
+	_expect(reader_script != null, "tilt reader script loads")
+	_expect(builder_script != null, "tilt scene builder script loads")
+	if reader_script == null or builder_script == null:
+		return
+
+	var tilt_data: Dictionary = reader_script.new().load_tilt(SAMPLE_TILT_PATH)
+	var error := String(tilt_data.get("error", ""))
+	_expect(error.is_empty(), "sample tilt reader succeeds")
+	if not error.is_empty():
+		return
+
+	var builder = builder_script.new()
+	var scene: Node3D = builder.build_scene(tilt_data)
+	_expect(scene != null, "runtime replay returns a scene")
+	if scene == null:
+		return
+
+	var stats := {
+		"mesh_instances": 0,
+		"vertices": 0,
+		"triangles": 0,
+		"materials": 0,
+	}
+	_collect_scene_stats(scene, stats)
+	_expect(int(builder.error_count) == 0, "runtime replay has no unresolved normal brush errors")
+	_expect(stats.mesh_instances > 50, "runtime replay creates many mesh instances")
+	_expect(stats.vertices > 100000, "runtime replay creates substantial geometry")
+	_expect(stats.triangles > 40000, "runtime replay creates substantial triangles")
+	_expect(stats.materials > 50, "runtime replay assigns brush materials")
+	scene.free()
+
+func _collect_scene_stats(node: Node, stats: Dictionary) -> void:
+	if node is MeshInstance3D and node.mesh != null:
+		stats.mesh_instances += 1
+		var mesh: Mesh = node.mesh
+		for surface in range(mesh.get_surface_count()):
+			var arrays := mesh.surface_get_arrays(surface)
+			var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+			var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+			stats.vertices += vertices.size()
+			stats.triangles += indices.size() / 3 if not indices.is_empty() else vertices.size() / 3
+			if mesh.surface_get_material(surface) != null:
+				stats.materials += 1
+	for child in node.get_children():
+		_collect_scene_stats(child, stats)
+
+func _read_text(path: String) -> String:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		_fail("could not read %s" % path)
+		return ""
+	var text := file.get_as_text()
+	file.close()
+	return text
+
+func _expect(condition: bool, message: String) -> void:
+	if not condition:
+		_fail(message)
+
+func _fail(message: String) -> void:
+	_failures += 1
+	push_error("TiltImporterRuntimeReplayTest: %s" % message)
