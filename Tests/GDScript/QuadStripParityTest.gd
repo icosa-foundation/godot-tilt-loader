@@ -10,6 +10,7 @@ func _run() -> void:
 	_check_position_and_fuse_helpers()
 	_check_num_used_verts_edge_cases()
 	_check_preview_reset_layout_and_indices()
+	_check_debug_geometry_reports_used_counts()
 	_check_unitized_uv_brush()
 	_check_unitized_uv_complete_layout_and_noops()
 	_check_unitized_uv_backfaces()
@@ -30,6 +31,8 @@ func _run() -> void:
 	_check_double_back_creates_strip_break()
 	_check_backfaces_follow_fused_front_quads()
 	_check_batched_finalization_welds_single_sided_strip()
+	_check_batched_weld_preserves_width_uvws()
+	_check_batched_finalization_preserves_double_sided_strip()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_QUADSTRIP: all checks passed")
 
@@ -97,6 +100,17 @@ func _check_preview_reset_layout_and_indices() -> void:
 	_expect_vec3_close(brush.m_LastQuadRight, Vector3.ZERO, "preview reset clears last quad right")
 	_expect_equal(brush.m_Geometry.vertex_layout.texcoord0.size, 3, "preview reset restores subclass vertex layout")
 	_expect(brush.m_Geometry.num_verts() >= 24, "preview reset keeps enough vertices for old leading plus new solid")
+	brush.finalize_solitary_brush()
+	brush.free()
+
+func _check_debug_geometry_reports_used_counts() -> void:
+	var brush := _make_quad_brush(QuadStripBrushStretchUV.new(), false)
+	_seed_two_quads(brush)
+	var debug := brush.debug_get_geometry()
+	_expect_equal(debug["nVerts"], 12, "debug geometry used vertex count")
+	_expect_equal(debug["nTris"], 12, "debug geometry used triangle count")
+	_expect(debug["verts"].size() >= debug["nVerts"], "debug geometry exposes full vertex buffer")
+	_expect(debug["tris"].size() >= debug["nTris"], "debug geometry exposes full index buffer")
 	brush.finalize_solitary_brush()
 	brush.free()
 
@@ -399,6 +413,35 @@ func _check_batched_finalization_welds_single_sided_strip() -> void:
 	_expect_equal(brush.mesh_data.triangles.slice(6, 12), [2, 3, 5, 2, 5, 4], "batched weld second quad indices")
 	brush.free()
 
+func _check_batched_weld_preserves_width_uvws() -> void:
+	var stretch := QuadStripBrushStretchUV.new()
+	stretch.m_StoreWidthInTexcoord0Z = true
+	var brush := _make_quad_brush(stretch, false)
+	_seed_two_quads(brush)
+	brush.update_uvs(0, 2, 1.0)
+	brush.flush_update_uv_request()
+	brush.finalize_batched_brush()
+	_expect_equal(brush.mesh_data.vertices.size(), 6, "batched width weld vertex count")
+	_expect_equal(brush.mesh_data.uv0_v2.size(), 0, "batched width weld does not export uv0 v2")
+	_expect_equal(brush.mesh_data.uv0_v3.size(), 6, "batched width weld exports uv0 v3")
+	_expect_close(brush.mesh_data.uv0_v3[0].z, 1.0, "batched width weld preserves first width")
+	_expect_close(brush.mesh_data.uv0_v3[5].z, 1.0, "batched width weld preserves last width")
+	brush.free()
+
+func _check_batched_finalization_preserves_double_sided_strip() -> void:
+	var brush := _make_quad_brush(QuadStripBrushStretchUV.new(), true)
+	_seed_two_double_sided_solids(brush)
+	brush.update_uvs(0, 4, 1.0)
+	brush.flush_update_uv_request()
+	brush.finalize_batched_brush()
+	_expect_equal(brush.mesh_data.vertices.size(), 24, "double-sided batched vertex count is not welded")
+	_expect_equal(brush.mesh_data.triangles.size(), 24, "double-sided batched index count is not welded")
+	_expect_equal(brush.mesh_data.uv0_v2.size(), 24, "double-sided batched uv count")
+	_expect_equal(brush.mesh_data.tangents.size(), 24, "double-sided batched tangent count")
+	_expect_backface_mesh_data_matches_front(brush, 0)
+	_expect_backface_mesh_data_matches_front(brush, 12)
+	brush.free()
+
 func _make_quad_brush(brush: QuadStripBrush, backfaces: bool) -> QuadStripBrush:
 	var desc := BrushDescriptor.new()
 	desc.m_DurableName = "Ink"
@@ -523,6 +566,28 @@ func _expect_backface_tangents_match_front(brush: QuadStripBrush, front_vert: in
 	_expect_vec4_close(tangents[back_vert + 3], _mirrored_tangent(tangents[front_vert + 3]), "backface %d tangent 3" % front_vert)
 	_expect_vec4_close(tangents[back_vert + 4], _mirrored_tangent(tangents[front_vert + 5]), "backface %d tangent 4" % front_vert)
 	_expect_vec4_close(tangents[back_vert + 5], _mirrored_tangent(tangents[front_vert + 4]), "backface %d tangent 5" % front_vert)
+
+func _expect_backface_mesh_data_matches_front(brush: QuadStripBrush, front_vert: int) -> void:
+	var verts := brush.mesh_data.vertices
+	var norms := brush.mesh_data.normals
+	var uvs := brush.mesh_data.uv0_v2
+	var tangents := brush.mesh_data.tangents
+	var back_vert := front_vert + 6
+	_expect_vec3_close(verts[back_vert], verts[front_vert], "mesh backface %d vertex 0" % front_vert)
+	_expect_vec3_close(verts[back_vert + 1], verts[front_vert + 2], "mesh backface %d vertex 1" % front_vert)
+	_expect_vec3_close(verts[back_vert + 2], verts[front_vert + 1], "mesh backface %d vertex 2" % front_vert)
+	_expect_vec3_close(verts[back_vert + 3], verts[front_vert + 3], "mesh backface %d vertex 3" % front_vert)
+	_expect_vec3_close(verts[back_vert + 4], verts[front_vert + 5], "mesh backface %d vertex 4" % front_vert)
+	_expect_vec3_close(verts[back_vert + 5], verts[front_vert + 4], "mesh backface %d vertex 5" % front_vert)
+	_expect_vec3_close(norms[back_vert], -norms[front_vert], "mesh backface %d normal 0" % front_vert)
+	_expect_vec3_close(norms[back_vert + 1], -norms[front_vert + 2], "mesh backface %d normal 1" % front_vert)
+	_expect_vec3_close(norms[back_vert + 2], -norms[front_vert + 1], "mesh backface %d normal 2" % front_vert)
+	_expect_vec2_close(uvs[back_vert], uvs[front_vert], "mesh backface %d uv 0" % front_vert)
+	_expect_vec2_close(uvs[back_vert + 1], uvs[front_vert + 2], "mesh backface %d uv 1" % front_vert)
+	_expect_vec2_close(uvs[back_vert + 2], uvs[front_vert + 1], "mesh backface %d uv 2" % front_vert)
+	_expect_vec4_close(tangents[back_vert], _mirrored_tangent(tangents[front_vert]), "mesh backface %d tangent 0" % front_vert)
+	_expect_vec4_close(tangents[back_vert + 1], _mirrored_tangent(tangents[front_vert + 2]), "mesh backface %d tangent 1" % front_vert)
+	_expect_vec4_close(tangents[back_vert + 2], _mirrored_tangent(tangents[front_vert + 1]), "mesh backface %d tangent 2" % front_vert)
 
 func _mirrored_tangent(value: Vector4) -> Vector4:
 	return Vector4(value.x, value.y, value.z, -value.w)
