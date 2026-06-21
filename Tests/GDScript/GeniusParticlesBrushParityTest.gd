@@ -9,6 +9,7 @@ func _init() -> void:
 func _run() -> void:
 	_check_particle_geometry()
 	_check_finalize_removes_hanging_particle()
+	_check_preview_decay_uses_elapsed_time()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_GENIUSPARTICLES: all checks passed")
 
@@ -48,6 +49,25 @@ func _check_finalize_removes_hanging_particle() -> void:
 	_expect_equal(brush.mesh_data.uv0_v4.size(), 20, "genius finalized uv0 count")
 	_expect_equal(brush.mesh_data.uv1_v3.size(), 20, "genius finalized uv1 count")
 	_expect_vec3_close(brush.mesh_data.uv1_v3[16], Vector3.ZERO, "genius single-stroke final particle reset to initial position")
+	brush.free()
+
+func _check_preview_decay_uses_elapsed_time() -> void:
+	var brush := _make_genius_brush()
+	brush.set_preview_mode()
+	_expect(not brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "genius preview first update waits")
+	_expect(not brush.update_position_ls(TrTransform.trs(Vector3(2.0, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "genius preview second update tracks travel")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(3.0, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "genius preview third update keeps")
+	brush.apply_changes_to_visuals()
+	_expect_equal(brush.m_DecayTimers.size(), 1, "genius preview creates one decay timer")
+	var initial_knots := brush.m_knots.size()
+	brush.m_DecayTimers[0] = BaseBrushScript.K_PREVIEW_DURATION - 0.001
+	brush.m_LastDecayTimeSeconds = GeniusParticlesBrush._current_decay_time_seconds() - 0.01
+
+	brush.decay_brush()
+
+	_expect_equal(brush.m_DecayTimers.size(), 0, "genius preview decay removes expired timer")
+	_expect_equal(brush.m_DecayedKnots, 1, "genius preview decay increments decayed knot count")
+	_expect_equal(brush.m_knots.size(), initial_knots - 1, "genius preview decay shifts initial knot")
 	brush.free()
 
 func _make_genius_brush() -> GeniusParticlesBrush:

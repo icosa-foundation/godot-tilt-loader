@@ -26,7 +26,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `HullBrush.gd` | `HullBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Native hull backend and degenerate cases need explicit parity review. |
 | `ConcaveHullBrush.gd` | `ConcaveHullBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Known degenerate hull behavior needs explicit classification. |
 | `SprayBrush.gd` | `SprayBrush.cs` | Partially tested | Shared `GeometryBrush.SetVert` color parity is covered. Particle layout and seed behavior need full audit. |
-| `GeniusParticlesBrush.gd` | `GeniusParticlesBrush.cs` | Partially tested | Shared `GeometryBrush.SetVert` color parity is covered. Particle layout and seed behavior need full audit. |
+| `GeniusParticlesBrush.gd` | `GeniusParticlesBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Particle layout and seed behavior still need full audit. |
 | `BubbleWandBrush.gd` | `BubbleWandBrush.cs` | Partially tested | Needs full branch audit. |
 | `BlocksBrushScript.gd` | `BlocksBrushScript.cs` | Partially tested | Needs full branch audit. |
 | `TetraBrush.gd` | `TetraBrush.cs` | Partially tested | Vertex color writes now use Open Brush `Color32` truncation. Needs full branch audit. |
@@ -100,6 +100,8 @@ Focused tests added/updated:
   - checks generated thick geometry vertex colors use Unity `Color32` byte truncation for RGB and alpha.
 - Existing focused brush tests for `HullBrush`, `ConcaveHullBrush`, `SprayBrush`, `MidpointPlusLifetimeSprayBrush`, `TubeBrush`, `SliceBrush`, `PrintableBrush`, `SquareBrush`, `Square3DPrintBrush`, and `TetraBrush`
   - now check generated vertex colors use Unity `Color32` byte truncation at their covered write points.
+- `Tests/GDScript/GeniusParticlesBrushParityTest.gd`
+  - checks Genius particle geometry layout, generated UV channels, hanging-particle finalization, single-particle pressure behavior, and preview decay aging with elapsed time.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd`
   - walks the real manifest/catalog and verifies all normal `Line`, `LineWithWidth`, `UnitizedUV`, and `DistanceUV` prefabs route to the repaired quad-strip runtime classes.
   - verifies every mesh-affecting prefab field in the active manifest/catalog is applied to the created runtime brush instance, including quad-strip width storage, flat/thick/tube UV style, flat offset flags, hull parameters, concave hull parameters, and tube shape parameters.

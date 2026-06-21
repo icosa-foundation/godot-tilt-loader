@@ -32,6 +32,7 @@ var m_LastPos := Vector3.ZERO
 var m_LengthsAtKnot: Array[float] = [0.0]
 var m_SpawnInterval := 0.0
 var m_ParticleSizeScale := 1.0
+var m_LastDecayTimeSeconds := -1.0
 
 func _init() -> void:
 	setup_geometry_brush(true, K_VERTS_IN_SOLID, false, false)
@@ -61,6 +62,7 @@ func init_brush(desc: BrushDescriptor, local_pointer_xf: TrTransform) -> void:
 	m_LengthsAtKnot = [0.0]
 	m_DecayedKnots = 0
 	m_DistancePointerTravelled = -1.0
+	m_LastDecayTimeSeconds = _current_decay_time_seconds()
 
 func get_vertex_layout(_desc: BrushDescriptor) -> GeometryPool.VertexLayout:
 	var layout := GeometryPool.VertexLayout.create(
@@ -77,9 +79,12 @@ func get_vertex_layout(_desc: BrushDescriptor) -> GeometryPool.VertexLayout:
 	return layout
 
 func decay_brush() -> void:
+	var now := _current_decay_time_seconds()
+	var delta := maxf(0.0, now - m_LastDecayTimeSeconds) if m_LastDecayTimeSeconds >= 0.0 else 0.0
+	m_LastDecayTimeSeconds = now
 	var knots_to_shift := 0
 	for index in range(m_DecayTimers.size()):
-		m_DecayTimers[index] += 0.0
+		m_DecayTimers[index] += delta
 		if m_DecayTimers[index] > K_PREVIEW_DURATION:
 			knots_to_shift += 1
 	if knots_to_shift <= 0:
@@ -108,6 +113,7 @@ func update_position_impl(position: Vector3, orientation: Quaternion, pressure: 
 func reset_brush_for_preview(local_pointer_xf: TrTransform) -> void:
 	super.reset_brush_for_preview(local_pointer_xf)
 	m_DecayTimers.clear()
+	m_LastDecayTimeSeconds = _current_decay_time_seconds()
 
 func control_points_changed(first_knot_index: int) -> void:
 	var num_knots := m_knots.size()
@@ -262,3 +268,6 @@ static func _inverse_lerp(a: float, b: float, value: float) -> float:
 	if absf(b - a) < 0.000001:
 		return 0.0
 	return clampf((value - a) / (b - a), 0.0, 1.0)
+
+static func _current_decay_time_seconds() -> float:
+	return float(Time.get_ticks_msec()) / 1000.0
