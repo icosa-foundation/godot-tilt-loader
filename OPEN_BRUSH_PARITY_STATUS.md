@@ -7,6 +7,7 @@
 - Reference status at time of inspection: dirty worktree with unrelated changes outside `Assets/Scripts/Brushes`.
 - Brush source directory: `Assets/Scripts/Brushes`
 - Godot port directory: `Scripts/Brushes`
+- Current test classification inventory: `OPEN_BRUSH_PARITY_TEST_INVENTORY.md`
 
 The commit above is the current mesh-generation parity reference unless this file is deliberately updated.
 
@@ -101,6 +102,7 @@ Implemented so far:
 - Open Brush `GeometryBrush` initial knot `smoothedPressure` default behavior before the first update.
 - Direct runtime finalization for `QuadStripBrushDistanceUV` now flushes pending tangent requests like the visual update path, matching the established stretch UV finalization behavior.
 - Open Brush fake layout brushes (`PbrBrushScript`, `EnvironmentBrushScript`, `SvgBrushScript`) are classified as non-mesh layout providers with explicit no-op batched finalization.
+- Current Godot parity tests and probes are classified in `OPEN_BRUSH_PARITY_TEST_INVENTORY.md`, including the remaining evidence gap that no test yet compares Godot meshes against authoritative Open Brush reference mesh fixtures.
 
 Focused tests added/updated:
 
