@@ -14,6 +14,9 @@ func _run() -> void:
 	_check_offset_uv1_vectors()
 	_check_non_m11_smoothing_shared_vertices_and_tangents()
 	_check_non_m11_double_back_creates_break()
+	_check_non_m11_self_intersection_clipping()
+	_check_non_m11_growth_limit()
+	_check_m11_break_angle_creates_break()
 	_check_batched_finalization_trims_short_post_break_tail()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_FLATBRUSH: all checks passed")
@@ -148,6 +151,55 @@ func _check_non_m11_double_back_creates_break() -> void:
 	brush.finalize_solitary_brush()
 	brush.free()
 
+func _check_non_m11_self_intersection_clipping() -> void:
+	var brush := _make_flat_brush(FlatGeometryBrush.UVStyle.DISTANCE, false, false, false, 2.0)
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "flat non-m11 clipping first update keeps")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(1.0, 0.6, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "flat non-m11 clipping second update keeps")
+	brush.apply_changes_to_visuals()
+
+	var unclipped_size := brush.pressured_size(brush.m_knots[2].smoothedPressure)
+	var growth_limited_size := brush.m_sizes[1] + brush.m_knots[2].point.m_Pos.distance_to(brush.m_knots[1].point.m_Pos)
+	_expect(brush.m_sizes[2] < unclipped_size, "flat non-m11 clipping reduces requested size")
+	_expect(brush.m_sizes[2] < growth_limited_size, "flat non-m11 clipping beats growth limit")
+	_expect(brush.m_knots[2].has_geometry(), "flat non-m11 clipping keeps geometry")
+	brush.finalize_solitary_brush()
+	brush.free()
+
+func _check_non_m11_growth_limit() -> void:
+	var brush := _make_flat_brush(
+		FlatGeometryBrush.UVStyle.DISTANCE,
+		false,
+		false,
+		false,
+		3.0,
+		Vector2(0.1, 1.0)
+	)
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(0.3, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 0.0), "flat non-m11 growth first update keeps")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(0.7, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "flat non-m11 growth second update keeps")
+	brush.apply_changes_to_visuals()
+
+	var move_length := brush.m_knots[2].point.m_Pos.distance_to(brush.m_knots[1].point.m_Pos)
+	_expect_close(brush.m_sizes[1], 0.3, "flat non-m11 growth previous size")
+	_expect_close(brush.m_sizes[2], brush.m_sizes[1] + move_length, "flat non-m11 growth limited size")
+	_expect(brush.pressured_size(brush.m_knots[2].smoothedPressure) > brush.m_sizes[2], "flat non-m11 growth limit reduced size")
+	brush.finalize_solitary_brush()
+	brush.free()
+
+func _check_m11_break_angle_creates_break() -> void:
+	var brush := _make_flat_brush(FlatGeometryBrush.UVStyle.DISTANCE, false, false, true, 2.0)
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "flat m11 break first update keeps")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(1.0, 1.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "flat m11 break second update keeps")
+	brush.apply_changes_to_visuals()
+
+	_expect(brush.m_knots[1].has_geometry(), "flat m11 break first candidate has geometry")
+	_expect(not brush.m_knots[2].has_geometry(), "flat m11 break clears sharp second candidate")
+	_expect_equal(brush.m_knots[2].iVert, brush.m_knots[1].iVert + brush.m_knots[1].nVert, "flat m11 break next vertex index")
+	_expect_equal(brush.m_knots[2].iTri, brush.m_knots[1].iTri + brush.m_knots[1].nTri, "flat m11 break next tri index")
+	_expect_vec3_close(brush.m_knots[2].nRight, Vector3.ZERO, "flat m11 break clears right")
+	_expect_vec3_close(brush.m_knots[2].nSurface, Vector3.ZERO, "flat m11 break clears surface")
+	brush.finalize_solitary_brush()
+	brush.free()
+
 func _check_batched_finalization_trims_short_post_break_tail() -> void:
 	var brush := _make_flat_brush(FlatGeometryBrush.UVStyle.DISTANCE, false)
 	brush.m_bM11Compatibility = false
@@ -162,7 +214,14 @@ func _check_batched_finalization_trims_short_post_break_tail() -> void:
 	_expect_equal(brush.mesh_data.triangles.size(), 12, "flat batched trimmed tri index count")
 	brush.free()
 
-func _make_flat_brush(uv_style: int, backfaces: bool, offset_in_uv1: bool = false, m11_compatibility: bool = true) -> FlatGeometryBrush:
+func _make_flat_brush(
+	uv_style: int,
+	backfaces: bool,
+	offset_in_uv1: bool = false,
+	m11_compatibility: bool = true,
+	base_size: float = 1.0,
+	pressure_size_range: Vector2 = Vector2(1.0, 1.0)
+) -> FlatGeometryBrush:
 	var desc := BrushDescriptor.new()
 	desc.m_DurableName = "Flat"
 	desc.m_RenderBackfaces = backfaces
@@ -170,7 +229,7 @@ func _make_flat_brush(uv_style: int, backfaces: bool, offset_in_uv1: bool = fals
 	desc.m_M11Compatibility = m11_compatibility
 	desc.m_TextureAtlasV = 1
 	desc.m_TileRate = 1.0
-	desc.m_PressureSizeRange = Vector2(1.0, 1.0)
+	desc.m_PressureSizeRange = pressure_size_range
 	desc.m_PressureOpacityRange = Vector2(1.0, 1.0)
 	desc.m_Opacity = 0.75
 	desc.m_SizeVariance = 0.0
@@ -178,7 +237,7 @@ func _make_flat_brush(uv_style: int, backfaces: bool, offset_in_uv1: bool = fals
 	var brush := FlatGeometryBrush.new()
 	brush.m_uvStyle = uv_style
 	brush.m_bOffsetInTexcoord1 = offset_in_uv1
-	brush.m_BaseSize_PS = 1.0
+	brush.m_BaseSize_PS = base_size
 	brush.m_Color = Color(0.1, 0.2, 0.3, 1.0)
 	brush.set_random_seed(0)
 	brush.init_brush(desc, TrTransform.identity())
