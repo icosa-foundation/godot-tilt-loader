@@ -10,6 +10,7 @@ func _run() -> void:
 	var project_path := ProjectSettings.globalize_path("res://")
 	_check_ink_descriptor(project_path)
 	_check_manifest_and_catalog(project_path)
+	_check_manifest_append_dedupes_by_guid_and_prefers_normal_brushes()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_BRUSHCATALOG: all checks passed")
 
@@ -48,6 +49,39 @@ func _check_manifest_and_catalog(project_path: String) -> void:
 	if ink != null:
 		_expect(BrushCatalog.get_brush(ink.m_Guid) == ink, "Catalog gets Ink by runtime GUID")
 		_expect(BrushCatalog.get_brush(ink.m_Guid.replace("-", "")) == ink, "Catalog gets Ink by canonical GUID")
+
+func _check_manifest_append_dedupes_by_guid_and_prefers_normal_brushes() -> void:
+	var base_normal := _descriptor("BaseNormal", "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
+	var promoted := _descriptor("Promoted", "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
+	var duplicate_promoted := _descriptor("Promoted duplicate object", promoted.m_Guid)
+	var base_manifest := TiltBrushManifest.new()
+	base_manifest.Brushes = [base_normal]
+	base_manifest.CompatibilityBrushes = [promoted]
+
+	var experimental := TiltBrushManifest.new()
+	experimental.Brushes = [duplicate_promoted, duplicate_promoted]
+	experimental.CompatibilityBrushes = [_descriptor("ExperimentalCompat", "cccccccc-cccc-cccc-cccc-cccccccccccc")]
+	base_manifest.append_from(experimental)
+
+	_expect_equal(base_manifest.Brushes.size(), 2, "merged normal brush count")
+	_expect_equal(base_manifest.CompatibilityBrushes.size(), 1, "merged compatibility brush count")
+	_expect(_has_guid(base_manifest.Brushes, base_normal.m_Guid), "base normal remains normal")
+	_expect(_has_guid(base_manifest.Brushes, promoted.m_Guid), "experimental normal is promoted")
+	_expect(not _has_guid(base_manifest.CompatibilityBrushes, promoted.m_Guid), "normal brush removed from compatibility")
+	_expect(_has_guid(base_manifest.CompatibilityBrushes, "cccccccc-cccc-cccc-cccc-cccccccccccc"), "unpromoted compatibility remains compatibility")
+
+func _descriptor(durable_name: String, guid: String) -> BrushDescriptor:
+	var desc := BrushDescriptor.new()
+	desc.m_DurableName = durable_name
+	desc.m_Guid = guid
+	return desc
+
+func _has_guid(brushes: Array[BrushDescriptor], guid: String) -> bool:
+	var key := guid.replace("-", "").to_lower()
+	for brush in brushes:
+		if brush != null and brush.m_Guid.replace("-", "").to_lower() == key:
+			return true
+	return false
 
 func _expect(condition: bool, label: String) -> void:
 	if not condition:

@@ -11,7 +11,7 @@ Reference source:
 - Catalog source: `Resources/BrushCatalog/brush_catalog.json`
 - Registry source of truth: `Scripts/Brushes/BrushRuntimeRegistry.gd`
 
-The active Godot catalog currently registers 94 live normal brushes. The
+The active Godot catalog currently registers 97 live normal brushes. The
 registry tests treat compatibility brushes separately and require every loaded
 normal brush descriptor to have a runtime factory.
 
