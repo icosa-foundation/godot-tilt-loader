@@ -119,6 +119,7 @@ Implemented so far:
 - `Tests/GDScript/BrushRuntimeRegistryParityTest.gd` now checks that a normal brush descriptor with no runtime factory is not registered and that replaying it through `BrushStrokeReplay` returns no mesh instead of generating fallback geometry.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd` now checks all 97 merged-manifest normal brushes route to the expected runtime class and verifies the expected normal prefab-family counts, including the merged `Line` count of 20.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd` now checks all seven normal catalog `GeniusParticle` brushes initialize the Open Brush particle formulas from their real descriptor metadata, including particle rate, particle speed, random alpha, initial rotation range, spawn interval, particle size scale, and UV channel layout.
+- `Tests/GDScript/GeniusParticlesCatalogReplayTest.gd` now replays every normal catalog `GeniusParticle` brush through the shared runtime replay path and verifies generated particle mesh channel completeness: vertices, triangle indices, normals, colors, UV0 Vector4, UV1 Vector3, and no tangents.
 - `Tests/GDScript/LiveVsTiltUvParityTest.gd` now compares vertex positions as well as primary UVs and includes the promoted normal brushes `DotMarker`, `Plasma`, and `TaperedMarker_Flat` across direct replay, memory replay, pointer math, and live object paths.
 
 Focused tests added/updated:
@@ -169,6 +170,9 @@ Focused tests added/updated:
 - `Tests/GDScript/GeniusParticlesBrushParityTest.gd`
   - checks Genius particle geometry layout, generated UV channels, texture atlas UV branch behavior for `m_TextureAtlasV > 1`, solitary and batched hanging-particle finalization, single-particle pressure behavior, preview decay aging with elapsed time, and Open Brush birth-time sign packing in UV0.w.
   - checks randomized alpha, position scatter from particle speed, size variance, and roll packing against the source formulas.
+- `Tests/GDScript/GeniusParticlesCatalogReplayTest.gd`
+  - replays all seven normal catalog `GeniusParticle` brushes through `BrushStrokeReplay`,
+  - verifies each one produces particle-quad-aligned mesh data with complete normal/color/UV0 Vector4/UV1 Vector3 channels and no tangents.
 - `Tests/GDScript/MidpointSprayBrushParityTest.gd`
   - checks Midpoint Plus Lifetime Spray geometry layout, generated UV0/UV1 channels, tangent/color output, finalization preserving the generated particle mesh rather than applying Genius Particles hanging-particle removal, and Open Brush birth-time packing in UV1.w.
 - `Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd`
