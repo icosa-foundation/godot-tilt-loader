@@ -30,7 +30,7 @@ The commit above is the current mesh-generation parity reference unless this fil
 | `HullBrush.gd` | `HullBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Batched finalization now runs the Open Brush `SimplifyAtEnd` geometry pass and simplification tolerance path. Native hull backend and degenerate cases need explicit parity review. |
 | `ConcaveHullBrush.gd` | `ConcaveHullBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Source-formula knot conversions and smooth hull geometry now have focused parity coverage. Known degenerate hull behavior needs explicit classification. |
 | `SprayBrush.gd` | `SprayBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Random salt wraparound now matches Open Brush `kSaltMaxQuadsPerKnot`. Particle layout still needs full audit. |
-| `GeniusParticlesBrush.gd` | `GeniusParticlesBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Batched finalization now explicitly runs particle finalization like Open Brush. UV0.w now stores Open Brush particle birth time, negative in preview mode. Texture atlas UVs, randomized alpha/offset/roll branches, and finalization/length-cache control flow now have focused parity coverage. Particle layout and seed behavior still need full audit. |
+| `GeniusParticlesBrush.gd` | `GeniusParticlesBrush.cs` | Partially audited, active repair started | Shared `GeometryBrush.SetVert` color parity is covered. Preview decay now advances with elapsed time instead of a zero delta. Batched finalization now explicitly runs particle finalization like Open Brush. UV0.w now stores Open Brush particle birth time, negative in preview mode. Texture atlas UVs, randomized alpha/offset/roll branches, pointer-travel distance override, straight-edge proxy flag, decay length-cache reduction, salt offset after decay, and finalization/length-cache control flow now have focused parity coverage. Particle layout and seed behavior still need full reference fixture comparison. |
 | `BubbleWandBrush.gd` | `BubbleWandBrush.cs` | Partially audited, active repair started | Existing parity tests cover selected behavior. BubbleWand-specific UVW post-processing, original-position UV1 storage, and direct finalization control flow now have focused coverage. Needs full branch audit. |
 | `BlocksBrushScript.gd` | `BlocksBrushScript.cs` | Partially audited, active repair started | Existing parity tests cover the no-op contract and vertex layout. Batched finalization is now explicitly no-op like Open Brush. Needs full catalog usage audit. |
 | `TetraBrush.gd` | `TetraBrush.cs` | Partially audited, active repair started | Vertex color writes now use Open Brush `Color32` truncation. Texture atlas count handling now matches Open Brush directly, with distance atlas and texture-edge chop coverage. Needs full branch audit. |
@@ -99,6 +99,7 @@ Implemented so far:
 - Open Brush explicit `GeniusParticlesBrush.FinalizeBatchedBrush` behavior, with `GeometryBrush` batched finalization made non-reentrant for subclasses.
 - Open Brush `GeniusParticlesBrush` finalization and length-cache update control flow, removing non-reference defensive guards in the covered paths.
 - Open Brush `GeniusParticlesBrush` randomized alpha, size variance, positional scatter, and roll packing formulas now have focused coverage.
+- Open Brush `GeniusParticlesBrush` pointer-travel distance override, straight-edge proxy flag, preview decay length-cache reduction, and decayed-knot salt offset now have focused coverage.
 - Open Brush `SprayBrush.CalculateSalt` modulo behavior for dense knots.
 - Catalog replay coverage now verifies all normal `Spray` and `MiddpointPlusLifetimeGeomSpray` brushes generate complete particle mesh channels through the shared runtime replay path.
 - Removal of the unused non-Open-Brush `MidpointPlusLifetimeSprayBrush.create_particle_geometry` helper.
@@ -214,7 +215,7 @@ Focused tests added/updated:
   - replays all four normal catalog `Spray` brushes and all three normal catalog `MiddpointPlusLifetimeGeomSpray` brushes through `BrushStrokeReplay`,
   - verifies each replay produces particle-quad-aligned mesh data with complete normal/color/UV0/tangent channels and the expected UV1 presence or absence for each prefab family.
 - `Tests/GDScript/GeniusParticlesBrushParityTest.gd`
-  - checks Genius particle geometry layout, generated UV channels, texture atlas UV branch behavior for `m_TextureAtlasV > 1`, solitary and batched hanging-particle finalization, single-particle pressure behavior, preview decay aging with elapsed time, and Open Brush birth-time sign packing in UV0.w.
+  - checks Genius particle geometry layout, generated UV channels, texture atlas UV branch behavior for `m_TextureAtlasV > 1`, pointer-travel distance override, straight-edge proxy flag, solitary and batched hanging-particle finalization, single-particle pressure behavior, preview decay aging with elapsed time, preview length-cache reduction, decayed-knot salt offset, and Open Brush birth-time sign packing in UV0.w.
   - checks randomized alpha, position scatter from particle speed, size variance, and roll packing against the source formulas.
 - `Tests/GDScript/GeniusParticlesCatalogReplayTest.gd`
   - replays all seven normal catalog `GeniusParticle` brushes through `BrushStrokeReplay`,
@@ -464,6 +465,16 @@ Additional validation after adding `FlatGeometryBrush` non-M11 clipping/growth-l
 ```
 
 Result: command exited successfully.
+
+Additional validation after adding `GeniusParticlesBrush` pointer-travel, decay length-cache, and salt-offset coverage:
+
+```powershell
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesBrushParityTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesCatalogReplayTest.gd
+& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd
+```
+
+Result: all three commands exited successfully.
 
 Open Brush Unity editor project compile check also run after installing the exporter:
 

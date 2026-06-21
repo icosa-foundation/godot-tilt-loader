@@ -11,9 +11,11 @@ func _run() -> void:
 	_check_particle_geometry()
 	_check_texture_atlas_uvs()
 	_check_randomized_alpha_offset_and_roll_formula()
+	_check_distance_tracking_spawn_interval_and_straight_edge_proxy()
 	_check_finalize_removes_hanging_particle()
 	_check_batched_finalize_removes_hanging_particle()
 	_check_preview_decay_uses_elapsed_time()
+	_check_decay_updates_length_cache_and_salt_offset()
 	App.force_deterministic_birth_time_for_export = false
 	_check_particle_birth_time_matches_open_brush_sign()
 	if _failures == 0:
@@ -84,6 +86,21 @@ func _check_randomized_alpha_offset_and_roll_formula() -> void:
 	_expect_vec3_close(brush.m_geometry.m_Texcoord1.v3[GeniusParticlesBrush.BR], Vector3.ZERO, "genius random branch source particle position")
 	brush.free()
 
+func _check_distance_tracking_spawn_interval_and_straight_edge_proxy() -> void:
+	var brush := _make_genius_brush()
+	_expect_close(brush.get_spawn_interval(0.0), brush.m_SpawnInterval, "genius spawn interval ignores pressure")
+	_expect(brush.needs_straight_edge_proxy(), "genius needs straight edge proxy")
+	_expect_close(brush.m_DistancePointerTravelled, -1.0, "genius initial distance tracking sentinel")
+	_expect(not brush.update_position_ls(TrTransform.trs(Vector3(0.4, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "genius distance first update waits")
+	_expect_close(brush.m_DistancePointerTravelled, 0.0, "genius first update initializes travelled distance")
+	_expect_close(brush.distance_from_knot(brush.m_knots.size() - 2, Vector3(0.4, 9.0, 0.0)), 0.0, "genius current-knot distance uses travelled override")
+	_expect(not brush.update_position_ls(TrTransform.trs(Vector3(0.9, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "genius distance second update waits")
+	_expect_close(brush.m_DistancePointerTravelled, 0.5, "genius accumulates pointer travel")
+	_expect_close(brush.distance_from_knot(brush.m_knots.size() - 2, Vector3(0.9, 9.0, 0.0)), 0.5, "genius current-knot distance tracks pointer travel")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(1.4, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "genius distance third update keeps")
+	_expect_close(brush.distance_from_knot(0, Vector3(0.4, 0.0, 0.0)), 0.4, "genius non-current distance uses geometric distance")
+	brush.free()
+
 func _check_finalize_removes_hanging_particle() -> void:
 	var brush := _make_genius_brush()
 	_expect(not brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "genius finalize update waits for travelled distance")
@@ -129,6 +146,27 @@ func _check_preview_decay_uses_elapsed_time() -> void:
 	_expect_equal(brush.m_DecayTimers.size(), 0, "genius preview decay removes expired timer")
 	_expect_equal(brush.m_DecayedKnots, 1, "genius preview decay increments decayed knot count")
 	_expect_equal(brush.m_knots.size(), initial_knots - 1, "genius preview decay shifts initial knot")
+	brush.free()
+
+func _check_decay_updates_length_cache_and_salt_offset() -> void:
+	var brush := _make_genius_brush()
+	brush.set_preview_mode()
+	_expect(not brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "genius decay cache first update waits")
+	_expect(not brush.update_position_ls(TrTransform.trs(Vector3(2.0, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "genius decay cache second update tracks travel")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3(3.0, 0.0, 0.0), Quaternion.IDENTITY, 1.0), 1.0), "genius decay cache third update keeps")
+	brush.apply_changes_to_visuals()
+	_expect_equal(brush.m_DecayTimers.size(), 1, "genius decay cache setup timer count")
+	brush.stroke_length_at_knot(brush.m_knots.size() - 1)
+	var length_before := brush.m_LengthsAtKnot[1]
+	var expected_reduction := floorf(length_before / brush.m_SpawnInterval) * brush.m_SpawnInterval
+	var expected_salt := GeniusParticlesBrush.K_SALT_MAX_SALTS_PER_PARTICLE * ((1 + 1) * GeniusParticlesBrush.K_SALT_MAX_PARTICLES_PER_KNOT + 0)
+	brush.m_DecayTimers[0] = BaseBrushScript.K_PREVIEW_DURATION - 0.001
+	brush.m_LastDecayTimeSeconds = GeniusParticlesBrush._current_decay_time_seconds() - 0.01
+
+	brush.decay_brush()
+
+	_expect_equal(brush.calculate_salt(1, 0), expected_salt, "genius decay offsets salt by shifted knot count")
+	_expect_close(brush.m_LengthsAtKnot[1], length_before - expected_reduction, "genius decay reduces cached length by spawn interval multiples")
 	brush.free()
 
 func _check_particle_birth_time_matches_open_brush_sign() -> void:
