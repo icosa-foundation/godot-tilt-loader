@@ -127,7 +127,7 @@ static func _apply_generated_geometry_render_state(material: Material, desc: Bru
 	if desc == null:
 		return
 	if material is BaseMaterial3D:
-		(material as BaseMaterial3D).cull_mode = BaseMaterial3D.CULL_BACK
+		return
 	elif material is ShaderMaterial:
 		var desired_cull := _desired_generated_shader_cull(material as ShaderMaterial, desc)
 		if source_mode == SOURCE_LIVE_RUNTIME and _uses_open_brush_opaque_live_render_state(desc):
@@ -142,7 +142,7 @@ static func _desired_generated_shader_cull(material: ShaderMaterial, desc: Brush
 	var source_cull := _first_shader_render_mode_cull(material)
 	if not source_cull.is_empty():
 		return source_cull
-	return "cull_disabled" if desc != null and desc.m_RenderBackfaces else "cull_back"
+	return "cull_back"
 
 static func _first_shader_render_mode_cull(material: ShaderMaterial) -> String:
 	var shader := material.shader
