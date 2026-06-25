@@ -283,6 +283,7 @@ static func _descriptor_from_catalog_data(data: Dictionary) -> BrushDescriptor:
 	descriptor.m_BackIsInvisible = bool(data.get("m_BackIsInvisible", descriptor.m_BackIsInvisible))
 	descriptor.m_BackfaceHueShift = float(data.get("m_BackfaceHueShift", descriptor.m_BackfaceHueShift))
 	descriptor.m_BoundsPadding = float(data.get("m_BoundsPadding", descriptor.m_BoundsPadding))
+	descriptor.godot_runtime_material = data.get("godot_runtime_material", {})
 	descriptor.prefab_fields = data.get("prefab_fields", {})
 	return descriptor
 

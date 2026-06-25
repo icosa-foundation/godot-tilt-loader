@@ -144,13 +144,13 @@ func _find_tilt_reference_stroke(tilt_data: Dictionary) -> Dictionary:
 	var index := clampi(TiltPathReferenceStrokeIndex, 0, matches.size() - 1)
 	return matches[index]
 
-func draw_stroke(path: Array[TrTransform], brush: BrushDescriptor, color: Color) -> Stroke:
+func draw_stroke(path: Array[TrTransform], brush: BrushDescriptor, color: Color, brush_size: float = -1.0, timestamp_offset_ms: int = 0) -> Stroke:
 	if brush == null or m_Canvas == null or m_Pointer == null:
 		push_error("MinimalExample: cannot draw stroke without brush, canvas, and pointer")
 		return null
 	var smoothing := 0.0
 	var control_points: Array[ControlPoint] = []
-	var time := 0
+	var time := timestamp_offset_ms
 	var brush_scale := _path_brush_scale(path)
 	for vertex_index in range(path.size()):
 		var xf := path[vertex_index]
@@ -171,7 +171,7 @@ func draw_stroke(path: Array[TrTransform], brush: BrushDescriptor, color: Color)
 	stroke.m_IntendedCanvas = m_Canvas
 	stroke.m_BrushGuid = brush.m_Guid
 	stroke.m_BrushScale = brush_scale
-	stroke.m_BrushSize = 1.0
+	stroke.m_BrushSize = brush_size if brush_size > 0.0 else _default_brush_size(brush)
 	stroke.m_Color = color
 	stroke.m_Seed = 0
 	stroke.m_ControlPoints = control_points
@@ -195,3 +195,11 @@ func _apply_pointer_brush_size_range(brush: BrushDescriptor) -> void:
 		return
 	if brush.m_BrushSizeRange.x > 0.0 and brush.m_BrushSizeRange.y >= brush.m_BrushSizeRange.x:
 		m_Pointer.m_BrushSizeRange = brush.m_BrushSizeRange
+
+func _default_brush_size(brush: BrushDescriptor) -> float:
+	if brush != null and brush.m_BrushSizeRange.x > 0.0 and brush.m_BrushSizeRange.y >= brush.m_BrushSizeRange.x:
+		var min_radius := sqrt(brush.m_BrushSizeRange.x)
+		var max_radius := sqrt(brush.m_BrushSizeRange.y)
+		var radius := lerpf(min_radius, max_radius, 0.5)
+		return radius * radius
+	return 1.0

@@ -10,7 +10,7 @@
 radius = 0.1
 height = 0.2
 
-[node name="SingleBrushStrokeInspector" type="Node3D"]
+[node name="SingleTubeBrushStrokeInspector" type="Node3D"]
 
 [node name="App" type="Node3D" parent="."]
 script = ExtResource("2_app")
@@ -41,6 +41,7 @@ BrushSize01 = 0.5
 StrokeScale = 1.0
 StrokeRadius = 3.8
 StrokeSegments = 96
+BrushNameFilter = PackedStringArray("FacetedTube", "Wire (Lit)", "KeijiroTube", "Guts", "Muscle", "MylarTube", "Petal", "LightWire")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5.2)

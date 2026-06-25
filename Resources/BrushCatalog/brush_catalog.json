@@ -1203,6 +1203,9 @@
       "m_BackIsInvisible": false,
       "m_BackfaceHueShift": 0.0,
       "m_BoundsPadding": 0.0,
+      "godot_runtime_material": {
+        "live_depth_mode": "opaque"
+      },
       "m_Tags": [
         "experimental"
       ],
@@ -1844,6 +1847,9 @@
       "m_BackIsInvisible": false,
       "m_BackfaceHueShift": 0.0,
       "m_BoundsPadding": 0.0,
+      "godot_runtime_material": {
+        "live_depth_mode": "opaque"
+      },
       "m_Tags": [
         "default",
         "audioreactive"
@@ -2210,6 +2216,9 @@
       "m_BackIsInvisible": false,
       "m_BackfaceHueShift": 0.0,
       "m_BoundsPadding": 0.0,
+      "godot_runtime_material": {
+        "live_depth_mode": "opaque"
+      },
       "m_Tags": [
         "default"
       ],
@@ -5073,6 +5082,9 @@
       "m_BackIsInvisible": false,
       "m_BackfaceHueShift": 0.25,
       "m_BoundsPadding": 0.0,
+      "godot_runtime_material": {
+        "live_depth_mode": "opaque"
+      },
       "m_Tags": [
         "experimental"
       ],
@@ -5196,6 +5208,9 @@
       "m_BackIsInvisible": false,
       "m_BackfaceHueShift": 0.0,
       "m_BoundsPadding": 0.0,
+      "godot_runtime_material": {
+        "live_depth_mode": "opaque"
+      },
       "m_Tags": [
         "experimental"
       ],
@@ -5374,6 +5389,9 @@
       "m_BackIsInvisible": false,
       "m_BackfaceHueShift": 0.0,
       "m_BoundsPadding": 0.0,
+      "godot_runtime_material": {
+        "live_depth_mode": "opaque"
+      },
       "m_Tags": [
         "experimental"
       ],
@@ -5440,6 +5458,9 @@
       "m_BackIsInvisible": false,
       "m_BackfaceHueShift": 0.0,
       "m_BoundsPadding": 0.0,
+      "godot_runtime_material": {
+        "live_depth_mode": "opaque"
+      },
       "m_Tags": [
         "experimental",
         "audioreactive"
@@ -5564,6 +5585,9 @@
       "m_BackIsInvisible": false,
       "m_BackfaceHueShift": 0.25,
       "m_BoundsPadding": 0.0,
+      "godot_runtime_material": {
+        "live_depth_mode": "opaque"
+      },
       "m_Tags": [
         "experimental"
       ],
@@ -5630,6 +5654,9 @@
       "m_BackIsInvisible": false,
       "m_BackfaceHueShift": 0.0,
       "m_BoundsPadding": 0.0,
+      "godot_runtime_material": {
+        "live_depth_mode": "opaque"
+      },
       "m_Tags": [
         "experimental"
       ],
@@ -6236,6 +6263,9 @@
       "m_BackIsInvisible": false,
       "m_BackfaceHueShift": 0.0,
       "m_BoundsPadding": 0.0,
+      "godot_runtime_material": {
+        "live_depth_mode": "opaque"
+      },
       "m_Tags": [
         "experimental"
       ],

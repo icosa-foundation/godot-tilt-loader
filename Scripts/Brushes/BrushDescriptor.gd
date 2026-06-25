@@ -38,6 +38,7 @@ var m_RenderBackfaces := false
 var m_BackIsInvisible := false
 var m_BackfaceHueShift := 0.0
 var m_BoundsPadding := 0.0
+var godot_runtime_material := {}
 var prefab_fields := {}
 
 func description() -> String:

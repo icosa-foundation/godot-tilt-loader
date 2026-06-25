@@ -118,12 +118,12 @@ func append_tri(knot: Knot, t0: int, t1: int, t2: int) -> void:
 	knot.nTri += 1
 	if index == m_geometry.m_Tris.size():
 		m_geometry.m_Tris.append(knot.iVert + t0)
-		m_geometry.m_Tris.append(knot.iVert + t2)
 		m_geometry.m_Tris.append(knot.iVert + t1)
+		m_geometry.m_Tris.append(knot.iVert + t2)
 	else:
 		m_geometry.m_Tris[index] = knot.iVert + t0
-		m_geometry.m_Tris[index + 1] = knot.iVert + t2
-		m_geometry.m_Tris[index + 2] = knot.iVert + t1
+		m_geometry.m_Tris[index + 1] = knot.iVert + t1
+		m_geometry.m_Tris[index + 2] = knot.iVert + t2
 
 func is_penultimate(knot_index: int) -> bool:
 	return knot_index + 1 == m_knots.size() or not m_knots[knot_index + 1].has_geometry()

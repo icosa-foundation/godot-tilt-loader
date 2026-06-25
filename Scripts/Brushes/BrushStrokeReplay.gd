@@ -40,6 +40,7 @@ static func create_brush_for_stroke(stroke: Stroke, canvas: CanvasScript = null)
 			continue
 		var point := stroke.m_ControlPoints[index]
 		brush.update_position_ls(TrTransform.trs(point.m_Pos, point.m_Orient, stroke.m_BrushScale), point.m_Pressure)
+		_restore_replay_timestamp(brush, point.m_TimestampMs)
 	brush.apply_changes_to_visuals()
 	brush.finalize_for_runtime()
 	return brush
@@ -64,3 +65,14 @@ static func attach_brush_to_stroke(stroke: Stroke, canvas: CanvasScript = null) 
 	stroke.m_Object = brush
 	brush.stroke = stroke
 	return true
+
+static func _restore_replay_timestamp(brush: BaseBrushScript, timestamp_ms: int) -> void:
+	if not brush is GeometryBrush:
+		return
+	var geometry_brush := brush as GeometryBrush
+	if geometry_brush.m_knots.is_empty():
+		return
+	var last_index := geometry_brush.m_knots.size() - 1
+	geometry_brush.m_knots[last_index].point.m_TimestampMs = timestamp_ms
+	if last_index > 0:
+		geometry_brush.m_knots[last_index - 1].point.m_TimestampMs = timestamp_ms
