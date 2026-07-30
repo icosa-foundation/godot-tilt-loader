@@ -1,83 +1,149 @@
 # Open Brush Hull GDExtension
 
-Native convex hull backend for Godot hull brushes.
+Native convex-hull backend for Godot hull brushes. The extension wraps Antti
+Kuukka's public-domain QuickHull implementation and exposes
+`NativeConvexHullUtil` to GDScript.
 
-The GDScript hull fallback is intentionally kept, but real `.tilt` hull strokes should use `NativeConvexHullUtil` when this extension is built and loaded. The native backend wraps Antti Kuukka's public-domain QuickHull implementation.
+The GDScript fallback remains available, but real `.tilt` hull strokes should
+use this extension. The wrapper rejects too-small, collinear, and coplanar
+inputs before calling QuickHull so degenerate inputs follow the Unity
+null-hull path instead of producing a synthetic thin hull.
 
 The GDScript brush code passes the same tolerance scale used by the Unity hull brushes (`1e-6 * App.METERS_TO_UNITS * pointer_to_local()`). The native wrapper rejects too-small, collinear, and coplanar point sets before calling QuickHull so degenerate inputs behave like Unity's null-hull path instead of producing a synthetic thin hull. QuickHull's triangle buffer is converted back into ordered polygon faces for truly coplanar facets; brush geometry still fan-triangulates those faces when writing mesh indices.
 
-## Parity Status
+## Compatibility and Platforms
 
-QuickHull is a geometric convex hull backend, not an exact port of Unity's `MIConvexHull35.dll`. It matches the representative regular hull samples checked from `brush_cafe_experimental.tilt` by hull point count and fan-triangulated triangle count, and it matches two of the three ConcaveHull sliding-window samples exported from that file.
+The extension is compiled against the Godot 4.3 GDExtension API and tested with
+the pinned current Godot version in `dependencies.json`. The manifest contains
+debug and release entries for:
 
-The remaining known mismatch is ConcaveHull stroke 95's final 10-point window. Unity/MIConvexHull returns 6 points and 8 faces; this native backend returns 8 points and 12 faces for the same points and tolerance. Inspection of MIConvexHull shows that it keeps original vertex indices, does not pre-deduplicate equal positions, and has singular-vertex handling. That can make duplicate geometric points affect the final hull topology in ways QuickHull does not reproduce.
+- Windows: x86_64, x86_32, and arm64
+- Linux: x86_64, x86_32, arm64, and arm32
+- macOS: universal x86_64 + arm64
+- Android: x86_64, x86_32, arm64, and arm32
+- iOS: arm64
+- Web: wasm32, non-threaded, with GDExtension support
 
-Godot's public `Geometry2D.convex_hull` API is 2D-only. The public `Geometry3D` API exposes helpers such as `compute_convex_mesh_points`, but not a point-cloud-to-3D-hull topology method that can replace this extension.
+The GitHub Actions implementation is in `.github/workflows/native-ci.yml` and
+`.github/workflows/native-release.yml`. Pull requests build one representative
+configuration for each platform toolchain. Default-branch pushes, tags, and
+manual runs build the complete matrix.
 
 ## Dependencies
 
-The build uses local, ignored dependency checkouts:
+All dependency and toolchain versions are recorded in `dependencies.json`.
+Native dependencies are fetched into the ignored repository `.deps/`
+directory:
 
-- `.deps/godot-cpp`
-- `.deps/quickhull`
+```text
+.deps/godot-cpp
+.deps/quickhull
+```
 
-The build script pins those checkouts to the commits currently validated with this project:
+Fetch or verify them from the repository root:
 
-- `godot-cpp`: `f8a4e78f47f199e3591d2bedcaadcb905b6d7d7b`
-- QuickHull: `4ef66c68950cb4db11d3b75bfe4034d807485ad0`
+```powershell
+python native/open_brush_hull/tools/setup_dependencies.py
+```
 
-Do not commit those folders or generated build outputs under `bin/`. A separate distribution repo should eventually build release artifacts for all supported platforms; see `NATIVE_GDEXTENSION_DISTRIBUTION_PLAN.md`.
+The setup script refuses to replace a dependency checkout containing local
+changes. Generated binaries under `bin/` and objects under `build/` are
+ignored.
 
-## Current Platform Status
-
-Windows x86_64 debug and release binaries have been built locally. The debug/editor path has been runtime-smoked with Godot headless. Unsupported platforms fall back to the GDScript hull implementation through `Scripts/Util/ConvexHullUtil.gd`, which is not fast enough for large `.tilt` hull strokes.
-
-## Build
+## Local Windows Build
 
 From the repository root:
 
 ```powershell
-.\native\open_brush_hull\build_native_hull.ps1 -Target template_debug
+.\native\open_brush_hull\build_native_hull.ps1 -Target template_debug -Arch x86_64
+.\native\open_brush_hull\build_native_hull.ps1 -Target template_release -Arch x86_64
 ```
 
-The debug DLL is written to:
+The outputs are:
 
 ```text
-native/open_brush_hull/bin/open_brush_hull.windows.template_debug.x86_64.dll
+native/open_brush_hull/bin/windows/open_brush_hull.windows.template_debug.x86_64.dll
+native/open_brush_hull/bin/windows/open_brush_hull.windows.template_release.x86_64.dll
 ```
 
-The corresponding release target is expected at:
+Other platforms use the same SCons entry point with the required platform
+toolchain installed:
 
 ```text
-native/open_brush_hull/bin/open_brush_hull.windows.template_release.x86_64.dll
+scons platform=<platform> arch=<arch> target=<template_debug|template_release> precision=single api_version=4.3
 ```
 
-`open_brush_hull.gdextension` points at those filenames for Windows debug and release runs.
+Use `threads=no` for Web. Android also receives the NDK package version and API
+level recorded in `dependencies.json`.
 
-Verify the extension from the repository root:
+## Validation and Packaging
+
+Validate the complete manifest without requiring binaries:
+
+```powershell
+python native/open_brush_hull/tools/validate_package.py --manifest-only
+```
+
+Inspect one locally built binary:
+
+```powershell
+python native/open_brush_hull/tools/inspect_binary.py --platform windows --arch x86_64 --target template_debug
+```
+
+When every matrix binary has been assembled under `bin/`, validate the package:
+
+```powershell
+python native/open_brush_hull/tools/validate_package.py
+```
+
+The release workflow runs the same validator and creates a deterministic ZIP,
+SHA-256 checksum, dependency licenses, and machine-readable build manifest.
+Generated release binaries are workflow artifacts and GitHub Release assets;
+they are not committed.
+
+To consume a tagged package in a clean checkout, download
+`open_brush_hull-<version>.zip`, verify it against the adjacent `.sha256` file,
+and extract its top-level `open_brush_hull/` directory under this repository's
+`native/` directory. The resulting project needs neither `.deps/`, SCons, an
+SDK, nor a compiler.
+
+## Runtime Tests
+
+Run the local Windows probe with an explicit log:
 
 ```powershell
 $godot = 'C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe'
-$log = Join-Path $env:TEMP ('open-brush-hull-' + [guid]::NewGuid().ToString('N') + '.log')
-& $godot --headless --xr-mode off --log-file $log --path . --script res://Tests/GDScript/NativeHullProbe.gd
+$probeLog = Join-Path $env:TEMP ('open-brush-hull-probe-' + [guid]::NewGuid().ToString('N') + '.log')
+$parityLog = Join-Path $env:TEMP ('open-brush-hull-parity-' + [guid]::NewGuid().ToString('N') + '.log')
+$env:OPEN_BRUSH_HULL_LOG_PREFIX = 'OBH_LOCAL_NATIVE_TEST'
+& $godot --headless --xr-mode off --log-file $probeLog --path . --script res://Tests/GDScript/NativeHullProbe.gd
+& $godot --headless --xr-mode off --log-file $parityLog --path . --script res://Tests/GDScript/NativeHullParitySuite.gd
 ```
 
-Representative parity CSVs can be regenerated from the cafe tilt fixture:
+The parity inputs are tracked under `Tests/Fixtures/NativeHull/`, so the suite
+does not depend on machine-local Godot user data. CI retains complete Godot
+logs and requires a unique native-loaded marker.
 
-```powershell
-$userData = 'C:/Users/andyb/AppData/Roaming/Godot/app_userdata/open-brush-stroke-gen-godot'
-& $godot --headless --xr-mode off --log-file $log --path . --script res://Tests/GDScript/HullBrushTiltProbe.gd -- --tilt=res://Temp/TiltEvidence/brush_cafe_experimental.tilt --max-hull-strokes=120 --detail-hull-indices=3,31,85,89,91,92,98,99,111 --detail-output-prefix=$userData/hull_compare
-& $godot --headless --xr-mode off --log-file $log --path . --script res://Tests/GDScript/HullBrushTiltProbe.gd -- --tilt=res://Temp/TiltEvidence/brush_cafe_experimental.tilt --max-hull-strokes=100 --detail-hull-indices=95,96,97 --detail-output-prefix=$userData/concave_compare_current
-```
+CI additionally:
 
-`HullBrushTiltProbe.gd` writes the same hull input that `HullBrush` uses at runtime, including interior-vertex filtering and duplicate-tail omission. Example pass/fail count assertions:
+- executes debug editor probes on Windows, Linux, and macOS;
+- exports and executes release projects on those desktop platforms;
+- inspects Android APK ABI contents and runs an x86_64 emulator probe;
+- exports a non-threaded Web release and runs it in headless Chromium; and
+- exports an iOS Xcode project and links it for arm64 with signing disabled.
 
-```powershell
-& $godot --headless --xr-mode off --log-file $log --path . --script res://Tests/GDScript/NativeHullParitySuite.gd
-& $godot --headless --xr-mode off --log-file $log --path . --script res://Tests/GDScript/NativeHullProbe.gd -- --csv='C:\Users\andyb\AppData\Roaming\Godot\app_userdata\open-brush-stroke-gen-godot\hull_compare_085.csv' --tolerance=0.000014966814 --expect-points=221 --expect-triangles=438
-& $godot --headless --xr-mode off --log-file $log --path . --script res://Tests/GDScript/NativeHullProbe.gd -- --csv='C:\Users\andyb\AppData\Roaming\Godot\app_userdata\open-brush-stroke-gen-godot\hull_compare_111.csv' --tolerance=0.000010017480 --expect-points=190 --expect-triangles=376
-```
+A real iOS-device runtime test still requires signing credentials and device
+infrastructure and is not represented as an automated runtime pass.
 
-Use an explicit `--log-file` for scripted/headless runs. In this local Godot 4.6.1 setup, the default project log rotation path can fail intermittently when launching repeated headless processes.
+## Parity Status
 
-The parity suite checks the representative regular hull samples plus ConcaveHull windows 96 and 97. For polygon faces, it verifies point count and fan-triangulated triangle count while separately logging polygon face count. It also reports ConcaveHull 95 as a known mismatch and verifies the current native result remains 8 points / 12 fan triangles rather than silently changing. Unity/MIConvexHull returns 6 points / 8 triangles for that degenerate duplicate-tail window.
+QuickHull is a geometric convex-hull backend, not an exact port of Unity's
+`MIConvexHull35.dll`. It matches the representative regular hull samples in
+the tracked parity suite and two of the three ConcaveHull sliding-window
+samples. For polygon faces, the suite verifies point count and fan-triangulated
+triangle count while separately logging polygon face count.
+
+The remaining known mismatch is ConcaveHull stroke 95's final 10-point window.
+Unity/MIConvexHull returns 6 points and 8 fan triangles; this backend returns 8
+points and 12 fan triangles for the same points and tolerance. The suite
+asserts the current native result explicitly so it cannot change silently.

@@ -1,20 +1,81 @@
 #!/usr/bin/env python
 
-SConsignFile(None)
+import os
 
-env = SConscript("../../.deps/godot-cpp/SConstruct")
 
-env.Append(CPPPATH=[
-    "src",
-    "../../.deps/quickhull",
-])
+extension_name = "open_brush_hull"
+extension_root = Dir("#").abspath
+repository_root = os.path.abspath(os.path.join(extension_root, "..", ".."))
+dependency_root = os.path.join(repository_root, ".deps")
+godot_cpp_dir = os.environ.get("GODOT_CPP_DIR", os.path.join(dependency_root, "godot-cpp"))
+quickhull_dir = os.environ.get("QUICKHULL_DIR", os.path.join(dependency_root, "quickhull"))
 
+if not os.path.isfile(os.path.join(godot_cpp_dir, "SConstruct")):
+    print(f"godot-cpp is missing at {godot_cpp_dir}. Run tools/setup_dependencies.py first.")
+    Exit(1)
+
+if not os.path.isfile(os.path.join(quickhull_dir, "QuickHull.cpp")):
+    print(f"QuickHull is missing at {quickhull_dir}. Run tools/setup_dependencies.py first.")
+    Exit(1)
+
+# Start without host-platform defaults. godot-cpp selects and configures the
+# requested target toolchain from the normal platform/arch SCons arguments.
+local_env = Environment(tools=["default"], PLATFORM="")
+for tool_name in ("CC", "CXX", "AR", "RANLIB"):
+    override = os.environ.get(f"OPEN_BRUSH_HULL_{tool_name}")
+    if override:
+        local_env[tool_name] = override
+env = SConscript(
+    os.path.join(godot_cpp_dir, "SConstruct"),
+    {"env": local_env, "customs": []},
+)
+
+env.Append(
+    CPPPATH=[
+        os.path.join(extension_root, "src"),
+        quickhull_dir,
+    ]
+)
+
+object_dir = os.path.join(
+    "build",
+    env["platform"],
+    env["arch"],
+    env["target"],
+)
 objects = [
-    env.SharedObject("bin/register_types", "src/register_types.cpp"),
-    env.SharedObject("bin/native_convex_hull_util", "src/native_convex_hull_util.cpp"),
-    env.SharedObject("bin/QuickHull", "../../.deps/quickhull/QuickHull.cpp"),
+    env.SharedObject(
+        os.path.join(object_dir, "register_types"),
+        os.path.join(extension_root, "src", "register_types.cpp"),
+    ),
+    env.SharedObject(
+        os.path.join(object_dir, "native_convex_hull_util"),
+        os.path.join(extension_root, "src", "native_convex_hull_util.cpp"),
+    ),
+    env.SharedObject(
+        os.path.join(object_dir, "QuickHull"),
+        os.path.join(quickhull_dir, "QuickHull.cpp"),
+    ),
 ]
 
-target = "bin/open_brush_hull{}{}".format(env["suffix"], env["SHLIBSUFFIX"])
-library = env.SharedLibrary(target, source=objects)
+# .dev does not affect compatibility. Universal macOS binaries do not need an
+# architecture suffix because both supported architectures are in one file.
+suffix = env["suffix"].replace(".dev", "")
+if env["platform"] == "macos":
+    suffix = suffix.replace(".universal", "")
+if env["platform"] == "web" and not env["threads"]:
+    suffix += ".nothreads"
+
+library_filename = "{}{}{}{}".format(
+    env.subst("$SHLIBPREFIX"),
+    extension_name,
+    suffix,
+    env.subst("$SHLIBSUFFIX"),
+)
+library = env.SharedLibrary(
+    os.path.join("bin", env["platform"], library_filename),
+    source=objects,
+)
+
+print(f"OPEN_BRUSH_HULL_OUTPUT={library[0]}")
 Default(library)

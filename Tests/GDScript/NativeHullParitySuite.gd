@@ -1,6 +1,6 @@
 extends SceneTree
 
-const USER_DATA_DIR := "C:/Users/andyb/AppData/Roaming/Godot/app_userdata/open-brush-stroke-gen-godot"
+const FIXTURE_DIR := "res://Tests/Fixtures/NativeHull"
 
 const CASES := [
 	{"name": "hull_003", "csv": "hull_compare_003.csv", "tolerance": 0.000011151688, "points": 62, "faces": 120},
@@ -26,6 +26,10 @@ func _init() -> void:
 	if not ClassDB.class_exists("NativeConvexHullUtil"):
 		quit(1)
 		return
+	var ci_prefix := OS.get_environment("OPEN_BRUSH_HULL_LOG_PREFIX")
+	if ci_prefix.is_empty():
+		ci_prefix = "NATIVE_HULL_PARITY"
+	print("%s: native_extension_loaded=true" % ci_prefix)
 	var util = ClassDB.instantiate("NativeConvexHullUtil")
 	if util == null:
 		print("NATIVE_HULL_PARITY: instantiate_failed")
@@ -44,7 +48,7 @@ func _init() -> void:
 
 
 func _check_case(util: Object, test_case: Dictionary, known_mismatch: bool) -> bool:
-	var csv_path := USER_DATA_DIR.path_join(test_case.csv)
+	var csv_path := FIXTURE_DIR.path_join(test_case.csv)
 	var points := _read_csv_points(csv_path)
 	if points.is_empty():
 		print("NATIVE_HULL_PARITY: missing_or_empty name=%s csv=%s" % [test_case.name, csv_path])

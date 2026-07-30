@@ -1,81 +1,35 @@
 param(
     [ValidateSet("template_debug", "template_release")]
     [string] $Target = "template_debug",
-    [switch] $ForceApiDump
+    [ValidateSet("x86_64", "x86_32", "arm64")]
+    [string] $Arch = "x86_64"
 )
 
 $ErrorActionPreference = "Stop"
 
-$Root = Resolve-Path (Join-Path $PSScriptRoot "..\..")
-$Deps = Join-Path $Root ".deps"
-$GodotCpp = Join-Path $Deps "godot-cpp"
-$QuickHull = Join-Path $Deps "quickhull"
-$GodotCppRepo = "https://github.com/godotengine/godot-cpp.git"
-$QuickHullRepo = "https://github.com/akuukka/quickhull.git"
-$GodotCppCommit = "f8a4e78f47f199e3591d2bedcaadcb905b6d7d7b"
-$QuickHullCommit = "4ef66c68950cb4db11d3b75bfe4034d807485ad0"
+$ConfigPath = Join-Path $PSScriptRoot "dependencies.json"
+$Config = Get-Content -LiteralPath $ConfigPath -Raw | ConvertFrom-Json
+$SetupScript = Join-Path $PSScriptRoot "tools/setup_dependencies.py"
 
-if (-not (Test-Path $Deps)) {
-    New-Item -ItemType Directory -Path $Deps | Out-Null
+# Some managed PowerShell hosts omit this standard Windows variable. SCons
+# queries it while discovering the installed MSVC toolchain.
+if (-not (Test-Path Env:PROCESSOR_ARCHITECTURE)) {
+    $env:PROCESSOR_ARCHITECTURE = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToUpperInvariant()
 }
 
-function Ensure-GitDependency {
-    param(
-        [string] $Path,
-        [string] $Repo,
-        [string] $Commit
-    )
-
-    $NeedsCheckout = $false
-    if (-not (Test-Path $Path)) {
-        git clone --no-checkout $Repo $Path
-        if ($LASTEXITCODE -ne 0) {
-            throw "git clone failed for $Repo with exit code $LASTEXITCODE"
-        }
-        $NeedsCheckout = $true
-    }
-
-    Push-Location $Path
-    try {
-        $CurrentCommit = git rev-parse HEAD
-        if ($LASTEXITCODE -ne 0 -or $CurrentCommit -ne $Commit) {
-            git fetch --depth 1 origin $Commit
-            if ($LASTEXITCODE -ne 0) {
-                throw "git fetch failed for $Repo commit $Commit with exit code $LASTEXITCODE"
-            }
-            $NeedsCheckout = $true
-        }
-        if ($NeedsCheckout) {
-            git checkout --detach $Commit
-            if ($LASTEXITCODE -ne 0) {
-                throw "git checkout failed for $Repo commit $Commit with exit code $LASTEXITCODE"
-            }
-        }
-    }
-    finally {
-        Pop-Location
-    }
-}
-
-Ensure-GitDependency -Path $GodotCpp -Repo $GodotCppRepo -Commit $GodotCppCommit
-Ensure-GitDependency -Path $QuickHull -Repo $QuickHullRepo -Commit $QuickHullCommit
-
-$Godot = "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe"
-if (-not (Test-Path $Godot)) {
-    throw "Godot console executable not found at $Godot"
+python $SetupScript
+if ($LASTEXITCODE -ne 0) {
+    throw "Dependency setup failed with exit code $LASTEXITCODE"
 }
 
 Push-Location $PSScriptRoot
 try {
-    if ($ForceApiDump -or -not (Test-Path "extension_api.json")) {
-        & $Godot --dump-extension-api
-        if ($LASTEXITCODE -ne 0) {
-            throw "Godot extension API dump failed with exit code $LASTEXITCODE"
-        }
-    }
-
-    $env:PROCESSOR_ARCHITECTURE = "AMD64"
-    scons platform=windows target=$Target custom_api_file=extension_api.json silence_msvc=no -j1
+    scons `
+        platform=windows `
+        arch=$Arch `
+        target=$Target `
+        precision=single `
+        api_version=$($Config.godot.api_version)
     if ($LASTEXITCODE -ne 0) {
         throw "SCons build failed with exit code $LASTEXITCODE"
     }
@@ -83,3 +37,14 @@ try {
 finally {
     Pop-Location
 }
+
+$WindowsBin = Join-Path $PSScriptRoot "bin/windows"
+Get-ChildItem -LiteralPath $WindowsBin -File -ErrorAction SilentlyContinue |
+    Where-Object { $_.Extension -in @(".exp", ".lib", ".pdb") } |
+    Remove-Item -Force
+
+$Output = Join-Path $PSScriptRoot "bin/windows/open_brush_hull.windows.$Target.$Arch.dll"
+if (-not (Test-Path -LiteralPath $Output)) {
+    throw "Expected output was not produced: $Output"
+}
+Write-Output "OPEN_BRUSH_HULL_OUTPUT=$Output"

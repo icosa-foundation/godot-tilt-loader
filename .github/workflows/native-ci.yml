@@ -1,0 +1,656 @@
+name: Native GDExtension CI
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/actions/build-open-brush-hull/**"
+      - ".github/workflows/native-*.yml"
+      - "native/open_brush_hull/**"
+      - "Tests/GDScript/NativeHull*.gd"
+      - "Tests/Fixtures/NativeHull/**"
+      - "Tests/NativeHullRuntimeProject/**"
+  pull_request:
+    paths:
+      - ".github/actions/build-open-brush-hull/**"
+      - ".github/workflows/native-*.yml"
+      - "native/open_brush_hull/**"
+      - "Tests/GDScript/NativeHull*.gd"
+      - "Tests/Fixtures/NativeHull/**"
+      - "Tests/NativeHullRuntimeProject/**"
+  merge_group:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validate-sources:
+    name: Validate native source package metadata
+    runs-on: ubuntu-22.04
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+
+      - name: Validate manifest and Python tools
+        run: |
+          python native/open_brush_hull/tools/validate_package.py --manifest-only
+          python -m py_compile native/open_brush_hull/tools/*.py
+
+      - name: Select build matrix
+        id: matrix
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          python - <<'PY'
+          import itertools
+          import json
+          import os
+          from pathlib import Path
+
+          targets = [
+              {"platform": "windows", "arch": "x86_64", "os": "windows-latest", "pr_build": "template_debug"},
+              {"platform": "windows", "arch": "x86_32", "os": "windows-latest", "pr_build": None},
+              {"platform": "windows", "arch": "arm64", "os": "windows-latest", "pr_build": None},
+              {"platform": "linux", "arch": "x86_64", "os": "ubuntu-22.04", "pr_build": "template_debug"},
+              {"platform": "linux", "arch": "x86_32", "os": "ubuntu-22.04", "pr_build": None},
+              {"platform": "linux", "arch": "arm64", "os": "ubuntu-22.04-arm", "pr_build": None},
+              {"platform": "linux", "arch": "arm32", "os": "ubuntu-22.04-arm", "pr_build": None},
+              {"platform": "macos", "arch": "universal", "os": "macos-latest", "pr_build": "template_debug"},
+              {"platform": "android", "arch": "x86_64", "os": "ubuntu-22.04", "pr_build": None},
+              {"platform": "android", "arch": "x86_32", "os": "ubuntu-22.04", "pr_build": None},
+              {"platform": "android", "arch": "arm64", "os": "ubuntu-22.04", "pr_build": "template_debug"},
+              {"platform": "android", "arch": "arm32", "os": "ubuntu-22.04", "pr_build": None},
+              {"platform": "ios", "arch": "arm64", "os": "macos-latest", "pr_build": "template_debug"},
+              {"platform": "web", "arch": "wasm32", "os": "ubuntu-22.04", "pr_build": "template_release"},
+          ]
+          if os.environ["EVENT_NAME"] == "pull_request":
+              matrix = [
+                  {**target, "build": target["pr_build"]}
+                  for target in targets
+                  if target["pr_build"]
+              ]
+          else:
+              matrix = [
+                  {**target, "build": build}
+                  for target, build in itertools.product(
+                      targets,
+                      ("template_debug", "template_release"),
+                  )
+              ]
+          for entry in matrix:
+              entry.pop("pr_build", None)
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as output:
+              output.write(f"matrix={json.dumps({'include': matrix}, separators=(',', ':'))}\n")
+          PY
+
+  build:
+    name: ${{ matrix.platform }} ${{ matrix.arch }} ${{ matrix.build }}
+    needs: validate-sources
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.validate-sources.outputs.matrix) }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Read pinned build versions
+        id: versions
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          config = json.loads(Path("native/open_brush_hull/dependencies.json").read_text())
+          values = {
+              "api": config["godot"]["api_version"],
+              "scons": config["toolchains"]["scons"],
+              "emscripten": config["toolchains"]["emscripten"],
+              "ndk_action": config["toolchains"]["android_ndk_action_version"],
+              "ndk_package": config["toolchains"]["android_ndk_version"],
+              "android_api": config["toolchains"]["android_api_level"],
+          }
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as output:
+              for key, value in values.items():
+                  output.write(f"{key}={value}\n")
+          PY
+
+      - name: Install Linux x86 multilib
+        if: matrix.platform == 'linux' && matrix.arch == 'x86_32'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes gcc-multilib g++-multilib
+
+      - name: Install Linux arm32 cross-compiler
+        if: matrix.platform == 'linux' && matrix.arch == 'arm32'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+
+      - name: Record runner toolchain image
+        id: runner-toolchain
+        shell: bash
+        run: |
+          image_os="${ImageOS:-${RUNNER_OS}}"
+          image_version="${ImageVersion:-unknown}"
+          echo "key=${image_os}-${image_version}-${RUNNER_ARCH}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore pinned dependency checkouts
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: .deps
+          key: native-deps-${{ hashFiles('native/open_brush_hull/dependencies.json') }}
+
+      - name: Restore SCons cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: .scons-cache
+          key: >-
+            native-scons-${{ steps.runner-toolchain.outputs.key }}-${{
+            matrix.platform }}-${{ matrix.arch }}-${{
+            matrix.build }}-${{ hashFiles('native/open_brush_hull/dependencies.json',
+            'native/open_brush_hull/SConstruct', 'native/open_brush_hull/src/**') }}
+
+      - name: Build
+        uses: ./.github/actions/build-open-brush-hull
+        env:
+          SCONS_CACHE: ${{ github.workspace }}/.scons-cache
+        with:
+          platform: ${{ matrix.platform }}
+          arch: ${{ matrix.arch }}
+          target: ${{ matrix.build }}
+          scons-version: ${{ steps.versions.outputs.scons }}
+          emscripten-version: ${{ steps.versions.outputs.emscripten }}
+          android-ndk-version: ${{ steps.versions.outputs.ndk_action }}
+          android-ndk-package-version: ${{ steps.versions.outputs.ndk_package }}
+          android-api-level: ${{ steps.versions.outputs.android_api }}
+          godot-api-version: ${{ steps.versions.outputs.api }}
+
+      - name: Upload native binary
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: >-
+            open-brush-hull-${{ matrix.platform }}-${{ matrix.arch }}-${{
+            matrix.build }}
+          path: native/open_brush_hull/bin/
+          if-no-files-found: error
+          retention-days: 14
+
+  runtime-desktop:
+    name: Runtime smoke (${{ matrix.platform }})
+    needs: build
+    if: always() && needs.build.result == 'success'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows
+            arch: x86_64
+            os: windows-latest
+          - platform: linux
+            arch: x86_64
+            os: ubuntu-22.04
+          - platform: macos
+            arch: universal
+            os: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Download debug extension
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: open-brush-hull-${{ matrix.platform }}-${{ matrix.arch }}-template_debug
+          path: native/open_brush_hull/bin
+
+      - name: Read Godot version
+        id: godot
+        shell: bash
+        run: |
+          version="$(python -c 'import json; print(json.load(open("native/open_brush_hull/dependencies.json"))["godot"]["test_version"])')"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Download Godot on Linux
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          curl --fail --location --retry 3 \
+            --output godot.zip \
+            "https://github.com/godotengine/godot-builds/releases/download/${{ steps.godot.outputs.version }}-stable/Godot_v${{ steps.godot.outputs.version }}-stable_linux.x86_64.zip"
+          unzip -q godot.zip -d .godot-ci
+          chmod +x .godot-ci/Godot_v${{ steps.godot.outputs.version }}-stable_linux.x86_64
+
+      - name: Download Godot on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $url = "https://github.com/godotengine/godot-builds/releases/download/${{ steps.godot.outputs.version }}-stable/Godot_v${{ steps.godot.outputs.version }}-stable_win64.exe.zip"
+          Invoke-WebRequest -Uri $url -OutFile godot.zip
+          Expand-Archive -LiteralPath godot.zip -DestinationPath .godot-ci
+
+      - name: Download Godot on macOS
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          curl --fail --location --retry 3 \
+            --output godot.zip \
+            "https://github.com/godotengine/godot-builds/releases/download/${{ steps.godot.outputs.version }}-stable/Godot_v${{ steps.godot.outputs.version }}-stable_macos.universal.zip"
+          unzip -q godot.zip -d .godot-ci
+
+      - name: Run native probe and parity suite
+        shell: bash
+        env:
+          OPEN_BRUSH_HULL_LOG_PREFIX: >-
+            OBH_CI_${{ github.run_id }}_${{ github.run_attempt }}_${{ matrix.platform }}
+        run: |
+          case "${{ runner.os }}" in
+            Linux)
+              godot=".godot-ci/Godot_v${{ steps.godot.outputs.version }}-stable_linux.x86_64"
+              ;;
+            Windows)
+              godot=".godot-ci/Godot_v${{ steps.godot.outputs.version }}-stable_win64.exe"
+              ;;
+            macOS)
+              godot=".godot-ci/Godot.app/Contents/MacOS/Godot"
+              ;;
+          esac
+          "$godot" --headless --xr-mode off --log-file native-probe.log \
+            --path . --script res://Tests/GDScript/NativeHullProbe.gd
+          "$godot" --headless --xr-mode off --log-file native-parity.log \
+            --path . --script res://Tests/GDScript/NativeHullParitySuite.gd
+          grep -F "${OPEN_BRUSH_HULL_LOG_PREFIX}: native_extension_loaded=true" native-probe.log
+          grep -F "${OPEN_BRUSH_HULL_LOG_PREFIX}: native_extension_loaded=true" native-parity.log
+          grep -F "NATIVE_HULL_PARITY: failures=0" native-parity.log
+
+      - name: Upload complete Godot logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: open-brush-hull-runtime-logs-${{ matrix.platform }}
+          path: |
+            native-probe.log
+            native-parity.log
+          if-no-files-found: warn
+          retention-days: 14
+
+  runtime-minimum-godot:
+    name: Minimum Godot compatibility (Linux x86_64)
+    needs: build
+    if: always() && needs.build.result == 'success'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+
+      - name: Download Linux debug extension
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: open-brush-hull-linux-x86_64-template_debug
+          path: native/open_brush_hull/bin
+
+      - name: Read minimum Godot version
+        id: version
+        run: |
+          version="$(python -c 'import json; print(json.load(open("native/open_brush_hull/dependencies.json"))["godot"]["minimum_test_version"])')"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Install minimum Godot
+        id: godot
+        run: >-
+          python native/open_brush_hull/tools/install_godot_ci.py
+          --platform linux
+          --version "${{ steps.version.outputs.version }}"
+
+      - name: Run probe on minimum Godot
+        env:
+          OPEN_BRUSH_HULL_LOG_PREFIX: >-
+            OBH_CI_${{ github.run_id }}_${{ github.run_attempt }}_godot_minimum
+        run: |
+          set -o pipefail
+          "${{ steps.godot.outputs.executable }}" --headless --xr-mode off \
+            --path . --script res://Tests/GDScript/NativeHullProbe.gd \
+            2>&1 | tee minimum-godot.log
+          grep -F "${OPEN_BRUSH_HULL_LOG_PREFIX}: native_extension_loaded=true" \
+            minimum-godot.log
+
+      - name: Upload minimum-version log
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: open-brush-hull-minimum-godot-log
+          path: minimum-godot.log
+          if-no-files-found: warn
+          retention-days: 14
+
+  runtime-desktop-release:
+    name: Release export smoke (${{ matrix.platform }})
+    needs: build
+    if: >-
+      github.event_name != 'pull_request' &&
+      always() &&
+      needs.build.result == 'success'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows
+            arch: x86_64
+            os: windows-latest
+            preset: Windows
+          - platform: linux
+            arch: x86_64
+            os: ubuntu-22.04
+            preset: Linux
+          - platform: macos
+            arch: universal
+            os: macos-latest
+            preset: macOS
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+
+      - name: Download debug extension for editor loading
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: open-brush-hull-${{ matrix.platform }}-${{ matrix.arch }}-template_debug
+          path: Tests/NativeHullRuntimeProject/native/open_brush_hull/bin
+
+      - name: Download release extension
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: open-brush-hull-${{ matrix.platform }}-${{ matrix.arch }}-template_release
+          path: Tests/NativeHullRuntimeProject/native/open_brush_hull/bin
+
+      - name: Stage manifest
+        shell: bash
+        run: |
+          mkdir -p Tests/NativeHullRuntimeProject/native/open_brush_hull
+          cp native/open_brush_hull/open_brush_hull.gdextension \
+            Tests/NativeHullRuntimeProject/native/open_brush_hull/
+
+      - name: Install Godot and export templates
+        id: godot
+        shell: bash
+        run: >-
+          python native/open_brush_hull/tools/install_godot_ci.py
+          --platform "${{ matrix.platform }}"
+          --install-templates
+
+      - name: Export and execute release probe
+        shell: bash
+        run: |
+          project="Tests/NativeHullRuntimeProject"
+          mkdir -p "$project/exports/${{ matrix.platform }}"
+          "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
+            --export-release "${{ matrix.preset }}"
+          case "${{ matrix.platform }}" in
+            windows)
+              executable="$project/exports/windows/OpenBrushHullProbe.exe"
+              ;;
+            linux)
+              executable="$project/exports/linux/OpenBrushHullProbe.x86_64"
+              chmod +x "$executable"
+              ;;
+            macos)
+              unzip -q "$project/exports/macos/OpenBrushHullProbe.zip" \
+                -d "$project/exports/macos/unpacked"
+              executable="$project/exports/macos/unpacked/Open Brush Hull Native Probe.app/Contents/MacOS/Open Brush Hull Native Probe"
+              ;;
+          esac
+          "$executable" --headless > release-runtime.log 2>&1
+          grep -F "OBH_RUNTIME: native_extension_loaded=true ok=true" release-runtime.log
+
+      - name: Upload release runtime log
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: open-brush-hull-release-runtime-${{ matrix.platform }}
+          path: release-runtime.log
+          if-no-files-found: warn
+          retention-days: 14
+
+  runtime-web:
+    name: Web release browser smoke
+    needs: build
+    if: always() && needs.build.result == 'success'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+
+      - name: Download Web release extension
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: open-brush-hull-web-wasm32-template_release
+          path: Tests/NativeHullRuntimeProject/native/open_brush_hull/bin
+
+      - name: Stage manifest
+        run: |
+          mkdir -p Tests/NativeHullRuntimeProject/native/open_brush_hull
+          cp native/open_brush_hull/open_brush_hull.gdextension \
+            Tests/NativeHullRuntimeProject/native/open_brush_hull/
+
+      - name: Install Godot and export templates
+        id: godot
+        run: >-
+          python native/open_brush_hull/tools/install_godot_ci.py
+          --platform linux
+          --install-templates
+
+      - name: Export Web release
+        run: |
+          project="Tests/NativeHullRuntimeProject"
+          mkdir -p "$project/exports/web"
+          "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
+            --export-release Web
+          test -f "$project/exports/web/libopen_brush_hull.web.template_release.wasm32.nothreads.wasm"
+
+      - name: Run Web release in Chromium
+        shell: bash
+        run: |
+          project="Tests/NativeHullRuntimeProject"
+          python -m http.server 8060 --directory "$project/exports/web" \
+            > web-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8060/index.html >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          google-chrome --headless=new --no-sandbox --disable-gpu \
+            --virtual-time-budget=20000 --dump-dom \
+            http://127.0.0.1:8060/index.html > web-dom.log
+          grep -F 'data-obh-native="true"' web-dom.log
+
+      - name: Upload Web logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: open-brush-hull-web-runtime-logs
+          path: |
+            web-dom.log
+            web-server.log
+          if-no-files-found: warn
+          retention-days: 14
+
+  runtime-android:
+    name: Android x86_64 emulator smoke
+    needs: build
+    if: >-
+      github.event_name != 'pull_request' &&
+      always() &&
+      needs.build.result == 'success'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+
+      - name: Download Android x86_64 debug extension
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: open-brush-hull-android-x86_64-template_debug
+          path: Tests/NativeHullRuntimeProject/native/open_brush_hull/bin
+
+      - name: Stage manifest
+        run: |
+          mkdir -p Tests/NativeHullRuntimeProject/native/open_brush_hull
+          cp native/open_brush_hull/open_brush_hull.gdextension \
+            Tests/NativeHullRuntimeProject/native/open_brush_hull/
+
+      - name: Install Godot and export templates
+        id: godot
+        run: >-
+          python native/open_brush_hull/tools/install_godot_ci.py
+          --platform linux
+          --install-templates
+
+      - name: Export and inspect Android APK
+        run: |
+          project="Tests/NativeHullRuntimeProject"
+          mkdir -p "$project/exports/android"
+          "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
+            --export-debug Android
+          unzip -l "$project/exports/android/OpenBrushHullProbe.apk" \
+            | grep -F "lib/x86_64/libopen_brush_hull.android.template_debug.x86_64.so"
+
+      - name: Execute Android probe
+        uses: ReactiveCircus/android-emulator-runner@4c44018e59b437e86cdfc41da381398f93ed8808
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_2
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          disable-animations: true
+          script: |
+            adb install -r Tests/NativeHullRuntimeProject/exports/android/OpenBrushHullProbe.apk
+            adb logcat -c
+            adb shell monkey -p org.icosa.openbrushhullprobe 1
+            for attempt in $(seq 1 30); do
+              if adb shell run-as org.icosa.openbrushhullprobe \
+                cat files/obh_runtime_result.txt > android-runtime.log 2>/dev/null; then
+                break
+              fi
+              sleep 1
+            done
+            grep -F "OBH_RUNTIME: native_extension_loaded=true ok=true" android-runtime.log
+            adb logcat -d > android-logcat.log
+
+      - name: Upload Android logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: open-brush-hull-android-runtime-logs
+          path: |
+            android-runtime.log
+            android-logcat.log
+          if-no-files-found: warn
+          retention-days: 14
+
+  package-ios:
+    name: iOS arm64 Xcode link validation
+    needs: build
+    if: >-
+      github.event_name != 'pull_request' &&
+      always() &&
+      needs.build.result == 'success'
+    runs-on: macos-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+
+      - name: Download iOS debug extension
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: open-brush-hull-ios-arm64-template_debug
+          path: Tests/NativeHullRuntimeProject/native/open_brush_hull/bin
+
+      - name: Stage manifest
+        run: |
+          mkdir -p Tests/NativeHullRuntimeProject/native/open_brush_hull
+          cp native/open_brush_hull/open_brush_hull.gdextension \
+            Tests/NativeHullRuntimeProject/native/open_brush_hull/
+
+      - name: Install Godot and export templates
+        id: godot
+        run: >-
+          python native/open_brush_hull/tools/install_godot_ci.py
+          --platform macos
+          --install-templates
+
+      - name: Export iOS Xcode project
+        run: |
+          project="Tests/NativeHullRuntimeProject"
+          mkdir -p "$project/exports/ios"
+          "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
+            --export-debug iOS
+          unzip -q "$project/exports/ios/OpenBrushHullProbe.zip" \
+            -d "$project/exports/ios/xcode"
+          find "$project/exports/ios/xcode" -name \
+            "libopen_brush_hull.ios.template_debug.arm64.dylib" -print -quit \
+            | grep -F "libopen_brush_hull.ios.template_debug.arm64.dylib"
+
+      - name: Link exported Xcode project without signing
+        shell: bash
+        run: |
+          project_file="$(find Tests/NativeHullRuntimeProject/exports/ios/xcode \
+            -name '*.xcodeproj' -print -quit)"
+          scheme="$(basename "$project_file" .xcodeproj)"
+          xcodebuild -project "$project_file" -scheme "$scheme" \
+            -sdk iphoneos CODE_SIGNING_ALLOWED=NO build | tee ios-xcodebuild.log
+
+      - name: Upload iOS build log
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: open-brush-hull-ios-xcodebuild-log
+          path: ios-xcodebuild.log
+          if-no-files-found: warn
+          retention-days: 14

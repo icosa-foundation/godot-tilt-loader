@@ -5,6 +5,9 @@
 .import/
 export.cfg
 export_presets.cfg
+!Tests/NativeHullRuntimeProject/export_presets.cfg
+__pycache__/
+*.py[cod]
 
 # Build/cache outputs
 [Bb]in/
@@ -49,10 +52,13 @@ addons/icosa/
 !native/open_brush_hull/bin/
 native/open_brush_hull/bin/*
 !native/open_brush_hull/bin/.gdignore
+native/open_brush_hull/build/
 native/open_brush_hull/.sconsign
 native/open_brush_hull/.sconsign.dblite
 native/open_brush_hull/src/.sconsign
 native/open_brush_hull/extension_api.json
+Tests/NativeHullRuntimeProject/native/
+Tests/NativeHullRuntimeProject/exports/
 *.apk
 *.aab
 *.app

@@ -6,6 +6,10 @@ func _init() -> void:
 	if not ClassDB.class_exists("NativeConvexHullUtil"):
 		quit(1)
 		return
+	var ci_prefix := OS.get_environment("OPEN_BRUSH_HULL_LOG_PREFIX")
+	if ci_prefix.is_empty():
+		ci_prefix = "NATIVE_HULL_PROBE"
+	print("%s: native_extension_loaded=true" % ci_prefix)
 	var util = ClassDB.instantiate("NativeConvexHullUtil")
 	if util == null:
 		print("NATIVE_HULL_PROBE: instantiate_failed")

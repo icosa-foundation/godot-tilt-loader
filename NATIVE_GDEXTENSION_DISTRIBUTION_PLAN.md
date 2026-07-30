@@ -1,5 +1,10 @@
 # Native GDExtension Distribution Plan
 
+> **Status:** Superseded by the in-repository implementation described in
+> `OPEN_BRUSH_HULL_CROSS_PLATFORM_CI_PLAN.md`. The native source remains in this
+> repository and `.github/workflows/native-ci.yml` now owns the cross-platform
+> builds. Moving it to a separate repository is no longer a prerequisite.
+
 ## Problem
 
 The current hull acceleration path depends on a local GDExtension built from source:

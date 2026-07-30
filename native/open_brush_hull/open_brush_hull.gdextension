@@ -2,8 +2,40 @@
 
 entry_symbol = "open_brush_hull_library_init"
 compatibility_minimum = "4.3"
+reloadable = false
 
 [libraries]
 
-windows.debug.x86_64 = "res://native/open_brush_hull/bin/open_brush_hull.windows.template_debug.x86_64.dll"
-windows.release.x86_64 = "res://native/open_brush_hull/bin/open_brush_hull.windows.template_release.x86_64.dll"
+windows.x86_64.single.debug = "./bin/windows/open_brush_hull.windows.template_debug.x86_64.dll"
+windows.x86_64.single.release = "./bin/windows/open_brush_hull.windows.template_release.x86_64.dll"
+windows.x86_32.single.debug = "./bin/windows/open_brush_hull.windows.template_debug.x86_32.dll"
+windows.x86_32.single.release = "./bin/windows/open_brush_hull.windows.template_release.x86_32.dll"
+windows.arm64.single.debug = "./bin/windows/open_brush_hull.windows.template_debug.arm64.dll"
+windows.arm64.single.release = "./bin/windows/open_brush_hull.windows.template_release.arm64.dll"
+
+linux.x86_64.single.debug = "./bin/linux/libopen_brush_hull.linux.template_debug.x86_64.so"
+linux.x86_64.single.release = "./bin/linux/libopen_brush_hull.linux.template_release.x86_64.so"
+linux.x86_32.single.debug = "./bin/linux/libopen_brush_hull.linux.template_debug.x86_32.so"
+linux.x86_32.single.release = "./bin/linux/libopen_brush_hull.linux.template_release.x86_32.so"
+linux.arm64.single.debug = "./bin/linux/libopen_brush_hull.linux.template_debug.arm64.so"
+linux.arm64.single.release = "./bin/linux/libopen_brush_hull.linux.template_release.arm64.so"
+linux.arm32.single.debug = "./bin/linux/libopen_brush_hull.linux.template_debug.arm32.so"
+linux.arm32.single.release = "./bin/linux/libopen_brush_hull.linux.template_release.arm32.so"
+
+macos.single.debug = "./bin/macos/libopen_brush_hull.macos.template_debug.dylib"
+macos.single.release = "./bin/macos/libopen_brush_hull.macos.template_release.dylib"
+
+android.x86_64.single.debug = "./bin/android/libopen_brush_hull.android.template_debug.x86_64.so"
+android.x86_64.single.release = "./bin/android/libopen_brush_hull.android.template_release.x86_64.so"
+android.x86_32.single.debug = "./bin/android/libopen_brush_hull.android.template_debug.x86_32.so"
+android.x86_32.single.release = "./bin/android/libopen_brush_hull.android.template_release.x86_32.so"
+android.arm64.single.debug = "./bin/android/libopen_brush_hull.android.template_debug.arm64.so"
+android.arm64.single.release = "./bin/android/libopen_brush_hull.android.template_release.arm64.so"
+android.arm32.single.debug = "./bin/android/libopen_brush_hull.android.template_debug.arm32.so"
+android.arm32.single.release = "./bin/android/libopen_brush_hull.android.template_release.arm32.so"
+
+ios.arm64.single.debug = "./bin/ios/libopen_brush_hull.ios.template_debug.arm64.dylib"
+ios.arm64.single.release = "./bin/ios/libopen_brush_hull.ios.template_release.arm64.dylib"
+
+web.wasm32.single.debug = "./bin/web/libopen_brush_hull.web.template_debug.wasm32.nothreads.wasm"
+web.wasm32.single.release = "./bin/web/libopen_brush_hull.web.template_release.wasm32.nothreads.wasm"
