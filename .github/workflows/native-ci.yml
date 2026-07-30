@@ -527,7 +527,7 @@ jobs:
           done
           google-chrome --headless=new --no-sandbox \
             --enable-unsafe-swiftshader --use-angle=swiftshader \
-            --virtual-time-budget=60000 --dump-dom \
+            --timeout=30000 --virtual-time-budget=60000 --dump-dom \
             http://127.0.0.1:8060/index.html > web-dom.log
           grep -F 'data-obh-native="true"' web-dom.log
 
@@ -626,16 +626,7 @@ jobs:
           script: |
             adb install -r Tests/NativeHullRuntimeProject/exports/android/OpenBrushHullProbe.apk
             adb logcat -c
-            adb shell monkey -p org.icosa.openbrushhullprobe 1
-            for attempt in $(seq 1 30); do
-              if adb shell run-as org.icosa.openbrushhullprobe \
-                cat files/obh_runtime_result.txt > android-runtime.log 2>/dev/null; then
-                break
-              fi
-              sleep 1
-            done
-            grep -F "OBH_RUNTIME: native_extension_loaded=true ok=true" android-runtime.log
-            adb logcat -d > android-logcat.log
+            bash Tests/NativeHullRuntimeProject/run_android_probe_ci.sh
 
       - name: Upload Android logs
         if: always()
