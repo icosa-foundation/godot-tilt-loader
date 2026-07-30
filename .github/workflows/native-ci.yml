@@ -341,8 +341,10 @@ jobs:
             OBH_CI_${{ github.run_id }}_${{ github.run_attempt }}_godot_minimum
         run: |
           set -o pipefail
-          "${{ steps.godot.outputs.executable }}" --headless --xr-mode off \
-            --path . --editor --quit
+          mkdir -p .godot
+          printf '%s\n' \
+            'res://native/open_brush_hull/open_brush_hull.gdextension' \
+            > .godot/extension_list.cfg
           "${{ steps.godot.outputs.executable }}" --headless --xr-mode off \
             --path . --script res://Tests/GDScript/NativeHullProbe.gd \
             2>&1 | tee minimum-godot.log
@@ -404,12 +406,17 @@ jobs:
           name: open-brush-hull-${{ matrix.platform }}-${{ matrix.arch }}-template_release
           path: Tests/NativeHullRuntimeProject/native/open_brush_hull/bin
 
-      - name: Stage manifest
+      - name: Stage extension registration
         shell: bash
         run: |
-          mkdir -p Tests/NativeHullRuntimeProject/native/open_brush_hull
+          project="Tests/NativeHullRuntimeProject"
+          mkdir -p "$project/native/open_brush_hull" "$project/.godot"
           cp native/open_brush_hull/open_brush_hull.gdextension \
-            Tests/NativeHullRuntimeProject/native/open_brush_hull/
+            native/open_brush_hull/open_brush_hull.gdextension.uid \
+            "$project/native/open_brush_hull/"
+          printf '%s\n' \
+            'res://native/open_brush_hull/open_brush_hull.gdextension' \
+            > "$project/.godot/extension_list.cfg"
 
       - name: Install Godot and export templates
         id: godot
@@ -424,8 +431,6 @@ jobs:
         run: |
           project="Tests/NativeHullRuntimeProject"
           mkdir -p "$project/exports/${{ matrix.platform }}"
-          "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
-            --editor --quit
           "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
             --export-release "${{ matrix.preset }}"
           case "${{ matrix.platform }}" in
@@ -480,11 +485,16 @@ jobs:
           name: open-brush-hull-linux-x86_64-template_debug
           path: Tests/NativeHullRuntimeProject/native/open_brush_hull/bin
 
-      - name: Stage manifest
+      - name: Stage extension registration
         run: |
-          mkdir -p Tests/NativeHullRuntimeProject/native/open_brush_hull
+          project="Tests/NativeHullRuntimeProject"
+          mkdir -p "$project/native/open_brush_hull" "$project/.godot"
           cp native/open_brush_hull/open_brush_hull.gdextension \
-            Tests/NativeHullRuntimeProject/native/open_brush_hull/
+            native/open_brush_hull/open_brush_hull.gdextension.uid \
+            "$project/native/open_brush_hull/"
+          printf '%s\n' \
+            'res://native/open_brush_hull/open_brush_hull.gdextension' \
+            > "$project/.godot/extension_list.cfg"
 
       - name: Install Godot and export templates
         id: godot
@@ -497,8 +507,6 @@ jobs:
         run: |
           project="Tests/NativeHullRuntimeProject"
           mkdir -p "$project/exports/web"
-          "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
-            --editor --quit
           "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
             --export-release Web
           test -f "$project/exports/web/libopen_brush_hull.web.template_release.wasm32.nothreads.wasm"
@@ -562,11 +570,16 @@ jobs:
           name: open-brush-hull-linux-x86_64-template_debug
           path: Tests/NativeHullRuntimeProject/native/open_brush_hull/bin
 
-      - name: Stage manifest
+      - name: Stage extension registration
         run: |
-          mkdir -p Tests/NativeHullRuntimeProject/native/open_brush_hull
+          project="Tests/NativeHullRuntimeProject"
+          mkdir -p "$project/native/open_brush_hull" "$project/.godot"
           cp native/open_brush_hull/open_brush_hull.gdextension \
-            Tests/NativeHullRuntimeProject/native/open_brush_hull/
+            native/open_brush_hull/open_brush_hull.gdextension.uid \
+            "$project/native/open_brush_hull/"
+          printf '%s\n' \
+            'res://native/open_brush_hull/open_brush_hull.gdextension' \
+            > "$project/.godot/extension_list.cfg"
 
       - name: Install Godot and export templates
         id: godot
@@ -579,8 +592,6 @@ jobs:
         run: |
           project="Tests/NativeHullRuntimeProject"
           mkdir -p "$project/exports/android"
-          "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
-            --editor --quit
           "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
             --export-debug Android
           unzip -l "$project/exports/android/OpenBrushHullProbe.apk" \
@@ -648,11 +659,16 @@ jobs:
           name: open-brush-hull-macos-universal-template_debug
           path: Tests/NativeHullRuntimeProject/native/open_brush_hull/bin
 
-      - name: Stage manifest
+      - name: Stage extension registration
         run: |
-          mkdir -p Tests/NativeHullRuntimeProject/native/open_brush_hull
+          project="Tests/NativeHullRuntimeProject"
+          mkdir -p "$project/native/open_brush_hull" "$project/.godot"
           cp native/open_brush_hull/open_brush_hull.gdextension \
-            Tests/NativeHullRuntimeProject/native/open_brush_hull/
+            native/open_brush_hull/open_brush_hull.gdextension.uid \
+            "$project/native/open_brush_hull/"
+          printf '%s\n' \
+            'res://native/open_brush_hull/open_brush_hull.gdextension' \
+            > "$project/.godot/extension_list.cfg"
 
       - name: Install Godot and export templates
         id: godot
@@ -665,8 +681,6 @@ jobs:
         run: |
           project="Tests/NativeHullRuntimeProject"
           mkdir -p "$project/exports/ios"
-          "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
-            --editor --quit
           "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
             --export-debug iOS
           unzip -q "$project/exports/ios/OpenBrushHullProbe.zip" \
