@@ -76,7 +76,7 @@ def main() -> None:
             license_dir / "godot-cpp-LICENSE.md",
         )
         shutil.copy2(
-            REPOSITORY_ROOT / ".deps" / "quickhull" / "LICENSE.md",
+            REPOSITORY_ROOT / ".deps" / "quickhull" / "README.md",
             license_dir / "quickhull-LICENSE.md",
         )
 
