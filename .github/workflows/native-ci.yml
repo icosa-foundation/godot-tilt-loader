@@ -6,7 +6,6 @@ on:
   push:
     branches:
       - main
-      - feature/gdscript
     paths:
       - ".github/actions/build-open-brush-hull/**"
       - ".github/workflows/native-*.yml"
@@ -63,9 +62,9 @@ jobs:
           from pathlib import Path
 
           targets = [
-              {"platform": "windows", "arch": "x86_64", "os": "windows-latest", "pr_build": "template_debug"},
-              {"platform": "windows", "arch": "x86_32", "os": "windows-latest", "pr_build": None},
-              {"platform": "windows", "arch": "arm64", "os": "windows-latest", "pr_build": None},
+              {"platform": "windows", "arch": "x86_64", "os": "windows-2022", "pr_build": "template_debug"},
+              {"platform": "windows", "arch": "x86_32", "os": "windows-2022", "pr_build": None},
+              {"platform": "windows", "arch": "arm64", "os": "windows-2022", "pr_build": None},
               {"platform": "linux", "arch": "x86_64", "os": "ubuntu-22.04", "pr_build": "template_debug"},
               {"platform": "linux", "arch": "x86_32", "os": "ubuntu-22.04", "pr_build": None},
               {"platform": "linux", "arch": "arm64", "os": "ubuntu-22.04-arm", "pr_build": None},
@@ -109,6 +108,15 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up MSVC target environment
+        if: matrix.platform == 'windows'
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756
+        with:
+          arch: >-
+            ${{ matrix.arch == 'x86_64' && 'amd64' ||
+                matrix.arch == 'x86_32' && 'amd64_x86' ||
+                'amd64_arm64' }}
 
       - name: Read pinned build versions
         id: versions

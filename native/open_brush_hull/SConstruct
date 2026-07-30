@@ -21,6 +21,15 @@ if not os.path.isfile(os.path.join(quickhull_dir, "QuickHull.cpp")):
 # Start without host-platform defaults. godot-cpp selects and configures the
 # requested target toolchain from the normal platform/arch SCons arguments.
 local_env = Environment(tools=["default"], PLATFORM="")
+if ARGUMENTS.get("platform") in ("linux", "android"):
+    # godot-cpp archives thousands of generated objects. Hosted Linux runners
+    # can exhaust execve's effective argument limit before SCons decides to use
+    # a response file, especially when the runner environment is large.
+    local_env["ARCOM_RESPONSE"] = local_env["ARCOM"].replace(
+        "$TARGET", "$TARGET.posix"
+    ).replace("$SOURCES", "$SOURCES.posix")
+    local_env["ARCOM"] = "${TEMPFILE(ARCOM_RESPONSE)}"
+    local_env["MAXLINELENGTH"] = 8192
 for tool_name in ("CC", "CXX", "AR", "RANLIB"):
     override = os.environ.get(f"OPEN_BRUSH_HULL_{tool_name}")
     if override:
@@ -63,8 +72,6 @@ objects = [
 suffix = env["suffix"].replace(".dev", "")
 if env["platform"] == "macos":
     suffix = suffix.replace(".universal", "")
-if env["platform"] == "web" and not env["threads"]:
-    suffix += ".nothreads"
 
 library_filename = "{}{}{}{}".format(
     env.subst("$SHLIBPREFIX"),

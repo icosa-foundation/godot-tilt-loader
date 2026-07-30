@@ -109,7 +109,9 @@ def inspect(platform: str, architecture: str, target: str) -> Path:
         unexpected = [
             line
             for line in dependency_lines
-            if not line.startswith("/usr/lib/") and not line.startswith("/System/Library/")
+            if Path(line.split(" (", 1)[0]).name != binary_path.name
+            and not line.startswith("/usr/lib/")
+            and not line.startswith("/System/Library/")
         ]
         if unexpected:
             raise RuntimeError(f"unexpected native dependencies: {unexpected}")
