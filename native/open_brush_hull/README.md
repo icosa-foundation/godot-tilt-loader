@@ -47,8 +47,10 @@ python native/open_brush_hull/tools/setup_dependencies.py
 ```
 
 The setup script refuses to replace a dependency checkout containing local
-changes. Generated binaries under `bin/` and objects under `build/` are
-ignored.
+changes. Compiler intermediates under `bin/` and objects under `build/` are
+ignored. The validated debug and release libraries in the platform
+subdirectories under `bin/` are committed so a clean checkout can run and
+export without a native toolchain.
 
 ## Local Windows Build
 
@@ -98,10 +100,11 @@ python native/open_brush_hull/tools/validate_package.py
 
 The release workflow runs the same validator and creates a deterministic ZIP,
 SHA-256 checksum, dependency licenses, and machine-readable build manifest.
-Generated release binaries are workflow artifacts and GitHub Release assets;
-they are not committed.
+Validated release binaries are committed under `bin/<platform>/` and are also
+published as workflow artifacts and GitHub Release assets.
 
-To consume a tagged package in a clean checkout, download
+The committed binaries make a normal checkout directly usable. To consume a
+tagged package separately, download
 `open_brush_hull-<version>.zip`, verify it against the adjacent `.sha256` file,
 and extract its top-level `open_brush_hull/` directory under this repository's
 `native/` directory. The resulting project needs neither `.deps/`, SCons, an

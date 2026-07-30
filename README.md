@@ -108,7 +108,10 @@ Build the debug native hull DLL from the repository root:
 .\native\open_brush_hull\build_native_hull.ps1 -Target template_debug
 ```
 
-The build script uses ignored local checkouts under `.deps/` and writes ignored binaries under `native/open_brush_hull/bin/`. See `native/open_brush_hull/README.md` for details.
+The build script uses ignored local checkouts under `.deps/`. Validated
+platform binaries are committed under `native/open_brush_hull/bin/`, while
+compiler intermediates remain ignored. See `native/open_brush_hull/README.md`
+for details.
 
 ## Project Structure
 

@@ -206,8 +206,11 @@ optionally `workflow_dispatch`. It should:
 7. upload the package as a workflow artifact; and
 8. on a version tag, attach the same files to the corresponding GitHub Release.
 
-Do not commit generated binaries to this repository. Keep
-`native/open_brush_hull/bin/` ignored.
+Commit the validated distributable binaries under their
+`native/open_brush_hull/bin/<platform>/` directories so a clean checkout is
+immediately runnable. Keep compiler intermediates and non-distributable linker
+outputs ignored. The release workflow remains the reproducible source for the
+committed binary set.
 
 ## Phase 5: Validation Strategy
 
@@ -277,7 +280,7 @@ Implement and stabilize the work in this order:
 7. Full `.gdextension` manifest and package validator.
 8. Release packaging, checksums, and documentation.
 9. Switch the project/addon consumption path from developer-local binaries to
-   the packaged CI artifact.
+   the validated CI binaries committed from the packaged artifact.
 
 Keep each phase mergeable: the existing GDScript fallback remains available
 for platforms whose native lane has not yet passed.

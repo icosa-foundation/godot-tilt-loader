@@ -49,9 +49,6 @@ addons/icosa/
 /[Bb]uild/
 /[Bb]uilds/
 /[Tt]emp/
-!native/open_brush_hull/bin/
-native/open_brush_hull/bin/*
-!native/open_brush_hull/bin/.gdignore
 native/open_brush_hull/build/
 native/open_brush_hull/.sconsign
 native/open_brush_hull/.sconsign.dblite
@@ -62,6 +59,29 @@ Tests/NativeHullRuntimeProject/exports/
 *.apk
 *.aab
 *.app
+
+# Commit distributable open_brush_hull binaries while keeping compiler outputs local.
+!native/open_brush_hull/bin/
+native/open_brush_hull/bin/*
+!native/open_brush_hull/bin/.gdignore
+!native/open_brush_hull/bin/windows/
+native/open_brush_hull/bin/windows/*
+!native/open_brush_hull/bin/windows/*.dll
+!native/open_brush_hull/bin/linux/
+native/open_brush_hull/bin/linux/*
+!native/open_brush_hull/bin/linux/*.so
+!native/open_brush_hull/bin/macos/
+native/open_brush_hull/bin/macos/*
+!native/open_brush_hull/bin/macos/*.dylib
+!native/open_brush_hull/bin/android/
+native/open_brush_hull/bin/android/*
+!native/open_brush_hull/bin/android/*.so
+!native/open_brush_hull/bin/ios/
+native/open_brush_hull/bin/ios/*
+!native/open_brush_hull/bin/ios/*.dylib
+!native/open_brush_hull/bin/web/
+native/open_brush_hull/bin/web/*
+!native/open_brush_hull/bin/web/*.wasm
 
 # OS specific
 Thumbs.db
