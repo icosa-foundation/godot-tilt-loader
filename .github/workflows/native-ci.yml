@@ -525,8 +525,9 @@ jobs:
             fi
             sleep 1
           done
-          google-chrome --headless=new --no-sandbox --disable-gpu \
-            --virtual-time-budget=20000 --dump-dom \
+          google-chrome --headless=new --no-sandbox \
+            --enable-unsafe-swiftshader --use-angle=swiftshader \
+            --virtual-time-budget=60000 --dump-dom \
             http://127.0.0.1:8060/index.html > web-dom.log
           grep -F 'data-obh-native="true"' web-dom.log
 
@@ -588,11 +589,28 @@ jobs:
           --platform linux
           --install-templates
 
+      - name: Create Android debug keystore
+        shell: bash
+        run: |
+          keytool -genkeypair -v \
+            -keystore "$RUNNER_TEMP/open-brush-hull-ci.keystore" \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass android \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug,O=Open Brush CI,C=GB"
+
       - name: Export and inspect Android APK
+        env:
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ runner.temp }}/open-brush-hull-ci.keystore
+          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
+          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
         run: |
           project="Tests/NativeHullRuntimeProject"
           mkdir -p "$project/exports/android"
-          "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
+          "${{ steps.godot.outputs.executable }}" --headless --verbose --path "$project" \
             --export-debug Android
           unzip -l "$project/exports/android/OpenBrushHullProbe.apk" \
             | grep -F "lib/x86_64/libopen_brush_hull.android.template_debug.x86_64.so"
