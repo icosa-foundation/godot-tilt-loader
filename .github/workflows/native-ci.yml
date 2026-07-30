@@ -342,6 +342,8 @@ jobs:
         run: |
           set -o pipefail
           "${{ steps.godot.outputs.executable }}" --headless --xr-mode off \
+            --path . --editor --quit
+          "${{ steps.godot.outputs.executable }}" --headless --xr-mode off \
             --path . --script res://Tests/GDScript/NativeHullProbe.gd \
             2>&1 | tee minimum-godot.log
           grep -F "${OPEN_BRUSH_HULL_LOG_PREFIX}: native_extension_loaded=true" \
@@ -423,6 +425,8 @@ jobs:
           project="Tests/NativeHullRuntimeProject"
           mkdir -p "$project/exports/${{ matrix.platform }}"
           "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
+            --editor --quit
+          "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
             --export-release "${{ matrix.preset }}"
           case "${{ matrix.platform }}" in
             windows)
@@ -470,6 +474,12 @@ jobs:
           name: open-brush-hull-web-wasm32-template_release
           path: Tests/NativeHullRuntimeProject/native/open_brush_hull/bin
 
+      - name: Download Linux debug extension for editor loading
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: open-brush-hull-linux-x86_64-template_debug
+          path: Tests/NativeHullRuntimeProject/native/open_brush_hull/bin
+
       - name: Stage manifest
         run: |
           mkdir -p Tests/NativeHullRuntimeProject/native/open_brush_hull
@@ -487,6 +497,8 @@ jobs:
         run: |
           project="Tests/NativeHullRuntimeProject"
           mkdir -p "$project/exports/web"
+          "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
+            --editor --quit
           "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
             --export-release Web
           test -f "$project/exports/web/libopen_brush_hull.web.template_release.wasm32.nothreads.wasm"
@@ -544,6 +556,12 @@ jobs:
           name: open-brush-hull-android-x86_64-template_debug
           path: Tests/NativeHullRuntimeProject/native/open_brush_hull/bin
 
+      - name: Download Linux debug extension for editor loading
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: open-brush-hull-linux-x86_64-template_debug
+          path: Tests/NativeHullRuntimeProject/native/open_brush_hull/bin
+
       - name: Stage manifest
         run: |
           mkdir -p Tests/NativeHullRuntimeProject/native/open_brush_hull
@@ -561,6 +579,8 @@ jobs:
         run: |
           project="Tests/NativeHullRuntimeProject"
           mkdir -p "$project/exports/android"
+          "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
+            --editor --quit
           "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
             --export-debug Android
           unzip -l "$project/exports/android/OpenBrushHullProbe.apk" \
@@ -622,6 +642,12 @@ jobs:
           name: open-brush-hull-ios-arm64-template_debug
           path: Tests/NativeHullRuntimeProject/native/open_brush_hull/bin
 
+      - name: Download macOS debug extension for editor loading
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: open-brush-hull-macos-universal-template_debug
+          path: Tests/NativeHullRuntimeProject/native/open_brush_hull/bin
+
       - name: Stage manifest
         run: |
           mkdir -p Tests/NativeHullRuntimeProject/native/open_brush_hull
@@ -639,6 +665,8 @@ jobs:
         run: |
           project="Tests/NativeHullRuntimeProject"
           mkdir -p "$project/exports/ios"
+          "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
+            --editor --quit
           "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
             --export-debug iOS
           unzip -q "$project/exports/ios/OpenBrushHullProbe.zip" \

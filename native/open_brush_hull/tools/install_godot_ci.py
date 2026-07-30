@@ -76,6 +76,7 @@ def main() -> None:
         executable.chmod(executable.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
     else:
         executable = output_dir / "Godot.app" / "Contents" / "MacOS" / "Godot"
+        executable.chmod(executable.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
     if args.install_templates:
         template_name = f"Godot_v{version}-stable_export_templates.tpz"
