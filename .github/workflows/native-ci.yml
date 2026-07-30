@@ -525,11 +525,10 @@ jobs:
             fi
             sleep 1
           done
-          google-chrome --headless=new --no-sandbox \
-            --enable-unsafe-swiftshader --use-angle=swiftshader \
-            --timeout=30000 --virtual-time-budget=60000 --dump-dom \
-            http://127.0.0.1:8060/index.html > web-dom.log
-          grep -F 'data-obh-native="true"' web-dom.log
+          python native/open_brush_hull/tools/run_web_smoke.py \
+            --url http://127.0.0.1:8060/index.html \
+            --chrome-binary "$(command -v google-chrome)" \
+            --timeout 60
 
       - name: Upload Web logs
         if: always()
@@ -538,7 +537,9 @@ jobs:
           name: open-brush-hull-web-runtime-logs
           path: |
             web-dom.log
+            web-browser.log
             web-server.log
+            chromedriver.log
           if-no-files-found: warn
           retention-days: 14
 
@@ -618,14 +619,16 @@ jobs:
       - name: Execute Android probe
         uses: ReactiveCircus/android-emulator-runner@4c44018e59b437e86cdfc41da381398f93ed8808
         with:
-          api-level: 35
+          api-level: 29
           arch: x86_64
           profile: pixel_2
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           disable-animations: true
           script: |
-            adb install -r Tests/NativeHullRuntimeProject/exports/android/OpenBrushHullProbe.apk
+            adb install --no-incremental -r Tests/NativeHullRuntimeProject/exports/android/OpenBrushHullProbe.apk
             adb logcat -c
+            adb shell settings put system accelerometer_rotation 0
+            adb shell settings put system user_rotation 1
             bash Tests/NativeHullRuntimeProject/run_android_probe_ci.sh
 
       - name: Upload Android logs
@@ -692,16 +695,14 @@ jobs:
           mkdir -p "$project/exports/ios"
           "${{ steps.godot.outputs.executable }}" --headless --path "$project" \
             --export-debug iOS
-          unzip -q "$project/exports/ios/OpenBrushHullProbe.zip" \
-            -d "$project/exports/ios/xcode"
-          find "$project/exports/ios/xcode" -name \
+          find "$project/exports/ios" -name \
             "libopen_brush_hull.ios.template_debug.arm64.dylib" -print -quit \
             | grep -F "libopen_brush_hull.ios.template_debug.arm64.dylib"
 
       - name: Link exported Xcode project without signing
         shell: bash
         run: |
-          project_file="$(find Tests/NativeHullRuntimeProject/exports/ios/xcode \
+          project_file="$(find Tests/NativeHullRuntimeProject/exports/ios \
             -name '*.xcodeproj' -print -quit)"
           scheme="$(basename "$project_file" .xcodeproj)"
           xcodebuild -project "$project_file" -scheme "$scheme" \

@@ -14,7 +14,7 @@ if [[ -z "$activity" || "$activity" == "No activity found" ]]; then
 	exit 1
 fi
 
-adb shell am start -W -n "$activity"
+adb shell am start -n "$activity"
 for attempt in $(seq 1 30); do
 	if adb shell run-as "$package_name" cat "$result_file" \
 		> android-runtime.log 2>/dev/null; then
