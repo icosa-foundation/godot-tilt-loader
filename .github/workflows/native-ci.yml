@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - main
+      - feature/gdscript
     paths:
       - ".github/actions/build-open-brush-hull/**"
       - ".github/workflows/native-*.yml"
