@@ -108,18 +108,9 @@ gd-plug requires Godot 4.6+ to be available on `PATH`, plus git. This project re
 
 ## Native Hull Backend
 
-Real `.tilt` files can contain hull brush strokes with thousands of hull input points. The Unity/Open Brush implementation delegates convex hull generation to `MIConvexHull`; this Godot port uses a local GDExtension for the same hot path.
+Real `.tilt` files can contain hull brush strokes with thousands of hull input points. The Unity/Open Brush implementation delegates convex hull generation to `MIConvexHull`; this Godot port uses a GDExtension for the same hot path.
 
-Build the debug native hull DLL from the repository root:
-
-```powershell
-.\native\open_brush_hull\build_native_hull.ps1 -Target template_debug
-```
-
-The build script uses ignored local checkouts under `.deps/`. Validated
-platform binaries are committed under `native/open_brush_hull/bin/`, while
-compiler intermediates remain ignored. See `native/open_brush_hull/README.md`
-for details.
+Validated native libraries for Windows, Linux, macOS, Android, iOS, and Web are committed under `native/open_brush_hull/bin/`, so a clean checkout does not require a native build. Compiler intermediates remain ignored. See `native/open_brush_hull/README.md` for the optional Windows build wrapper, the cross-platform SCons entry point, supported architectures, toolchain requirements, and package validation commands.
 
 ## Project Structure
 
