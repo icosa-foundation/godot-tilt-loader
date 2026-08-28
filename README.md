@@ -74,7 +74,7 @@ Controls are read from OpenXR actions:
 XR logs are written to:
 
 ```text
-C:/Users/andyb/AppData/Roaming/Godot/app_userdata/open-brush-stroke-gen-godot/xr_debug.log
+user://xr_debug.log
 ```
 
 XR can be overridden at launch with `--disable-xr` or `--enable-xr`; otherwise `App.gd` follows the scene's `EnableXR` setting.
@@ -97,24 +97,15 @@ Purpose: run the same visual inspector over a filtered set of tube-derived brush
 
 ## Addon Dependencies
 
-The Icosa Godot addon is kept as a separate local codebase and installed into this project with gd-plug instead of being vendored or added as a git submodule.
-
-The current `plug.gd` configuration expects the Icosa repository checkout at:
-
-```text
-C:\Users\andyb\Documents\icosa-godot-addon
-```
-
-`plug.gd` uses that checkout's local `file:///.../.git` URL and includes `addons/icosa` so gd-plug installs only that directory at `addons/icosa`. Update the local URL in `plug.gd` if the checkout is elsewhere.
+The Icosa Godot addon is installed from its Git repository with gd-plug instead of being vendored or added as a git submodule. `plug.gd` includes only the repository's `addons/icosa` directory and installs it at `addons/icosa`.
 
 Install the dependency from the repository root:
 
 ```powershell
-$godot = 'C:\Program Files\Godot_v4.6.1-stable_win64\Godot_v4.6.1-stable_win64_console.exe'
-& $godot --headless --xr-mode off --path . --script res://plug.gd install
+godot --headless --xr-mode off --path . --script res://plug.gd install
 ```
 
-gd-plug requires Godot and git. This project remains GDScript-only and can be opened with normal non-.NET Godot.
+gd-plug requires Godot 4.6+ to be available on `PATH`, plus git. This project remains GDScript-only and can be opened with normal non-.NET Godot.
 
 ## Native Hull Backend
 
@@ -165,20 +156,18 @@ Tests/GDScript/
 `Tests/GDScript/` contains both pass/fail tests and diagnostic probes. Run an individual parity test headlessly with Godot:
 
 ```powershell
-$godot = 'C:\Program Files\Godot_v4.6.1-stable_win64\Godot_v4.6.1-stable_win64_console.exe'
-& $godot --headless --xr-mode off --path . --script res://Tests/GDScript/BrushLifecycleParityTest.gd
+godot --headless --xr-mode off --path . --script res://Tests/GDScript/BrushLifecycleParityTest.gd
 ```
 
 To run the normal automated set while excluding diagnostic scripts and the two tests that require the uncommitted cafe `.tilt` file:
 
 ```powershell
-$godot = 'C:\Program Files\Godot_v4.6.1-stable_win64\Godot_v4.6.1-stable_win64_console.exe'
 $localEvidenceTests = @('TiltBridgeReplayParityTest.gd', 'TiltImporterRuntimeReplayTest.gd')
 Get-ChildItem -Path Tests\GDScript -Filter *Test.gd |
   Where-Object { $_.Name -notin $localEvidenceTests } |
   Sort-Object Name |
   ForEach-Object {
-  & $godot --headless --xr-mode off --path . --script "res://Tests/GDScript/$($_.Name)"
+  godot --headless --xr-mode off --path . --script "res://Tests/GDScript/$($_.Name)"
   if ($LASTEXITCODE -ne 0) { throw "Failed $($_.Name)" }
 }
 ```
