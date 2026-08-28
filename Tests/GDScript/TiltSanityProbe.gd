@@ -5,7 +5,7 @@ const OPEN_BRUSH_PATH := "res://addons/icosa/open_brush/open_brush.gd"
 
 func _init() -> void:
 	var args := OS.get_cmdline_user_args()
-	var tilt_path := "res://Temp/TiltEvidence/brush_cafe_experimental.tilt"
+	var tilt_path := "res://Resources/Fixtures/brush_cafe_experimental.tilt"
 	if not args.is_empty():
 		tilt_path = args[0]
 

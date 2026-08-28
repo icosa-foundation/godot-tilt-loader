@@ -4,7 +4,7 @@ const TiltReaderScript := preload("res://addons/open_brush_stroke_integration/op
 const TiltSceneBuilderScript := preload("res://addons/open_brush_stroke_integration/open_brush_tilt_scene_builder.gd")
 
 const PREFIX := "IMPORTED_VS_RUNTIME_CAFE_INK"
-const TILT_FILE := "res://Temp/TiltEvidence/brush_cafe_experimental.tilt"
+const TILT_FILE := "res://Resources/Fixtures/brush_cafe_experimental.tilt"
 const BRUSH_NODE_NAME := "Ink"
 
 func _initialize() -> void:

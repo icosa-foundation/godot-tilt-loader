@@ -12,7 +12,7 @@ var _detail_write_failures := 0
 func _init() -> void:
 	_log_file = FileAccess.open(OUTPUT_LOG, FileAccess.WRITE)
 	var args := OS.get_cmdline_user_args()
-	var tilt_path := "res://Temp/TiltEvidence/brush_cafe_experimental.tilt"
+	var tilt_path := "res://Resources/Fixtures/brush_cafe_experimental.tilt"
 	var max_strokes := 5
 	var skip_strokes := 0
 	var detail_hull_index := 0

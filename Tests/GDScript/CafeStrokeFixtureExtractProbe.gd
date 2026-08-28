@@ -1,7 +1,7 @@
 extends SceneTree
 
 const TILT_READER_PATH := "res://addons/open_brush_stroke_integration/open_brush_tilt_reader.gd"
-const SAMPLE_TILT_PATH := "res://Temp/TiltEvidence/brush_cafe_experimental.tilt"
+const SAMPLE_TILT_PATH := "res://Resources/Fixtures/brush_cafe_experimental.tilt"
 const SOURCE_STROKE_INDEX := 150
 
 func _init() -> void:

@@ -4,7 +4,7 @@ const TILT_READER_PATH := "res://addons/open_brush_stroke_integration/open_brush
 const OPEN_BRUSH_PATH := "res://addons/icosa/open_brush/open_brush.gd"
 
 func _init() -> void:
-	var tilt_path := "res://Temp/TiltEvidence/brush_cafe_experimental.tilt"
+	var tilt_path := "res://Resources/Fixtures/brush_cafe_experimental.tilt"
 	var brush_filter := ""
 	var args := OS.get_cmdline_user_args()
 	if not args.is_empty():

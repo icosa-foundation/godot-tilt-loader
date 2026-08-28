@@ -11,7 +11,7 @@ const OpenBrushScript := preload("res://addons/icosa/open_brush/open_brush.gd")
 @export var m_ManifestExperimental: TiltBrushManifest
 @export var m_DefaultBrush: BrushDescriptor
 @export var ShowTiltPathReference := false
-@export var TiltPathReferenceFile := "res://Temp/TiltEvidence/brush_cafe_experimental.tilt"
+@export var TiltPathReferenceFile := "res://Resources/Fixtures/brush_cafe_experimental.tilt"
 @export var TiltPathReferenceBrush := "Ink"
 @export var TiltPathReferenceStrokeIndex := 0
 @export var TiltPathReferenceOffset := Vector3(-4.0, -3.0, 0.0)

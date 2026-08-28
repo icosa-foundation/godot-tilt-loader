@@ -2,7 +2,7 @@ extends SceneTree
 
 const TILT_READER_PATH := "res://addons/open_brush_stroke_integration/open_brush_tilt_reader.gd"
 const OPEN_BRUSH_PATH := "res://addons/icosa/open_brush/open_brush.gd"
-const SAMPLE_TILT_PATH := "res://Temp/TiltEvidence/brush_cafe_experimental.tilt"
+const SAMPLE_TILT_PATH := "res://Resources/Fixtures/brush_cafe_experimental.tilt"
 
 func _init() -> void:
 	var reader_script := load(TILT_READER_PATH)

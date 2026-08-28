@@ -14,9 +14,8 @@ This Godot 4.6+ project ports the Open Brush/Tilt Brush stroke generation runtim
 
 1. Open the repository root as the Godot project.
 2. Install addon dependencies with gd-plug for Icosa `.tilt` loading and brush materials.
-3. Supply a `.tilt` file for the cafe viewer as described below.
-4. Press Play to run the current main scene, `Scenes/TiltEvidenceViewer.tscn`.
-5. Run `Scenes/StrokeDrawingTest.tscn` for desktop pointer testing without XR, or `Scenes/XrStrokeDrawingTest.tscn` for XR testing.
+3. Press Play to run the current main scene, `Scenes/TiltEvidenceViewer.tscn`, with the checked-in cafe fixture.
+4. Run `Scenes/StrokeDrawingTest.tscn` for desktop pointer testing without XR, or `Scenes/XrStrokeDrawingTest.tscn` for XR testing.
 
 The project loads `Resources/BrushCatalog/brush_catalog.json`, a generated catalog containing the brush descriptor and prefab settings that used to come from Unity YAML assets.
 
@@ -31,10 +30,10 @@ Purpose: view the cafe Tilt Brush file and capture evidence renders.
 This scene uses `Scripts/TiltEvidenceViewer.gd`. By default it targets:
 
 ```text
-res://Temp/TiltEvidence/brush_cafe_experimental.tilt
+res://Resources/Fixtures/brush_cafe_experimental.tilt
 ```
 
-That cafe file is a local evidence asset and is not committed to this repository. Place it at the default path or pass `--tilt-file=<path>` after Godot's `--` argument separator.
+The cafe file is committed as a shared runtime and test fixture, so the default scene works from a clean checkout. Pass `--tilt-file=<path>` after Godot's `--` argument separator to inspect another sketch.
 
 The script reads the `.tilt` file and, by default, rebuilds the scene through the current runtime stroke-generation path. That default avoids masking runtime bugs behind Godot's imported `PackedScene` cache. For fast cached viewing, run with `--imported-packed-scene` or `--load-mode=imported_packed_scene`. It also supports screenshot-oriented command-line options such as `--quit-after-screenshot`, `--render-output=...`, `--thumbnail-output=...`, `--log-output=...`, `--camera-mode=...`, `--only-brushes=...`, and `--load-mode=runtime_rebuild`.
 
@@ -136,8 +135,10 @@ Scripts/
 └── UnityAssetLoader.gd
 
 Resources/
-└── BrushCatalog/
-    └── brush_catalog.json
+├── BrushCatalog/
+│   └── brush_catalog.json
+└── Fixtures/
+    └── brush_cafe_experimental.tilt
 
 Scenes/
 ├── TiltEvidenceViewer.tscn
@@ -159,12 +160,10 @@ Tests/GDScript/
 godot --headless --xr-mode off --path . --script res://Tests/GDScript/BrushLifecycleParityTest.gd
 ```
 
-To run the normal automated set while excluding diagnostic scripts and the two tests that require the uncommitted cafe `.tilt` file:
+To run the normal automated set while excluding diagnostic scripts:
 
 ```powershell
-$localEvidenceTests = @('TiltBridgeReplayParityTest.gd', 'TiltImporterRuntimeReplayTest.gd')
 Get-ChildItem -Path Tests\GDScript -Filter *Test.gd |
-  Where-Object { $_.Name -notin $localEvidenceTests } |
   Sort-Object Name |
   ForEach-Object {
   godot --headless --xr-mode off --path . --script "res://Tests/GDScript/$($_.Name)"
@@ -172,7 +171,7 @@ Get-ChildItem -Path Tests\GDScript -Filter *Test.gd |
 }
 ```
 
-See `OPEN_BRUSH_PARITY_TEST_INVENTORY.md` for the distinction between parity tests, visual smoke tests, and diagnostic probes. The cafe-dependent tests can be run separately after placing `brush_cafe_experimental.tilt` at the documented default path.
+See `OPEN_BRUSH_PARITY_TEST_INVENTORY.md` for the distinction between parity tests, visual smoke tests, and diagnostic probes.
 
 ## Notes
 

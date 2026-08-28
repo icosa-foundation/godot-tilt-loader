@@ -1,7 +1,7 @@
 class_name TiltEvidenceViewer
 extends Node3D
 
-@export var TiltFilePath := "res://Temp/TiltEvidence/brush_cafe_experimental.tilt"
+@export var TiltFilePath := "res://Resources/Fixtures/brush_cafe_experimental.tilt"
 @export var RenderOutputPath := "user://tilt_accurate_render.png"
 @export var ThumbnailOutputPath := "user://tilt_reference_thumbnail.png"
 @export var LogPath := "user://tilt_accurate_render.log"
