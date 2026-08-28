@@ -1,6 +1,6 @@
 # Open Brush Stroke Generator - Godot GDScript Port
 
-This Godot 4.5+ project ports the Open Brush/Tilt Brush stroke generation runtime from C# to GDScript.
+This Godot 4.6+ project ports the Open Brush/Tilt Brush stroke generation runtime from C# to GDScript.
 
 ## Status
 
@@ -14,15 +14,15 @@ This Godot 4.5+ project ports the Open Brush/Tilt Brush stroke generation runtim
 
 1. Open the repository root as the Godot project.
 2. Install addon dependencies with gd-plug for Icosa `.tilt` loading and brush materials.
-3. Press Play to run the current main scene. At the time of writing this is `Scenes/XrStrokeDrawingTest.tscn`.
-4. Run `Scenes/TiltEvidenceViewer.tscn` when you specifically want to view the cafe `.tilt` file.
-5. Run `Scenes/StrokeDrawingTest.tscn` for desktop pointer testing without XR.
+3. Supply a `.tilt` file for the cafe viewer as described below.
+4. Press Play to run the current main scene, `Scenes/TiltEvidenceViewer.tscn`.
+5. Run `Scenes/StrokeDrawingTest.tscn` for desktop pointer testing without XR, or `Scenes/XrStrokeDrawingTest.tscn` for XR testing.
 
 The project loads `Resources/BrushCatalog/brush_catalog.json`, a generated catalog containing the brush descriptor and prefab settings that used to come from Unity YAML assets.
 
 ## Project Scenes
 
-The project has three `.tscn` entry scenes. They are intentionally different test surfaces; do not treat them as interchangeable.
+The project has five `.tscn` test scenes. They are intentionally different test surfaces; do not treat them as interchangeable.
 
 ### `Scenes/TiltEvidenceViewer.tscn`
 
@@ -33,6 +33,8 @@ This scene uses `Scripts/TiltEvidenceViewer.gd`. By default it targets:
 ```text
 res://Temp/TiltEvidence/brush_cafe_experimental.tilt
 ```
+
+That cafe file is a local evidence asset and is not committed to this repository. Place it at the default path or pass `--tilt-file=<path>` after Godot's `--` argument separator.
 
 The script reads the `.tilt` file and, by default, rebuilds the scene through the current runtime stroke-generation path. That default avoids masking runtime bugs behind Godot's imported `PackedScene` cache. For fast cached viewing, run with `--imported-packed-scene` or `--load-mode=imported_packed_scene`. It also supports screenshot-oriented command-line options such as `--quit-after-screenshot`, `--render-output=...`, `--thumbnail-output=...`, `--log-output=...`, `--camera-mode=...`, `--only-brushes=...`, and `--load-mode=runtime_rebuild`.
 
@@ -77,22 +79,38 @@ C:/Users/andyb/AppData/Roaming/Godot/app_userdata/open-brush-stroke-gen-godot/xr
 
 XR can be overridden at launch with `--disable-xr` or `--enable-xr`; otherwise `App.gd` follows the scene's `EnableXR` setting.
 
+### `Scenes/SingleBrushStrokeInspector.tscn`
+
+Purpose: render one synthetic stroke at a time for visual inspection across all supported runtime brushes.
+
+Controls:
+
+1. Press `Left` / `Right` to cycle brushes.
+2. Hold `Q` / `E` to rotate the stroke.
+3. Press `R` to reset its rotation.
+4. Press `F` to toggle the wireframe overlay.
+5. Press `C` to cycle culling and cap-debug modes.
+
+### `Scenes/SingleTubeBrushStrokeInspector.tscn`
+
+Purpose: run the same visual inspector over a filtered set of tube-derived brushes.
+
 ## Addon Dependencies
 
 The Icosa Godot addon is kept as a separate local codebase and installed into this project with gd-plug instead of being vendored or added as a git submodule.
 
-Expected local Icosa addon path:
+The current `plug.gd` configuration expects the Icosa repository checkout at:
 
 ```text
-C:\Users\andyb\Documents\icosa-godot-addon\addons\icosa
+C:\Users\andyb\Documents\icosa-godot-addon
 ```
 
-`plug.gd` points at the Icosa repository git URL and includes `addons/icosa` so gd-plug installs the addon at `addons/icosa`.
+`plug.gd` uses that checkout's local `file:///.../.git` URL and includes `addons/icosa` so gd-plug installs only that directory at `addons/icosa`. Update the local URL in `plug.gd` if the checkout is elsewhere.
 
 Install the dependency from the repository root:
 
 ```powershell
-$godot = 'C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe'
+$godot = 'C:\Program Files\Godot_v4.6.1-stable_win64\Godot_v4.6.1-stable_win64_console.exe'
 & $godot --headless --xr-mode off --path . --script res://plug.gd install
 ```
 
@@ -134,6 +152,8 @@ Scenes/
 ├── TiltEvidenceViewer.tscn
 ├── StrokeDrawingTest.tscn
 ├── XrStrokeDrawingTest.tscn
+├── SingleBrushStrokeInspector.tscn
+├── SingleTubeBrushStrokeInspector.tscn
 ├── MinimalExample.gd
 └── MinimalXrExample.gd
 
@@ -142,15 +162,28 @@ Tests/GDScript/
 
 ## Validation
 
-Run parity tests headlessly with Godot:
+`Tests/GDScript/` contains both pass/fail tests and diagnostic probes. Run an individual parity test headlessly with Godot:
 
 ```powershell
-$godot = 'C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe'
-Get-ChildItem -Path Tests\GDScript -Filter *.gd | Sort-Object Name | ForEach-Object {
+$godot = 'C:\Program Files\Godot_v4.6.1-stable_win64\Godot_v4.6.1-stable_win64_console.exe'
+& $godot --headless --xr-mode off --path . --script res://Tests/GDScript/BrushLifecycleParityTest.gd
+```
+
+To run the normal automated set while excluding diagnostic scripts and the two tests that require the uncommitted cafe `.tilt` file:
+
+```powershell
+$godot = 'C:\Program Files\Godot_v4.6.1-stable_win64\Godot_v4.6.1-stable_win64_console.exe'
+$localEvidenceTests = @('TiltBridgeReplayParityTest.gd', 'TiltImporterRuntimeReplayTest.gd')
+Get-ChildItem -Path Tests\GDScript -Filter *Test.gd |
+  Where-Object { $_.Name -notin $localEvidenceTests } |
+  Sort-Object Name |
+  ForEach-Object {
   & $godot --headless --xr-mode off --path . --script "res://Tests/GDScript/$($_.Name)"
   if ($LASTEXITCODE -ne 0) { throw "Failed $($_.Name)" }
 }
 ```
+
+See `OPEN_BRUSH_PARITY_TEST_INVENTORY.md` for the distinction between parity tests, visual smoke tests, and diagnostic probes. The cafe-dependent tests can be run separately after placing `brush_cafe_experimental.tilt` at the documented default path.
 
 ## Notes
 
