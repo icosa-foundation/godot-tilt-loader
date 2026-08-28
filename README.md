@@ -62,7 +62,7 @@ This scene is the quickest way to debug live mesh generation without headset/Ope
 
 Purpose: XR live stroke drawing proof of concept.
 
-This is currently the project main scene in `project.godot`. It uses `Scripts/App.gd` with `EnableXR = true`, plus `Scenes/MinimalXrExample.gd`, `PointerScript`, and `BrushSystemSetup`. The scene contains an `XROrigin3D`, `XRCamera3D`, left/right `XRController3D` nodes, visible controller/ray meshes, a blue debug background, a floor plane, and reference cubes so black-screen/controller-visibility problems are easier to separate from drawing problems.
+This scene uses `Scripts/App.gd` with `EnableXR = true`, plus `Scenes/MinimalXrExample.gd`, `PointerScript`, and `BrushSystemSetup`. It contains an `XROrigin3D`, `XRCamera3D`, left/right `XRController3D` nodes, visible controller/ray meshes, a blue debug background, a floor plane, and reference cubes so black-screen/controller-visibility problems are easier to separate from drawing problems.
 
 Controls are read from OpenXR actions:
 
