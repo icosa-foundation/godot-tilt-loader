@@ -100,7 +100,7 @@ The Icosa Godot addon is installed from its Git repository with gd-plug instead 
 
 Install the dependency from the repository root:
 
-```powershell
+```console
 godot --headless --xr-mode off --path . --script res://plug.gd install
 ```
 
@@ -156,19 +156,29 @@ Tests/GDScript/
 
 `Tests/GDScript/` contains both pass/fail tests and diagnostic probes. Run an individual parity test headlessly with Godot:
 
-```powershell
+```console
 godot --headless --xr-mode off --path . --script res://Tests/GDScript/BrushLifecycleParityTest.gd
 ```
 
 To run the normal automated set while excluding diagnostic scripts:
 
+PowerShell:
+
 ```powershell
 Get-ChildItem -Path Tests\GDScript -Filter *Test.gd |
   Sort-Object Name |
   ForEach-Object {
-  godot --headless --xr-mode off --path . --script "res://Tests/GDScript/$($_.Name)"
-  if ($LASTEXITCODE -ne 0) { throw "Failed $($_.Name)" }
-}
+    godot --headless --xr-mode off --path . --script "res://Tests/GDScript/$($_.Name)"
+    if ($LASTEXITCODE -ne 0) { throw "Failed $($_.Name)" }
+  }
+```
+
+Bash:
+
+```bash
+for test_path in Tests/GDScript/*Test.gd; do
+  godot --headless --xr-mode off --path . --script "res://$test_path" || exit 1
+done
 ```
 
 See `OPEN_BRUSH_PARITY_TEST_INVENTORY.md` for the distinction between parity tests, visual smoke tests, and diagnostic probes.
