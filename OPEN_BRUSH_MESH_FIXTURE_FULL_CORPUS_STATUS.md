@@ -12,27 +12,32 @@
 
 ## Current Full-Corpus Result
 
-1. Passing fixtures: 34.
-2. Failing fixtures: 61.
+1. Passing fixtures: 89.
+2. Failing fixtures: 6.
 3. Every fixture loads, resolves its brush descriptor, replays, and emits a comparison summary.
 4. Remaining mismatches stay strict test failures; this report records the comparator's absolute and relative numeric allowances explicitly.
 5. The earlier planar corpus reached 90 passing fixtures and 5 deferred hull
    failures. The spatial corpus deliberately varies all three position axes,
-   orientation, pressure, segment length, and turn angle, exposing behavior the
-   planar input did not exercise.
+   orientation, pressure, segment length, and turn angle. Every non-hull fixture
+   now matches the Open Brush reference mesh.
 
 ## Failure Classification
 
-1. Spatial orientation/curvature discrepancies (55). Every affected fixture
-   reports position and normal differences; 50 also report tangent differences,
-   34 report UV0 differences, 6 report UV1 differences, and the resulting bounds
-   account for 64 assertions. Tube-family fixtures generally remain matching,
-   while flat/Quill-derived, spray, and several geometry brushes are affected.
-2. Deferred MIConvexHull/QuickHull boundary classification (6):
+1. Deferred MIConvexHull/QuickHull boundary classification (6):
    `ConcaveHull`, `DiamondHull`, `MatteHull`, `ShinyHull`, `SmoothHull`, and
-   `UnlitHull`. The five convex hull fixtures each have 24 of 148 Open Brush
+   `UnlitHull`. The five convex hull fixtures each have 10 of 148 Open Brush
    polygon faces without a native match. `ConcaveHull` has 326 reference faces
    and no native Godot hull result.
+
+## Spatial-Baseline Resolution
+
+1. Shared reflected surface frames (55). The runtime previously treated Godot
+   `+Z` as reflected Unity forward and used Godot cross products without
+   accounting for the handedness reversal. The shared helper now uses Godot
+   `-Z` for Unity forward and negates reflected cross products. Its callers now
+   consume one consistently converted right/normal frame. This resolves all 55
+   orientation/curvature-sensitive fixture failures without changing numeric
+   tolerances.
 
 ## Earlier Planar-Baseline Resolutions
 
@@ -80,8 +85,6 @@ godot --headless --xr-mode off --path . `
 ## Next Work
 
 1. Keep the six hull-family failures deferred under the existing hull-backend classification.
-2. Investigate the shared orientation/curvature discrepancy before selecting a
-   first runtime family to modify.
-3. Audit material-generator branch coverage and add only targeted named input
+2. Audit material-generator branch coverage and add only targeted named input
    profiles for branches the spatial baseline does not reach.
-4. Re-run the full corpus after any fixture, adapter, or relevant runtime change and update these counts.
+3. Re-run the full corpus after any fixture, adapter, or relevant runtime change and update these counts.

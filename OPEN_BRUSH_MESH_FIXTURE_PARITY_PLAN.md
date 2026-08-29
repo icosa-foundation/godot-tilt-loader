@@ -151,10 +151,11 @@ Each commit should remain independently reviewable and should not mix fixture-da
    and bounds.
 5. Phase 5 has started. All 95 source fixtures convert deterministically into a
    10.96 MiB normalized corpus. The spatial baseline at Open Brush commit
-   `cd1c6529cffbbc897df43d3087a668306418f4a7` passes 34 fixtures and exposes 61
-   strict failures. Of those, 55 are orientation/curvature-sensitive mesh
-   discrepancies and 6 are deferred hull-backend discrepancies. Coverage
-   accounting confirms that the 95 fixtures cover all but `Slice` and
+   `cd1c6529cffbbc897df43d3087a668306418f4a7` passes 89 fixtures and exposes 6
+   strict failures, all deferred hull-backend discrepancies. The shared
+   Unity-to-Godot surface-frame conversion fix resolved the 55 spatial
+   orientation/curvature discrepancies without relaxing the comparator.
+   Coverage accounting confirms that the 95 fixtures cover all but `Slice` and
    `PassthroughHull` among the 97 live registered brushes.
    `OPEN_BRUSH_MESH_FIXTURE_FULL_CORPUS_STATUS.md` records the measured coverage
    and family-level failure classification.
@@ -181,7 +182,7 @@ classification above.
    documented tangent-specific `0.00005` numerical tolerance.
 3. Hull polygon parity is deferred as a known native-backend difference. Under
    the spatial baseline, `DiamondHull`, `MatteHull`, `ShinyHull`, `SmoothHull`,
-   and `UnlitHull` each have 24 of 148 Open Brush polygon faces without a native
+   and `UnlitHull` each have 10 of 148 Open Brush polygon faces without a native
    match. `ConcaveHull` has 326 Open Brush faces while the native Godot hull
    returns no result. This supersedes the earlier planar fixture's specific
    43-versus-44 boundary-vertex measurement, while preserving its conclusion:
