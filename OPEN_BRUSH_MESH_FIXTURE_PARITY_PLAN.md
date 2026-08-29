@@ -91,10 +91,10 @@ Deliverable: proportionate local and CI validation with reproducible diagnostics
 ## Phase 7: Fixture Input Coverage Expansion
 
 The original corpus used one planar path with identity orientations, pressure
-`1`, brush scale `1`, brush size `0.1125`, and seed `0`. It is useful as a broad
-regression sample but does not establish comprehensive generator coverage. In
-particular, it gives `ConcaveHull` only coplanar QuillPen points, so Open Brush
-correctly emits an empty mesh.
+`1`, brush scale `1`, brush size `0.1125`, and seed `0`. It was useful as a broad
+regression sample but did not establish comprehensive generator coverage. In
+particular, it gave `ConcaveHull` only coplanar QuillPen points, so Open Brush
+correctly emitted an empty mesh.
 
 Expand fixture inputs in two controlled stages:
 
@@ -150,46 +150,44 @@ Each commit should remain independently reviewable and should not mix fixture-da
    winding preservation, triangle-soup record preservation, channel alignment,
    and bounds.
 5. Phase 5 has started. All 95 source fixtures convert deterministically into a
-   10.31 MiB normalized corpus. The first complete replay run passed 71 fixtures
-   and reported 24 strict failures. The shared spray coordinate correction and
-   three geometry-orientation fixes, zero-aspect tube cap correction,
-   hue-shifted backface color correction, current BubbleWand prefab routing,
-   explicit empty-output classification, and scale-aware UV comparison now
-   bring the result to 90 passing fixtures and 5 deferred hull-boundary
-   failures. Coverage accounting confirms that the 95 fixtures cover all but
-   `Slice` and `PassthroughHull` among the 97 live registered brushes.
+   10.96 MiB normalized corpus. The spatial baseline at Open Brush commit
+   `cd1c6529cffbbc897df43d3087a668306418f4a7` passes 34 fixtures and exposes 61
+   strict failures. Of those, 55 are orientation/curvature-sensitive mesh
+   discrepancies and 6 are deferred hull-backend discrepancies. Coverage
+   accounting confirms that the 95 fixtures cover all but `Slice` and
+   `PassthroughHull` among the 97 live registered brushes.
    `OPEN_BRUSH_MESH_FIXTURE_FULL_CORPUS_STATUS.md` records the measured coverage
    and family-level failure classification.
+6. Phase 7's spatial baseline is complete. Every fixture now uses 38 control
+   points with varying position on all three axes, orientation, pressure,
+   segment length, and turn angle. All 95 raw meshes are non-empty.
+   `ConcaveHull` now produces 1,476 vertices and 326 polygon faces. The fixture
+   producer removes duplicate geometric triangles before extracting polygon
+   boundaries, which prevents double-sided render triangles from creating
+   empty face records. The complete normalized corpus passes deterministic
+   conversion checking. Targeted secondary profiles remain pending the branch
+   coverage audit.
 
-## Initial Pilot Classification
+## Planar Pilot Classification (Historical)
+
+These results describe the earlier planar fixture and are retained as evidence
+of the fixes it supported. They do not override the current spatial-baseline
+classification above.
 
 1. DuctTapeGeometry now passes vertex and index counts, exact topology, and all
    attribute comparisons. Its maximum position delta is `0.00000095` metres.
 2. Ink now passes vertex and index counts, exact topology, positions, normals,
    colors, and UVs. Its maximum tangent delta is `0.00003678`, within the
    documented tangent-specific `0.00005` numerical tolerance.
-3. MatteHull polygon parity is deferred as a known native-backend difference.
-   The Open Brush fixture now records polygonal faces independently of triangle
-   diagonals. For the same curved stroke, Open Brush's MIConvexHull result has
-   43 boundary vertices while Godot's akuukka/QuickHull result has 44. After
-   edge-connected coplanar triangles are merged, both results contain 70 faces,
-   but the additional native vertex changes ten polygon boundaries. The point
-   lies approximately `0.000000004` metres outside the corresponding Open Brush
-   hull planes, well inside the brush's `0.000001` metre hull tolerance.
-
-   This is not a triangulation-only mismatch. A global QuickHull tolerance
-   multiplier cannot reproduce the reference: multipliers through `10x` retain
-   the extra point, while `20x` removes five boundary points and increases the
-   mismatch. Lexicographic input sorting also leaves the result unchanged, and
-   generic shallow-vertex pruning would remove vertices that MIConvexHull keeps.
-   Replacing the curved fixture with an easier stroke was rejected because it
-   would hide the discrepancy the fixture is intended to expose.
-
-   Exact resolution would require targeted compatibility work in the native
-   hull backend, potentially reproducing MIConvexHull's tolerance-aware
-   visible-face traversal. That work is intentionally outside the current
-   fixture-parity scope. Keep the curved fixture and its explicit polygon-level
-   mismatch evidence; do not weaken it to triangle-order comparison or tune the
+3. Hull polygon parity is deferred as a known native-backend difference. Under
+   the spatial baseline, `DiamondHull`, `MatteHull`, `ShinyHull`, `SmoothHull`,
+   and `UnlitHull` each have 24 of 148 Open Brush polygon faces without a native
+   match. `ConcaveHull` has 326 Open Brush faces while the native Godot hull
+   returns no result. This supersedes the earlier planar fixture's specific
+   43-versus-44 boundary-vertex measurement, while preserving its conclusion:
+   the discrepancy is in MIConvexHull-versus-QuickHull boundary selection, not
+   merely triangle diagonals. Exact resolution remains intentionally outside
+   the current fixture-parity scope; do not weaken the comparison or tune the
    fixture around the backend.
 4. Sparks uses the `Tube_Sparks`/`TubeBrush` generator rather than `SprayBrush`.
    It now passes vertex and index counts, exact topology, positions, normals,
