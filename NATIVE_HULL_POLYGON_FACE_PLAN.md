@@ -2,16 +2,35 @@
 
 ## Objective
 
-Replace the current GDScript-side `HullBrush` triangle coalescing prototype with native convex hull output that returns Unity-compatible polygon faces for coplanar hull surfaces.
+Retain native convex hull output that returns polygon faces for coplanar hull
+surfaces, and record the remaining MIConvexHull boundary-classification gap.
 
-The immediate motivation is `HullBrush` parity for Open Brush `.tilt` files. Unity uses MIConvexHull, which is QuickHull-based but can expose hull faces as polygons. Our native Godot backend currently exposes triangular facets, so `CreateFacetedGeometry` treats each triangle as a separate visual face and produces overly faceted/lumpy hull surfaces.
+The immediate motivation is `HullBrush` parity for Open Brush `.tilt` files.
+Unity uses MIConvexHull while Godot uses akuukka/QuickHull through the native
+extension. Both triangulate their hulls internally, so parity is measured at the
+polygon-face boundary rather than by triangle diagonals.
 
 ## Current State
 
 - `Scripts/Util/ConvexHullUtil.gd` calls the native `NativeConvexHullUtil` when available.
-- The native backend returns hull points plus triangle faces.
-- `Scripts/Brushes/HullBrush.gd` currently contains `merge_similar_faceted_faces(...)`, which groups similar triangle normals and reconstructs larger faces before `create_faceted_geometry(...)`.
-- That GDScript merge is a temporary compatibility bridge. It is heuristic, import-time GDScript work, and not the desired long-term hull API contract.
+- The native backend groups coplanar triangles and returns ordered polygon faces.
+- `Scripts/Brushes/HullBrush.gd` fan-triangulates those polygons without a GDScript face-merging heuristic.
+- Open Brush fixtures export their own polygon faces so the parity test can ignore backend-specific triangle diagonals.
+
+## Deferred MIConvexHull Boundary Difference
+
+The curved MatteHull reference fixture exposes a boundary-classification
+difference that is separate from polygon reconstruction. Open Brush's pinned
+MIConvexHull build returns 43 boundary vertices; akuukka/QuickHull returns the
+same 43 plus one point only about `0.000000004` metres outside the Open Brush
+hull planes. The extra point changes ten polygon boundaries even though both
+outputs canonicalize to 70 faces.
+
+Tolerance scaling, input sorting, generic shallow-point removal, and replacing
+the fixture stroke are not acceptable resolutions. Exact compatibility likely
+requires reproducing MIConvexHull's tolerance-aware face traversal in the native
+backend. This is deferred until hull fidelity warrants dedicated algorithm work;
+the fixture should continue reporting the known difference.
 
 ## Desired Backend Contract
 
@@ -105,4 +124,3 @@ Faces may be triangles, quads, or larger n-gons. Coplanar adjacent facets should
 - Do not add cafe-specific stroke IDs, brush-name exceptions, or scene-specific geometry rules.
 - Do not solve every Open Brush material/shader fidelity issue as part of this hull topology task.
 - Do not require Git submodules for this work.
-

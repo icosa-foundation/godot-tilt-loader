@@ -129,13 +129,29 @@ Each commit should remain independently reviewable and should not mix fixture-da
 2. Ink now passes vertex and index counts, exact topology, positions, normals,
    colors, and UVs. Its maximum tangent delta is `0.00003678`, within the
    documented tangent-specific `0.00005` numerical tolerance.
-3. MatteHull now matches Open Brush's 246 vertices, 246 sequential indices,
-   and 82-triangle count after the faceted writer expands every native polygon
-   fan triangle independently. It does not yet pass: an order-independent
-   comparison reports 44 missing and 44 extra triangle-position signatures.
-   The QuickHull backend and Open Brush's MIConvexHull backend choose different
-   diagonals across coplanar facets, so exact parity needs either an
-   MIConvexHull-compatible backend or a separately proven triangulation adapter.
+3. MatteHull polygon parity is deferred as a known native-backend difference.
+   The Open Brush fixture now records polygonal faces independently of triangle
+   diagonals. For the same curved stroke, Open Brush's MIConvexHull result has
+   43 boundary vertices while Godot's akuukka/QuickHull result has 44. After
+   edge-connected coplanar triangles are merged, both results contain 70 faces,
+   but the additional native vertex changes ten polygon boundaries. The point
+   lies approximately `0.000000004` metres outside the corresponding Open Brush
+   hull planes, well inside the brush's `0.000001` metre hull tolerance.
+
+   This is not a triangulation-only mismatch. A global QuickHull tolerance
+   multiplier cannot reproduce the reference: multipliers through `10x` retain
+   the extra point, while `20x` removes five boundary points and increases the
+   mismatch. Lexicographic input sorting also leaves the result unchanged, and
+   generic shallow-vertex pruning would remove vertices that MIConvexHull keeps.
+   Replacing the curved fixture with an easier stroke was rejected because it
+   would hide the discrepancy the fixture is intended to expose.
+
+   Exact resolution would require targeted compatibility work in the native
+   hull backend, potentially reproducing MIConvexHull's tolerance-aware
+   visible-face traversal. That work is intentionally outside the current
+   fixture-parity scope. Keep the curved fixture and its explicit polygon-level
+   mismatch evidence; do not weaken it to triangle-order comparison or tune the
+   fixture around the backend.
 4. Sparks uses the `Tube_Sparks`/`TubeBrush` generator rather than `SprayBrush`.
    It now passes vertex and index counts, exact topology, positions, normals,
    tangents, colors, UVs, and bounds. Its maximum position delta is `0.00000095`
