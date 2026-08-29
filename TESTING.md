@@ -28,7 +28,7 @@ StrokeDrawingTest (Node3D)
 Run the GDScript parity suite from the repository root:
 
 ```powershell
-$godot = 'C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe'
+$godot = 'godot'
 Get-ChildItem -Path Tests\GDScript -Filter *.gd | Sort-Object Name | ForEach-Object {
   & $godot --headless --xr-mode off --path . --script "res://Tests/GDScript/$($_.Name)"
   if ($LASTEXITCODE -ne 0) { throw "Failed $($_.Name)" }

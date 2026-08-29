@@ -115,7 +115,7 @@ SDK, nor a compiler.
 Run the local Windows probe with an explicit log:
 
 ```powershell
-$godot = 'C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe'
+$godot = 'godot'
 $probeLog = Join-Path $env:TEMP ('open-brush-hull-probe-' + [guid]::NewGuid().ToString('N') + '.log')
 $parityLog = Join-Path $env:TEMP ('open-brush-hull-parity-' + [guid]::NewGuid().ToString('N') + '.log')
 $env:OPEN_BRUSH_HULL_LOG_PREFIX = 'OBH_LOCAL_NATIVE_TEST'

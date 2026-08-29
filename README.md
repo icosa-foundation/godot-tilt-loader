@@ -1,6 +1,6 @@
 # Open Brush Stroke Generator - Godot GDScript Port
 
-This Godot 4.6+ project ports the Open Brush/Tilt Brush stroke generation runtime from C# to GDScript.
+This Godot 4.7+ project ports the Open Brush/Tilt Brush stroke generation runtime from C# to GDScript.
 
 ## Status
 
@@ -104,7 +104,7 @@ Install the dependency from the repository root:
 godot --headless --xr-mode off --path . --script res://plug.gd install
 ```
 
-gd-plug requires Godot 4.6+ to be available on `PATH`, plus git. This project remains GDScript-only and can be opened with normal non-.NET Godot.
+gd-plug requires Godot 4.7+ to be available on `PATH`, plus git. This project remains GDScript-only and can be opened with normal non-.NET Godot.
 
 ## Native Hull Backend
 

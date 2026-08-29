@@ -305,7 +305,7 @@ Focused tests added/updated:
 Focused validation command run:
 
 ```powershell
-$godot = "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe"
+$godot = "godot"
 @(
   "QuadStripParityTest.gd",
   "BrushRuntimeRegistryMetadataTest.gd",
@@ -324,7 +324,7 @@ Result: command exited successfully.
 Additional validation after expanding `BaseBrushScript` lifecycle-helper coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushLifecycleParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushLifecycleParityTest.gd
 ```
 
 Result: command exited successfully without cleanup warnings.
@@ -332,7 +332,7 @@ Result: command exited successfully without cleanup warnings.
 Heavier cafe importer validation also run:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/TiltImporterRuntimeReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/TiltImporterRuntimeReplayTest.gd
 ```
 
 Result: command exited successfully.
@@ -340,8 +340,8 @@ Result: command exited successfully.
 Additional validation after removing unused `GeometryPool` fallback fill behavior:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/GeometryPoolParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/TiltImporterRuntimeReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/GeometryPoolParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/TiltImporterRuntimeReplayTest.gd
 ```
 
 Result: both commands exited successfully. A repository search now leaves `fallback` mentions only in test/probe assertions or documentation, not in production runtime/importer fallback geometry paths.
@@ -349,9 +349,9 @@ Result: both commands exited successfully. A repository search now leaves `fallb
 Additional validation after adding the missing catalog material assets and fixing `Slice.gdshader` CUSTOM0 access:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SliceBrushParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SolidCatalogReplayTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatStripCatalogReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/SliceBrushParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/SolidCatalogReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatStripCatalogReplayTest.gd
 ```
 
 Result: all three commands exited successfully. The previous `Digital`, `Race`, `PassthroughHull`, and `Slice.gdshader` material/shader failures no longer appear.
@@ -359,9 +359,9 @@ Result: all three commands exited successfully. The previous `Digital`, `Race`, 
 Additional validation after correcting stale shader UIDs in Godot brush materials:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatStripCatalogReplayTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/CafeStrokeFixturesReplayTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/TiltImporterRuntimeReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatStripCatalogReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/CafeStrokeFixturesReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/TiltImporterRuntimeReplayTest.gd
 ```
 
 Result: all three commands exited successfully. The previous shader UID warnings for `Electricity.tres`, `Stars.tres`, and the cafe-imported `Snow`, `Dots`, `Smoke`, `Embers`, and `Bubbles` materials no longer appear.
@@ -369,7 +369,7 @@ Result: all three commands exited successfully. The previous shader UID warnings
 Additional validation after strengthening the importer fallback regression guard:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/TiltImporterRuntimeReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/TiltImporterRuntimeReplayTest.gd
 ```
 
 Result: command exited successfully. The guard now rejects the old importer-local family dispatch helpers, fallback tessellator entry points, and fallback constants, and requires the shared registry, replay, and material resolver path.
@@ -393,7 +393,7 @@ Result: Unity opened the separate worktree but failed before running tests durin
 Exporter contract validation after the runner guard change:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd
 ```
 
 Result: command exited successfully.
@@ -403,7 +403,7 @@ source automatically into the target Open Brush worktree:
 
 ```powershell
 powershell.exe -NoProfile -Command "& { `$script = Get-Content -LiteralPath 'Tools\OpenBrushReferenceMeshExport\RunOpenBrushReferenceMeshExport.ps1' -Raw; [scriptblock]::Create(`$script) | Out-Null; Write-Output 'RUNNER_SYNTAX_OK' }"
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd
 git diff --check
 ```
 
@@ -416,7 +416,7 @@ step from reference fixture generation.
 Additional validation after tightening brush class inventory status coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushClassInventoryCoverageTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushClassInventoryCoverageTest.gd
 ```
 
 Result: command exited successfully.
@@ -424,7 +424,7 @@ Result: command exited successfully.
 Additional validation after tightening quad-strip base and UV subclass audit coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/QuadStripParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/QuadStripParityTest.gd
 ```
 
 Result: command exited successfully.
@@ -432,7 +432,7 @@ Result: command exited successfully.
 Additional validation after extending quad-strip finalization/export coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/QuadStripParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/QuadStripParityTest.gd
 ```
 
 Result: command exited successfully.
@@ -440,7 +440,7 @@ Result: command exited successfully.
 Additional validation after adding quad-strip pressure/threshold/no-update coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/QuadStripParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/QuadStripParityTest.gd
 ```
 
 Result: command exited successfully.
@@ -448,7 +448,7 @@ Result: command exited successfully.
 Additional validation after adding quad-strip preview-move and strip-break-disabled branch coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/QuadStripParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/QuadStripParityTest.gd
 ```
 
 Result: command exited successfully.
@@ -456,7 +456,7 @@ Result: command exited successfully.
 Additional validation after adding quad-strip destroy-time geometry-pool release coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/QuadStripParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/QuadStripParityTest.gd
 ```
 
 Result: command exited successfully.
@@ -464,7 +464,7 @@ Result: command exited successfully.
 Additional validation after adding quad-strip previous lone-segment squash coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/QuadStripParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/QuadStripParityTest.gd
 ```
 
 Result: command exited successfully.
@@ -472,9 +472,9 @@ Result: command exited successfully.
 Additional validation after repairing `FlatGeometryBrush` atlas count handling:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatGeometryBrushParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatStripCatalogReplayTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushClassInventoryCoverageTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatGeometryBrushParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatStripCatalogReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushClassInventoryCoverageTest.gd
 ```
 
 Result: all three commands exited successfully.
@@ -482,8 +482,8 @@ Result: all three commands exited successfully.
 Additional validation after adding `FlatGeometryBrush` UV1 offset vector coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatGeometryBrushParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatStripCatalogReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatGeometryBrushParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatStripCatalogReplayTest.gd
 ```
 
 Result: both commands exited successfully.
@@ -491,8 +491,8 @@ Result: both commands exited successfully.
 Additional validation after adding `FlatGeometryBrush` non-M11 smoothing and break coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatGeometryBrushParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatStripCatalogReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatGeometryBrushParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatStripCatalogReplayTest.gd
 ```
 
 Result: both commands exited successfully.
@@ -500,7 +500,7 @@ Result: both commands exited successfully.
 Additional validation after adding `FlatGeometryBrush` non-M11 clipping/growth-limit and M11 break-angle coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatGeometryBrushParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/FlatGeometryBrushParityTest.gd
 ```
 
 Result: command exited successfully.
@@ -508,9 +508,9 @@ Result: command exited successfully.
 Additional validation after adding `GeniusParticlesBrush` pointer-travel, decay length-cache, and salt-offset coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesBrushParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesCatalogReplayTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesBrushParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesCatalogReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd
 ```
 
 Result: all three commands exited successfully.
@@ -518,12 +518,12 @@ Result: all three commands exited successfully.
 Additional validation after moving generated/runtime Genius particle rotation off normalized `ArrayMesh` tangents and onto `UV2.y`:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/MeshDataArrayExportParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesBrushParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushMaterialResolverParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesCatalogReplayTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushLifecycleParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/TiltImporterRuntimeReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/MeshDataArrayExportParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesBrushParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushMaterialResolverParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesCatalogReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushLifecycleParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/TiltImporterRuntimeReplayTest.gd
 git diff --check
 ```
 
@@ -537,9 +537,9 @@ Additional validation after extending live-vs-replay path equivalence to
 representative Genius particle brushes:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/LiveVsTiltUvParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesCatalogReplayTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/MeshDataArrayExportParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/LiveVsTiltUvParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesCatalogReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/MeshDataArrayExportParityTest.gd
 git diff --check
 ```
 
@@ -552,11 +552,11 @@ Additional validation after aligning live pointer control-point recording with
 the Godot C# lifecycle and replaying every stored control point:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/PointerScriptParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/LiveVsTiltUvParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesCatalogReplayTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/MeshDataArrayExportParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushMaterialResolverParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/PointerScriptParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/LiveVsTiltUvParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesCatalogReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/MeshDataArrayExportParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushMaterialResolverParityTest.gd
 ```
 
 Result: all commands exited successfully. `LiveVsTiltUvParityTest.gd` reports
@@ -570,10 +570,10 @@ Additional validation after correcting generated minimal/inspector stroke
 scale-vs-pressure semantics:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/MinimalExamplesParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SingleBrushStrokeInspectorTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/LiveVsTiltUvParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesCatalogReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/MinimalExamplesParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/SingleBrushStrokeInspectorTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/LiveVsTiltUvParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesCatalogReplayTest.gd
 git diff --check
 ```
 
@@ -585,12 +585,12 @@ Additional validation after unifying Icosa bridge material resolution through
 `BrushMaterialResolver` and making bridge catalog initialization explicit:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/IcosaBridgeSmokeTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushMaterialResolverParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/TiltBridgeReplayParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/MeshDataArrayExportParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesCatalogReplayTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_win64.exe\Godot_v4.6.1-stable_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/LiveVsTiltUvParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/IcosaBridgeSmokeTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushMaterialResolverParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/TiltBridgeReplayParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/MeshDataArrayExportParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/GeniusParticlesCatalogReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/LiveVsTiltUvParityTest.gd
 ```
 
 Result: all commands exited successfully. The bridge material regression now
@@ -605,7 +605,7 @@ still reports zero vertex and UV deltas for the checked cafe strokes.
 Additional validation after adding `SprayBrush` seeded particle layout and spawn-interval coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SprayBrushParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/SprayBrushParityTest.gd
 ```
 
 Result: command exited successfully.
@@ -613,7 +613,7 @@ Result: command exited successfully.
 Additional validation after adding `MidpointPlusLifetimeSprayBrush` seeded particle layout, UV1 offset, and spawn-interval coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/MidpointSprayBrushParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/MidpointSprayBrushParityTest.gd
 ```
 
 Result: command exited successfully.
@@ -621,7 +621,7 @@ Result: command exited successfully.
 Additional validation after adding Spray/Midpoint catalog metadata coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushRuntimeRegistryMetadataTest.gd
 ```
 
 Result: command exited successfully with the known Godot resource-leak warning after test shutdown.
@@ -629,9 +629,9 @@ Result: command exited successfully with the known Godot resource-leak warning a
 Additional validation after adding `SliceBrush` short-segment restart and spawn-interval coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SliceBrushParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SolidCatalogReplayTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushClassInventoryCoverageTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/SliceBrushParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/SolidCatalogReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushClassInventoryCoverageTest.gd
 ```
 
 Result: all three commands exited successfully.
@@ -639,9 +639,9 @@ Result: all three commands exited successfully.
 Additional validation after adding `SquareBrush` layout, short-segment restart, and invisible-back frame coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SquareBrushParityTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/SolidCatalogReplayTest.gd
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushClassInventoryCoverageTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/SquareBrushParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/SolidCatalogReplayTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/BrushClassInventoryCoverageTest.gd
 ```
 
 Result: all three commands exited successfully.
@@ -649,7 +649,7 @@ Result: all three commands exited successfully.
 Additional validation after adding `PrintableBrush` layout, short-segment restart, and invisible-back frame coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/PrintableBrushParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/PrintableBrushParityTest.gd
 ```
 
 Result: command exited successfully without missing-material warnings.
@@ -657,7 +657,7 @@ Result: command exited successfully without missing-material warnings.
 Additional validation after adding `Square3DPrintBrush` layout/spawn interval and close-knot restart coverage:
 
 ```powershell
-& "C:\Program Files\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64_console.exe" --headless --xr-mode off --path . --script res://Tests/GDScript/Square3DPrintBrushParityTest.gd
+& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/Square3DPrintBrushParityTest.gd
 ```
 
 Result: command exited successfully.

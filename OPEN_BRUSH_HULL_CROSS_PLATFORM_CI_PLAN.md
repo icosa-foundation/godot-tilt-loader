@@ -24,7 +24,6 @@ added separately without changing the package design.
 
 The current native build is Windows-specific in several ways:
 
-- `build_native_hull.ps1` hard-codes a local Windows Godot 4.6.1 executable.
 - It downloads dependencies only through PowerShell.
 - `SConstruct` assumes ignored checkouts at `.deps/godot-cpp` and
   `.deps/quickhull`.
@@ -306,8 +305,8 @@ The work is complete when:
 
 ## Reference Baseline
 
-- Godot 4.6 platform list:
-  <https://docs.godotengine.org/en/4.6/about/list_of_features.html>
+- Godot 4.7 platform list:
+  <https://docs.godotengine.org/en/4.7/about/list_of_features.html>
 - Godot build platform and architecture options:
   <https://docs.godotengine.org/en/stable/engine_details/development/compiling/introduction_to_the_buildsystem.html>
 - GDExtension manifest format:
