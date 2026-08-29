@@ -11,6 +11,7 @@ const DEFAULT_NORMAL_TOLERANCE := 0.00001
 const DEFAULT_COLOR_TOLERANCE := 0.00001
 const DEFAULT_UV_TOLERANCE := 0.00001
 const DEFAULT_TANGENT_TOLERANCE := 0.00005
+const EXPECTED_LIVE_BRUSHES_WITHOUT_FIXTURES: Array[String] = ["PassthroughHull", "Slice"]
 
 var _failures := 0
 
@@ -32,6 +33,7 @@ func _init() -> void:
 		BrushRuntimeRegistryScript.register_supported_brushes(manifest)
 		for path in fixture_paths:
 			_check_reference_fixture(path)
+		_check_fixture_coverage(manifest, fixture_paths)
 	App.force_deterministic_birth_time_for_export = previous_deterministic_birth_time
 	quit(1 if _failures > 0 else 0)
 
@@ -158,6 +160,12 @@ func _compare_reference_mesh(path: String, desc: BrushDescriptor, reference: Dic
 	var normal_tolerance := float(reference.get("normal_tolerance", DEFAULT_NORMAL_TOLERANCE))
 	var polygon_faces: Dictionary = reference.get("polygon_faces", {})
 	if not polygon_faces.is_empty():
+		if int(polygon_faces.get("face_count", -1)) == 0 and expected_vertices.is_empty():
+			_compare_empty_reference_mesh(path, actual, mesh, layout)
+			if is_v2:
+				_compare_bounds(path, actual.get("bounds", {}), mesh.get("bounds", {}), position_tolerance)
+			print("OPEN_BRUSH_REFERENCE_EMPTY_MESH\tpath=%s\tbrush=%s" % [path, desc.m_DurableName])
+			return
 		_compare_polygon_faces(path, actual_hull, polygon_faces, position_tolerance, normal_tolerance)
 		if is_v2:
 			_compare_bounds(path, actual.get("bounds", {}), mesh.get("bounds", {}), position_tolerance)
@@ -569,6 +577,46 @@ func _compare_particle_render_arrays(
 
 	_expect(max_delta <= tolerance, "%s particle render arrays within tolerance %.8f" % [path, tolerance])
 	return max_delta
+
+func _compare_empty_reference_mesh(path: String, actual: Dictionary, expected: Dictionary, layout: Dictionary) -> void:
+	for channel_name in ["vertices", "triangles", "normals", "colors", "tangents"]:
+		var expected_values: Array = expected.get(channel_name, [])
+		var actual_values: Array = actual.get(channel_name, [])
+		_expect(expected_values.is_empty(), "%s expected %s channel is empty" % [path, channel_name])
+		_expect(actual_values.is_empty(), "%s actual %s channel is empty" % [path, channel_name])
+	for channel in range(3):
+		var key := "uv%d" % channel
+		var size := int(layout.get("%s_size" % key, _infer_vector_size(expected.get(key, []))))
+		var expected_uvs := _vector_array_list(expected.get(key, []), size)
+		var actual_uvs: Array = actual.get(key, [])
+		_expect(expected_uvs.is_empty(), "%s expected %s channel is empty" % [path, key])
+		_expect(actual_uvs.is_empty(), "%s actual %s channel is empty" % [path, key])
+
+func _check_fixture_coverage(manifest: TiltBrushManifest, fixture_paths: Array[String]) -> void:
+	var fixture_brushes := {}
+	for path in fixture_paths:
+		var reference := _load_json_file(path)
+		var durable_name := String(reference.get("brush", ""))
+		if durable_name.is_empty():
+			continue
+		_expect(not fixture_brushes.has(durable_name), "duplicate reference fixture for %s" % durable_name)
+		fixture_brushes[durable_name] = true
+
+	var live_count := 0
+	var missing: Array[String] = []
+	for desc in manifest.Brushes:
+		if desc == null or not BrushRuntimeRegistryScript.is_supported(desc):
+			continue
+		live_count += 1
+		if not fixture_brushes.has(desc.m_DurableName):
+			missing.append(desc.m_DurableName)
+	missing.sort()
+	_expect(missing == EXPECTED_LIVE_BRUSHES_WITHOUT_FIXTURES, "live brushes without reference fixtures expected %s but got %s" % [EXPECTED_LIVE_BRUSHES_WITHOUT_FIXTURES, missing])
+	print("OPEN_BRUSH_REFERENCE_COVERAGE\tlive=%d\tfixtures=%d\tmissing=%s" % [
+		live_count,
+		fixture_brushes.size(),
+		", ".join(missing),
+	])
 
 func _compare_bounds(path: String, actual: Dictionary, expected: Dictionary, tolerance: float) -> void:
 	if expected.is_empty():
