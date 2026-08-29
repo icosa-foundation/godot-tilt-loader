@@ -21,72 +21,36 @@ Any difference from Open Brush must be documented as one of:
 
 ## Current Highest-Priority Gap
 
-The largest remaining visual gap from quick scene inspection is the `GeniusParticle`
-brush family:
+There is no known non-hull mesh-generation mismatch in the current Open Brush
+reference corpus:
 
-- `Embers`
-- `Smoke`
-- `Snow`
-- `Stars`
-- `Bubbles`
-- `Dots`
-- `Rising Bubbles`
+1. Ninety of 95 fixtures match geometry, topology, attributes, and bounds under
+   the documented numeric tolerances.
+2. The five remaining failures are the deferred MIConvexHull/QuickHull boundary
+   classification described in `OPEN_BRUSH_MESH_FIXTURE_FULL_CORPUS_STATUS.md`.
+3. Corpus accounting covers 95 of 97 live registered brushes. `Slice` and
+   `PassthroughHull` are the two brushes without source fixtures.
+4. All seven live `GeniusParticle` fixtures now match, including the particle
+   render records used for shader-facing `UV2` and `CUSTOM0` data where the
+   material layout requires them.
 
-These brushes are more fragile than ordinary tube and flat-strip brushes because
-the generated mesh is only part of the contract. The shader also depends on
-Open Brush particle attributes being delivered through the same render-facing
-Godot arrays as imported Tilt/GLTF strokes:
+The next priority is therefore fresh integration evidence, not another broad
+mesh rewrite. Visual inspection should determine whether any current brush is
+still rendered incorrectly after the numeric fixes. A visual discrepancy must
+first be classified as mesh data, material/shader mapping, or scene/camera
+integration before changing a brush generator.
 
-- texture UV in `Mesh.ARRAY_TEX_UV`,
-- birth time in `Mesh.ARRAY_TEX_UV2.x`,
-- generated/runtime particle rotation in `Mesh.ARRAY_TEX_UV2.y`,
-- vertex id in `Mesh.ARRAY_CUSTOM0.x`,
-- particle center in `Mesh.ARRAY_CUSTOM0.yzw`,
-- no ordinary normal stream for particle centers.
+The `GeniusParticle` render contract remains important even though its reference
+fixtures pass:
 
-Godot `ArrayMesh` normalizes tangent vectors at the renderable surface
-boundary, so raw particle rotation cannot be preserved in `TANGENT.z` for live
-generated meshes. Runtime material duplicates for Genius particle shaders must
-read generated rotation from `UV2.y`. The original tangent-compatible value can
-still be emitted for importer comparison, but it is not the generated runtime
-source of truth.
-
-The immediate priority for particle brushes is to compare the GDScript port
-against the Godot .NET C# source, then confirm generated strokes and imported
-Tilt/GLTF strokes reach the particle shaders with the same mesh arrays and
-materials. Do not spend time broadening unrelated tests until this visual gap is
-understood.
-
-Current particle-specific findings:
-
-- live pointer creation now follows the Godot C# lifecycle: creating a brush
-  initializes the line but does not record a synthetic first control point;
-  only control points actually sent through `UpdatePosition_LS` are recorded
-  and replayed,
-- generated 2D/inspector sample strokes now preserve Open Brush stroke
-  semantics by storing path scale in `Stroke.m_BrushScale` rather than
-  control-point pressure,
-- generated `GeniusParticle` mesh data now exports the same shader-facing Godot
-  arrays used by imported Tilt/GLTF particle strokes,
-- generated/runtime particle rotation is preserved through `UV2.y` after
-  `ArrayMesh` creation because Godot normalizes tangent vectors,
-- live, `.tilt` runtime rebuild, and bridge-created strokes now resolve
-  Genius particle materials through the shared `BrushMaterialResolver` path, so
-  the runtime shader channel rewrite is not bypassed,
-- the seven normal `GeniusParticle` materials are now classified explicitly:
-  six billboard-style particle shaders use `CUSTOM0` plus `UV2.y`, while
-  `Rising Bubbles` is the simple UV/COLOR shader outlier and does not require
-  the particle rotation/center contract,
-- generated live meshes now apply catalog `m_BoundsPadding` as
-  `ArrayMesh.custom_aabb` so shader-displaced particle brushes are not culled
-  against their undisplaced source quads,
-- this padding is a Godot rendering integration requirement, not a vertex
-  geometry change.
-- focused path-equivalence validation now reports zero vertex, primary UV,
-  `UV2`, and `CUSTOM0` deltas for representative `Stars` and `Embers`
-  strokes across direct replay, memory replay, pointer math, and live object
-  drawing. This proves the current Godot paths agree with each other; it still
-  does not replace Open Brush C# reference mesh fixture comparison.
+1. Texture UV uses `Mesh.ARRAY_TEX_UV`.
+2. Birth time and generated particle rotation use `Mesh.ARRAY_TEX_UV2.x` and
+   `Mesh.ARRAY_TEX_UV2.y`.
+3. Vertex id and particle center use `Mesh.ARRAY_CUSTOM0`.
+4. Generated live meshes apply catalog `m_BoundsPadding` through
+   `ArrayMesh.custom_aabb`.
+5. Live, `.tilt` runtime rebuild, and bridge-created strokes share the same
+   material resolver and particle-channel rewrite.
 
 ## Working Rules
 
