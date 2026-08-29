@@ -46,7 +46,9 @@ func _check_midpoint_geometry_and_uv1() -> void:
 	_expect_equal(brush.m_geometry.m_Texcoord0.v2[MidpointPlusLifetimeSprayBrush.FR], Vector2(1.0, 1.0), "midpoint uv0 fr")
 	_expect_equal(brush.m_geometry.m_Texcoord1.v4[MidpointPlusLifetimeSprayBrush.BR], Vector4(-0.5, 0.5, 0.0, 0.0), "midpoint uv1 br")
 	_expect_equal(brush.m_geometry.m_Texcoord1.v4[MidpointPlusLifetimeSprayBrush.FL], Vector4(0.5, -0.5, 0.0, 0.0), "midpoint uv1 fl")
+	_expect_vec3_close(brush.m_geometry.m_Normals[0], Vector3.FORWARD, "midpoint normal")
 	_expect_close(brush.m_geometry.m_Tangents[0].length(), sqrt(2.0), "midpoint tangent length includes handedness")
+	_expect_close(brush.m_geometry.m_Tangents[0].w, -1.0, "midpoint tangent handedness")
 	_expect_color_close(brush.m_geometry.m_Colors[0], _color32(Color(0.45, 0.8, 0.2, 1.0)), "midpoint color32 color")
 	brush.free()
 
@@ -118,7 +120,9 @@ func _expected_midpoint_quad(brush: MidpointPlusLifetimeSprayBrush, knot_index: 
 
 	var pressure := brush.m_knots[knot_index].smoothedPressure
 	var size := brush.pressured_random_size(pressure, salt + MidpointPlusLifetimeSprayBrush.K_SALT_PRESSURE)
-	var center := last_spawn_pos + size * brush.m_Desc.m_PositionVariance * brush.m_rng.in_unit_sphere(salt + MidpointPlusLifetimeSprayBrush.K_SALT_POSITION)
+	var random_offset := brush.m_rng.in_unit_sphere(salt + MidpointPlusLifetimeSprayBrush.K_SALT_POSITION)
+	random_offset.z = -random_offset.z
+	var center := last_spawn_pos + size * brush.m_Desc.m_PositionVariance * random_offset
 	var forward_offset := facing * size * brush.m_Desc.m_SizeRatio.x * 0.5
 	var right_offset := rotated_right * size * brush.m_Desc.m_SizeRatio.y * 0.5
 	var alpha := _color32_channel(brush.m_rng.in_range(salt + MidpointPlusLifetimeSprayBrush.K_SALT_ALPHA, 0.0, 1.0))

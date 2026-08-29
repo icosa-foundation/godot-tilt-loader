@@ -53,13 +53,14 @@ func _check_spray_geometry() -> void:
 	_expect_vec3_close(brush.m_geometry.m_Vertices[SprayBrush.FR * brush.NS], Vector3(0.5, 0.5, 0.0), "spray first fr")
 	_expect_vec3_close(brush.m_geometry.m_Vertices[8 + SprayBrush.BR * brush.NS], Vector3(0.5, 0.5, 0.0), "spray second br")
 	_expect_vec3_close(brush.m_geometry.m_Vertices[8 + SprayBrush.FR * brush.NS], Vector3(1.5, 0.5, 0.0), "spray second fr")
-	_expect_vec3_close(brush.m_geometry.m_Normals[0], Vector3.BACK, "spray normal")
-	_expect_vec3_close(brush.m_geometry.m_Normals[1], -Vector3.BACK, "spray backface normal")
+	_expect_vec3_close(brush.m_geometry.m_Normals[0], Vector3.FORWARD, "spray normal")
+	_expect_vec3_close(brush.m_geometry.m_Normals[1], -Vector3.FORWARD, "spray backface normal")
 	_expect_color_close(brush.m_geometry.m_Colors[0], _color32(Color(0.9, 0.4, 0.1, 1.0)), "spray color32 color")
 	_expect_equal(brush.m_geometry.m_Texcoord0.v2[SprayBrush.BL * brush.NS], Vector2(0.0, 0.0), "spray uv bl")
 	_expect_equal(brush.m_geometry.m_Texcoord0.v2[SprayBrush.FR * brush.NS], Vector2(1.0, 1.0), "spray uv fr")
 	_expect_close(brush.m_geometry.m_Tangents[0].length(), sqrt(2.0), "spray tangent length includes handedness")
-	_expect_close(brush.m_geometry.m_Tangents[1].w, -1.0, "spray backface tangent handedness")
+	_expect_close(brush.m_geometry.m_Tangents[0].w, -1.0, "spray tangent handedness")
+	_expect_close(brush.m_geometry.m_Tangents[1].w, 1.0, "spray backface tangent handedness")
 	_expect(brush.needs_straight_edge_proxy(), "spray straight edge proxy")
 	_expect(not brush.always_rebuild_preview_brush(), "spray no preview rebuild")
 	brush.finalize_solitary_brush()
@@ -110,7 +111,8 @@ func _check_randomized_particle_layout_branches() -> void:
 		_expect_equal(brush.m_geometry.m_Texcoord0.v2[vert_index + SprayBrush.BL * brush.NS], expected.uv_bl, "spray randomized quad %d atlas bl" % quad)
 		_expect_equal(brush.m_geometry.m_Texcoord0.v2[vert_index + SprayBrush.FR * brush.NS], expected.uv_fr, "spray randomized quad %d atlas fr" % quad)
 		_expect_vec3_close(Vector3(brush.m_geometry.m_Tangents[vert_index].x, brush.m_geometry.m_Tangents[vert_index].y, brush.m_geometry.m_Tangents[vert_index].z), expected.tangent, "spray randomized quad %d tangent" % quad)
-		_expect_close(brush.m_geometry.m_Tangents[vert_index + 1].w, -1.0, "spray randomized quad %d backface tangent sign" % quad)
+		_expect_close(brush.m_geometry.m_Tangents[vert_index].w, -1.0, "spray randomized quad %d tangent sign" % quad)
+		_expect_close(brush.m_geometry.m_Tangents[vert_index + 1].w, 1.0, "spray randomized quad %d backface tangent sign" % quad)
 	brush.free()
 
 func _check_spray_batched_finalize() -> void:
@@ -152,7 +154,9 @@ func _expected_spray_quad(brush: SprayBrush, knot_index: int, quad_index: int, m
 
 	var pressure := brush.m_knots[knot_index].smoothedPressure
 	var size := brush.pressured_random_size(pressure, salt + SprayBrush.K_SALT_PRESSURE)
-	var center := last_spawn_pos + size * brush.m_Desc.m_PositionVariance * brush.m_rng.in_unit_sphere(salt + SprayBrush.K_SALT_POSITION)
+	var random_offset := brush.m_rng.in_unit_sphere(salt + SprayBrush.K_SALT_POSITION)
+	random_offset.z = -random_offset.z
+	var center := last_spawn_pos + size * brush.m_Desc.m_PositionVariance * random_offset
 	var forward_offset := facing * size * brush.m_Desc.m_SizeRatio.x * 0.5
 	var right_offset := rotated_right * size * brush.m_Desc.m_SizeRatio.y * 0.5
 	var alpha := _color32_channel(brush.m_rng.in_range(salt + SprayBrush.K_SALT_ALPHA, 0.0, 1.0))

@@ -68,7 +68,7 @@ func on_changed_frame_knots(knot_index: int) -> void:
 			var facing := move.normalized()
 			var frame := BaseBrushScript.compute_surface_frame_new(Vector3.ZERO, facing, cur.point.m_Orient)
 			cur.nRight = frame.right
-			cur.nSurface = frame.normal
+			cur.nSurface = -frame.normal
 			var num_quads: int = min(int(cur.length / min_distance_to_spawn), get_num_quads_allowed())
 			cur.nTri = num_quads * K_TRIS_IN_SOLID * NS
 			cur.nVert = num_quads * K_VERTS_IN_SOLID * NS
@@ -95,14 +95,16 @@ func on_changed_make_geometry(knot_index: int) -> void:
 				var facing := move_direction
 				var rotation_variance := m_Desc.m_RotationVariance
 				if rotation_variance > 0.0001:
-					var rotate := Quaternion(cur.nSurface.normalized(), deg_to_rad(m_rng.in_range(salt + K_SALT_ROTATION, -rotation_variance, rotation_variance)))
+					var rotate := Quaternion((-cur.nSurface).normalized(), deg_to_rad(m_rng.in_range(salt + K_SALT_ROTATION, -rotation_variance, rotation_variance)))
 					right = rotate * right
 					facing = rotate * facing
 
 				var size := pressured_random_size(cur.smoothedPressure, salt + K_SALT_PRESSURE)
 				var forward_offset := facing * (size * m_Desc.m_SizeRatio.x * 0.5)
 				var right_offset := right * (size * m_Desc.m_SizeRatio.y * 0.5)
-				center += size * m_Desc.m_PositionVariance * m_rng.in_unit_sphere(salt + K_SALT_POSITION)
+				var random_offset := m_rng.in_unit_sphere(salt + K_SALT_POSITION)
+				random_offset.z = -random_offset.z
+				center += size * m_Desc.m_PositionVariance * random_offset
 
 				set_tri(tri_index, vert_index, 0, BR, BL, FL)
 				set_tri(tri_index, vert_index, 1, BR, FL, FR)
@@ -159,10 +161,10 @@ func on_changed_tangents(knot_index: int) -> void:
 				var bl := m_geometry.m_Vertices[vert_index + BL * NS]
 				var fl := m_geometry.m_Vertices[vert_index + FL * NS]
 				var facing := fl - bl
-				set_tangent(vert_index, BL, facing)
-				set_tangent(vert_index, BR, facing)
-				set_tangent(vert_index, FL, facing)
-				set_tangent(vert_index, FR, facing)
+				set_tangent(vert_index, BL, facing, -1.0)
+				set_tangent(vert_index, BR, facing, -1.0)
+				set_tangent(vert_index, FL, facing, -1.0)
+				set_tangent(vert_index, FR, facing, -1.0)
 
 func get_num_quads_allowed() -> int:
 	var max_num_verts := 0xffff
