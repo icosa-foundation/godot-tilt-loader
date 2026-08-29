@@ -108,6 +108,7 @@ func _check_randomized_alpha_offset_and_roll_formula() -> void:
 	var knot := brush.m_knots[knot_index]
 	var expected_size := brush.pressured_random_size(knot.smoothedPressure, salt + GeniusParticlesBrush.K_SALT_PRESSURE)
 	var expected_center := brush.m_rng.on_unit_sphere(salt + GeniusParticlesBrush.K_SALT_ON_SPHERE) * expected_size * brush.m_ParticleSizeScale
+	expected_center.z = -expected_center.z
 	var expected_alpha := _color32_channel(brush.m_rng.in01(salt + GeniusParticlesBrush.K_SALT_ALPHA))
 	var expected_roll := deg_to_rad(brush.m_rng.in_range(salt + GeniusParticlesBrush.K_SALT_ROLL, -30.0, 30.0))
 

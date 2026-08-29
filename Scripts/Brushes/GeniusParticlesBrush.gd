@@ -224,8 +224,14 @@ func create_particle_geometry(knot_index: int, particle_index: int, position: Ve
 	else:
 		alpha = m_Desc.m_Opacity * lerpf(m_Desc.m_PressureOpacityRange.x, m_Desc.m_PressureOpacityRange.y, cur.smoothedPressure)
 	var random_offset := m_rng.on_unit_sphere(salt + K_SALT_ON_SPHERE) * size * m_ParticleSizeScale
+	random_offset.z = -random_offset.z
 	var center := position + random_offset
-	var random_direction := m_rng.rotation(salt + K_SALT_ROTATION)
+	var source_random_direction := m_rng.rotation(salt + K_SALT_ROTATION)
+	var random_direction := Quaternion(
+		-source_random_direction.x,
+		-source_random_direction.y,
+		source_random_direction.z,
+		source_random_direction.w)
 	var up_offset := random_direction * (Vector3.UP * size * 0.5)
 	var right_offset := random_direction * (Vector3.RIGHT * size * 0.5)
 
