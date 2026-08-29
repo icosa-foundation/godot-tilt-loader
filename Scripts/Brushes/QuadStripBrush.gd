@@ -144,7 +144,7 @@ func append_leading_quad(generate_new: bool, opacity01: float, center: Vector3, 
 		else:
 			var hsl := HSLColor.from_color(m_Color)
 			hsl.set_hue_degrees(hsl.get_hue_degrees() + m_Desc.m_BackfaceHueShift)
-			back_color = _to_color32(hsl.to_color())
+			back_color = _to_rounded_color32(hsl.to_color())
 			last_back_color = colors[back_vert_index - current_stride + 4] if back_vert_index - current_stride >= 0 else back_color
 		colors[back_vert_index] = last_back_color
 		colors[back_vert_index + 1] = last_back_color
@@ -192,6 +192,14 @@ func append_leading_quad(generate_new: bool, opacity01: float, center: Vector3, 
 				make_consistent_backside_quad(verts, norms, front_quad_vert)
 			update_uvs_for_quad(mid_quad_index)
 	return earliest_changed_quad
+
+func _to_rounded_color32(value: Color) -> Color:
+	return Color(
+		round(clampf(value.r, 0.0, 1.0) * 255.0) / 255.0,
+		round(clampf(value.g, 0.0, 1.0) * 255.0) / 255.0,
+		round(clampf(value.b, 0.0, 1.0) * 255.0) / 255.0,
+		round(clampf(value.a, 0.0, 1.0) * 255.0) / 255.0
+	)
 
 func position_quad(vertices: Array[Vector3], vert_index: int, center: Vector3, forward: Vector3, right: Vector3) -> void:
 	vertices[vert_index] = center - forward - right

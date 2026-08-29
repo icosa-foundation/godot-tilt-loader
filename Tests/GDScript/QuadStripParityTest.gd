@@ -32,6 +32,7 @@ func _run() -> void:
 	_check_append_color32_quantization()
 	_check_backface_append_color_pattern()
 	_check_backface_append_hue_shift()
+	_check_backface_hue_shift_uses_unity_color32_rounding()
 	_check_new_segment_squashes_previous_lone_segment()
 	_check_sharp_bend_shrinks_quad_strip()
 	_check_double_back_creates_strip_break()
@@ -462,6 +463,15 @@ func _check_backface_append_hue_shift() -> void:
 	_expect_color_close(colors[10], expected, "backface hue color 4")
 	_expect_color_close(colors[11], expected, "backface hue color 5")
 	brush.finalize_solitary_brush()
+	brush.free()
+
+func _check_backface_hue_shift_uses_unity_color32_rounding() -> void:
+	var brush := _make_quad_brush(QuadStripBrushStretchUV.new(), true)
+	brush.m_Color = Color(0.2, 0.2, 230.0 / 255.0, 1.0)
+	brush.m_Desc.m_BackfaceHueShift = 0.25
+	brush.append_leading_quad(true, 1.0, Vector3.ZERO, Vector3.RIGHT, Vector3.BACK, Vector3.UP)
+	var expected := Color(52.0 / 255.0, 51.0 / 255.0, 230.0 / 255.0, 1.0)
+	_expect_color_close(brush.m_Geometry.m_Colors[6], expected, "backface hue uses rounded Color32")
 	brush.free()
 
 func _check_new_segment_squashes_previous_lone_segment() -> void:
