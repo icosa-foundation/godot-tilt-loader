@@ -95,11 +95,21 @@ func _check_reference_fixture(path: String) -> void:
 	if stroke == null:
 		return
 
-	var actual_mesh: MeshData = BrushStrokeReplay.build_mesh_data_for_stroke(stroke)
+	var brush := BrushStrokeReplay.create_brush_for_stroke(stroke)
+	var actual_mesh: MeshData = null
+	var actual_hull: Dictionary = {}
+	if brush != null:
+		actual_mesh = MeshData.new()
+		actual_mesh.copy_from(brush.mesh_data)
+		if brush.m_Desc != null and brush.m_Desc.m_BoundsPadding > 0.0:
+			actual_mesh.bounds_padding_ls = brush.m_Desc.m_BoundsPadding * App.METERS_TO_UNITS * brush.pointer_to_local()
+		if brush is HullBrush:
+			actual_hull = (brush as HullBrush).m_LastHull
+		brush.free()
 	_expect(actual_mesh != null, "%s Godot replay returns mesh data" % path)
 	if actual_mesh == null:
 		return
-	_compare_reference_mesh(path, desc, reference, actual_mesh)
+	_compare_reference_mesh(path, desc, reference, actual_mesh, actual_hull)
 
 func _load_stroke_fixture(reference: Dictionary, reference_path: String) -> Dictionary:
 	var source_path := String(reference.get("source_stroke_fixture", ""))
@@ -115,7 +125,7 @@ func _load_stroke_fixture(reference: Dictionary, reference_path: String) -> Dict
 		push_error("OpenBrushReferenceMeshFixtureTest: %s missing source stroke fixture %s" % [reference_path, source_path])
 	return stroke_fixture
 
-func _compare_reference_mesh(path: String, desc: BrushDescriptor, reference: Dictionary, actual_mesh: MeshData) -> void:
+func _compare_reference_mesh(path: String, desc: BrushDescriptor, reference: Dictionary, actual_mesh: MeshData, actual_hull: Dictionary) -> void:
 	var mesh: Dictionary = reference.get("mesh", {})
 	var actual: Dictionary = {
 		"vertices": actual_mesh.vertices,
@@ -141,11 +151,24 @@ func _compare_reference_mesh(path: String, desc: BrushDescriptor, reference: Dic
 	var actual_normals: Array = actual.get("normals", [])
 	var actual_colors: Array = actual.get("colors", [])
 	var actual_tangents: Array = actual.get("tangents", [])
+	var position_tolerance := float(reference.get("position_tolerance", DEFAULT_POSITION_TOLERANCE))
+	var normal_tolerance := float(reference.get("normal_tolerance", DEFAULT_NORMAL_TOLERANCE))
+	var polygon_faces: Dictionary = reference.get("polygon_faces", {})
+	if not polygon_faces.is_empty():
+		_compare_polygon_faces(path, actual_hull, polygon_faces, position_tolerance, normal_tolerance)
+		if is_v2:
+			_compare_bounds(path, actual.get("bounds", {}), mesh.get("bounds", {}), position_tolerance)
+		print("OPEN_BRUSH_REFERENCE_HULL_FACES\tpath=%s\tbrush=%s\texpected_faces=%d\tactual_faces=%d" % [
+			path,
+			desc.m_DurableName,
+			int(polygon_faces.get("face_count", 0)),
+			(actual_hull.get("faces", []) as Array).size(),
+		])
+		return
+
 	_expect(actual_vertices.size() == expected_vertices.size(), "%s vertex count expected %d but got %d" % [path, expected_vertices.size(), actual_vertices.size()])
 	_expect(actual_triangles.size() == expected_triangles.size(), "%s triangle index count expected %d but got %d" % [path, expected_triangles.size(), actual_triangles.size()])
 
-	var position_tolerance := float(reference.get("position_tolerance", DEFAULT_POSITION_TOLERANCE))
-	var normal_tolerance := float(reference.get("normal_tolerance", DEFAULT_NORMAL_TOLERANCE))
 	var color_tolerance := float(reference.get("color_tolerance", DEFAULT_COLOR_TOLERANCE))
 	var uv_tolerance := float(reference.get("uv_tolerance", DEFAULT_UV_TOLERANCE))
 	var tangent_tolerance := float(reference.get("tangent_tolerance", DEFAULT_TANGENT_TOLERANCE))
@@ -567,6 +590,276 @@ func _compare_triangles(path: String, actual: Array[int], expected: Array[int]) 
 		if actual[index] != expected[index]:
 			_expect(false, "%s triangle index %d expected %d but got %d" % [path, index, expected[index], actual[index]])
 			return
+
+func _compare_polygon_faces(
+	path: String,
+	actual_hull: Dictionary,
+	expected_data: Dictionary,
+	position_tolerance: float,
+	normal_tolerance: float
+) -> void:
+	_expect(bool(actual_hull.get("ok", false)), "%s native hull result exists" % path)
+	var point_tolerance := maxf(position_tolerance, float(expected_data.get("point_tolerance", 0.0)))
+	var plane_tolerance := float(expected_data.get("plane_tolerance", point_tolerance))
+	var normal_dot_tolerance := float(expected_data.get("normal_dot_tolerance", 1.0 - normal_tolerance))
+	var actual_faces := _canonical_actual_polygon_faces(actual_hull, plane_tolerance, normal_dot_tolerance)
+	var expected_faces: Array = expected_data.get("faces", [])
+	_compare_polygon_vertex_sets(path, actual_hull, expected_faces, point_tolerance)
+	_expect(actual_faces.size() == expected_faces.size(), "%s polygon face count expected %d but got %d" % [
+		path,
+		expected_faces.size(),
+		actual_faces.size(),
+	])
+
+	var used_actual: Array[bool] = []
+	used_actual.resize(actual_faces.size())
+	used_actual.fill(false)
+	var missing_faces: Array[String] = []
+	for expected_index in range(expected_faces.size()):
+		var expected_face: Dictionary = expected_faces[expected_index]
+		var matched_index := -1
+		for actual_index in range(actual_faces.size()):
+			if used_actual[actual_index]:
+				continue
+			if _polygon_faces_match(
+				actual_faces[actual_index],
+				expected_face,
+				point_tolerance,
+				normal_dot_tolerance):
+				matched_index = actual_index
+				break
+		if matched_index < 0:
+			missing_faces.append(_describe_nearest_polygon_face(expected_index, expected_face, actual_faces, point_tolerance))
+		else:
+			used_actual[matched_index] = true
+	if not missing_faces.is_empty():
+		_expect(false, "%s has %d polygon faces without a native match: %s" % [
+			path,
+			missing_faces.size(),
+			"; ".join(missing_faces.slice(0, mini(3, missing_faces.size()))),
+		])
+	print("OPEN_BRUSH_REFERENCE_HULL_FACE_COUNTS\tpath=%s\texpected=%d\tcanonical_actual=%d\traw_actual=%d\tmissing=%d" % [
+		path,
+		expected_faces.size(),
+		actual_faces.size(),
+		(actual_hull.get("faces", []) as Array).size(),
+		missing_faces.size(),
+	])
+
+func _compare_polygon_vertex_sets(
+	path: String,
+	actual_hull: Dictionary,
+	expected_faces: Array,
+	tolerance: float
+) -> void:
+	var actual_vertices: Array[Vector3] = []
+	for point in actual_hull.get("points", []):
+		actual_vertices.append((point as Vector3) * FixtureAdapterScript.UNIT_SCALE_TO_METERS)
+	var expected_vertices: Array[Vector3] = []
+	for face_value in expected_faces:
+		var face: Dictionary = face_value
+		for vertex_value in face.get("vertices", []):
+			var vertex := _vec3_from_value(vertex_value)
+			if not _contains_near_vertex(expected_vertices, vertex, tolerance):
+				expected_vertices.append(vertex)
+	var missing := 0
+	var maximum_nearest_delta := 0.0
+	for expected_vertex in expected_vertices:
+		var nearest := INF
+		for actual_vertex in actual_vertices:
+			nearest = minf(nearest, expected_vertex.distance_to(actual_vertex))
+		maximum_nearest_delta = maxf(maximum_nearest_delta, nearest)
+		if nearest > tolerance:
+			missing += 1
+	var extra := 0
+	var extra_descriptions: Array[String] = []
+	for actual_vertex in actual_vertices:
+		if not _contains_near_vertex(expected_vertices, actual_vertex, tolerance):
+			extra += 1
+			var nearest := INF
+			for expected_vertex in expected_vertices:
+				nearest = minf(nearest, actual_vertex.distance_to(expected_vertex))
+			var maximum_plane_distance := -INF
+			for face_value in expected_faces:
+				var face: Dictionary = face_value
+				var normal := _vec3_from_value(face.get("normal", [])).normalized()
+				var plane_distance := float(face.get("plane_distance", 0.0))
+				maximum_plane_distance = maxf(maximum_plane_distance, normal.dot(actual_vertex) - plane_distance)
+			extra_descriptions.append("(%.9f, %.9f, %.9f) (nearest expected delta %.9f, maximum expected-plane distance %.9f)" % [
+				actual_vertex.x,
+				actual_vertex.y,
+				actual_vertex.z,
+				nearest,
+				maximum_plane_distance,
+			])
+	print("OPEN_BRUSH_REFERENCE_HULL_POINTS\tpath=%s\texpected=%d\tactual=%d\tmissing=%d\textra=%d\tmax_nearest_delta=%.9f" % [
+		path,
+		expected_vertices.size(),
+		actual_vertices.size(),
+		missing,
+		extra,
+		maximum_nearest_delta,
+	])
+	if not extra_descriptions.is_empty():
+		print("OPEN_BRUSH_REFERENCE_HULL_EXTRA_POINTS\tpath=%s\t%s" % [path, "; ".join(extra_descriptions)])
+
+func _contains_near_vertex(vertices: Array[Vector3], candidate: Vector3, tolerance: float) -> bool:
+	for vertex in vertices:
+		if vertex.distance_to(candidate) <= tolerance:
+			return true
+	return false
+
+func _describe_nearest_polygon_face(
+	expected_index: int,
+	expected_face: Dictionary,
+	actual_faces: Array[Dictionary],
+	tolerance: float
+) -> String:
+	var expected_vertices: Array = expected_face.get("vertices", [])
+	var best_index := -1
+	var best_matches := -1
+	var best_max_nearest := INF
+	var best_normal_dot := -1.0
+	var expected_normal := _vec3_from_value(expected_face.get("normal", [])).normalized()
+	for actual_index in range(actual_faces.size()):
+		var actual_face := actual_faces[actual_index]
+		var actual_vertices: Array = actual_face.get("vertices", [])
+		var matches := 0
+		var max_nearest := 0.0
+		for expected_value in expected_vertices:
+			var expected_vertex := _vec3_from_value(expected_value)
+			var nearest := INF
+			for actual_vertex in actual_vertices:
+				nearest = minf(nearest, expected_vertex.distance_to(actual_vertex))
+			max_nearest = maxf(max_nearest, nearest)
+			if nearest <= tolerance:
+				matches += 1
+		var normal_dot := expected_normal.dot((actual_face.get("normal", Vector3.ZERO) as Vector3).normalized())
+		if matches > best_matches or (matches == best_matches and max_nearest < best_max_nearest):
+			best_index = actual_index
+			best_matches = matches
+			best_max_nearest = max_nearest
+			best_normal_dot = normal_dot
+	return "expected %d (%d vertices), nearest actual %d (%d/%d shared, max delta %.9f, normal dot %.9f)" % [
+		expected_index,
+		expected_vertices.size(),
+		best_index,
+		best_matches,
+		expected_vertices.size(),
+		best_max_nearest,
+		best_normal_dot,
+	]
+
+func _polygon_faces_match(
+	actual_face: Dictionary,
+	expected_face: Dictionary,
+	position_tolerance: float,
+	normal_dot_tolerance: float
+) -> bool:
+	var expected_normal := _vec3_from_value(expected_face.get("normal", []))
+	var actual_normal: Vector3 = actual_face.get("normal", Vector3.ZERO)
+	if actual_normal.normalized().dot(expected_normal.normalized()) < normal_dot_tolerance:
+		return false
+	var actual_vertices: Array = actual_face.get("vertices", [])
+	var expected_vertices: Array = expected_face.get("vertices", [])
+	if actual_vertices.size() != expected_vertices.size():
+		return false
+	var used_vertices: Array[bool] = []
+	used_vertices.resize(actual_vertices.size())
+	used_vertices.fill(false)
+	for expected_value in expected_vertices:
+		var expected_vertex := _vec3_from_value(expected_value)
+		var matched_index := -1
+		for actual_index in range(actual_vertices.size()):
+			if not used_vertices[actual_index] and actual_vertices[actual_index].distance_to(expected_vertex) <= position_tolerance:
+				matched_index = actual_index
+				break
+		if matched_index < 0:
+			return false
+		used_vertices[matched_index] = true
+	return true
+
+func _canonical_actual_polygon_faces(
+	actual_hull: Dictionary,
+	plane_tolerance_meters: float,
+	normal_dot_tolerance: float
+) -> Array[Dictionary]:
+	var points: Array = actual_hull.get("points", [])
+	var source_faces: Array = actual_hull.get("faces", [])
+	var records: Array[Dictionary] = []
+	for face_value in source_faces:
+		var face: Dictionary = face_value
+		var indices: Array[int] = []
+		for index_value in face.get("indices", []):
+			indices.append(int(index_value))
+		if indices.size() < 3 or indices[0] < 0 or indices[0] >= points.size():
+			continue
+		var normal: Vector3 = face.get("normal", Vector3.ZERO)
+		var first_point: Vector3 = points[indices[0]]
+		records.append({
+			"indices": indices,
+			"normal": normal.normalized(),
+			"plane_distance": normal.normalized().dot(first_point) * FixtureAdapterScript.UNIT_SCALE_TO_METERS,
+		})
+
+	var adjacency: Array[Array] = []
+	adjacency.resize(records.size())
+	for index in range(records.size()):
+		adjacency[index] = []
+	for first in range(records.size()):
+		for second in range(first + 1, records.size()):
+			if not _polygon_records_share_edge(records[first], records[second]):
+				continue
+			var first_normal: Vector3 = records[first].normal
+			var second_normal: Vector3 = records[second].normal
+			if first_normal.dot(second_normal) < normal_dot_tolerance:
+				continue
+			if absf(float(records[first].plane_distance) - float(records[second].plane_distance)) > plane_tolerance_meters:
+				continue
+			adjacency[first].append(second)
+			adjacency[second].append(first)
+
+	var result: Array[Dictionary] = []
+	var visited: Array[bool] = []
+	visited.resize(records.size())
+	visited.fill(false)
+	for start in range(records.size()):
+		if visited[start]:
+			continue
+		var pending := [start]
+		var component: Array[int] = []
+		visited[start] = true
+		while not pending.is_empty():
+			var current: int = pending.pop_back()
+			component.append(current)
+			for neighbor in adjacency[current]:
+				if not visited[int(neighbor)]:
+					visited[int(neighbor)] = true
+					pending.append(int(neighbor))
+		var unique_indices := {}
+		var normal_sum := Vector3.ZERO
+		for record_index in component:
+			normal_sum += records[record_index].normal
+			for point_index in records[record_index].indices:
+				unique_indices[int(point_index)] = true
+		var vertices: Array[Vector3] = []
+		for point_index in unique_indices:
+			if int(point_index) >= 0 and int(point_index) < points.size():
+				vertices.append((points[int(point_index)] as Vector3) * FixtureAdapterScript.UNIT_SCALE_TO_METERS)
+		result.append({
+			"normal": normal_sum.normalized(),
+			"vertices": vertices,
+		})
+	return result
+
+func _polygon_records_share_edge(first: Dictionary, second: Dictionary) -> bool:
+	var shared := 0
+	for first_index in first.indices:
+		if int(first_index) in second.indices:
+			shared += 1
+			if shared >= 2:
+				return true
+	return false
 
 func _report_triangle_position_set(
 	path: String,

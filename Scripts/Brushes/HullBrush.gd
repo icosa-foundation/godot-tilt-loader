@@ -27,6 +27,7 @@ var m_KnotConversion := KnotConversion.POINT
 var m_Simplification_PS := 0.0
 var m_SimplifyMode := SimplifyMode.DISABLED
 var m_LastHullInputCount := 0
+var m_LastHull: Dictionary = {}
 var m_AllVertices: Array[Dictionary] = []
 
 func _init() -> void:
@@ -51,6 +52,7 @@ func control_points_changed(knot_index: int) -> void:
 
 func reset_brush_for_preview(local_pointer_xf: TrTransform) -> void:
 	super.reset_brush_for_preview(local_pointer_xf)
+	m_LastHull = {}
 	create_vertices_from_knots(0)
 
 func finalize_batched_brush() -> void:
@@ -137,6 +139,7 @@ func create_vertices_from_knots(knot_index: int) -> void:
 							point = q_theta * point
 
 func on_changed_make_geometry(is_end: bool = false) -> void:
+	m_LastHull = {}
 	if m_knots.size() < 2:
 		return
 	var input: Array[Vector3] = []
@@ -188,6 +191,7 @@ func on_changed_make_geometry(is_end: bool = false) -> void:
 		input_indices = simplified_indices
 
 	var hull := create_hull(input)
+	m_LastHull = hull
 	if bool(hull.ok):
 		if record_interior:
 			record_interior_vertices(input_indices, hull.points)
@@ -221,15 +225,13 @@ func _point_key(point: Vector3) -> String:
 func create_faceted_geometry(knot: Knot, hull: Dictionary) -> void:
 	var points: Array = hull.points
 	for face in hull.faces:
+		var base_vertex := int(m_geometry.m_Vertices.size() / NS)
 		var normal: Vector3 = face.normal
-		var indices: Array = face.indices
-		var num_fan: int = indices.size() - 2
+		for index in face.indices:
+			append_vert(knot, points[int(index)], normal)
+		var num_fan: int = face.indices.size() - 2
 		for fan in range(num_fan):
-			var base_vertex := int(m_geometry.m_Vertices.size() / NS)
-			append_vert(knot, points[int(indices[0])], normal)
-			append_vert(knot, points[int(indices[fan + 1])], normal)
-			append_vert(knot, points[int(indices[fan + 2])], normal)
-			append_tri(knot, base_vertex, base_vertex + 1, base_vertex + 2)
+			append_tri(knot, base_vertex, base_vertex + fan + 1, base_vertex + fan + 2)
 
 func create_smooth_geometry(knot: Knot, hull: Dictionary) -> void:
 	var points: Array = hull.points

@@ -153,6 +153,9 @@ func _normalize_fixture(raw: Dictionary, file_name: String, source_path: String,
 		return {}
 	if not _validate_live_mesh(file_name, live_mesh):
 		return {}
+	var source_polygon_faces: Dictionary = source_stroke.get("polygonFaces", {})
+	if not source_polygon_faces.is_empty() and not _validate_polygon_faces(file_name, source_polygon_faces):
+		return {}
 
 	var durable_name := String(raw.get("durableName", ""))
 	var brush_guid := String(raw.get("brushGuid", ""))
@@ -163,7 +166,7 @@ func _normalize_fixture(raw: Dictionary, file_name: String, source_path: String,
 		_fail("%s stroke brushGuid does not match the fixture brushGuid" % file_name)
 		return {}
 
-	return {
+	var normalized := {
 		"schema": NORMALIZED_SCHEMA,
 		"name": "brush-%s" % durable_name,
 		"brush": durable_name,
@@ -194,6 +197,44 @@ func _normalize_fixture(raw: Dictionary, file_name: String, source_path: String,
 			"bounds": (live_mesh.get("bounds", {}) as Dictionary).duplicate(true),
 		},
 	}
+	if not source_polygon_faces.is_empty():
+		normalized["polygon_faces"] = _normalize_polygon_faces(source_polygon_faces)
+	return normalized
+
+func _normalize_polygon_faces(source: Dictionary) -> Dictionary:
+	var faces: Array = []
+	for face_value in source.get("faces", []):
+		if not face_value is Dictionary:
+			continue
+		var face: Dictionary = face_value
+		var source_normal := _vec3_from_array(face.get("normal", []))
+		var vertices: Array = []
+		for vertex_value in face.get("vertices", []):
+			var source_vertex := _vec3_from_array(vertex_value)
+			vertices.append([
+				source_vertex.x * UNIT_SCALE_TO_METERS,
+				source_vertex.y * UNIT_SCALE_TO_METERS,
+				-source_vertex.z * UNIT_SCALE_TO_METERS,
+			])
+		faces.append({
+			"normal": [source_normal.x, source_normal.y, -source_normal.z],
+			"plane_distance": float(face.get("planeDistance", 0.0)) * UNIT_SCALE_TO_METERS,
+			"vertices": vertices,
+			"source_triangle_count": int(face.get("sourceTriangleCount", 0)),
+		})
+	return {
+		"definition": String(source.get("definition", "")),
+		"point_tolerance": float(source.get("pointTolerance", 0.0)) * UNIT_SCALE_TO_METERS,
+		"plane_tolerance": float(source.get("planeTolerance", 0.0)) * UNIT_SCALE_TO_METERS,
+		"normal_dot_tolerance": float(source.get("normalDotTolerance", 1.0)),
+		"face_count": faces.size(),
+		"faces": faces,
+	}
+
+func _vec3_from_array(value: Variant) -> Vector3:
+	if value is Array and value.size() >= 3:
+		return Vector3(float(value[0]), float(value[1]), float(value[2]))
+	return Vector3.ZERO
 
 func _normalize_stroke_input(input: Dictionary, brush_guid: String) -> Dictionary:
 	var control_points: Array = []
@@ -267,6 +308,30 @@ func _validate_live_mesh(file_name: String, live_mesh: Dictionary) -> bool:
 				vertex_count * item_size,
 			])
 			return false
+	return true
+
+func _validate_polygon_faces(file_name: String, source: Dictionary) -> bool:
+	var faces: Array = source.get("faces", [])
+	if int(source.get("faceCount", -1)) != faces.size():
+		_fail("%s has an inconsistent polygon face count" % file_name)
+		return false
+	if float(source.get("pointTolerance", 0.0)) <= 0.0 or float(source.get("planeTolerance", 0.0)) <= 0.0:
+		_fail("%s has invalid polygon face tolerances" % file_name)
+		return false
+	for face_index in range(faces.size()):
+		if not faces[face_index] is Dictionary:
+			_fail("%s polygon face %d is not an object" % [file_name, face_index])
+			return false
+		var face: Dictionary = faces[face_index]
+		var normal: Array = face.get("normal", [])
+		var vertices: Array = face.get("vertices", [])
+		if normal.size() != 3 or vertices.size() < 3:
+			_fail("%s polygon face %d has invalid normal or vertices" % [file_name, face_index])
+			return false
+		for vertex in vertices:
+			if not vertex is Array or vertex.size() != 3:
+				_fail("%s polygon face %d has an invalid vertex" % [file_name, face_index])
+				return false
 	return true
 
 func _is_identity_matrix(value: Variant) -> bool:

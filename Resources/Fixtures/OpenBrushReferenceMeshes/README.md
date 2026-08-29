@@ -29,6 +29,12 @@ The converter rejects unknown raw schemas, non-identity stroke transforms, and
 inconsistent mesh data. It records the source commit, raw filename, and SHA-256
 digest in every output file.
 
+Hull-brush source fixtures may also contain `polygonFaces`, derived from
+edge-connected coplanar components of the finalized Open Brush live mesh. The
+converter preserves these as normalized `polygon_faces`, applying the same unit
+scale and handedness conversion as mesh positions and normals. Polygon-face
+parity intentionally ignores triangle diagonals and triangle emission order.
+
 ## Run the comparator
 
 ```powershell
