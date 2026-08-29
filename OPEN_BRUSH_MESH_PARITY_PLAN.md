@@ -52,6 +52,17 @@ fixtures pass:
 5. Live, `.tilt` runtime rebuild, and bridge-created strokes share the same
    material resolver and particle-channel rewrite.
 
+Fresh integration evidence from 2026-08-29:
+
+1. The checked-in cafe fixture rebuilt 557 strokes into 198 mesh instances,
+   290,190 vertices, and 162,322 triangles through `runtime_rebuild` mode.
+2. The wide evidence render contained the expected scene-scale structures,
+   lettering, particle effects, and hull masses without an empty or collapsed
+   scene.
+3. This is a scene-level smoke result only. It does not establish brush-level
+   visual parity or replace a focused comparison when a specific material or
+   brush still looks wrong.
+
 ## Working Rules
 
 1. Open Brush source is the authority.
