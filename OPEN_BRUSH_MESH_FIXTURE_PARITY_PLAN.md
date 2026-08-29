@@ -121,6 +121,10 @@ Each commit should remain independently reviewable and should not mix fixture-da
    handedness, position and semantic metric scaling, normals, tangents, indexed
    winding preservation, triangle-soup record preservation, channel alignment,
    and bounds.
+5. Phase 5 has started. All 95 source fixtures convert deterministically into a
+   10.31 MiB normalized corpus. The first complete replay run passes 71 fixtures
+   and reports 24 strict failures. `OPEN_BRUSH_MESH_FIXTURE_FULL_CORPUS_STATUS.md`
+   records the measured coverage and family-level failure classification.
 
 ## Initial Pilot Classification
 

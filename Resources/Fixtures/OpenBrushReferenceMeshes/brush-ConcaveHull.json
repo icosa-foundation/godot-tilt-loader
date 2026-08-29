@@ -1,0 +1,629 @@
+{
+	"brush": "ConcaveHull",
+	"coordinate_boundary": {
+		"reflection_axis": "z",
+		"source": "Unity X-right, Y-up, Z-forward; mesh positions are mesh-local",
+		"target": "Godot X-right, Y-up, Z-back; comparison values are metres",
+		"unit_scale_to_meters": 0.10000000000000001
+	},
+	"material": {
+		"doubleSidedGi": false,
+		"enableInstancing": false,
+		"keywords": [
+			"_EMISSION"
+		],
+		"name": "ConcaveHull (Instance)",
+		"numericProperties": {
+
+		},
+		"renderQueue": 2450.0,
+		"shader": "Brush/DiffuseDoubleSided"
+	},
+	"mesh": {
+		"attributes": {
+			"color": {
+				"componentType": "float32",
+				"data": [],
+				"itemSize": 4.0,
+				"semantic": "Color"
+			},
+			"normal": {
+				"componentType": "float32",
+				"data": [],
+				"itemSize": 3.0,
+				"semantic": "Unspecified"
+			},
+			"position": {
+				"componentType": "float32",
+				"data": [],
+				"itemSize": 3.0,
+				"semantic": "Position"
+			},
+			"tangent": {
+				"componentType": "float32",
+				"data": [],
+				"itemSize": 4.0,
+				"semantic": "Vector"
+			}
+		},
+		"bounds": {
+			"max": [
+				0.0,
+				0.0,
+				0.0
+			],
+			"min": [
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		"index_count": 0,
+		"index_format": "UInt16",
+		"layout": {
+			"fbx_export_normal_as_texcoord1": false,
+			"normal_semantic": "Unspecified",
+			"particle_attributes": false,
+			"use_colors": true,
+			"use_normals": true,
+			"use_tangents": false,
+			"use_vertex_ids": false,
+			"uv0_semantic": "Unspecified",
+			"uv0_size": 0,
+			"uv1_semantic": "Unspecified",
+			"uv1_size": 0,
+			"uv2_semantic": "Unspecified",
+			"uv2_size": 0
+		},
+		"stage": "finalized_live_pre_brush_baker",
+		"sub_mesh_count": 1,
+		"triangles": [],
+		"vertex_count": 0
+	},
+	"name": "brush-ConcaveHull",
+	"polygon_faces": {
+		"definition": "edge-connected coplanar components of the finalized live hull mesh",
+		"face_count": 0,
+		"faces": [],
+		"normal_dot_tolerance": 0.99999899999999997,
+		"plane_tolerance": 0.0000010000000000000002,
+		"point_tolerance": 0.0000010000000000000002
+	},
+	"schema": "open-brush-reference-mesh-v2",
+	"source": {
+		"fixed_shader_time_seconds": 0.5,
+		"open_brush_commit": "56881962ca7ced358407fd62d842649978dbd4a0",
+		"raw_fixture_file": "brush-ConcaveHull.mesh.json",
+		"raw_fixture_sha256": "1ad375ca8a381a6c6e195049d6adf0744965674a739b43e40dc210700e9a3337",
+		"raw_schema_version": 1
+	},
+	"stroke": {
+		"brush_guid": "7ae1f880-a517-44a0-99f9-1cab654498c6",
+		"brush_scale": 1.0,
+		"brush_size": 0.1125,
+		"color": [
+			0.20000000000000001,
+			0.20000000000000001,
+			0.90196080000000001,
+			1.0
+		],
+		"control_points": [
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					-1.25,
+					100.0,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 0
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					-1.2499899999999999,
+					100.000046,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 1
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					-1.2,
+					100.23172,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 2
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					-1.15001,
+					100.46339999999999,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 3
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					-1.1499999999999999,
+					100.463448,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 4
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					-1.05,
+					100.78537,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 5
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					-0.94999999999999996,
+					100.89774300000001,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 6
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					-0.84999999999999998,
+					100.788055,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 7
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					-0.75,
+					100.498726,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 8
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					-0.65000000000000002,
+					100.1129,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 9
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					-0.54999995199999996,
+					99.731063800000001,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 10
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					-0.44999992799999999,
+					99.445014999999998,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 11
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					-0.34999989999999997,
+					99.315730000000002,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 12
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					-0.24999988100000001,
+					99.360720000000001,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 13
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					-0.14999985699999999,
+					99.553160000000005,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 14
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					-0.049999833100000002,
+					99.832350000000005,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 15
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					0.05000019,
+					100.1219,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 16
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					0.15000021499999999,
+					100.35039500000001,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 17
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					0.25000023799999999,
+					100.46899999999999,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 18
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					0.35000026200000001,
+					100.46169999999999,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 19
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					0.45000030000000002,
+					100.346008,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 20
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					0.5500003,
+					100.16484800000001,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 21
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					0.65000033400000001,
+					99.972440000000006,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 22
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					0.75000023800000004,
+					99.818659999999994,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 23
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					0.85000014300000004,
+					99.736090000000004,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 24
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					0.95000004800000004,
+					99.733339999999998,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 25
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					1.05,
+					99.795730000000006,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 26
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					1.1499998600000001,
+					99.892684900000006,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 27
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					1.2499997599999999,
+					99.988945000000001,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 28
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					1.3499996700000001,
+					100.056023,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 29
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					1.4499995699999999,
+					100.080376,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 30
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					1.5499994800000001,
+					100.06604,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 31
+			},
+			{
+				"orientation": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				],
+				"position": [
+					1.6499993799999999,
+					100.031166,
+					4.0
+				],
+				"pressure": 1.0,
+				"timestamp": 32
+			}
+		],
+		"coordinate_space": "unity_open_brush_units",
+		"flags": 0,
+		"local_to_world_matrix": [
+			1.0,
+			0.0,
+			0.0,
+			0.0,
+			0.0,
+			1.0,
+			0.0,
+			0.0,
+			0.0,
+			0.0,
+			1.0,
+			0.0,
+			0.0,
+			0.0,
+			0.0,
+			1.0
+		],
+		"seed": 0
+	}
+}

@@ -1,5 +1,5 @@
 {
-	"brush": "Ink",
+	"brush": "OilPaint",
 	"coordinate_boundary": {
 		"reflection_axis": "z",
 		"source": "Unity X-right, Y-up, Z-forward; mesh positions are mesh-local",
@@ -13,7 +13,7 @@
 			"SELECTION_EDGING",
 			"_EMISSION"
 		],
-		"name": "InkDoubleSided (Instance)",
+		"name": "OilPaintDoubleSided (Instance)",
 		"numericProperties": {
 
 		},
@@ -6213,17 +6213,17 @@
 		],
 		"vertex_count": 360
 	},
-	"name": "brush-Ink",
+	"name": "brush-OilPaint",
 	"schema": "open-brush-reference-mesh-v2",
 	"source": {
 		"fixed_shader_time_seconds": 0.5,
 		"open_brush_commit": "56881962ca7ced358407fd62d842649978dbd4a0",
-		"raw_fixture_file": "brush-Ink.mesh.json",
-		"raw_fixture_sha256": "04a0cf5390445a55f68625ed3ef01d10aa823e56a3df2be5dc03151205949a08",
+		"raw_fixture_file": "brush-OilPaint.mesh.json",
+		"raw_fixture_sha256": "25c1cff91ad51783fb08167492a4cad2c8147122d2ec369dfe031bbbd69a6981",
 		"raw_schema_version": 1
 	},
 	"stroke": {
-		"brush_guid": "f5c336cf-5108-4b40-ade9-c687504385ab",
+		"brush_guid": "f72ec0e7-a844-4e38-82e3-140c44772699",
 		"brush_scale": 1.0,
 		"brush_size": 0.1125,
 		"color": [
