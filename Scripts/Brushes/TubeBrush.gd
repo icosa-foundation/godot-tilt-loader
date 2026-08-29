@@ -377,7 +377,8 @@ func make_cap_verts(
 ) -> void:
 	var diagonal := ((circle_center + up * radius) - tip).length()
 	var u := u0 + u_rate * diagonal
-	var forward_normal := signf((tip - circle_center).dot(forward)) * forward
+	var forward_dot := (tip - circle_center).dot(forward)
+	var forward_normal := (1.0 if forward_dot >= 0.0 else -1.0) * forward
 	for index in range(num_points):
 		var t := (index + 0.5) / float(num_points)
 		var theta := TWO_PI * t

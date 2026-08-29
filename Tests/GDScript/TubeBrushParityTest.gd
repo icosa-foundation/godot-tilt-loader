@@ -8,12 +8,22 @@ func _init() -> void:
 
 func _run() -> void:
 	_check_default_soft_tube()
+	_check_zero_cap_aspect_preserves_cap_normals()
 	_check_hard_edge_radius_uv_layout()
 	_check_distance_uv_atlas_branch()
 	_check_stretch_uvs()
 	_check_shape_modifier_updates_vertices()
 	if _failures == 0:
 		print("GDSCRIPT_PARITY_TUBEBRUSH: all checks passed")
+
+func _check_zero_cap_aspect_preserves_cap_normals() -> void:
+	var brush := _make_tube_brush()
+	brush.m_CapAspect = 0.0
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "tube zero cap update keeps")
+	brush.apply_changes_to_visuals()
+
+	_expect_vec3_close(brush.m_geometry.m_Normals[0], Vector3.RIGHT, "tube zero cap normal follows Unity sign at zero")
+	brush.free()
 
 func _check_default_soft_tube() -> void:
 	var brush := _make_tube_brush()
