@@ -209,13 +209,14 @@ static func in_direction_of(desired: Vector3, value: Vector3) -> Vector3:
 
 static func compute_surface_frame_new(v_preferred_r: Vector3, n_move: Vector3, orientation: Quaternion) -> Dictionary:
 	var basis := Basis(orientation)
-	var n_pointer_f := basis * Vector3.FORWARD * -1.0
+	var n_pointer_f := basis * Vector3.FORWARD
 	var n_pointer_u := basis * Vector3.UP
-	var v_right1 := in_direction_of(v_preferred_r, n_pointer_f.cross(n_move))
-	var v_right2 := in_direction_of(v_preferred_r, n_pointer_u.cross(n_move))
+	# Reflection reverses cross products: R(a x b) = -(R(a) x R(b)).
+	var v_right1 := in_direction_of(v_preferred_r, -n_pointer_f.cross(n_move))
+	var v_right2 := in_direction_of(v_preferred_r, -n_pointer_u.cross(n_move))
 	v_right2 *= abs(n_pointer_f.dot(n_move))
 	var n_right := (v_right1 + v_right2).normalized()
-	var n_normal := n_move.cross(n_right)
+	var n_normal := -n_move.cross(n_right)
 	return {"right": n_right, "normal": n_normal}
 
 static func mirror_quad_face(array: Array, index: int) -> void:

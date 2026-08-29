@@ -68,7 +68,7 @@ func on_changed_frame_knots(knot_index: int) -> void:
 			var facing := move.normalized()
 			var frame := BaseBrushScript.compute_surface_frame_new(Vector3.ZERO, facing, cur.point.m_Orient)
 			cur.nRight = frame.right
-			cur.nSurface = -frame.normal
+			cur.nSurface = frame.normal
 			var num_quads: int = min(int(cur.length / min_distance_to_spawn), get_num_quads_allowed())
 			cur.nTri = num_quads * K_TRIS_IN_SOLID * NS
 			cur.nVert = num_quads * K_VERTS_IN_SOLID * NS

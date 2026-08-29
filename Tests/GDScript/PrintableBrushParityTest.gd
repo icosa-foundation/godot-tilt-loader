@@ -59,9 +59,9 @@ func _check_printable_brush_geometry() -> void:
 	_expect_equal(brush.m_geometry.m_Tris.slice(0, 6), [2, 1, 6, 6, 1, 5], "printable top tris")
 	_expect_equal(brush.m_geometry.m_Tris.slice(24, 30), [2, 0, 1, 1, 0, 3], "printable start cap tris")
 	_expect_vec3_close(brush.m_geometry.m_Vertices[PrintableBrush.BR], Vector3(0.0, 0.4, 0.0), "printable back right envelope")
-	_expect_vec3_close(brush.m_geometry.m_Vertices[PrintableBrush.BT], Vector3(0.0, 0.0, 0.15), "printable back top envelope")
+	_expect_vec3_close(brush.m_geometry.m_Vertices[PrintableBrush.BT], Vector3(0.0, 0.0, -0.15), "printable back top envelope")
 	_expect_vec3_close(brush.m_geometry.m_Vertices[PrintableBrush.FR], Vector3(1.0, 0.5, 0.0), "printable front right")
-	_expect_vec3_close(brush.m_geometry.m_Vertices[PrintableBrush.FT], Vector3(1.0, 0.0, 0.1875), "printable front top")
+	_expect_vec3_close(brush.m_geometry.m_Vertices[PrintableBrush.FT], Vector3(1.0, 0.0, -0.1875), "printable front top")
 	_expect_vec3_close(brush.m_geometry.m_Normals[PrintableBrush.FL], Vector3.DOWN, "printable left normal")
 	_expect_equal(brush.m_geometry.m_Texcoord0.v2[PrintableBrush.FB], Vector2(0.5, 0.5), "printable default uv")
 	_expect_color_close(brush.m_geometry.m_Colors[PrintableBrush.FB], _color32(Color(0.6, 0.4, 0.2, 1.0)), "printable color32 alpha forced opaque")
@@ -154,9 +154,9 @@ func _check_printable_brush_back_invisible_frame() -> void:
 	brush.apply_changes_to_visuals()
 
 	_expect_vec3_close(brush.m_knots[1].nRight, Vector3.LEFT, "printable invisible-back preferred right")
-	_expect_vec3_close(brush.m_knots[1].nSurface, Vector3.FORWARD * -1.0, "printable invisible-back surface")
+	_expect_vec3_close(brush.m_knots[1].nSurface, Vector3.FORWARD, "printable invisible-back surface")
 	_expect_vec3_close(brush.m_geometry.m_Vertices[PrintableBrush.FR], Vector3(-0.5, 1.0, 0.0), "printable invisible-back front right vertex")
-	_expect_vec3_close(brush.m_geometry.m_Vertices[PrintableBrush.FT], Vector3(0.0, 1.0, 0.1875), "printable invisible-back front top vertex")
+	_expect_vec3_close(brush.m_geometry.m_Vertices[PrintableBrush.FT], Vector3(0.0, 1.0, -0.1875), "printable invisible-back front top vertex")
 	_expect_vec3_close(brush.m_geometry.m_Normals[PrintableBrush.FR], Vector3.LEFT, "printable invisible-back right normal")
 	brush.free()
 

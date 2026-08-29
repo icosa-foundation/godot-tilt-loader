@@ -62,10 +62,10 @@ func on_changed_frame_knots(knot_index: int) -> void:
 			should_break = true
 		if not should_break:
 			var move_normal := move / cur.length
-			var preferred_right := (Basis(cur.point.m_Orient) * Vector3.FORWARD * -1.0).cross(move_normal) if m_Desc.m_BackIsInvisible else prev.nRight
+			var preferred_right := -(Basis(cur.point.m_Orient) * Vector3.FORWARD).cross(move_normal) if m_Desc.m_BackIsInvisible else prev.nRight
 			var frame := BaseBrushScript.compute_surface_frame_new(preferred_right, move_normal, cur.point.m_Orient)
 			cur.nRight = frame.right
-			cur.nSurface = -frame.normal
+			cur.nSurface = frame.normal
 
 		if not should_break and prev.has_geometry():
 			var width_height_ratio := cur.length / pressured_size(cur.smoothedPressure)

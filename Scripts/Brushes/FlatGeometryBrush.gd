@@ -107,13 +107,10 @@ func on_changed_frame_knots(knot_index: int) -> void:
 				if move.dot(next.point.m_Pos - cur.point.m_Pos) < 0.0:
 					should_break = true
 
-			var preferred_right := (Basis(cur.point.m_Orient) * Vector3.FORWARD * -1.0).cross(tangent) if m_Desc.m_BackIsInvisible else prev.nRight
+			var preferred_right := -(Basis(cur.point.m_Orient) * Vector3.FORWARD).cross(tangent) if m_Desc.m_BackIsInvisible else prev.nRight
 			var frame := BaseBrushScript.compute_surface_frame_new(preferred_right, tangent, cur.point.m_Orient)
 			cur.nRight = frame.right
-			# Open Brush returns a left-handed frame. Stroke input has already been
-			# reflected into Godot coordinates, so preserve the right vector (and
-			# therefore vertex placement) while converting the surface normal.
-			cur.nSurface = -frame.normal
+			cur.nSurface = frame.normal
 
 		if not should_break and m_bM11Compatibility and prev.has_geometry():
 			var width_height_ratio := cur.length / pressured_size(cur.smoothedPressure)

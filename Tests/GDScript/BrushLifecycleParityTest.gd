@@ -103,7 +103,7 @@ func _check_base_helpers() -> void:
 	_expect_close(frame.right.length(), 1.0, "surface frame right length")
 	_expect_close(frame.normal.length(), 1.0, "surface frame normal length")
 	_expect_vec3_close(frame.right, Vector3.RIGHT, "surface frame right exact")
-	_expect_vec3_close(frame.normal, Vector3.UP, "surface frame normal exact")
+	_expect_vec3_close(frame.normal, Vector3.DOWN, "surface frame normal exact")
 
 	var desc := BrushDescriptor.new()
 	desc.m_DurableName = "BaseLifecycleProbe"
