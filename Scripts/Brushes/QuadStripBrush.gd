@@ -316,7 +316,9 @@ func update_position_impl(position: Vector3, orientation: Quaternion, pressure: 
 	var preferred_right := (Basis(orientation) * Vector3.FORWARD * -1.0).cross(facing) if m_Desc.m_BackIsInvisible else m_LastQuadRight.normalized()
 	var frame := BaseBrushScript.compute_surface_frame_new(preferred_right, facing, orientation)
 	var right: Vector3 = frame.right
-	var surface_normal: Vector3 = frame.normal
+	# Preserve quad placement while converting Open Brush's left-handed Unity
+	# surface frame into the mirrored Godot coordinate system.
+	var surface_normal: Vector3 = -frame.normal
 	if not generate_new_quad:
 		var ratio := move_length / spawn_interval
 		facing = m_LastFacing.slerp(facing, ratio)

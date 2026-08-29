@@ -19,6 +19,7 @@ func _run() -> void:
 	_check_unitized_uv_complete_layout_and_noops()
 	_check_unitized_uv_backfaces()
 	_check_stretch_uv_brush()
+	_check_runtime_surface_frame_handedness()
 	_check_stretch_uv_request_union_and_segment_flush()
 	_check_stretch_uv_atlas_branch()
 	_check_stretch_uv_live_preview_preserves_width_uv()
@@ -266,6 +267,15 @@ func _check_stretch_uv_brush() -> void:
 	_expect_close(brush.m_Geometry.m_UVs[7].x, 1.0, "stretch second end x")
 	_expect_equal(brush.m_QuadLengths.slice(0, 2), [1.0, 1.0], "stretch quad lengths")
 	brush.finalize_solitary_brush()
+	brush.free()
+
+func _check_runtime_surface_frame_handedness() -> void:
+	var brush := _make_quad_brush(QuadStripBrushStretchUV.new(), false)
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT, Quaternion.IDENTITY, 1.0), 1.0), "quad mirrored frame first update keeps")
+	_expect(brush.update_position_ls(TrTransform.trs(Vector3.RIGHT * 2.0, Quaternion.IDENTITY, 1.0), 1.0), "quad mirrored frame second update keeps")
+	brush.apply_changes_to_visuals()
+	_expect_vec3_close(brush.mesh_data.normals[0], Vector3.FORWARD, "quad mirrored frame normal")
+	_expect_close(brush.mesh_data.tangents[0].w, -1.0, "quad mirrored frame tangent handedness")
 	brush.free()
 
 func _check_stretch_uv_request_union_and_segment_flush() -> void:
