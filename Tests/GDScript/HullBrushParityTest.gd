@@ -121,7 +121,7 @@ func _check_hull_brush_faceted_cube_native_polygon_faces() -> void:
 	var knot := GeometryBrush.Knot.new()
 	brush.create_faceted_geometry(knot, hull)
 
-	_expect_equal(knot.nVert, 24, "hull faceted native cube vertex fan count")
+	_expect_equal(knot.nVert, 36, "hull faceted native cube triangle vertex count")
 	_expect_equal(knot.nTri, 12, "hull faceted native cube triangle fan count")
 	_expect_equal(brush.m_geometry.m_Tris.size(), 36, "hull faceted native cube index count")
 	_expect_equal(_unique_normal_count(brush.m_geometry.m_Normals), 6, "hull faceted native cube planar normals")

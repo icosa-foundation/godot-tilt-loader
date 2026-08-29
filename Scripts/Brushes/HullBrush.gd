@@ -221,13 +221,15 @@ func _point_key(point: Vector3) -> String:
 func create_faceted_geometry(knot: Knot, hull: Dictionary) -> void:
 	var points: Array = hull.points
 	for face in hull.faces:
-		var base_vertex := int(m_geometry.m_Vertices.size() / NS)
 		var normal: Vector3 = face.normal
-		for index in face.indices:
-			append_vert(knot, points[int(index)], normal)
-		var num_fan: int = face.indices.size() - 2
+		var indices: Array = face.indices
+		var num_fan: int = indices.size() - 2
 		for fan in range(num_fan):
-			append_tri(knot, base_vertex, base_vertex + fan + 1, base_vertex + fan + 2)
+			var base_vertex := int(m_geometry.m_Vertices.size() / NS)
+			append_vert(knot, points[int(indices[0])], normal)
+			append_vert(knot, points[int(indices[fan + 1])], normal)
+			append_vert(knot, points[int(indices[fan + 2])], normal)
+			append_tri(knot, base_vertex, base_vertex + 1, base_vertex + 2)
 
 func create_smooth_geometry(knot: Knot, hull: Dictionary) -> void:
 	var points: Array = hull.points
