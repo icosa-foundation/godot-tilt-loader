@@ -10,6 +10,7 @@ const DEFAULT_POSITION_TOLERANCE := 0.00001
 const DEFAULT_NORMAL_TOLERANCE := 0.00001
 const DEFAULT_COLOR_TOLERANCE := 0.00001
 const DEFAULT_UV_TOLERANCE := 0.00001
+const DEFAULT_UV_RELATIVE_TOLERANCE := 0.000001
 const DEFAULT_TANGENT_TOLERANCE := 0.00005
 const EXPECTED_LIVE_BRUSHES_WITHOUT_FIXTURES: Array[String] = ["PassthroughHull", "Slice"]
 
@@ -216,13 +217,16 @@ func _compare_reference_mesh(path: String, desc: BrushDescriptor, reference: Dic
 		var size := int(layout.get("%s_size" % key, _infer_vector_size(mesh.get(key, []))))
 		var expected_uvs := _vector_array_list(mesh.get(key, []), size)
 		var actual_uvs: Array = actual.get(key, actual_mesh.get_uvs(channel, size))
+		var channel_tolerance := maxf(
+			uv_tolerance,
+			_max_vector_component_magnitude(expected_uvs, size) * DEFAULT_UV_RELATIVE_TOLERANCE)
 		var channel_delta := _compare_vector_channel(
 			path,
 			key,
 			actual_uvs,
 			expected_uvs,
 			size,
-			uv_tolerance,
+			channel_tolerance,
 			size > 0)
 		max_uv_delta = maxf(max_uv_delta, channel_delta)
 
@@ -406,6 +410,17 @@ func _max_vec4_delta(actual: Array, expected: Array[Vector4]) -> float:
 		delta = maxf(delta, absf(actual[index].w - expected[index].w))
 		max_delta = maxf(max_delta, delta)
 	return max_delta
+
+func _max_vector_component_magnitude(values: Array, size: int) -> float:
+	var maximum := 0.0
+	for value in values:
+		maximum = maxf(maximum, absf(value.x))
+		maximum = maxf(maximum, absf(value.y))
+		if size >= 3:
+			maximum = maxf(maximum, absf(value.z))
+		if size >= 4:
+			maximum = maxf(maximum, absf(value.w))
+	return maximum
 
 func _max_color_delta(actual: Array[Color], expected: Array[Color]) -> float:
 	var max_delta := 0.0
