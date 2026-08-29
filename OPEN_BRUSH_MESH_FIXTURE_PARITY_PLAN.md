@@ -125,8 +125,11 @@ Each commit should remain independently reviewable and should not mix fixture-da
    10.31 MiB normalized corpus. The first complete replay run passed 71 fixtures
    and reported 24 strict failures. The shared spray coordinate correction and
    three geometry-orientation fixes, zero-aspect tube cap correction,
-   hue-shifted backface color correction, and current BubbleWand prefab routing
-   now bring the result to 84 passing fixtures and 11 strict failures.
+   hue-shifted backface color correction, current BubbleWand prefab routing,
+   and explicit empty-output classification now bring the result to 85 passing
+   fixtures and 10 strict failures. Coverage accounting confirms that the 95
+   fixtures cover all but `Slice` and `PassthroughHull` among the 97 live
+   registered brushes.
    `OPEN_BRUSH_MESH_FIXTURE_FULL_CORPUS_STATUS.md` records the measured coverage
    and family-level failure classification.
 

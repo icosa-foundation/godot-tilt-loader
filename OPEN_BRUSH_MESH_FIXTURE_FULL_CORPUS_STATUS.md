@@ -12,20 +12,18 @@
 
 ## Current Full-Corpus Result
 
-1. Passing fixtures: 84.
-2. Failing fixtures: 11.
+1. Passing fixtures: 85.
+2. Failing fixtures: 10.
 3. Every fixture loads, resolves its brush descriptor, replays, and emits a comparison summary.
 4. Failures remain strict test failures; this report classifies them without weakening comparisons or changing runtime behavior.
-5. The initial full-corpus run passed 71 fixtures and failed 24. Runtime and replay corrections have brought thirteen more fixtures into parity.
+5. The initial full-corpus run passed 71 fixtures and failed 24. Runtime and replay corrections have brought fourteen more fixtures into parity.
 
 ## Failure Classification
 
 1. Deferred MIConvexHull/QuickHull boundary classification (5):
    `DiamondHull`, `MatteHull`, `ShinyHull`, `SmoothHull`, and `UnlitHull`.
    Each reproduces the documented 43-versus-44 boundary-vertex result and ten polygon-face mismatches.
-2. Empty source/runtime hull case (1): `ConcaveHull`.
-   The deterministic source stroke produces no Open Brush live mesh, so this needs an explicit empty-fixture classification rather than polygon comparison.
-3. UV precision just beyond the current `0.00001` tolerance (5):
+2. UV precision just beyond the current `0.00001` tolerance (5):
    `Charcoal`, `DuctTape`, `Flat`, `Highlighter`, and `Streamers`.
    Their first reported UV deltas range from approximately `0.00001144` to `0.00002289`.
 
@@ -41,6 +39,8 @@
    Generated HSL backface colors now use Unity-compatible rounded Color32 conversion without changing the general color and alpha paths.
 5. Current prefab routing (1): `BubbleWand`.
    The brush descriptor points to `TubeStretchUV.prefab`, whose script is `TubeBrush.cs`. Removing the durable-name-only `BubbleWandBrush` override restores the fixture's regular tube positions, UVs, tangents, and bounds.
+6. Empty source/runtime output (1): `ConcaveHull`.
+   Both runtimes produce an empty finalized mesh for the deterministic stroke. The comparator now verifies empty geometry and attributes without requiring a successful internal native-hull object. It also accounts for all 97 live brushes and verifies that the 95-fixture corpus omits only `Slice` and `PassthroughHull`.
 
 ## Reproduction
 
@@ -64,7 +64,6 @@ godot --headless --xr-mode off --path . `
 
 ## Next Work
 
-1. Add explicit coverage accounting for the two registered brushes without source fixtures and the empty `ConcaveHull` fixture.
-2. Investigate the five small UV-precision differences without weakening the existing tolerance prematurely.
-3. Keep the five hull-family failures deferred under the existing hull-boundary classification.
-4. Re-run the full corpus after each family-level correction and update these counts.
+1. Investigate the five small UV-precision differences without weakening the existing tolerance prematurely.
+2. Keep the five hull-family failures deferred under the existing hull-boundary classification.
+3. Re-run the full corpus after each family-level correction and update these counts.
