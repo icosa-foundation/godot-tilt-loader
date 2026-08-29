@@ -25,11 +25,14 @@ func _init() -> void:
 
 	var manifest := _load_manifest()
 	_expect(manifest != null, "runtime manifest loads")
+	var previous_deterministic_birth_time := App.force_deterministic_birth_time_for_export
+	App.force_deterministic_birth_time_for_export = true
 	if manifest != null:
 		BrushCatalog.init(manifest)
 		BrushRuntimeRegistryScript.register_supported_brushes(manifest)
 		for path in fixture_paths:
 			_check_reference_fixture(path)
+	App.force_deterministic_birth_time_for_export = previous_deterministic_birth_time
 	quit(1 if _failures > 0 else 0)
 
 func _requires_fixtures() -> bool:
