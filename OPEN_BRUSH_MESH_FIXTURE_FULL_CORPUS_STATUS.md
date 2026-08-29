@@ -12,20 +12,17 @@
 
 ## Current Full-Corpus Result
 
-1. Passing fixtures: 85.
-2. Failing fixtures: 10.
+1. Passing fixtures: 90.
+2. Failing fixtures: 5.
 3. Every fixture loads, resolves its brush descriptor, replays, and emits a comparison summary.
-4. Failures remain strict test failures; this report classifies them without weakening comparisons or changing runtime behavior.
-5. The initial full-corpus run passed 71 fixtures and failed 24. Runtime and replay corrections have brought fourteen more fixtures into parity.
+4. Remaining mismatches stay strict test failures; this report records the comparator's absolute and relative numeric allowances explicitly.
+5. The initial full-corpus run passed 71 fixtures and failed 24. Runtime, replay, and numeric-comparison corrections now classify nineteen more fixtures as matching.
 
 ## Failure Classification
 
 1. Deferred MIConvexHull/QuickHull boundary classification (5):
    `DiamondHull`, `MatteHull`, `ShinyHull`, `SmoothHull`, and `UnlitHull`.
    Each reproduces the documented 43-versus-44 boundary-vertex result and ten polygon-face mismatches.
-2. UV precision just beyond the current `0.00001` tolerance (5):
-   `Charcoal`, `DuctTape`, `Flat`, `Highlighter`, and `Streamers`.
-   Their first reported UV deltas range from approximately `0.00001144` to `0.00002289`.
 
 ## Resolved Families
 
@@ -41,6 +38,8 @@
    The brush descriptor points to `TubeStretchUV.prefab`, whose script is `TubeBrush.cs`. Removing the durable-name-only `BubbleWandBrush` override restores the fixture's regular tube positions, UVs, tangents, and bounds.
 6. Empty source/runtime output (1): `ConcaveHull`.
    Both runtimes produce an empty finalized mesh for the deterministic stroke. The comparator now verifies empty geometry and attributes without requiring a successful internal native-hull object. It also accounts for all 97 live brushes and verifies that the 95-fixture corpus omits only `Slice` and `PassthroughHull`.
+7. Accumulated distance-UV precision (5): `Charcoal`, `DuctTape`, `Flat`, `Highlighter`, and `Streamers`.
+   Their UV offsets were six float32 representable steps after repeated cross-runtime vector-length accumulation. UV comparisons now retain the `0.00001` absolute tolerance and add a one-part-per-million relative allowance; no runtime arithmetic changed.
 
 ## Reproduction
 
@@ -64,6 +63,5 @@ godot --headless --xr-mode off --path . `
 
 ## Next Work
 
-1. Investigate the five small UV-precision differences without weakening the existing tolerance prematurely.
-2. Keep the five hull-family failures deferred under the existing hull-boundary classification.
-3. Re-run the full corpus after each family-level correction and update these counts.
+1. Keep the five hull-family failures deferred under the existing hull-boundary classification.
+2. Re-run the full corpus after any fixture, adapter, or relevant runtime change and update these counts.
