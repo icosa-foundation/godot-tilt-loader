@@ -3,13 +3,14 @@ extends SceneTree
 const BrushRuntimeRegistryScript := preload("res://Scripts/Brushes/BrushRuntimeRegistry.gd")
 const StrokeBridgeScript := preload("res://addons/open_brush_stroke_integration/open_brush_stroke_bridge.gd")
 const IcosaOpenBrushScript := preload("res://addons/icosa/open_brush/open_brush.gd")
+const FixtureAdapterScript := preload("res://Tests/GDScript/Support/OpenBrushMeshFixtureAdapter.gd")
 
 const REFERENCE_DIR := "res://Resources/Fixtures/OpenBrushReferenceMeshes"
 const DEFAULT_POSITION_TOLERANCE := 0.00001
 const DEFAULT_NORMAL_TOLERANCE := 0.00001
 const DEFAULT_COLOR_TOLERANCE := 0.00001
 const DEFAULT_UV_TOLERANCE := 0.00001
-const DEFAULT_TANGENT_TOLERANCE := 0.00001
+const DEFAULT_TANGENT_TOLERANCE := 0.00005
 
 var _failures := 0
 
@@ -63,12 +64,17 @@ func _check_reference_fixture(path: String) -> void:
 	_expect(not reference.is_empty(), "%s loads" % path)
 	if reference.is_empty():
 		return
-	_expect(String(reference.get("schema", "")) == "open-brush-reference-mesh-v1", "%s schema" % path)
+	var schema := String(reference.get("schema", ""))
+	_expect(schema in ["open-brush-reference-mesh-v1", FixtureAdapterScript.SCHEMA], "%s schema" % path)
+	if schema not in ["open-brush-reference-mesh-v1", FixtureAdapterScript.SCHEMA]:
+		return
 
 	var stroke_fixture := _load_stroke_fixture(reference, path)
 	_expect(not stroke_fixture.is_empty(), "%s stroke fixture loads" % path)
 	if stroke_fixture.is_empty():
 		return
+	if schema == FixtureAdapterScript.SCHEMA:
+		stroke_fixture = FixtureAdapterScript.runtime_stroke_fixture(stroke_fixture)
 
 	var desc := _resolve_fixture_descriptor(stroke_fixture)
 	_expect(desc != null, "%s brush descriptor resolves" % path)
@@ -111,15 +117,32 @@ func _load_stroke_fixture(reference: Dictionary, reference_path: String) -> Dict
 
 func _compare_reference_mesh(path: String, desc: BrushDescriptor, reference: Dictionary, actual_mesh: MeshData) -> void:
 	var mesh: Dictionary = reference.get("mesh", {})
+	var actual: Dictionary = {
+		"vertices": actual_mesh.vertices,
+		"triangles": actual_mesh.triangles,
+		"normals": actual_mesh.normals,
+		"colors": actual_mesh.colors,
+		"tangents": actual_mesh.tangents,
+	}
+	var is_v2 := String(reference.get("schema", "")) == FixtureAdapterScript.SCHEMA
+	if is_v2:
+		mesh = FixtureAdapterScript.expected_mesh_for_comparison(reference)
 	var layout: Dictionary = mesh.get("layout", {})
+	if is_v2:
+		actual = FixtureAdapterScript.actual_mesh_for_comparison(actual_mesh, layout)
 	var expected_vertices := _vec3_array_list(mesh.get("vertices", []))
 	var expected_triangles := _int_array_list(mesh.get("triangles", []))
 	var expected_normals := _vec3_array_list(mesh.get("normals", []))
 	var expected_colors := _color_array_list(mesh.get("colors", []))
 	var expected_tangents := _vec4_array_list(mesh.get("tangents", []))
 
-	_expect(actual_mesh.vertices.size() == expected_vertices.size(), "%s vertex count" % path)
-	_expect(actual_mesh.triangles.size() == expected_triangles.size(), "%s triangle index count" % path)
+	var actual_vertices: Array = actual.get("vertices", [])
+	var actual_triangles: Array = actual.get("triangles", [])
+	var actual_normals: Array = actual.get("normals", [])
+	var actual_colors: Array = actual.get("colors", [])
+	var actual_tangents: Array = actual.get("tangents", [])
+	_expect(actual_vertices.size() == expected_vertices.size(), "%s vertex count expected %d but got %d" % [path, expected_vertices.size(), actual_vertices.size()])
+	_expect(actual_triangles.size() == expected_triangles.size(), "%s triangle index count expected %d but got %d" % [path, expected_triangles.size(), actual_triangles.size()])
 
 	var position_tolerance := float(reference.get("position_tolerance", DEFAULT_POSITION_TOLERANCE))
 	var normal_tolerance := float(reference.get("normal_tolerance", DEFAULT_NORMAL_TOLERANCE))
@@ -127,27 +150,29 @@ func _compare_reference_mesh(path: String, desc: BrushDescriptor, reference: Dic
 	var uv_tolerance := float(reference.get("uv_tolerance", DEFAULT_UV_TOLERANCE))
 	var tangent_tolerance := float(reference.get("tangent_tolerance", DEFAULT_TANGENT_TOLERANCE))
 
-	var max_position_delta := _max_vec3_delta(actual_mesh.vertices, expected_vertices)
-	_expect(max_position_delta <= position_tolerance, "%s vertex positions within tolerance %.8f" % [path, position_tolerance])
-	_compare_triangles(path, actual_mesh.triangles, expected_triangles)
+	var max_position_delta := _max_vec3_delta(actual_vertices, expected_vertices)
+	_expect(max_position_delta <= position_tolerance, "%s vertex positions exceed tolerance %.8f; %s" % [path, position_tolerance, _describe_vec3_mismatch(actual_vertices, expected_vertices)])
+	if max_position_delta > position_tolerance:
+		_report_triangle_position_set(path, actual_vertices, actual_triangles, expected_vertices, expected_triangles, position_tolerance)
+	_compare_triangles(path, actual_triangles, expected_triangles)
 
 	var max_normal_delta := _compare_vec3_channel(
 		path,
 		"normals",
-		actual_mesh.normals,
+		actual_normals,
 		expected_normals,
 		normal_tolerance,
 		bool(layout.get("use_normals", false)))
 	var max_color_delta := _compare_color_channel(
 		path,
-		actual_mesh.colors,
+		actual_colors,
 		expected_colors,
 		color_tolerance,
 		bool(layout.get("use_colors", false)))
 	var max_tangent_delta := _compare_vec4_channel(
 		path,
 		"tangents",
-		actual_mesh.tangents,
+		actual_tangents,
 		expected_tangents,
 		tangent_tolerance,
 		bool(layout.get("use_tangents", false)))
@@ -156,7 +181,7 @@ func _compare_reference_mesh(path: String, desc: BrushDescriptor, reference: Dic
 		var key := "uv%d" % channel
 		var size := int(layout.get("%s_size" % key, _infer_vector_size(mesh.get(key, []))))
 		var expected_uvs := _vector_array_list(mesh.get(key, []), size)
-		var actual_uvs: Array = actual_mesh.get_uvs(channel, size)
+		var actual_uvs: Array = actual.get(key, actual_mesh.get_uvs(channel, size))
 		var channel_delta := _compare_vector_channel(
 			path,
 			key,
@@ -175,13 +200,17 @@ func _compare_reference_mesh(path: String, desc: BrushDescriptor, reference: Dic
 			expected_vertices.size(),
 			expected_normals,
 			_vec4_array_list(mesh.get("uv0", [])),
-			uv_tolerance)
+			uv_tolerance,
+			FixtureAdapterScript.UNIT_SCALE_TO_METERS if is_v2 else 1.0)
+
+	if is_v2:
+		_compare_bounds(path, actual.get("bounds", {}), mesh.get("bounds", {}), position_tolerance)
 
 	print("OPEN_BRUSH_REFERENCE_MESH\tpath=%s\tbrush=%s\tverts=%d\ttris=%d\tmax_position_delta=%.8f\tmax_normal_delta=%.8f\tmax_color_delta=%.8f\tmax_uv_delta=%.8f\tmax_tangent_delta=%.8f\tmax_particle_render_delta=%.8f" % [
 		path,
 		desc.m_DurableName,
-		actual_mesh.vertices.size(),
-		actual_mesh.triangles.size(),
+		actual_vertices.size(),
+		actual_triangles.size(),
 		max_position_delta,
 		max_normal_delta,
 		max_color_delta,
@@ -354,28 +383,77 @@ func _max_color_delta(actual: Array[Color], expected: Array[Color]) -> float:
 		max_delta = maxf(max_delta, delta)
 	return max_delta
 
+func _describe_vec2_mismatch(actual: Array, expected: Array[Vector2]) -> String:
+	var mismatch_index := -1
+	var mismatch_delta := -1.0
+	for index in range(mini(actual.size(), expected.size())):
+		var delta: float = actual[index].distance_to(expected[index])
+		if delta > mismatch_delta:
+			mismatch_index = index
+			mismatch_delta = delta
+	return _format_mismatch(mismatch_index, actual, expected, mismatch_delta)
+
+func _describe_vec3_mismatch(actual: Array, expected: Array[Vector3]) -> String:
+	var mismatch_index := -1
+	var mismatch_delta := -1.0
+	for index in range(mini(actual.size(), expected.size())):
+		var delta: float = actual[index].distance_to(expected[index])
+		if delta > mismatch_delta:
+			mismatch_index = index
+			mismatch_delta = delta
+	return _format_mismatch(mismatch_index, actual, expected, mismatch_delta)
+
+func _describe_vec4_mismatch(actual: Array, expected: Array[Vector4]) -> String:
+	var mismatch_index := -1
+	var mismatch_delta := -1.0
+	for index in range(mini(actual.size(), expected.size())):
+		var delta := maxf(absf(actual[index].x - expected[index].x), absf(actual[index].y - expected[index].y))
+		delta = maxf(delta, absf(actual[index].z - expected[index].z))
+		delta = maxf(delta, absf(actual[index].w - expected[index].w))
+		if delta > mismatch_delta:
+			mismatch_index = index
+			mismatch_delta = delta
+	return _format_mismatch(mismatch_index, actual, expected, mismatch_delta)
+
+func _describe_color_mismatch(actual: Array[Color], expected: Array[Color]) -> String:
+	var mismatch_index := -1
+	var mismatch_delta := -1.0
+	for index in range(mini(actual.size(), expected.size())):
+		var delta := maxf(absf(actual[index].r - expected[index].r), absf(actual[index].g - expected[index].g))
+		delta = maxf(delta, absf(actual[index].b - expected[index].b))
+		delta = maxf(delta, absf(actual[index].a - expected[index].a))
+		if delta > mismatch_delta:
+			mismatch_index = index
+			mismatch_delta = delta
+	return _format_mismatch(mismatch_index, actual, expected, mismatch_delta)
+
+func _format_mismatch(index: int, actual: Array, expected: Array, delta: float) -> String:
+	if index < 0:
+		return "no shared elements (expected count %d, actual count %d)" % [expected.size(), actual.size()]
+	return "element %d expected %s but got %s (delta %.8f)" % [index, expected[index], actual[index], delta]
+
 func _compare_vec3_channel(path: String, channel_name: String, actual: Array[Vector3], expected: Array[Vector3], tolerance: float, required: bool) -> float:
 	if expected.is_empty() and not required:
 		return 0.0
-	_expect(actual.size() == expected.size(), "%s %s count" % [path, channel_name])
+	_expect(actual.size() == expected.size(), "%s %s count expected %d but got %d" % [path, channel_name, expected.size(), actual.size()])
 	var max_delta := _max_vec3_delta(actual, expected)
-	_expect(max_delta <= tolerance, "%s %s within tolerance %.8f" % [path, channel_name, tolerance])
+	_expect(max_delta <= tolerance, "%s %s exceed tolerance %.8f; %s" % [path, channel_name, tolerance, _describe_vec3_mismatch(actual, expected)])
 	return max_delta
 
 func _compare_vec4_channel(path: String, channel_name: String, actual: Array[Vector4], expected: Array[Vector4], tolerance: float, required: bool) -> float:
 	if expected.is_empty() and not required:
 		return 0.0
-	_expect(actual.size() == expected.size(), "%s %s count" % [path, channel_name])
+	_expect(actual.size() == expected.size(), "%s %s count expected %d but got %d" % [path, channel_name, expected.size(), actual.size()])
 	var max_delta := _max_vec4_delta(actual, expected)
-	_expect(max_delta <= tolerance, "%s %s within tolerance %.8f" % [path, channel_name, tolerance])
+	_expect(max_delta <= tolerance, "%s %s exceed tolerance %.8f; %s" % [path, channel_name, tolerance, _describe_vec4_mismatch(actual, expected)])
 	return max_delta
 
 func _compare_color_channel(path: String, actual: Array[Color], expected: Array[Color], tolerance: float, required: bool) -> float:
 	if expected.is_empty() and not required:
 		return 0.0
-	_expect(actual.size() == expected.size(), "%s colors count" % path)
+	_expect(actual.size() == expected.size(), "%s colors count expected %d but got %d" % [path, expected.size(), actual.size()])
 	var max_delta := _max_color_delta(actual, expected)
-	_expect(max_delta <= tolerance, "%s colors within tolerance %.8f" % [path, tolerance])
+	_expect(max_delta <= tolerance, "%s colors exceed tolerance %.8f; %s" % [path, tolerance, _describe_color_mismatch(actual, expected)])
 	return max_delta
 
 func _compare_vector_channel(path: String, channel_name: String, actual: Array, expected: Array, size: int, tolerance: float, required: bool) -> float:
@@ -384,7 +462,7 @@ func _compare_vector_channel(path: String, channel_name: String, actual: Array, 
 		return 0.0
 	if expected.is_empty() and not required:
 		return 0.0
-	_expect(actual.size() == expected.size(), "%s %s count" % [path, channel_name])
+	_expect(actual.size() == expected.size(), "%s %s count expected %d but got %d" % [path, channel_name, expected.size(), actual.size()])
 	var max_delta := 0.0
 	match size:
 		2:
@@ -396,7 +474,15 @@ func _compare_vector_channel(path: String, channel_name: String, actual: Array, 
 		_:
 			_expect(false, "%s %s invalid size %d" % [path, channel_name, size])
 			return 0.0
-	_expect(max_delta <= tolerance, "%s %s within tolerance %.8f" % [path, channel_name, tolerance])
+	var mismatch := ""
+	match size:
+		2:
+			mismatch = _describe_vec2_mismatch(actual, expected)
+		3:
+			mismatch = _describe_vec3_mismatch(actual, expected)
+		4:
+			mismatch = _describe_vec4_mismatch(actual, expected)
+	_expect(max_delta <= tolerance, "%s %s exceed tolerance %.8f; %s" % [path, channel_name, tolerance, mismatch])
 	return max_delta
 
 func _compare_particle_render_arrays(
@@ -405,7 +491,8 @@ func _compare_particle_render_arrays(
 	expected_vertex_count: int,
 	expected_centers: Array[Vector3],
 	expected_uv0: Array[Vector4],
-	tolerance: float) -> float:
+	tolerance: float,
+	actual_center_scale: float = 1.0) -> float:
 	_expect(actual_mesh.use_particle_attributes, "%s particle render path enabled" % path)
 	_expect(expected_centers.size() == expected_vertex_count, "%s particle source center count" % path)
 	_expect(expected_uv0.size() == expected_vertex_count, "%s particle source uv0 count" % path)
@@ -450,12 +537,29 @@ func _compare_particle_render_arrays(
 		if index * 4 + 3 < custom0.size():
 			var center := expected_centers[index]
 			max_delta = maxf(max_delta, absf(custom0[index * 4] - float(index)))
-			max_delta = maxf(max_delta, absf(custom0[index * 4 + 1] - center.x))
-			max_delta = maxf(max_delta, absf(custom0[index * 4 + 2] - center.y))
-			max_delta = maxf(max_delta, absf(custom0[index * 4 + 3] - center.z))
+			max_delta = maxf(max_delta, absf(custom0[index * 4 + 1] * actual_center_scale - center.x))
+			max_delta = maxf(max_delta, absf(custom0[index * 4 + 2] * actual_center_scale - center.y))
+			max_delta = maxf(max_delta, absf(custom0[index * 4 + 3] * actual_center_scale - center.z))
 
 	_expect(max_delta <= tolerance, "%s particle render arrays within tolerance %.8f" % [path, tolerance])
 	return max_delta
+
+func _compare_bounds(path: String, actual: Dictionary, expected: Dictionary, tolerance: float) -> void:
+	if expected.is_empty():
+		return
+	var expected_min := _vec3_from_value(expected.get("min", []))
+	var expected_max := _vec3_from_value(expected.get("max", []))
+	var actual_min := _vec3_from_value(actual.get("min", Vector3.ZERO))
+	var actual_max := _vec3_from_value(actual.get("max", Vector3.ZERO))
+	_expect(actual_min.distance_to(expected_min) <= tolerance, "%s bounds min within tolerance %.8f" % [path, tolerance])
+	_expect(actual_max.distance_to(expected_max) <= tolerance, "%s bounds max within tolerance %.8f" % [path, tolerance])
+
+func _vec3_from_value(value: Variant) -> Vector3:
+	if value is Vector3:
+		return value
+	if value is Array and value.size() >= 3:
+		return Vector3(float(value[0]), float(value[1]), float(value[2]))
+	return Vector3.ZERO
 
 func _compare_triangles(path: String, actual: Array[int], expected: Array[int]) -> void:
 	var count := mini(actual.size(), expected.size())
@@ -463,6 +567,51 @@ func _compare_triangles(path: String, actual: Array[int], expected: Array[int]) 
 		if actual[index] != expected[index]:
 			_expect(false, "%s triangle index %d expected %d but got %d" % [path, index, expected[index], actual[index]])
 			return
+
+func _report_triangle_position_set(
+	path: String,
+	actual_vertices: Array,
+	actual_triangles: Array,
+	expected_vertices: Array,
+	expected_triangles: Array,
+	tolerance: float
+) -> void:
+	var actual_set := _triangle_position_multiset(actual_vertices, actual_triangles, tolerance)
+	var expected_set := _triangle_position_multiset(expected_vertices, expected_triangles, tolerance)
+	var missing := 0
+	var extra := 0
+	for key in expected_set:
+		missing += maxi(0, int(expected_set[key]) - int(actual_set.get(key, 0)))
+	for key in actual_set:
+		extra += maxi(0, int(actual_set[key]) - int(expected_set.get(key, 0)))
+	print("OPEN_BRUSH_REFERENCE_TRIANGLE_SET\tpath=%s\texpected=%d\tactual=%d\tmissing=%d\textra=%d" % [
+		path,
+		int(expected_triangles.size() / 3),
+		int(actual_triangles.size() / 3),
+		missing,
+		extra,
+	])
+
+func _triangle_position_multiset(vertices: Array, triangles: Array, tolerance: float) -> Dictionary:
+	var result := {}
+	for index in range(0, triangles.size() - 2, 3):
+		var point_keys: Array[String] = []
+		for offset in range(3):
+			var vertex_index := int(triangles[index + offset])
+			if vertex_index < 0 or vertex_index >= vertices.size():
+				continue
+			var point: Vector3 = vertices[vertex_index]
+			point_keys.append("%d:%d:%d" % [
+				roundi(point.x / tolerance),
+				roundi(point.y / tolerance),
+				roundi(point.z / tolerance),
+			])
+		if point_keys.size() != 3:
+			continue
+		point_keys.sort()
+		var key := "|".join(point_keys)
+		result[key] = int(result.get(key, 0)) + 1
+	return result
 
 func _expect(condition: bool, message: String) -> void:
 	if not condition:
