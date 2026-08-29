@@ -51,6 +51,7 @@ func _check_single_segment_topology() -> void:
 	_expect_equal(brush.m_geometry.m_Tris.slice(126, 132), [21, 20, 22, 22, 20, 23], "square3d end cap tris")
 	_expect_color_close(brush.m_geometry.m_Colors[0], _color32(Color(0.1, 0.8, 0.35, 1.0)), "square3d color32 color")
 	_expect(brush.m_geometry.m_Vertices[0].x < 0.0, "square3d start cap offset backward")
+	_expect(brush.m_geometry.m_Vertices[0].z < 0.0, "square3d reflected indicator forward sets thickness direction")
 	_expect(brush.m_geometry.m_Vertices[20].x > 1.0, "square3d end cap offset forward")
 	brush.finalize_solitary_brush()
 	_expect_equal(brush.mesh_data.vertices.size(), 24, "square3d finalized vertex count")

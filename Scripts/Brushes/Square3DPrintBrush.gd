@@ -32,7 +32,7 @@ class GeometryBasis:
 		nStrokeTangent = manually_set_stroke_tangent if manually_set_stroke_tangent != null else Basis(knot.qFrame) * Vector3.BACK
 		var orientation_basis := Basis(knot.point.m_Orient)
 		var indicator_plane_tangent_right := orientation_basis * Vector3.RIGHT
-		var indicator_plane_tangent_forward := orientation_basis * Vector3.BACK
+		var indicator_plane_tangent_forward := orientation_basis * Vector3.FORWARD
 		var indicator_plane_normal := orientation_basis * Vector3.UP
 		strokeInlineWithPlaneNormal = nStrokeTangent.dot(indicator_plane_normal) > 0.0
 		if strokeInlineWithPlaneNormal:
