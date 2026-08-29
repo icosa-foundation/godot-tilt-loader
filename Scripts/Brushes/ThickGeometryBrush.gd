@@ -79,7 +79,7 @@ func on_changed_frame_knots(knot_index: int) -> void:
 			var preferred_right := (Basis(cur.point.m_Orient) * Vector3.FORWARD * -1.0).cross(move_normal) if m_Desc.m_BackIsInvisible else prev.nRight
 			var frame := BaseBrushScript.compute_surface_frame_new(preferred_right, move_normal, cur.point.m_Orient)
 			cur.nRight = frame.right
-			cur.nSurface = frame.normal
+			cur.nSurface = -frame.normal
 
 		if not should_break and prev.has_geometry():
 			var width_height_ratio := cur.length / pressured_size(cur.smoothedPressure)
@@ -260,18 +260,18 @@ func on_changed_tangents(knot_index: int) -> void:
 			var st := BaseBrushScript.compute_st(m_geometry.m_Vertices, m_geometry.m_Texcoord0.v2, cur.iVert, BRT, BMT, FMT)
 			var s: Vector3 = st.s
 			if not prev.has_geometry():
-				set_tangent(cur.iVert, BLT, s)
-				set_tangent(cur.iVert, BLB, s)
-				set_tangent(cur.iVert, BRT, s)
-				set_tangent(cur.iVert, BRB, s)
-				set_tangent(cur.iVert, BMT, s)
-				set_tangent(cur.iVert, BMB, s)
-			set_tangent(cur.iVert, FLT, s)
-			set_tangent(cur.iVert, FLB, s)
-			set_tangent(cur.iVert, FRT, s)
-			set_tangent(cur.iVert, FRB, s)
-			set_tangent(cur.iVert, FMT, s)
-			set_tangent(cur.iVert, FMB, s)
+				set_tangent(cur.iVert, BLT, s, -1.0)
+				set_tangent(cur.iVert, BLB, s, -1.0)
+				set_tangent(cur.iVert, BRT, s, -1.0)
+				set_tangent(cur.iVert, BRB, s, -1.0)
+				set_tangent(cur.iVert, BMT, s, -1.0)
+				set_tangent(cur.iVert, BMB, s, -1.0)
+			set_tangent(cur.iVert, FLT, s, -1.0)
+			set_tangent(cur.iVert, FLB, s, -1.0)
+			set_tangent(cur.iVert, FRT, s, -1.0)
+			set_tangent(cur.iVert, FRB, s, -1.0)
+			set_tangent(cur.iVert, FMT, s, -1.0)
+			set_tangent(cur.iVert, FMB, s, -1.0)
 		prev = cur
 
 func is_penultimate(knot_index: int) -> bool:
