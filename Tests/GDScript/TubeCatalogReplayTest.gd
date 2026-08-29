@@ -95,21 +95,15 @@ func _check_replay(desc: BrushDescriptor, prefab: String) -> void:
 	_expect(mesh_data.triangles.size() > 0, "%s replay produces triangles" % desc.m_DurableName)
 	_expect_equal(mesh_data.normals.size(), vertex_count, "%s normal count" % desc.m_DurableName)
 	_expect_equal(mesh_data.colors.size(), vertex_count, "%s color count" % desc.m_DurableName)
-	if desc.m_DurableName == "BubbleWand":
-		_expect_equal(runtime_class, "BubbleWandBrush", "%s runtime class" % desc.m_DurableName)
-		_expect_equal(mesh_data.uv0_v3.size(), vertex_count, "%s BubbleWand uv0 Vector3 count" % desc.m_DurableName)
-		_expect_equal(mesh_data.uv1_v4.size(), vertex_count, "%s BubbleWand uv1 Vector4 count" % desc.m_DurableName)
-		_expect_equal(mesh_data.tangents.size(), 0, "%s BubbleWand tangent count" % desc.m_DurableName)
+	_expect_equal(runtime_class, "TubeBrush", "%s runtime class" % desc.m_DurableName)
+	if desc.m_TubeStoreRadiusInTexcoord0Z:
+		_expect_equal(mesh_data.uv0_v3.size(), vertex_count, "%s radius uv0 Vector3 count" % desc.m_DurableName)
+		_expect_equal(mesh_data.uv0_v2.size(), 0, "%s radius uv0 Vector2 count" % desc.m_DurableName)
 	else:
-		_expect_equal(runtime_class, "TubeBrush", "%s runtime class" % desc.m_DurableName)
-		if desc.m_TubeStoreRadiusInTexcoord0Z:
-			_expect_equal(mesh_data.uv0_v3.size(), vertex_count, "%s radius uv0 Vector3 count" % desc.m_DurableName)
-			_expect_equal(mesh_data.uv0_v2.size(), 0, "%s radius uv0 Vector2 count" % desc.m_DurableName)
-		else:
-			_expect_equal(mesh_data.uv0_v2.size(), vertex_count, "%s uv0 Vector2 count" % desc.m_DurableName)
-			_expect_equal(mesh_data.uv0_v3.size(), 0, "%s uv0 Vector3 count" % desc.m_DurableName)
-		_expect_equal(mesh_data.uv1_v4.size(), 0, "%s TubeBrush uv1 Vector4 count" % desc.m_DurableName)
-		_expect_equal(mesh_data.tangents.size(), vertex_count, "%s tangent count" % desc.m_DurableName)
+		_expect_equal(mesh_data.uv0_v2.size(), vertex_count, "%s uv0 Vector2 count" % desc.m_DurableName)
+		_expect_equal(mesh_data.uv0_v3.size(), 0, "%s uv0 Vector3 count" % desc.m_DurableName)
+	_expect_equal(mesh_data.uv1_v4.size(), 0, "%s TubeBrush uv1 Vector4 count" % desc.m_DurableName)
+	_expect_equal(mesh_data.tangents.size(), vertex_count, "%s tangent count" % desc.m_DurableName)
 
 func _sample_points() -> Array[Dictionary]:
 	var output: Array[Dictionary] = []

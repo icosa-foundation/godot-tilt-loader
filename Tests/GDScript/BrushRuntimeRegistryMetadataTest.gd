@@ -255,7 +255,7 @@ func _expected_runtime_class_name(desc: BrushDescriptor) -> String:
 		"ThickDistance":
 			return "ThickGeometryBrush"
 		"TubeDistanceUV", "TubeDistanceUVSin", "TubeStretchUV", "Tube_Petal", "Tube_Rain", "Tube_Sparks", "Tube_Spikes", "Tube_Tapered", "TubeBrush_Comet", "Lofted", "LoftedHueShift":
-			return "BubbleWandBrush" if desc.m_DurableName == "BubbleWand" else "TubeBrush"
+			return "TubeBrush"
 		_:
 			return "<unknown>"
 

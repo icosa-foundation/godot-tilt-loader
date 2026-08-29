@@ -127,7 +127,7 @@ static func _create_brush(prefab: String, fields: Dictionary, durable_name: Stri
 		"ThickDistance":
 			brush = ThickGeometryBrush.new()
 		"TubeDistanceUV", "TubeDistanceUVSin", "TubeStretchUV", "Tube_Petal", "Tube_Rain", "Tube_Sparks", "Tube_Spikes", "Tube_Tapered", "TubeBrush_Comet", "Lofted", "LoftedHueShift":
-			brush = BubbleWandBrush.new() if durable_name == "BubbleWand" else TubeBrush.new()
+			brush = TubeBrush.new()
 		_:
 			return null
 	if brush != null:
