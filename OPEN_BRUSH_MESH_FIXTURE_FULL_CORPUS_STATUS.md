@@ -12,11 +12,11 @@
 
 ## Current Full-Corpus Result
 
-1. Passing fixtures: 78.
-2. Failing fixtures: 17.
+1. Passing fixtures: 81.
+2. Failing fixtures: 14.
 3. Every fixture loads, resolves its brush descriptor, replays, and emits a comparison summary.
 4. Failures remain strict test failures; this report classifies them without weakening comparisons or changing runtime behavior.
-5. The initial full-corpus run passed 71 fixtures and failed 24. Correcting the shared spray coordinate conversion brought seven more fixtures into parity.
+5. The initial full-corpus run passed 71 fixtures and failed 24. Correcting the shared spray coordinate conversion and three geometry-orientation ports brought ten more fixtures into parity.
 
 ## Failure Classification
 
@@ -28,20 +28,19 @@
 3. UV precision just beyond the current `0.00001` tolerance (5):
    `Charcoal`, `DuctTape`, `Flat`, `Highlighter`, and `Streamers`.
    Their first reported UV deltas range from approximately `0.00001144` to `0.00002289`.
-4. Geometry orientation or generator-specific displacement (3):
-   `3D Printing Brush`, `SquarePaper`, and `ThickGeometry`.
-   These have matching element counts but material position/topology signatures differ.
-5. Shaped-tube configuration/attributes (1): `BubbleWand`.
+4. Shaped-tube configuration/attributes (1): `BubbleWand`.
    Positions, tangents, UVs, and bounds differ while element counts match.
-6. Missing or zeroed surface data (1): `Muscle`.
+5. Missing or zeroed surface data (1): `Muscle`.
    The first reported mismatch is a zero actual normal where Open Brush emits a unit normal.
-7. Color generation (1): `WetPaint`.
+6. Color generation (1): `WetPaint`.
    The first color delta is `0.00392157`, equivalent to one 8-bit color step.
 
 ## Resolved Families
 
 1. Shared spray coordinate conversion (7): `CoarseBristles`, `DanceFloor`, `DotMarker`, `HyperGrid`, `Leaves2`, `Splatter`, and `WaveformParticles`.
    The runtime now converts surface normals, tangent handedness, and random position offsets at the Unity-to-Godot boundary while retaining the source rotation axis. Reference replay also uses deterministic export birth times. All seven now match within tolerance.
+2. Geometry orientation (3): `3D Printing Brush`, `SquarePaper`, and `ThickGeometry`.
+   The square and thick generators now convert the surface frame and tangent handedness consistently with other reflected geometry brushes. The 3D-print generator now uses reflected Unity forward for its indicator plane. All three now match within tolerance.
 
 ## Reproduction
 
@@ -66,6 +65,6 @@ godot --headless --xr-mode off --path . `
 ## Next Work
 
 1. Add explicit coverage accounting for the two registered brushes without source fixtures and the empty `ConcaveHull` fixture.
-2. Investigate failure families rather than individual durable names, starting with the three remaining geometry-orientation cases.
+2. Investigate the remaining generator-specific failures, starting with `Muscle` because it shares the otherwise passing tube generator.
 3. Keep the five hull-family failures deferred under the existing hull-boundary classification.
 4. Re-run the full corpus after each family-level correction and update these counts.

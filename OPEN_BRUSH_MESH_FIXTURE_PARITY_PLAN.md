@@ -123,8 +123,9 @@ Each commit should remain independently reviewable and should not mix fixture-da
    and bounds.
 5. Phase 5 has started. All 95 source fixtures convert deterministically into a
    10.31 MiB normalized corpus. The first complete replay run passed 71 fixtures
-   and reported 24 strict failures. The shared spray coordinate correction now
-   brings the result to 78 passing fixtures and 17 strict failures.
+   and reported 24 strict failures. The shared spray coordinate correction and
+   three geometry-orientation fixes now bring the result to 81 passing fixtures
+   and 14 strict failures.
    `OPEN_BRUSH_MESH_FIXTURE_FULL_CORPUS_STATUS.md` records the measured coverage
    and family-level failure classification.
 
