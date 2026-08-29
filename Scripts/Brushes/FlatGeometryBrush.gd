@@ -110,7 +110,10 @@ func on_changed_frame_knots(knot_index: int) -> void:
 			var preferred_right := (Basis(cur.point.m_Orient) * Vector3.FORWARD * -1.0).cross(tangent) if m_Desc.m_BackIsInvisible else prev.nRight
 			var frame := BaseBrushScript.compute_surface_frame_new(preferred_right, tangent, cur.point.m_Orient)
 			cur.nRight = frame.right
-			cur.nSurface = frame.normal
+			# Open Brush returns a left-handed frame. Stroke input has already been
+			# reflected into Godot coordinates, so preserve the right vector (and
+			# therefore vertex placement) while converting the surface normal.
+			cur.nSurface = -frame.normal
 
 		if not should_break and m_bM11Compatibility and prev.has_geometry():
 			var width_height_ratio := cur.length / pressured_size(cur.smoothedPressure)
@@ -292,8 +295,8 @@ func on_changed_tangents(knot_index: int) -> void:
 			var s0: Vector3 = st0.s
 			var s1: Vector3 = st1.s
 			if not prev.has_geometry():
-				set_tangent(cur.iVert, BL, s0)
-				set_tangent(cur.iVert, BR, s0 + s1)
-			set_tangent(cur.iVert, FL, s0 + s1)
-			set_tangent(cur.iVert, FR, s1)
+				set_tangent(cur.iVert, BL, s0, -1.0)
+				set_tangent(cur.iVert, BR, s0 + s1, -1.0)
+			set_tangent(cur.iVert, FL, s0 + s1, -1.0)
+			set_tangent(cur.iVert, FR, s1, -1.0)
 		prev = cur
