@@ -10,12 +10,13 @@
 6. Full deterministic converter check completes in approximately one second.
 7. Full Godot replay comparison completes in approximately three seconds on the measured Windows development machine.
 
-## First Full-Corpus Result
+## Current Full-Corpus Result
 
-1. Passing fixtures: 71.
-2. Failing fixtures: 24.
+1. Passing fixtures: 78.
+2. Failing fixtures: 17.
 3. Every fixture loads, resolves its brush descriptor, replays, and emits a comparison summary.
 4. Failures remain strict test failures; this report classifies them without weakening comparisons or changing runtime behavior.
+5. The initial full-corpus run passed 71 fixtures and failed 24. Correcting the shared spray coordinate conversion brought seven more fixtures into parity.
 
 ## Failure Classification
 
@@ -27,18 +28,20 @@
 3. UV precision just beyond the current `0.00001` tolerance (5):
    `Charcoal`, `DuctTape`, `Flat`, `Highlighter`, and `Streamers`.
    Their first reported UV deltas range from approximately `0.00001144` to `0.00002289`.
-4. Surface-frame or particle handedness (4):
-   `DanceFloor`, `DotMarker`, `HyperGrid`, and `WaveformParticles`.
-   The first reported mismatch is a reflected normal; some also differ in tangent handedness or shader-facing attributes.
-5. Geometry orientation or generator-specific displacement (6):
-   `3D Printing Brush`, `CoarseBristles`, `Leaves2`, `Splatter`, `SquarePaper`, and `ThickGeometry`.
+4. Geometry orientation or generator-specific displacement (3):
+   `3D Printing Brush`, `SquarePaper`, and `ThickGeometry`.
    These have matching element counts but material position/topology signatures differ.
-6. Shaped-tube configuration/attributes (1): `BubbleWand`.
+5. Shaped-tube configuration/attributes (1): `BubbleWand`.
    Positions, tangents, UVs, and bounds differ while element counts match.
-7. Missing or zeroed surface data (1): `Muscle`.
+6. Missing or zeroed surface data (1): `Muscle`.
    The first reported mismatch is a zero actual normal where Open Brush emits a unit normal.
-8. Color generation (1): `WetPaint`.
+7. Color generation (1): `WetPaint`.
    The first color delta is `0.00392157`, equivalent to one 8-bit color step.
+
+## Resolved Families
+
+1. Shared spray coordinate conversion (7): `CoarseBristles`, `DanceFloor`, `DotMarker`, `HyperGrid`, `Leaves2`, `Splatter`, and `WaveformParticles`.
+   The runtime now converts surface normals, tangent handedness, and random position offsets at the Unity-to-Godot boundary while retaining the source rotation axis. Reference replay also uses deterministic export birth times. All seven now match within tolerance.
 
 ## Reproduction
 
@@ -63,6 +66,6 @@ godot --headless --xr-mode off --path . `
 ## Next Work
 
 1. Add explicit coverage accounting for the two registered brushes without source fixtures and the empty `ConcaveHull` fixture.
-2. Investigate failure families rather than individual durable names, starting with shared surface-frame handedness because one correction may cover four fixtures.
+2. Investigate failure families rather than individual durable names, starting with the three remaining geometry-orientation cases.
 3. Keep the five hull-family failures deferred under the existing hull-boundary classification.
 4. Re-run the full corpus after each family-level correction and update these counts.
