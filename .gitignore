@@ -15,6 +15,9 @@ __pycache__/
 [Ll]ogs/
 *.obj
 *.obj.import
+*.csv.import
+*.tilt.import
+*.translation
 *.pdb
 *.mdb
 *.user
