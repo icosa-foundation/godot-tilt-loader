@@ -63,9 +63,9 @@ func _check_math_utils() -> void:
 	_expect_vec3_close(points[0], Vector3(1.0, 2.0, 3.0), "Transform point 0")
 	_expect_vec3_close(points[1], Vector3(3.0, 4.0, 5.0), "Transform point 1")
 
-	var unity_forward := Vector3.FORWARD * -1.0
-	var frame := MathUtils.compute_minimal_rotation_frame(unity_forward, null, Quaternion.IDENTITY)
-	_expect_vec3_close(Basis(frame) * Vector3.FORWARD * -1.0, unity_forward, "Minimal frame forward")
+	var reflected_unity_forward := Vector3.FORWARD
+	var frame := MathUtils.compute_minimal_rotation_frame(reflected_unity_forward, null, Quaternion.IDENTITY)
+	_expect_vec3_close(Basis(frame) * Vector3.FORWARD, reflected_unity_forward, "Minimal frame reflected Unity forward")
 
 func _check_list_utils() -> void:
 	var values := [1, 2, 3]

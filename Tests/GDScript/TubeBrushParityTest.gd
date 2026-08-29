@@ -31,7 +31,7 @@ func _check_default_soft_tube() -> void:
 	_expect_close(brush.m_geometry.m_Vertices[8].distance_to(Vector3.ZERO), 0.5, "tube back radius")
 	_expect_close(brush.m_geometry.m_Vertices[17].distance_to(Vector3.RIGHT), 0.5, "tube front radius")
 	_expect_close(brush.m_geometry.m_Normals[8].length(), 1.0, "tube normal length")
-	_expect_close(brush.m_geometry.m_Tangents[8].w, 1.0, "tube tangent handedness")
+	_expect_close(brush.m_geometry.m_Tangents[8].w, -1.0, "tube reflected tangent handedness")
 	_expect_close(brush.m_geometry.m_Texcoord0.v2[8].y, 0.0, "tube uv v0")
 	_expect_close(brush.m_geometry.m_Texcoord0.v2[16].y, 1.0, "tube uv v1")
 	_expect_color_close(brush.m_geometry.m_Colors[8], _color32(Color(0.2, 0.6, 0.9, 1.0)), "tube color32 color")

@@ -170,7 +170,7 @@ func on_changed_make_geometry(knot_index: int) -> void:
 			var basis := Basis(cur.qFrame)
 			var right := basis * Vector3.RIGHT
 			var up := basis * Vector3.UP
-			var forward := basis * Vector3.BACK
+			var forward := basis * Vector3.FORWARD
 			var is_start := not prev.has_geometry()
 			var is_end := is_penultimate(index)
 			var u0 := 0.0
@@ -468,7 +468,7 @@ func append_vert(knot: Knot, position: Vector3, normal: Vector3, color_value: Co
 	var index := knot.iVert + knot.nVert
 	knot.nVert += 1
 	var color := _to_color32(color_value)
-	var tangent4 := Vector4(tangent.x, tangent.y, tangent.z, 1.0)
+	var tangent4 := Vector4(tangent.x, tangent.y, tangent.z, -1.0)
 	if index == m_geometry.m_Vertices.size():
 		m_geometry.m_Vertices.append(position)
 		m_geometry.m_Normals.append(normal)
@@ -495,12 +495,12 @@ func append_tri(knot: Knot, t0: int, t1: int, t2: int) -> void:
 	knot.nTri += 1
 	if index == m_geometry.m_Tris.size():
 		m_geometry.m_Tris.append(knot.iVert + t0)
-		m_geometry.m_Tris.append(knot.iVert + t2)
 		m_geometry.m_Tris.append(knot.iVert + t1)
+		m_geometry.m_Tris.append(knot.iVert + t2)
 	else:
 		m_geometry.m_Tris[index] = knot.iVert + t0
-		m_geometry.m_Tris[index + 1] = knot.iVert + t2
-		m_geometry.m_Tris[index + 2] = knot.iVert + t1
+		m_geometry.m_Tris[index + 1] = knot.iVert + t1
+		m_geometry.m_Tris[index + 2] = knot.iVert + t2
 
 func is_penultimate(knot_index: int) -> bool:
 	return knot_index + 1 == m_knots.size() or not m_knots[knot_index + 1].has_geometry()
