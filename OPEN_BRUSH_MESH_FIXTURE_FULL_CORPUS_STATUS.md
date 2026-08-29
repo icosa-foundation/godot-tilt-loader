@@ -12,11 +12,11 @@
 
 ## Current Full-Corpus Result
 
-1. Passing fixtures: 83.
-2. Failing fixtures: 12.
+1. Passing fixtures: 84.
+2. Failing fixtures: 11.
 3. Every fixture loads, resolves its brush descriptor, replays, and emits a comparison summary.
 4. Failures remain strict test failures; this report classifies them without weakening comparisons or changing runtime behavior.
-5. The initial full-corpus run passed 71 fixtures and failed 24. Runtime and replay corrections have brought twelve more fixtures into parity.
+5. The initial full-corpus run passed 71 fixtures and failed 24. Runtime and replay corrections have brought thirteen more fixtures into parity.
 
 ## Failure Classification
 
@@ -28,8 +28,7 @@
 3. UV precision just beyond the current `0.00001` tolerance (5):
    `Charcoal`, `DuctTape`, `Flat`, `Highlighter`, and `Streamers`.
    Their first reported UV deltas range from approximately `0.00001144` to `0.00002289`.
-4. Shaped-tube configuration/attributes (1): `BubbleWand`.
-   Positions, tangents, UVs, and bounds differ while element counts match.
+
 ## Resolved Families
 
 1. Shared spray coordinate conversion (7): `CoarseBristles`, `DanceFloor`, `DotMarker`, `HyperGrid`, `Leaves2`, `Splatter`, and `WaveformParticles`.
@@ -40,6 +39,8 @@
    The tube generator now reproduces Unity `Mathf.Sign(0)` behavior instead of allowing Godot `signf(0)` to zero the cap normal.
 4. Hue-shifted backface color conversion (1): `WetPaint`.
    Generated HSL backface colors now use Unity-compatible rounded Color32 conversion without changing the general color and alpha paths.
+5. Current prefab routing (1): `BubbleWand`.
+   The brush descriptor points to `TubeStretchUV.prefab`, whose script is `TubeBrush.cs`. Removing the durable-name-only `BubbleWandBrush` override restores the fixture's regular tube positions, UVs, tangents, and bounds.
 
 ## Reproduction
 
@@ -64,6 +65,6 @@ godot --headless --xr-mode off --path . `
 ## Next Work
 
 1. Add explicit coverage accounting for the two registered brushes without source fixtures and the empty `ConcaveHull` fixture.
-2. Investigate the remaining generator-specific failure in `BubbleWand`.
+2. Investigate the five small UV-precision differences without weakening the existing tolerance prematurely.
 3. Keep the five hull-family failures deferred under the existing hull-boundary classification.
 4. Re-run the full corpus after each family-level correction and update these counts.

@@ -124,9 +124,9 @@ Each commit should remain independently reviewable and should not mix fixture-da
 5. Phase 5 has started. All 95 source fixtures convert deterministically into a
    10.31 MiB normalized corpus. The first complete replay run passed 71 fixtures
    and reported 24 strict failures. The shared spray coordinate correction and
-   three geometry-orientation fixes, zero-aspect tube cap correction, and
-   hue-shifted backface color correction now bring the result to 83 passing
-   fixtures and 12 strict failures.
+   three geometry-orientation fixes, zero-aspect tube cap correction,
+   hue-shifted backface color correction, and current BubbleWand prefab routing
+   now bring the result to 84 passing fixtures and 11 strict failures.
    `OPEN_BRUSH_MESH_FIXTURE_FULL_CORPUS_STATUS.md` records the measured coverage
    and family-level failure classification.
 
