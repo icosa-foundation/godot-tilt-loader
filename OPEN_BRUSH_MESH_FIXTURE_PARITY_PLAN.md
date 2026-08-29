@@ -88,6 +88,34 @@ Deliverable: complete coverage accounting and full-corpus parity results.
 
 Deliverable: proportionate local and CI validation with reproducible diagnostics.
 
+## Phase 7: Fixture Input Coverage Expansion
+
+The original corpus used one planar path with identity orientations, pressure
+`1`, brush scale `1`, brush size `0.1125`, and seed `0`. It is useful as a broad
+regression sample but does not establish comprehensive generator coverage. In
+particular, it gives `ConcaveHull` only coplanar QuillPen points, so Open Brush
+correctly emits an empty mesh.
+
+Expand fixture inputs in two controlled stages:
+
+1. Replace the planar universal path with a deterministic spatial profile that
+   varies all three position axes, control-point orientation, pressure, segment
+   length, and turn angle.
+2. Require the revised `ConcaveHull` fixture to contain non-empty source
+   geometry and polygon faces before treating it as generator coverage.
+3. Regenerate and classify the complete baseline corpus before modifying any
+   runtime implementation in response to new failures.
+4. Audit which material generator branches the spatial profile actually reaches.
+5. Add named, family-targeted profiles only where the audit identifies a real
+   gap, such as pressure extremes, break/restart transitions, alternate random
+   seeds, or size/scale boundaries. Do not multiply every brush by every profile.
+6. Keep `Slice` excluded because it is hidden from the Open Brush UI.
+7. Keep `PassthroughHull` excluded because its mesh generation is ordinary hull
+   behavior and its distinguishing behavior is render-specific.
+
+Deliverable: a non-degenerate spatial baseline plus a small, documented set of
+targeted branch profiles with explicit coverage purposes.
+
 ## Separate GLB Track
 
 1. Use generated GLBs only for end-to-end export/import validation.
