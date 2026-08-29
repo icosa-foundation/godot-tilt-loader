@@ -64,11 +64,11 @@ func _check_square_brush_geometry() -> void:
 	_expect_equal(brush.m_geometry.m_Tris.slice(0, 6), [4, 2, 12, 12, 2, 10], "square top tris")
 	_expect_equal(brush.m_geometry.m_Tris.slice(24, 30), [5, 1, 3, 3, 1, 7], "square start cap tris")
 
-	_expect_vec3_close(brush.m_geometry.m_Vertices[SquareBrush.BBR_B], Vector3(0.0, 0.5, -0.1875), "square back bottom right")
-	_expect_vec3_close(brush.m_geometry.m_Vertices[SquareBrush.BTL_T], Vector3(0.0, -0.5, 0.1875), "square back top left")
-	_expect_vec3_close(brush.m_geometry.m_Vertices[SquareBrush.FTR_T], Vector3(1.0, 0.5, 0.1875), "square front top right")
+	_expect_vec3_close(brush.m_geometry.m_Vertices[SquareBrush.BBR_B], Vector3(0.0, 0.5, 0.1875), "square back bottom right")
+	_expect_vec3_close(brush.m_geometry.m_Vertices[SquareBrush.BTL_T], Vector3(0.0, -0.5, -0.1875), "square back top left")
+	_expect_vec3_close(brush.m_geometry.m_Vertices[SquareBrush.FTR_T], Vector3(1.0, 0.5, -0.1875), "square front top right")
 	_expect_vec3_close(brush.m_geometry.m_Normals[SquareBrush.FBR_R], Vector3.UP, "square right normal")
-	_expect_vec3_close(brush.m_geometry.m_Normals[SquareBrush.FTL_T], Vector3.BACK, "square top normal")
+	_expect_vec3_close(brush.m_geometry.m_Normals[SquareBrush.FTL_T], Vector3.FORWARD, "square top normal")
 	_expect_equal(brush.m_geometry.m_Texcoord0.v2[SquareBrush.FBL_L], Vector2(0.5, 0.5), "square default uv")
 	_expect_color_close(brush.m_geometry.m_Colors[SquareBrush.FBL_L], _color32(Color(0.25, 0.5, 0.75, 1.0)), "square color32 alpha forced opaque")
 
@@ -94,8 +94,8 @@ func _check_square_brush_shared_ring_continuation() -> void:
 	_expect_equal(brush.m_knots[2].nTri, 10, "square continuation second knot tris with end cap only")
 	_expect(not brush.m_knots[1].endsGeometry, "square continuation first knot has no end cap")
 	_expect(brush.m_knots[2].endsGeometry, "square continuation second knot has end cap")
-	_expect_vec3_close(brush.m_geometry.m_Vertices[SquareBrush.FBR_B], Vector3(1.0, 0.5, -0.1875), "square continuation shared ring position")
-	_expect_vec3_close(brush.m_geometry.m_Vertices[brush.m_knots[2].iVert + SquareBrush.FBR_B], Vector3(2.0, 0.5, -0.1875), "square continuation second front ring position")
+	_expect_vec3_close(brush.m_geometry.m_Vertices[SquareBrush.FBR_B], Vector3(1.0, 0.5, 0.1875), "square continuation shared ring position")
+	_expect_vec3_close(brush.m_geometry.m_Vertices[brush.m_knots[2].iVert + SquareBrush.FBR_B], Vector3(2.0, 0.5, 0.1875), "square continuation second front ring position")
 	brush.free()
 
 func _check_square_brush_sharp_turn_breaks_segment() -> void:
@@ -162,8 +162,8 @@ func _check_square_brush_back_invisible_frame() -> void:
 	brush.apply_changes_to_visuals()
 
 	_expect_vec3_close(brush.m_knots[1].nRight, Vector3.LEFT, "square invisible-back preferred right")
-	_expect_vec3_close(brush.m_knots[1].nSurface, Vector3.FORWARD * -1.0, "square invisible-back surface")
-	_expect_vec3_close(brush.m_geometry.m_Vertices[SquareBrush.FBR_R], Vector3(-0.5, 1.0, -0.1875), "square invisible-back front right vertex")
+	_expect_vec3_close(brush.m_knots[1].nSurface, Vector3.FORWARD, "square invisible-back surface")
+	_expect_vec3_close(brush.m_geometry.m_Vertices[SquareBrush.FBR_R], Vector3(-0.5, 1.0, 0.1875), "square invisible-back front right vertex")
 	_expect_vec3_close(brush.m_geometry.m_Normals[SquareBrush.FBR_R], Vector3.LEFT, "square invisible-back right normal")
 	brush.free()
 
