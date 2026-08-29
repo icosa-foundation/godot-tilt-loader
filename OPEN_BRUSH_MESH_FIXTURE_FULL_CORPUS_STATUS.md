@@ -12,11 +12,11 @@
 
 ## Current Full-Corpus Result
 
-1. Passing fixtures: 82.
-2. Failing fixtures: 13.
+1. Passing fixtures: 83.
+2. Failing fixtures: 12.
 3. Every fixture loads, resolves its brush descriptor, replays, and emits a comparison summary.
 4. Failures remain strict test failures; this report classifies them without weakening comparisons or changing runtime behavior.
-5. The initial full-corpus run passed 71 fixtures and failed 24. Runtime and replay corrections have brought eleven more fixtures into parity.
+5. The initial full-corpus run passed 71 fixtures and failed 24. Runtime and replay corrections have brought twelve more fixtures into parity.
 
 ## Failure Classification
 
@@ -30,9 +30,6 @@
    Their first reported UV deltas range from approximately `0.00001144` to `0.00002289`.
 4. Shaped-tube configuration/attributes (1): `BubbleWand`.
    Positions, tangents, UVs, and bounds differ while element counts match.
-5. Color generation (1): `WetPaint`.
-   The first color delta is `0.00392157`, equivalent to one 8-bit color step.
-
 ## Resolved Families
 
 1. Shared spray coordinate conversion (7): `CoarseBristles`, `DanceFloor`, `DotMarker`, `HyperGrid`, `Leaves2`, `Splatter`, and `WaveformParticles`.
@@ -41,6 +38,8 @@
    The square and thick generators now convert the surface frame and tangent handedness consistently with other reflected geometry brushes. The 3D-print generator now uses reflected Unity forward for its indicator plane. All three now match within tolerance.
 3. Zero-aspect tube cap normals (1): `Muscle`.
    The tube generator now reproduces Unity `Mathf.Sign(0)` behavior instead of allowing Godot `signf(0)` to zero the cap normal.
+4. Hue-shifted backface color conversion (1): `WetPaint`.
+   Generated HSL backface colors now use Unity-compatible rounded Color32 conversion without changing the general color and alpha paths.
 
 ## Reproduction
 
@@ -65,6 +64,6 @@ godot --headless --xr-mode off --path . `
 ## Next Work
 
 1. Add explicit coverage accounting for the two registered brushes without source fixtures and the empty `ConcaveHull` fixture.
-2. Investigate the remaining generator-specific failures, starting with the one-step `WetPaint` color mismatch.
+2. Investigate the remaining generator-specific failure in `BubbleWand`.
 3. Keep the five hull-family failures deferred under the existing hull-boundary classification.
 4. Re-run the full corpus after each family-level correction and update these counts.
