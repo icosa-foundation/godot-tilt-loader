@@ -1,97 +1,74 @@
 # Open Brush reference mesh fixtures
 
-This directory is for compact source-of-truth mesh fixtures exported from the
-original Open Brush Unity runtime.
+This directory contains compact, normalized fixtures generated from the
+authoritative Open Brush brush-fixture corpus. The Godot parity test replays the
+exact source stroke through the GDScript runtime and compares its output with
+Open Brush's finalized live mesh before `BrushBaker`.
 
-The Godot test `Tests/GDScript/OpenBrushReferenceMeshFixtureTest.gd` scans this
-directory for `*.json` files. It replays the referenced stroke fixture through
-the Godot runtime and compares the generated mesh against the exported Open
-Brush mesh.
+The live mesh is the reference for realtime drawing and `.tilt` playback. GLB
+files and post-`BrushBaker` meshes belong in separate end-to-end export/import
+tests and are intentionally excluded here.
 
-The Unity-side exporter source is kept at
-`Tools/OpenBrushReferenceMeshExport/OpenBrushReferenceMeshExportTest.cs`. In the
-Open Brush Unity project it belongs at
-`Assets/Editor/Tests/OpenBrushReferenceMeshExportTest.cs`; after Unity compiles,
-the explicit `OpenBrushReferenceExport` tests write fixtures here.
+## Generate fixtures
 
-Use `Tools/OpenBrushReferenceMeshExport/RunOpenBrushReferenceMeshExport.ps1`
-from this Godot repo to run the exporter against a separate Open Brush git
-worktree. It sets
-`OPEN_BRUSH_STROKE_GEN_GODOT_ROOT`, copies the exporter source into
-`Assets/Editor/Tests/OpenBrushReferenceMeshExportTest.cs` in the target worktree,
-captures the Unity log in `Temp/`, and fails if Unity reports that the Open Brush
-project is already open or if any expected reference mesh JSON file is missing.
+Run the converter from the project root. Supply a checkout of Open Brush's
+`Support/BrushFixtures` directory and the full source commit hash:
 
-By default the runner targets
-`C:\Users\andyb\Documents\open-brush-reference-exporter-worktree`. It refuses to
-run against the main `C:\Users\andyb\Documents\open-brush-fast` checkout unless
-`-AllowMainOpenBrushProject` is passed explicitly. This keeps exporter work out
-of a checkout being used for unrelated Open Brush development.
-
-The current exporter includes these representative cafe strokes:
-
-- `cafe_ink_stroke_150` (`Ink`)
-- `cafe_duct_tape_geometry_stroke_496` (`DuctTapeGeometry`)
-- `cafe_stars_stroke_130` (`Stars`)
-- `cafe_sparks_stroke_463` (`Sparks`)
-- `cafe_matte_hull_stroke_11` (`MatteHull`)
-
-Fixture schema:
-
-```json
-{
-  "schema": "open-brush-reference-mesh-v1",
-  "name": "cafe_ink_stroke_150",
-  "brush": "Ink",
-  "source_stroke_fixture": "res://Resources/Fixtures/cafe_ink_stroke_150.json",
-  "position_tolerance": 0.00001,
-  "normal_tolerance": 0.00001,
-  "color_tolerance": 0.00001,
-  "uv_tolerance": 0.00001,
-  "tangent_tolerance": 0.00001,
-  "mesh": {
-    "layout": {
-      "use_normals": true,
-      "normal_semantic": "Unspecified",
-      "use_colors": true,
-      "use_tangents": true,
-      "use_vertex_ids": false,
-      "fbx_export_normal_as_texcoord1": false,
-      "particle_attributes": false,
-      "uv0_size": 2,
-      "uv0_semantic": "Unspecified",
-      "uv1_size": 0,
-      "uv1_semantic": "Unspecified",
-      "uv2_size": 0,
-      "uv2_semantic": "Unspecified"
-    },
-    "vertices": [[0.0, 0.0, 0.0]],
-    "triangles": [0, 1, 2],
-    "normals": [[0.0, 1.0, 0.0]],
-    "colors": [[1.0, 1.0, 1.0, 1.0]],
-    "tangents": [[1.0, 0.0, 0.0, 1.0]],
-    "uv0": [[0.0, 0.0]],
-    "uv1": [],
-    "uv2": []
-  }
-}
+```powershell
+godot --headless --xr-mode off --path . `
+  --script res://Tools/OpenBrushMeshFixtures/ConvertOpenBrushMeshFixtures.gd -- `
+  --source-dir=<path-to-Open-Brush>/Support/BrushFixtures `
+  --source-commit=<40-character-commit-hash>
 ```
 
-Rules:
+Use `--brushes=Ink,DuctTapeGeometry` to convert a subset. Add `--check` to verify
+that existing normalized fixtures are byte-for-byte current without rewriting
+them.
 
-- `mesh.vertices`, `mesh.triangles`, and all present channel arrays must come
-  from Open Brush C# mesh generation, not from Godot.
-- UV arrays preserve the Open Brush `GeometryPool` channel width. A `uv0_size`
-  of `4` means each `uv0` row must contain four floats, not just diffuse xy.
-- Layout semantics and particle flags preserve the Open Brush `VertexLayout`
-  contract. GeniusParticle fixtures must carry `particle_attributes: true`
-  from `bUseVertexIds && bFbxExportNormalAsTexcoord1`.
-- For particle fixtures, the Godot comparator derives the render-facing
-  UV/UV2/TANGENT/CUSTOM0 arrays from the raw Open Brush normals and UV0 data and
-  verifies that remap explicitly.
-- Colors are normalized RGBA floats exported from Open Brush `Color32` bytes.
-- Prefer small, targeted strokes that exercise one brush behavior each.
-- Use existing stroke fixtures for stroke input when possible, so only the mesh
-  output is duplicated here.
-- Do not treat a fixture as authoritative unless it was generated by the Open
-  Brush runtime path and exported from finalized Open Brush mesh data.
+The converter rejects unknown raw schemas, non-identity stroke transforms, and
+inconsistent mesh data. It records the source commit, raw filename, and SHA-256
+digest in every output file.
+
+## Run the comparator
+
+```powershell
+godot --headless --xr-mode off --path . `
+  --script res://Tests/GDScript/OpenBrushReferenceMeshFixtureTest.gd -- `
+  --require-open-brush-reference-fixtures
+```
+
+## Normalized schema
+
+The current schema is `open-brush-reference-mesh-v2`. Each file contains:
+
+1. Source provenance and the fixed shader time used by Open Brush.
+2. The exact stroke input in Unity coordinates and Open Brush units.
+3. Vertex-layout semantics and full-width live-mesh attributes.
+4. Live-mesh indices and bounds.
+5. An explicit description of the comparison coordinate boundary.
+
+The comparator converts the source input to Godot handedness for replay. At the
+comparison boundary it converts mesh metric values from Open Brush units to
+metres, reflects Unity Z, and adjusts tangent handedness. Triangle winding is
+preserved because Unity and Godot both use
+clockwise front faces. Runtime brush code remains in its normal Godot/Open Brush
+coordinate conventions.
+
+Topology is exact. Positions, normals, colors, and UVs use a `0.00001`
+tolerance. Normalized tangents use `0.00005`; the pilot established that tangent
+normalization can amplify otherwise sub-micrometre vertex differences to
+`0.00003678` without a topology or source-channel mismatch.
+
+## Fixture rules
+
+1. Expected mesh data must come from Open Brush C# mesh generation, never from
+   the Godot implementation.
+2. Preserve exact topology and full attribute widths, including shader-facing
+   particle records.
+3. Keep the source revision and raw-file digest intact so data is reproducible.
+4. Do not weaken a comparison to hide a mismatch; classify or repair the
+   underlying conversion or runtime difference.
+5. Keep generated GLBs and post-baker data out of this live-mesh suite.
+
+The comparator retains support for legacy `open-brush-reference-mesh-v1`
+fixtures while the existing corpus is migrated.
