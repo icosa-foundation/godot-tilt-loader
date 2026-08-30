@@ -5,7 +5,8 @@ const StrokeBridgeScript := preload("res://addons/open_brush_stroke_integration/
 const IcosaOpenBrushScript := preload("res://addons/icosa/open_brush/open_brush.gd")
 const FixtureAdapterScript := preload("res://Tests/GDScript/Support/OpenBrushMeshFixtureAdapter.gd")
 
-const REFERENCE_DIR := "res://Resources/Fixtures/OpenBrushReferenceMeshes"
+const RAW_SCHEMA_VERSION := 1
+const SOURCE_COORDINATE_SYSTEM := "Unity X-right, Y-up, Z-forward; mesh positions are mesh-local"
 const DEFAULT_POSITION_TOLERANCE := 0.00001
 const DEFAULT_NORMAL_TOLERANCE := 0.00001
 const DEFAULT_COLOR_TOLERANCE := 0.00001
@@ -17,12 +18,15 @@ const EXPECTED_LIVE_BRUSHES_WITHOUT_FIXTURES: Array[String] = ["PassthroughHull"
 var _failures := 0
 
 func _init() -> void:
-	var fixture_paths := _reference_fixture_paths()
+	var fixture_directory := _fixture_directory_argument()
+	if fixture_directory.is_empty():
+		print("OPEN_BRUSH_REFERENCE_MESH\tskipped; pass --fixtures=<Open Brush Support/BrushFixtures directory>")
+		quit(0)
+		return
+	var fixture_paths := _reference_fixture_paths(fixture_directory)
 	if fixture_paths.is_empty():
-		print("OPEN_BRUSH_REFERENCE_MESH\tno reference fixtures found in %s" % REFERENCE_DIR)
-		if _requires_fixtures():
-			_expect(false, "reference fixtures are required")
-		quit(1 if _failures > 0 else 0)
+		_expect(false, "no raw Open Brush .mesh.json fixtures found in %s" % fixture_directory)
+		quit(1)
 		return
 
 	var manifest := _load_manifest()
@@ -38,20 +42,20 @@ func _init() -> void:
 	App.force_deterministic_birth_time_for_export = previous_deterministic_birth_time
 	quit(1 if _failures > 0 else 0)
 
-func _requires_fixtures() -> bool:
+func _fixture_directory_argument() -> String:
 	for arg in OS.get_cmdline_user_args():
-		if arg == "--require-open-brush-reference-fixtures":
-			return true
-	return false
+		if arg.begins_with("--fixtures="):
+			return arg.trim_prefix("--fixtures=").strip_edges()
+	return ""
 
-func _reference_fixture_paths() -> Array[String]:
+func _reference_fixture_paths(fixture_directory: String) -> Array[String]:
 	var paths: Array[String] = []
-	var dir := DirAccess.open(REFERENCE_DIR)
+	var dir := DirAccess.open(fixture_directory)
 	if dir == null:
 		return paths
 	for file_name in dir.get_files():
-		if file_name.ends_with(".json"):
-			paths.append(REFERENCE_DIR.path_join(file_name))
+		if file_name.ends_with(".mesh.json"):
+			paths.append(fixture_directory.path_join(file_name))
 	paths.sort()
 	return paths
 
@@ -70,23 +74,37 @@ func _check_reference_fixture(path: String) -> void:
 	_expect(not reference.is_empty(), "%s loads" % path)
 	if reference.is_empty():
 		return
-	var schema := String(reference.get("schema", ""))
-	_expect(schema in ["open-brush-reference-mesh-v1", FixtureAdapterScript.SCHEMA], "%s schema" % path)
-	if schema not in ["open-brush-reference-mesh-v1", FixtureAdapterScript.SCHEMA]:
+	_expect(int(reference.get("schemaVersion", -1)) == RAW_SCHEMA_VERSION, "%s raw schema version" % path)
+	_expect(String(reference.get("coordinateSystem", "")) == SOURCE_COORDINATE_SYSTEM, "%s coordinate system" % path)
+	var strokes: Array = reference.get("strokes", [])
+	_expect(strokes.size() == 1 and strokes[0] is Dictionary, "%s contains exactly one stroke" % path)
+	if int(reference.get("schemaVersion", -1)) != RAW_SCHEMA_VERSION \
+			or String(reference.get("coordinateSystem", "")) != SOURCE_COORDINATE_SYSTEM \
+			or strokes.size() != 1 or not strokes[0] is Dictionary:
 		return
-
-	var stroke_fixture := _load_stroke_fixture(reference, path)
-	_expect(not stroke_fixture.is_empty(), "%s stroke fixture loads" % path)
-	if stroke_fixture.is_empty():
+	var source_stroke: Dictionary = strokes[0]
+	var source_input: Dictionary = source_stroke.get("input", {})
+	var source_layout: Dictionary = source_stroke.get("vertexLayout", {})
+	var source_mesh: Dictionary = source_stroke.get("live", {})
+	_expect(not source_input.is_empty(), "%s has stroke input" % path)
+	_expect(not source_layout.is_empty(), "%s has vertex layout" % path)
+	_expect(not source_mesh.is_empty(), "%s has live mesh" % path)
+	if source_input.is_empty() or source_layout.is_empty() or source_mesh.is_empty():
 		return
-	if schema == FixtureAdapterScript.SCHEMA:
-		stroke_fixture = FixtureAdapterScript.runtime_stroke_fixture(stroke_fixture)
+	if not _validate_raw_stroke(path, source_input, source_mesh, source_stroke.get("polygonFaces", {})):
+		return
+	var brush_guid := String(reference.get("brushGuid", ""))
+	_expect(not brush_guid.is_empty(), "%s brush GUID" % path)
+	_expect(String(source_input.get("brushGuid", "")) == brush_guid, "%s stroke brush GUID matches fixture" % path)
+	if brush_guid.is_empty() or String(source_input.get("brushGuid", "")) != brush_guid:
+		return
+	var stroke_fixture := FixtureAdapterScript.runtime_stroke_fixture(source_input, brush_guid)
 
 	var desc := _resolve_fixture_descriptor(stroke_fixture)
 	_expect(desc != null, "%s brush descriptor resolves" % path)
 	if desc == null:
 		return
-	var expected_brush := String(reference.get("brush", ""))
+	var expected_brush := String(reference.get("durableName", ""))
 	if not expected_brush.is_empty():
 		_expect(desc.m_DurableName == expected_brush, "%s brush name" % path)
 
@@ -115,37 +133,12 @@ func _check_reference_fixture(path: String) -> void:
 	_expect(actual_mesh != null, "%s Godot replay returns mesh data" % path)
 	if actual_mesh == null:
 		return
-	_compare_reference_mesh(path, desc, reference, actual_mesh, actual_hull)
+	_compare_reference_mesh(path, desc, source_stroke, actual_mesh, actual_hull)
 
-func _load_stroke_fixture(reference: Dictionary, reference_path: String) -> Dictionary:
-	var source_path := String(reference.get("source_stroke_fixture", ""))
-	if source_path.is_empty():
-		var stroke_value: Variant = reference.get("stroke", {})
-		if stroke_value is Dictionary:
-			return stroke_value
-		return {}
-	if not source_path.begins_with("res://"):
-		source_path = REFERENCE_DIR.path_join(source_path)
-	var stroke_fixture := _load_json_file(source_path)
-	if stroke_fixture.is_empty():
-		push_error("OpenBrushReferenceMeshFixtureTest: %s missing source stroke fixture %s" % [reference_path, source_path])
-	return stroke_fixture
-
-func _compare_reference_mesh(path: String, desc: BrushDescriptor, reference: Dictionary, actual_mesh: MeshData, actual_hull: Dictionary) -> void:
-	var mesh: Dictionary = reference.get("mesh", {})
-	var actual: Dictionary = {
-		"vertices": actual_mesh.vertices,
-		"triangles": actual_mesh.triangles,
-		"normals": actual_mesh.normals,
-		"colors": actual_mesh.colors,
-		"tangents": actual_mesh.tangents,
-	}
-	var is_v2 := String(reference.get("schema", "")) == FixtureAdapterScript.SCHEMA
-	if is_v2:
-		mesh = FixtureAdapterScript.expected_mesh_for_comparison(reference)
+func _compare_reference_mesh(path: String, desc: BrushDescriptor, source_stroke: Dictionary, actual_mesh: MeshData, actual_hull: Dictionary) -> void:
+	var mesh := FixtureAdapterScript.expected_mesh_for_comparison(source_stroke)
 	var layout: Dictionary = mesh.get("layout", {})
-	if is_v2:
-		actual = FixtureAdapterScript.actual_mesh_for_comparison(actual_mesh, layout)
+	var actual := FixtureAdapterScript.actual_mesh_for_comparison(actual_mesh, layout)
 	var expected_vertices := _vec3_array_list(mesh.get("vertices", []))
 	var expected_triangles := _int_array_list(mesh.get("triangles", []))
 	var expected_normals := _vec3_array_list(mesh.get("normals", []))
@@ -157,19 +150,17 @@ func _compare_reference_mesh(path: String, desc: BrushDescriptor, reference: Dic
 	var actual_normals: Array = actual.get("normals", [])
 	var actual_colors: Array = actual.get("colors", [])
 	var actual_tangents: Array = actual.get("tangents", [])
-	var position_tolerance := float(reference.get("position_tolerance", DEFAULT_POSITION_TOLERANCE))
-	var normal_tolerance := float(reference.get("normal_tolerance", DEFAULT_NORMAL_TOLERANCE))
-	var polygon_faces: Dictionary = reference.get("polygon_faces", {})
+	var position_tolerance := DEFAULT_POSITION_TOLERANCE
+	var normal_tolerance := DEFAULT_NORMAL_TOLERANCE
+	var polygon_faces := FixtureAdapterScript.polygon_faces_for_comparison(source_stroke)
 	if not polygon_faces.is_empty():
 		if int(polygon_faces.get("face_count", -1)) == 0 and expected_vertices.is_empty():
 			_compare_empty_reference_mesh(path, actual, mesh, layout)
-			if is_v2:
-				_compare_bounds(path, actual.get("bounds", {}), mesh.get("bounds", {}), position_tolerance)
+			_compare_bounds(path, actual.get("bounds", {}), mesh.get("bounds", {}), position_tolerance)
 			print("OPEN_BRUSH_REFERENCE_EMPTY_MESH\tpath=%s\tbrush=%s" % [path, desc.m_DurableName])
 			return
 		_compare_polygon_faces(path, actual_hull, polygon_faces, position_tolerance, normal_tolerance)
-		if is_v2:
-			_compare_bounds(path, actual.get("bounds", {}), mesh.get("bounds", {}), position_tolerance)
+		_compare_bounds(path, actual.get("bounds", {}), mesh.get("bounds", {}), position_tolerance)
 		print("OPEN_BRUSH_REFERENCE_HULL_FACES\tpath=%s\tbrush=%s\texpected_faces=%d\tactual_faces=%d" % [
 			path,
 			desc.m_DurableName,
@@ -181,9 +172,9 @@ func _compare_reference_mesh(path: String, desc: BrushDescriptor, reference: Dic
 	_expect(actual_vertices.size() == expected_vertices.size(), "%s vertex count expected %d but got %d" % [path, expected_vertices.size(), actual_vertices.size()])
 	_expect(actual_triangles.size() == expected_triangles.size(), "%s triangle index count expected %d but got %d" % [path, expected_triangles.size(), actual_triangles.size()])
 
-	var color_tolerance := float(reference.get("color_tolerance", DEFAULT_COLOR_TOLERANCE))
-	var uv_tolerance := float(reference.get("uv_tolerance", DEFAULT_UV_TOLERANCE))
-	var tangent_tolerance := float(reference.get("tangent_tolerance", DEFAULT_TANGENT_TOLERANCE))
+	var color_tolerance := DEFAULT_COLOR_TOLERANCE
+	var uv_tolerance := DEFAULT_UV_TOLERANCE
+	var tangent_tolerance := DEFAULT_TANGENT_TOLERANCE
 
 	var max_position_delta := _max_vec3_delta(actual_vertices, expected_vertices)
 	_expect(max_position_delta <= position_tolerance, "%s vertex positions exceed tolerance %.8f; %s" % [path, position_tolerance, _describe_vec3_mismatch(actual_vertices, expected_vertices)])
@@ -239,10 +230,9 @@ func _compare_reference_mesh(path: String, desc: BrushDescriptor, reference: Dic
 			expected_normals,
 			_vec4_array_list(mesh.get("uv0", [])),
 			uv_tolerance,
-			FixtureAdapterScript.UNIT_SCALE_TO_METERS if is_v2 else 1.0)
+			FixtureAdapterScript.UNIT_SCALE_TO_METERS)
 
-	if is_v2:
-		_compare_bounds(path, actual.get("bounds", {}), mesh.get("bounds", {}), position_tolerance)
+	_compare_bounds(path, actual.get("bounds", {}), mesh.get("bounds", {}), position_tolerance)
 
 	print("OPEN_BRUSH_REFERENCE_MESH\tpath=%s\tbrush=%s\tverts=%d\ttris=%d\tmax_position_delta=%.8f\tmax_normal_delta=%.8f\tmax_color_delta=%.8f\tmax_uv_delta=%.8f\tmax_tangent_delta=%.8f\tmax_particle_render_delta=%.8f" % [
 		path,
@@ -265,6 +255,44 @@ func _load_json_file(path: String) -> Dictionary:
 	if not parsed is Dictionary:
 		return {}
 	return parsed
+
+func _validate_raw_stroke(path: String, source_input: Dictionary, source_mesh: Dictionary, polygon_faces: Variant) -> bool:
+	var valid := true
+	var matrix: Array = source_input.get("localToWorldMatrix", [])
+	var identity := [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+	var identity_matrix := matrix.size() == identity.size()
+	if identity_matrix:
+		for index in range(identity.size()):
+			if not is_equal_approx(float(matrix[index]), identity[index]):
+				identity_matrix = false
+				break
+	_expect(identity_matrix, "%s uses an identity local-to-world matrix" % path)
+	valid = valid and identity_matrix
+
+	var vertex_count := int(source_mesh.get("vertexCount", -1))
+	var index_count := int(source_mesh.get("indexCount", -1))
+	var indices: Array = source_mesh.get("indices", [])
+	var counts_match := vertex_count >= 0 and index_count >= 0 and indices.size() == index_count
+	_expect(counts_match, "%s live mesh counts are consistent" % path)
+	valid = valid and counts_match
+	var attributes: Dictionary = source_mesh.get("attributes", {})
+	for attribute_name in attributes:
+		var attribute_value: Variant = attributes[attribute_name]
+		var attribute_valid := attribute_value is Dictionary
+		if attribute_valid:
+			var attribute: Dictionary = attribute_value
+			var item_size := int(attribute.get("itemSize", 0))
+			var data: Array = attribute.get("data", [])
+			attribute_valid = item_size > 0 and data.size() == vertex_count * item_size
+		_expect(attribute_valid, "%s attribute %s matches the live vertex count" % [path, attribute_name])
+		valid = valid and attribute_valid
+
+	if polygon_faces is Dictionary and not polygon_faces.is_empty():
+		var faces: Array = polygon_faces.get("faces", [])
+		var face_count_matches := int(polygon_faces.get("faceCount", -1)) == faces.size()
+		_expect(face_count_matches, "%s polygon face count is consistent" % path)
+		valid = valid and face_count_matches
+	return valid
 
 func _resolve_fixture_descriptor(fixture: Dictionary) -> BrushDescriptor:
 	var guid := String(fixture.get("brush_guid", ""))
@@ -611,7 +639,7 @@ func _check_fixture_coverage(manifest: TiltBrushManifest, fixture_paths: Array[S
 	var fixture_brushes := {}
 	for path in fixture_paths:
 		var reference := _load_json_file(path)
-		var durable_name := String(reference.get("brush", ""))
+		var durable_name := String(reference.get("durableName", ""))
 		if durable_name.is_empty():
 			continue
 		_expect(not fixture_brushes.has(durable_name), "duplicate reference fixture for %s" % durable_name)

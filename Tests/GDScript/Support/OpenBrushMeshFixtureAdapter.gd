@@ -1,13 +1,21 @@
 extends RefCounted
 
-const SCHEMA := "open-brush-reference-mesh-v2"
 const UNIT_SCALE_TO_METERS := 0.1
 
-static func runtime_stroke_fixture(source: Dictionary) -> Dictionary:
-	var output := source.duplicate(true)
+static func runtime_stroke_fixture(source: Dictionary, brush_guid: String = "") -> Dictionary:
+	var output := {
+		"coordinate_space": "unity_open_brush_units",
+		"brush_guid": brush_guid if not brush_guid.is_empty() else String(source.get("brush_guid", source.get("brushGuid", ""))),
+		"brush_scale": float(source.get("brush_scale", source.get("brushScale", 1.0))),
+		"brush_size": float(source.get("brush_size", source.get("brushSize", 1.0))),
+		"flags": int(source.get("flags", 0)),
+		"seed": int(source.get("seed", 0)),
+		"color": (source.get("color", [1.0, 1.0, 1.0, 1.0]) as Array).duplicate(),
+	}
 	output["coordinate_space"] = "godot_open_brush_units"
 	var converted_points: Array = []
-	for point_value in source.get("control_points", []):
+	var source_points: Array = source.get("control_points", source.get("controlPoints", []))
+	for point_value in source_points:
 		if not point_value is Dictionary:
 			continue
 		var point: Dictionary = point_value
@@ -17,20 +25,20 @@ static func runtime_stroke_fixture(source: Dictionary) -> Dictionary:
 			"position": [float(position[0]), float(position[1]), -float(position[2])],
 			"orientation": [-float(orientation[0]), -float(orientation[1]), float(orientation[2]), float(orientation[3])],
 			"pressure": float(point.get("pressure", 1.0)),
-			"timestamp": int(point.get("timestamp", 0)),
+			"timestamp": int(point.get("timestamp", point.get("timestampMs", 0))),
 		})
 	output["control_points"] = converted_points
 	return output
 
-static func expected_mesh_for_comparison(reference: Dictionary) -> Dictionary:
-	var source_mesh: Dictionary = reference.get("mesh", {})
-	var layout: Dictionary = source_mesh.get("layout", {})
+static func expected_mesh_for_comparison(source_stroke: Dictionary) -> Dictionary:
+	var source_mesh: Dictionary = source_stroke.get("live", {})
+	var layout := layout_from_raw(source_stroke.get("vertexLayout", {}))
 	var attributes: Dictionary = {}
 	for attribute_name in source_mesh.get("attributes", {}):
 		var source_attribute: Dictionary = source_mesh["attributes"][attribute_name]
 		attributes[attribute_name] = _normalized_reference_attribute(attribute_name, source_attribute)
 
-	var triangles: Array = (source_mesh.get("triangles", []) as Array).duplicate()
+	var triangles: Array = (source_mesh.get("indices", []) as Array).duplicate()
 
 	return {
 		"layout": layout.duplicate(true),
@@ -43,6 +51,63 @@ static func expected_mesh_for_comparison(reference: Dictionary) -> Dictionary:
 		"uv1": _attribute_rows(attributes.get("texcoord1", {})),
 		"uv2": _attribute_rows(attributes.get("texcoord2", {})),
 		"bounds": _normalized_reference_bounds(source_mesh.get("bounds", {})),
+	}
+
+static func layout_from_raw(source: Dictionary) -> Dictionary:
+	var layout := {
+		"use_normals": bool(source.get("usesNormals", false)),
+		"normal_semantic": String(source.get("normalSemantic", "Unspecified")),
+		"use_colors": bool(source.get("usesColors", false)),
+		"use_tangents": bool(source.get("usesTangents", false)),
+		"use_vertex_ids": bool(source.get("usesVertexIds", false)),
+		"fbx_export_normal_as_texcoord1": bool(source.get("fbxExportsNormalAsTexcoord1", false)),
+	}
+	layout["particle_attributes"] = bool(layout.use_vertex_ids) and bool(layout.fbx_export_normal_as_texcoord1)
+	for channel in range(3):
+		layout["uv%d_size" % channel] = 0
+		layout["uv%d_semantic" % channel] = "Unspecified"
+	for texcoord_value in source.get("texcoords", []):
+		if not texcoord_value is Dictionary:
+			continue
+		var texcoord: Dictionary = texcoord_value
+		var channel := int(texcoord.get("channel", -1))
+		if channel < 0 or channel > 2:
+			continue
+		layout["uv%d_size" % channel] = int(texcoord.get("itemSize", 0))
+		layout["uv%d_semantic" % channel] = String(texcoord.get("semantic", "Unspecified"))
+	return layout
+
+static func polygon_faces_for_comparison(source_stroke: Dictionary) -> Dictionary:
+	var source: Dictionary = source_stroke.get("polygonFaces", {})
+	if source.is_empty():
+		return {}
+	var faces: Array = []
+	for face_value in source.get("faces", []):
+		if not face_value is Dictionary:
+			continue
+		var face: Dictionary = face_value
+		var source_normal := _vec3_from_array(face.get("normal", []))
+		var vertices: Array = []
+		for vertex_value in face.get("vertices", []):
+			var source_vertex := _vec3_from_array(vertex_value)
+			vertices.append([
+				source_vertex.x * UNIT_SCALE_TO_METERS,
+				source_vertex.y * UNIT_SCALE_TO_METERS,
+				-source_vertex.z * UNIT_SCALE_TO_METERS,
+			])
+		faces.append({
+			"normal": [source_normal.x, source_normal.y, -source_normal.z],
+			"plane_distance": float(face.get("planeDistance", 0.0)) * UNIT_SCALE_TO_METERS,
+			"vertices": vertices,
+			"source_triangle_count": int(face.get("sourceTriangleCount", 0)),
+		})
+	return {
+		"definition": String(source.get("definition", "")),
+		"point_tolerance": float(source.get("pointTolerance", 0.0)) * UNIT_SCALE_TO_METERS,
+		"plane_tolerance": float(source.get("planeTolerance", 0.0)) * UNIT_SCALE_TO_METERS,
+		"normal_dot_tolerance": float(source.get("normalDotTolerance", 1.0)),
+		"face_count": faces.size(),
+		"faces": faces,
 	}
 
 static func actual_mesh_for_comparison(actual_mesh: MeshData, layout: Dictionary) -> Dictionary:
@@ -163,3 +228,8 @@ static func _bounds_from_vertices(vertices: Array[Vector3]) -> Dictionary:
 		minimum = minimum.min(vertex)
 		maximum = maximum.max(vertex)
 	return {"min": minimum, "max": maximum}
+
+static func _vec3_from_array(value: Variant) -> Vector3:
+	if value is Array and value.size() >= 3:
+		return Vector3(float(value[0]), float(value[1]), float(value[2]))
+	return Vector3.ZERO
