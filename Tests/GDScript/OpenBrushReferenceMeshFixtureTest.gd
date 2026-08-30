@@ -16,6 +16,8 @@ const DEFAULT_TANGENT_TOLERANCE := 0.00005
 const EXPECTED_LIVE_BRUSHES_WITHOUT_FIXTURES: Array[String] = ["PassthroughHull", "Slice"]
 const REGULAR_CONVEX_HULL_BRUSHES: Array[String] = ["DiamondHull", "MatteHull", "ShinyHull", "SmoothHull", "UnlitHull"]
 const HULL_VOLUME_RELATIVE_TOLERANCE := 0.0001
+const CONCAVE_SURFACE_MEASURE_RELATIVE_TOLERANCE := 0.005
+const CONCAVE_TRIANGLE_COUNT_RELATIVE_TOLERANCE := 0.02
 
 var _failures := 0
 
@@ -155,6 +157,9 @@ func _compare_reference_mesh(path: String, desc: BrushDescriptor, source_stroke:
 	var position_tolerance := DEFAULT_POSITION_TOLERANCE
 	var normal_tolerance := DEFAULT_NORMAL_TOLERANCE
 	var polygon_faces := FixtureAdapterScript.polygon_faces_for_comparison(source_stroke)
+	if desc.m_DurableName == "ConcaveHull":
+		_compare_concave_hull_surface(path, actual, mesh, layout, polygon_faces, position_tolerance, normal_tolerance)
+		return
 	if desc.m_DurableName in REGULAR_CONVEX_HULL_BRUSHES:
 		_compare_convex_hull_geometry(path, desc, actual, mesh, layout, polygon_faces, position_tolerance)
 		return
@@ -243,6 +248,61 @@ func _compare_reference_mesh(path: String, desc: BrushDescriptor, source_stroke:
 		max_particle_render_delta,
 	])
 
+func _compare_concave_hull_surface(
+	path: String,
+	actual: Dictionary,
+	expected: Dictionary,
+	layout: Dictionary,
+	polygon_faces: Dictionary,
+	position_tolerance: float,
+	normal_tolerance: float
+) -> void:
+	var actual_vertices: Array = actual.get("vertices", [])
+	var expected_vertices := _vec3_array_list(expected.get("vertices", []))
+	var actual_triangles: Array = actual.get("triangles", [])
+	var expected_triangles := _int_array_list(expected.get("triangles", []))
+	var surface_tolerance := maxf(position_tolerance, float(polygon_faces.get("point_tolerance", 0.0)))
+	var expected_triangle_count := int(expected_triangles.size() / 3)
+	var actual_triangle_count := int(actual_triangles.size() / 3)
+	var triangle_count_tolerance := maxi(1, ceili(expected_triangle_count * CONCAVE_TRIANGLE_COUNT_RELATIVE_TOLERANCE))
+
+	_expect(not actual_vertices.is_empty(), "%s ConcaveHull emits vertices" % path)
+	_expect(not actual_triangles.is_empty() and actual_triangles.size() % 3 == 0, "%s ConcaveHull emits triangles" % path)
+	_expect(abs(actual_triangle_count - expected_triangle_count) <= triangle_count_tolerance, "%s ConcaveHull triangle count expected %d but got %d; allowance %d" % [path, expected_triangle_count, actual_triangle_count, triangle_count_tolerance])
+	_expect(_mesh_triangles_are_valid(actual_vertices, actual_triangles, surface_tolerance), "%s ConcaveHull triangles are valid and non-degenerate" % path)
+	_compare_required_channel_completeness(path, actual, layout, actual_vertices.size())
+	_expect(_mesh_face_normals_are_consistent(actual, normal_tolerance), "%s ConcaveHull normals are unit length and consistent per triangle" % path)
+	_expect(_mesh_colors_match_reference(actual, expected, DEFAULT_COLOR_TOLERANCE), "%s ConcaveHull colors match the reference color" % path)
+	_compare_bounds(path, actual.get("bounds", {}), expected.get("bounds", {}), surface_tolerance)
+
+	var actual_to_expected_vertices := _max_vertices_to_mesh_surface(actual_vertices, expected_vertices, expected_triangles)
+	var expected_to_actual_vertices := _max_vertices_to_mesh_surface(expected_vertices, actual_vertices, actual_triangles)
+	var actual_centroids := _mesh_triangle_centroids(actual_vertices, actual_triangles)
+	var expected_centroids := _mesh_triangle_centroids(expected_vertices, expected_triangles)
+	var actual_to_expected_centroids := _max_vertices_to_mesh_surface(actual_centroids, expected_vertices, expected_triangles)
+	var expected_to_actual_centroids := _max_vertices_to_mesh_surface(expected_centroids, actual_vertices, actual_triangles)
+	var maximum_surface_delta := maxf(
+		maxf(actual_to_expected_vertices, expected_to_actual_vertices),
+		maxf(actual_to_expected_centroids, expected_to_actual_centroids))
+	_expect(maximum_surface_delta <= surface_tolerance, "%s ConcaveHull surface differs by %.9f; tolerance %.9f" % [path, maximum_surface_delta, surface_tolerance])
+
+	var actual_area := _mesh_surface_area(actual_vertices, actual_triangles)
+	var expected_area := _mesh_surface_area(expected_vertices, expected_triangles)
+	var area_tolerance := maxf(surface_tolerance * surface_tolerance, expected_area * CONCAVE_SURFACE_MEASURE_RELATIVE_TOLERANCE)
+	_expect(absf(actual_area - expected_area) <= area_tolerance, "%s ConcaveHull surface area expected %.9f but got %.9f; tolerance %.9f" % [path, expected_area, actual_area, area_tolerance])
+	var actual_volume := _mesh_enclosed_volume_measure(actual_vertices, actual_triangles)
+	var expected_volume := _mesh_enclosed_volume_measure(expected_vertices, expected_triangles)
+	var volume_tolerance := maxf(surface_tolerance * surface_tolerance * surface_tolerance, expected_volume * CONCAVE_SURFACE_MEASURE_RELATIVE_TOLERANCE)
+	_expect(absf(actual_volume - expected_volume) <= volume_tolerance, "%s ConcaveHull volume contribution expected %.9f but got %.9f; tolerance %.9f" % [path, expected_volume, actual_volume, volume_tolerance])
+	print("OPEN_BRUSH_REFERENCE_CONCAVE_SURFACE\tpath=%s\ttris=%d\texpected_tris=%d\tmax_surface_delta=%.9f\tarea_delta=%.9f\tvolume_delta=%.9f" % [
+		path,
+		actual_triangle_count,
+		expected_triangle_count,
+		maximum_surface_delta,
+		absf(actual_area - expected_area),
+		absf(actual_volume - expected_volume),
+	])
+
 func _compare_convex_hull_geometry(
 	path: String,
 	desc: BrushDescriptor,
@@ -292,11 +352,11 @@ func _compare_required_channel_completeness(path: String, mesh: Dictionary, layo
 	}
 	for channel_name in requirements:
 		if bool(requirements[channel_name]):
-			_expect((mesh.get(channel_name, []) as Array).size() == vertex_count, "%s convex hull %s channel is complete" % [path, channel_name])
+			_expect((mesh.get(channel_name, []) as Array).size() == vertex_count, "%s required %s channel is complete" % [path, channel_name])
 	for channel in range(3):
 		if int(layout.get("uv%d_size" % channel, 0)) > 0:
 			var channel_name := "uv%d" % channel
-			_expect((mesh.get(channel_name, []) as Array).size() == vertex_count, "%s convex hull %s channel is complete" % [path, channel_name])
+			_expect((mesh.get(channel_name, []) as Array).size() == vertex_count, "%s required %s channel is complete" % [path, channel_name])
 
 func _mesh_triangles_are_valid(vertices: Array, triangles: Array, tolerance: float) -> bool:
 	for index in range(0, triangles.size(), 3):
@@ -409,6 +469,59 @@ func _mesh_enclosed_volume_measure(vertices: Array, triangles: Array) -> float:
 		var c: Vector3 = vertices[int(triangles[index + 2])] - center
 		volume += absf(a.dot(b.cross(c))) / 6.0
 	return volume
+
+func _mesh_surface_area(vertices: Array, triangles: Array) -> float:
+	var area := 0.0
+	for index in range(0, triangles.size(), 3):
+		var a: Vector3 = vertices[int(triangles[index])]
+		var b: Vector3 = vertices[int(triangles[index + 1])]
+		var c: Vector3 = vertices[int(triangles[index + 2])]
+		area += (b - a).cross(c - a).length() * 0.5
+	return area
+
+func _mesh_triangle_centroids(vertices: Array, triangles: Array) -> Array[Vector3]:
+	var centroids: Array[Vector3] = []
+	for index in range(0, triangles.size(), 3):
+		var a: Vector3 = vertices[int(triangles[index])]
+		var b: Vector3 = vertices[int(triangles[index + 1])]
+		var c: Vector3 = vertices[int(triangles[index + 2])]
+		centroids.append((a + b + c) / 3.0)
+	return centroids
+
+func _mesh_face_normals_are_consistent(mesh: Dictionary, tolerance: float) -> bool:
+	var vertices: Array = mesh.get("vertices", [])
+	var triangles: Array = mesh.get("triangles", [])
+	var normals: Array = mesh.get("normals", [])
+	if normals.size() != vertices.size():
+		return false
+	for index in range(0, triangles.size(), 3):
+		var first := int(triangles[index])
+		var second := int(triangles[index + 1])
+		var third := int(triangles[index + 2])
+		var a: Vector3 = vertices[first]
+		var b: Vector3 = vertices[second]
+		var c: Vector3 = vertices[third]
+		var geometric_normal := (b - a).cross(c - a).normalized()
+		var face_normal: Vector3 = normals[first]
+		if absf(face_normal.length() - 1.0) > tolerance:
+			return false
+		if absf(face_normal.dot(geometric_normal)) < 1.0 - tolerance:
+			return false
+		if (normals[second] as Vector3).distance_to(face_normal) > tolerance or (normals[third] as Vector3).distance_to(face_normal) > tolerance:
+			return false
+	return true
+
+func _mesh_colors_match_reference(actual: Dictionary, expected: Dictionary, tolerance: float) -> bool:
+	var actual_colors: Array = actual.get("colors", [])
+	var expected_colors := _color_array_list(expected.get("colors", []))
+	if actual_colors.is_empty() or expected_colors.is_empty():
+		return actual_colors.is_empty() and expected_colors.is_empty()
+	var reference: Color = expected_colors[0]
+	for value in actual_colors:
+		var color: Color = value
+		if absf(color.r - reference.r) > tolerance or absf(color.g - reference.g) > tolerance or absf(color.b - reference.b) > tolerance or absf(color.a - reference.a) > tolerance:
+			return false
+	return true
 
 func _load_json_file(path: String) -> Dictionary:
 	var json := FileAccess.get_file_as_string(path)
