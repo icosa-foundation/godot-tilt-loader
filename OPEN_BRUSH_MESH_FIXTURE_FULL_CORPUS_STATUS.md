@@ -73,6 +73,6 @@ godot --headless --xr-mode off --path . `
 ## Next Work
 
 1. Keep the six hull-family failures deferred under the existing hull-backend classification.
-2. Audit material-generator branch coverage and add only targeted named input
-   profiles for branches the spatial baseline does not reach.
-3. Re-run the full corpus after any fixture, adapter, or relevant runtime change and update these counts.
+2. Decide whether to add the representative non-unit-scale profile identified in `OPEN_BRUSH_MESH_FIXTURE_AUDIT.md`; do not change the Open Brush generator before that decision.
+3. Consider pressure-endpoint/short-stroke and alternate-seed profiles only after the scale result, and keep them limited to representative generator families.
+4. Re-run the full corpus after any fixture, adapter, or relevant runtime change and update these counts.

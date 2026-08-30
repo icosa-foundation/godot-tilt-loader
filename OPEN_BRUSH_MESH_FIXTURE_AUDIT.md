@@ -3,19 +3,18 @@
 ## Source Snapshot
 
 1. Open Brush branch: `feature/brush-fixtures`.
-2. Open Brush commit: `80f6362533fd7e4366d915670a71e20df479b364` (`Mesh fixtures for compatibility tests in godot and threejs`).
+2. Open Brush commit inspected: `e5cd33e06018a2a07561ad0b02963e1f281b30e5` (`Use deterministic color for brush fixtures`).
 3. Raw schema version: `1` for all fixtures.
 4. Coordinate declaration: Unity X-right, Y-up, Z-forward; mesh positions are mesh-local.
 5. Every current fixture contains exactly one stroke with an identity local-to-world matrix.
+6. The raw schema does not embed the producer commit, so comparison reports must record the Open Brush revision separately.
 
 ## Corpus Size
 
-1. Raw mesh JSON: 95 files, 26,064,558 bytes.
-2. GLB output: 94 files, 10,968,700 bytes.
-3. Estimated compact input-plus-live-mesh JSON: approximately 4,238,000 bytes before final converter formatting.
-4. `ConcaveHull` is the only current fixture with an empty live mesh. It accounts for the missing ninety-fifth GLB.
-
-The compact estimate excludes material snapshots, `BrushBaker` diagnostics, post-bake meshes, and GLB metadata.
+1. Raw mesh JSON: 95 files, 35,690,629 bytes.
+2. GLB output: 95 files, 11,534,152 bytes.
+3. `ConcaveHull` now contains 1,476 vertices, 1,476 indices, and 326 polygon faces.
+4. The raw corpus remains in the Open Brush checkout and is read directly; none of these files are copied into this repository.
 
 ## Godot Coverage
 
@@ -48,9 +47,12 @@ Current texcoord layout combinations are:
 6. UV0 size 3 with `XyIsUvZIsDistance`: 31 fixtures.
 7. UV0 size 4 with UV1 size 3 `Position`: 7 fixtures.
 
-## Existing Harness Gap
+## Direct Harness
 
-`Tests/GDScript/OpenBrushReferenceMeshFixtureTest.gd` currently expects the older `open-brush-reference-mesh-v1` format: nested vector rows, an already-converted stroke, and no raw-fixture provenance. The new Open Brush corpus uses flattened raw attributes and retains Unity/Open Brush coordinates. Directly copying the files would not exercise the harness correctly.
+`Tests/GDScript/OpenBrushReferenceMeshFixtureTest.gd` accepts an explicit
+`--fixtures=<directory>` argument and reads Open Brush's raw `.mesh.json` schema
+directly. Without that argument it skips so normal Godot test discovery does not
+depend on a second checkout. A supplied missing or empty directory is a failure.
 
 ## Required Comparison Boundary
 
@@ -65,12 +67,45 @@ Current texcoord layout combinations are:
 
 ## Five-Brush Pilot
 
-1. `Ink`: 360 vertices and 360 indices; UV0 size 2.
-2. `DuctTapeGeometry`: 124 vertices and 348 indices; UV0 size 2.
-3. `Stars`: 288 vertices and 432 indices; UV0 size 4 plus UV1 size 3 particle-position data.
-4. `Sparks`: 295 vertices and 1,488 indices; UV0 size 3 with distance semantics.
-5. `MatteHull`: 246 vertices and 246 indices; UV0 size 3 with distance semantics.
+1. `Ink`: 408 vertices and 408 indices; UV0 size 2.
+2. `DuctTapeGeometry`: 140 vertices and 408 indices; UV0 size 2.
+3. `Stars`: 348 vertices and 522 indices; UV0 size 4 plus UV1 size 3 particle-position data.
+4. `Sparks`: 331 vertices and 1,680 indices; UV0 size 3 with distance semantics.
+5. `MatteHull`: 444 vertices and 444 indices; UV0 size 3 with distance semantics.
 
 These five fixtures cover strip, solid geometry, Genius particle, shaped tube,
 and hull generation paths. Despite its name and shader, `Sparks` maps to the
 `Tube_Sparks` prefab and `TubeBrush`; it is not a `SprayBrush` fixture.
+
+## Spatial Profile Branch Audit
+
+The current 95-brush baseline uses one shared spatial profile. Its serialized
+inputs establish the following coverage:
+
+1. Every fixture has 38 control points with position changes on all three axes and orientation changes on all three rotation axes.
+2. Pressure spans `0.25` to approximately `0.9943`, exercising pressure-dependent size and opacity over most of their interior range.
+3. The path contains three consecutive moves shorter than `0.0001` Open Brush units; the shortest is approximately `0.0000279`. These exercise minimum-movement and break/restart handling in applicable generators.
+4. Consecutive path directions turn by as much as 90 degrees, exercising curved and sharp-turn geometry without an artificial 180-degree reversal.
+5. Requested brush size is clamped through each descriptor. The resulting corpus contains ten sizes from `0.05` to `1.0` Open Brush units.
+6. The 95 catalog brushes collectively exercise the active descriptor variants for UV style, atlas layout, hard and soft edges, caps, double-sided geometry, shape modifiers, particle layouts, and hull modes.
+7. Every fixture uses random seed `0`, brush scale `1`, stroke flags `0`, one deterministic non-neutral colour, and one continuous finalized stroke.
+
+Focused Godot parity tests already cover double-back breaks, short-segment
+restarts, atlas choices, seeded random formulas, preview decay, finalization,
+double-sided output, and class-specific topology. Those tests reduce the value
+of multiplying the external C# corpus merely to exercise the same local branch
+again.
+
+## Evidence Gaps and Candidate Profiles
+
+These candidates require a fixture-generator decision before implementation:
+
+1. **Non-unit scale — highest value.** Real checked-in cafe strokes use brush scales from approximately `5.05` to `12.37`, while every raw Open Brush mesh fixture uses `1`. Existing tests cover Godot scale plumbing, but not a same-input C#-versus-GDScript mesh at non-unit scale. A small representative profile should cover quad strip, solid, tube, and particle generation rather than all 95 brushes.
+2. **Pressure endpoints and a short stroke.** The baseline does not reach pressure exactly `0` or `1`, and its long stroke does not cover two-control-point particle/finalization behavior against C#. A targeted profile could cover one pressure-sensitive geometry brush and one particle brush.
+3. **Alternate random seed.** Seed `0` executes random branches and focused tests cover the formulas, but a second seed would provide cross-runtime evidence for salt progression and atlas/randomized particle choices. One representative from each distinct random particle algorithm is sufficient.
+4. **Brush-size boundary.** Each brush currently gets one clamped size. A second size is useful only for generators whose topology changes with the size-to-path-length ratio; it should not be applied indiscriminately to the full catalog.
+
+The audit does not recommend external fixtures for preview decay, UI-only
+behavior, `Slice`, `PassthroughHull`, or additional hull-backend investigation.
+It also does not recommend colour variants unless a concrete geometry branch is
+found to depend on colour.

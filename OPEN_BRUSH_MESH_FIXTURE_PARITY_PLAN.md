@@ -165,6 +165,13 @@ Each commit should remain independently reviewable and should not mix fixture-da
    boundaries, which prevents double-sided render triangles from creating
    empty face records. Targeted secondary profiles remain pending the branch
    coverage audit.
+7. The brush-generator branch audit is complete. The spatial baseline covers
+   interior pressure variation, three sub-minimum moves, turns up to 90 degrees,
+   ten descriptor-clamped sizes, and the active catalog descriptor variants.
+   It does not provide cross-runtime evidence for non-unit brush scale, exact
+   pressure endpoints, short-stroke particle finalization, or alternate seeds.
+   `OPEN_BRUSH_MESH_FIXTURE_AUDIT.md` records the evidence and ranks a small
+   representative non-unit-scale profile as the highest-value next candidate.
 
 ## Planar Pilot Classification (Historical)
 
