@@ -14,7 +14,7 @@ This Godot 4.7+ project ports the Open Brush/Tilt Brush stroke generation runtim
 
 1. Open the repository root as the Godot project.
 2. Install addon dependencies with gd-plug for Icosa `.tilt` loading and brush materials.
-3. Press Play to run the current main scene, `Scenes/TiltEvidenceViewer.tscn`, with the checked-in cafe fixture.
+3. Press Play to run the current main scene, `Scenes/TiltViewer.tscn`, with the checked-in cafe fixture.
 4. Run `Scenes/StrokeDrawingTest.tscn` for desktop pointer testing without XR, or `Scenes/XrStrokeDrawingTest.tscn` for XR testing.
 
 The project loads `Resources/BrushCatalog/brush_catalog.json`, a generated catalog containing the brush descriptor and prefab settings that used to come from Unity YAML assets.
@@ -23,11 +23,11 @@ The project loads `Resources/BrushCatalog/brush_catalog.json`, a generated catal
 
 The project has five `.tscn` test scenes. They are intentionally different test surfaces; do not treat them as interchangeable.
 
-### `Scenes/TiltEvidenceViewer.tscn`
+### `Scenes/TiltViewer.tscn`
 
 Purpose: view the cafe Tilt Brush file and capture evidence renders.
 
-This scene uses `Scripts/TiltEvidenceViewer.gd`. By default it targets:
+This scene uses `Scripts/TiltViewer.gd`. By default it targets:
 
 ```text
 res://Resources/Fixtures/brush_cafe_experimental.tilt
@@ -132,7 +132,7 @@ Resources/
     └── brush_cafe_experimental.tilt
 
 Scenes/
-├── TiltEvidenceViewer.tscn
+├── TiltViewer.tscn
 ├── StrokeDrawingTest.tscn
 ├── XrStrokeDrawingTest.tscn
 ├── SingleBrushStrokeInspector.tscn

@@ -99,7 +99,7 @@ Faces may be triangles, quads, or larger n-gons. Coplanar adjacent facets should
 ### Cafe Scene Evidence
 
 - Force a fresh import of `Temp/TiltEvidence/brush_cafe_experimental.tilt`.
-- Render `Scenes/TiltEvidenceViewer.tscn`.
+- Render `Scenes/TiltViewer.tscn`.
 - Visual result must show:
   - checker floor visible
   - checker tiles materially closer to the embedded thumbnail than the pre-fix missing/lumpy floor

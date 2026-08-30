@@ -12,7 +12,7 @@ This project is a GDScript-only Godot port of the Open Brush stroke generation r
 
 1. Launch Godot.
 2. Import or open the repository root.
-3. Press Play to run `Scenes/TiltEvidenceViewer.tscn`.
+3. Press Play to run `Scenes/TiltViewer.tscn`.
 
 No .NET SDK, C# solution generation, or C# build step is required.
 
@@ -33,7 +33,7 @@ gd-plug runs through Godot and git. The installed addon folder is ignored by git
 
 ## Scene Setup
 
-The default Play scene is `Scenes/TiltEvidenceViewer.tscn`, which loads the configured `.tilt` file through the Icosa addon.
+The default Play scene is `Scenes/TiltViewer.tscn`, which loads the configured `.tilt` file through the Icosa addon.
 
 The desktop stroke test scene uses:
 

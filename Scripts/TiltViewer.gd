@@ -1,4 +1,4 @@
-class_name TiltEvidenceViewer
+class_name TiltViewer
 extends Node3D
 
 @export var TiltFilePath := "res://Resources/Fixtures/brush_cafe_experimental.tilt"

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cyemv66aqtfi8"]
+
+[ext_resource type="Script" path="res://Scripts/TiltViewer.gd" id="1_tilt_viewer"]
+
+[node name="TiltViewer" type="Node3D"]
+script = ExtResource("1_tilt_viewer")

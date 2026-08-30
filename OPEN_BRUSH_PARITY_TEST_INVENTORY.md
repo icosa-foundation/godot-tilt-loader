@@ -63,7 +63,7 @@ The key distinction is source authority. Current focused brush tests prove trans
 | `Tests/GDScript/SingleBrushStrokeInspectorTest.gd` | `visual smoke test` | Single-brush inspector can instantiate and step through supported brush strokes for inspection. | Human-inspection support, not numeric parity proof. |
 | `Tests/GDScript/MinimalExamplesParityTest.gd` | `visual smoke test` | 2D and XR example setup/drawing paths can be constructed without the full runtime; generated 2D strokes preserve path scale as brush scale instead of control-point pressure. | Scene setup and generated-path semantics only; not enough to prove brush mesh parity. |
 | `Tests/GDScript/SimpleControllersParityTest.gd` | `visual smoke test` | Simple drawing controller setup and controls behave as expected. | Controller/UI behavior only. |
-| `Tests/GDScript/TiltEvidenceViewerLoadModeTest.gd` | `visual smoke test` | Cafe evidence viewer load mode defaults and scene routing are configured as intended. | Viewer behavior only. |
+| `Tests/GDScript/TiltViewerLoadModeTest.gd` | `visual smoke test` | Tilt viewer load mode defaults and scene routing are configured as intended. | Viewer behavior only. |
 | `Tests/GDScript/TiltFileRenderValidation.gd` | `visual smoke test` | Tilt rendering validation script exercises imported scenes for broad regressions. | Broad render smoke, not brush-by-brush parity. |
 
 ## Metadata, Material, and Utility Tests
