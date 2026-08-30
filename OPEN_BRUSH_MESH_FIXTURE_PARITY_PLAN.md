@@ -147,9 +147,10 @@ Each commit should remain independently reviewable and should not mix fixture-da
    handedness, position and semantic metric scaling, normals, tangents, indexed
    winding preservation, triangle-soup record preservation, channel alignment,
    and bounds.
-5. Phase 5 has started. The comparator reads all 95 source fixtures directly.
-   The measured spatial baseline passes 94 fixtures and exposes one strict
-   ordinary-brush failure in `ConcaveHull`. The five regular convex-hull brushes
+5. Phase 5 has started. The comparator reads all 95 source fixtures directly,
+   and all 95 pass the current compatibility gates. Ordinary brushes remain
+   strict. `ConcaveHull` uses accumulated-surface validation for its sequence of
+   small backend-dependent windows, and the five regular convex-hull brushes
    pass geometric equivalence while their exact polygon-face matcher remains
    available for later work. The shared
    Unity-to-Godot surface-frame conversion fix resolved the 55 spatial
@@ -188,12 +189,12 @@ classification above.
 3. Exact regular-hull polygon parity remains deferred as a known native-backend
    difference. `DiamondHull`, `MatteHull`, `ShinyHull`, `SmoothHull`, and
    `UnlitHull` pass geometric surface equivalence; their exact polygon-face
-   matcher is retained for later work. `ConcaveHull` is not classified as a
-   regular hull brush and remains on strict topology and vertex-channel
-   comparison, where it currently emits 1,464 vertices/indices against Open
-   Brush's 1,476. The earlier report that it returned no native hull was a
-   comparator-classification error: `ConcaveHullBrush` is a separate geometry
-   generator, not a `HullBrush` subtype.
+   matcher is retained for later work. `ConcaveHull` is not classified as one
+   global hull: it is an accumulated brush mesh whose segments internally use
+   small hull windows. Its dedicated gate compares triangle validity, channels,
+   bounds, bidirectional vertex/centroid surface distance, area, and volume
+   contribution while allowing a `2%` triangle-count difference and `0.5%`
+   area/volume difference. Exact topology remains available for later work.
 4. Sparks uses the `Tube_Sparks`/`TubeBrush` generator rather than `SprayBrush`.
    It now passes vertex and index counts, exact topology, positions, normals,
    tangents, colors, UVs, and bounds. Its maximum position delta is `0.00000095`

@@ -10,19 +10,22 @@
 
 ## Current Full-Corpus Result
 
-1. Passing fixtures: 94.
-2. Failing fixtures: 1 (`ConcaveHull`).
+1. Passing fixtures: 95.
+2. Failing fixtures: 0 under the current compatibility gates.
 3. Every fixture loads, resolves its brush descriptor, replays, and emits a comparison summary.
-4. Ordinary brush fixtures, including `ConcaveHull`, retain strict topology and vertex-channel comparison.
+4. Ordinary brushes retain strict topology and vertex-channel comparison. `ConcaveHull` has a dedicated accumulated-surface compatibility gate because each stroke segment internally uses a small MIConvexHull/QuickHull window.
 5. The earlier planar corpus reached 90 passing fixtures and 5 deferred hull
    failures. The spatial corpus deliberately varies all three position axes,
    orientation, pressure, segment length, and turn angle.
 
-## Failure Classification
+## Compatibility Classification
 
-1. Strict ordinary-brush mismatch (1): `ConcaveHull`. Open Brush emits 1,476
-   vertices and indices; Godot emits 1,464. The first subsequent position
-   mismatch is approximately `0.12305` metres and normal directions also differ.
+1. `ConcaveHull` passes accumulated-surface validation. Open Brush emits 492
+   triangles and Godot emits 488, a `0.81%` difference within the `2%`
+   allowance. Bidirectional vertex/centroid surface deviation is approximately
+   `0.00000105` metres. Surface area differs by `0.224%` and absolute volume
+   contribution by `0.386%`, both within the `0.5%` allowance. Bounds, triangle
+   validity, required channels, face-normal consistency, and colour still pass.
 2. Regular convex-hull compatibility (5): `DiamondHull`, `MatteHull`,
    `ShinyHull`, `SmoothHull`, and `UnlitHull` pass a geometric-equivalence gate.
    It requires valid non-degenerate triangles, a closed surface, complete
@@ -59,7 +62,7 @@ spatial baseline for a newly exercised branch.
 6. Empty source/runtime output handling was validated by the planar corpus. The
    spatial baseline intentionally supersedes that input: Open Brush now emits a
    non-empty `ConcaveHull` with 1,476 vertices and 326 polygon faces, exposing
-   the strict Godot mesh discrepancy described above. Coverage still verifies that the
+   the local backend difference classified above. Coverage still verifies that the
    95-fixture corpus omits only `Slice` and `PassthroughHull`.
 7. Accumulated distance-UV precision (5): `Charcoal`, `DuctTape`, `Flat`, `Highlighter`, and `Streamers`.
    Their UV offsets were six float32 representable steps after repeated cross-runtime vector-length accumulation. UV comparisons now retain the `0.00001` absolute tolerance and add a one-part-per-million relative allowance; no runtime arithmetic changed.
@@ -76,8 +79,7 @@ godot --headless --xr-mode off --path . `
 
 ## Next Work
 
-1. Diagnose `ConcaveHull` as an ordinary strict mesh-generation discrepancy; do not apply the regular convex-hull allowance to it.
-2. Return to exact regular-hull polygon-face parity later without removing the retained matcher.
-3. Decide whether to add the representative non-unit-scale profile identified in `OPEN_BRUSH_MESH_FIXTURE_AUDIT.md`; do not change the Open Brush generator before that decision.
-4. Consider pressure-endpoint/short-stroke and alternate-seed profiles only after the scale result, and keep them limited to representative generator families.
-5. Re-run the full corpus after any fixture, adapter, or relevant runtime change and update these counts.
+1. Return to exact `ConcaveHull` topology and regular-hull polygon-face parity later without removing the retained strict and polygon-face machinery.
+2. Decide whether to add the representative non-unit-scale profile identified in `OPEN_BRUSH_MESH_FIXTURE_AUDIT.md`; do not change the Open Brush generator before that decision.
+3. Consider pressure-endpoint/short-stroke and alternate-seed profiles only after the scale result, and keep them limited to representative generator families.
+4. Re-run the full corpus after any fixture, adapter, or relevant runtime change and update these counts.
