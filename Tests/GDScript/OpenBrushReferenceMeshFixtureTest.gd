@@ -14,6 +14,8 @@ const DEFAULT_UV_TOLERANCE := 0.00001
 const DEFAULT_UV_RELATIVE_TOLERANCE := 0.000001
 const DEFAULT_TANGENT_TOLERANCE := 0.00005
 const EXPECTED_LIVE_BRUSHES_WITHOUT_FIXTURES: Array[String] = ["PassthroughHull", "Slice"]
+const REGULAR_CONVEX_HULL_BRUSHES: Array[String] = ["DiamondHull", "MatteHull", "ShinyHull", "SmoothHull", "UnlitHull"]
+const HULL_VOLUME_RELATIVE_TOLERANCE := 0.0001
 
 var _failures := 0
 
@@ -153,21 +155,15 @@ func _compare_reference_mesh(path: String, desc: BrushDescriptor, source_stroke:
 	var position_tolerance := DEFAULT_POSITION_TOLERANCE
 	var normal_tolerance := DEFAULT_NORMAL_TOLERANCE
 	var polygon_faces := FixtureAdapterScript.polygon_faces_for_comparison(source_stroke)
-	if not polygon_faces.is_empty():
+	if desc.m_DurableName in REGULAR_CONVEX_HULL_BRUSHES:
+		_compare_convex_hull_geometry(path, desc, actual, mesh, layout, polygon_faces, position_tolerance)
+		return
+	if not polygon_faces.is_empty() and expected_vertices.is_empty():
 		if int(polygon_faces.get("face_count", -1)) == 0 and expected_vertices.is_empty():
 			_compare_empty_reference_mesh(path, actual, mesh, layout)
 			_compare_bounds(path, actual.get("bounds", {}), mesh.get("bounds", {}), position_tolerance)
 			print("OPEN_BRUSH_REFERENCE_EMPTY_MESH\tpath=%s\tbrush=%s" % [path, desc.m_DurableName])
 			return
-		_compare_polygon_faces(path, actual_hull, polygon_faces, position_tolerance, normal_tolerance)
-		_compare_bounds(path, actual.get("bounds", {}), mesh.get("bounds", {}), position_tolerance)
-		print("OPEN_BRUSH_REFERENCE_HULL_FACES\tpath=%s\tbrush=%s\texpected_faces=%d\tactual_faces=%d" % [
-			path,
-			desc.m_DurableName,
-			int(polygon_faces.get("face_count", 0)),
-			(actual_hull.get("faces", []) as Array).size(),
-		])
-		return
 
 	_expect(actual_vertices.size() == expected_vertices.size(), "%s vertex count expected %d but got %d" % [path, expected_vertices.size(), actual_vertices.size()])
 	_expect(actual_triangles.size() == expected_triangles.size(), "%s triangle index count expected %d but got %d" % [path, expected_triangles.size(), actual_triangles.size()])
@@ -246,6 +242,173 @@ func _compare_reference_mesh(path: String, desc: BrushDescriptor, source_stroke:
 		max_tangent_delta,
 		max_particle_render_delta,
 	])
+
+func _compare_convex_hull_geometry(
+	path: String,
+	desc: BrushDescriptor,
+	actual: Dictionary,
+	expected: Dictionary,
+	layout: Dictionary,
+	polygon_faces: Dictionary,
+	position_tolerance: float
+) -> void:
+	var actual_vertices: Array = actual.get("vertices", [])
+	var expected_vertices := _vec3_array_list(expected.get("vertices", []))
+	var actual_triangles: Array = actual.get("triangles", [])
+	var expected_triangles := _int_array_list(expected.get("triangles", []))
+	var surface_tolerance := maxf(position_tolerance, float(polygon_faces.get("point_tolerance", 0.0)))
+
+	_expect(not actual_vertices.is_empty(), "%s convex hull emits vertices" % path)
+	_expect(not actual_triangles.is_empty() and actual_triangles.size() % 3 == 0, "%s convex hull emits triangles" % path)
+	_expect(_mesh_triangles_are_valid(actual_vertices, actual_triangles, surface_tolerance), "%s convex hull triangles are valid and non-degenerate" % path)
+	_expect(_mesh_is_closed(actual_vertices, actual_triangles, surface_tolerance), "%s convex hull surface is closed" % path)
+	_compare_required_channel_completeness(path, actual, layout, actual_vertices.size())
+	_compare_bounds(path, actual.get("bounds", {}), expected.get("bounds", {}), surface_tolerance)
+
+	var actual_to_expected := _max_vertices_to_mesh_surface(actual_vertices, expected_vertices, expected_triangles)
+	var expected_to_actual := _max_vertices_to_mesh_surface(expected_vertices, actual_vertices, actual_triangles)
+	_expect(actual_to_expected <= surface_tolerance, "%s actual hull surface differs by %.9f; tolerance %.9f" % [path, actual_to_expected, surface_tolerance])
+	_expect(expected_to_actual <= surface_tolerance, "%s expected hull surface differs by %.9f; tolerance %.9f" % [path, expected_to_actual, surface_tolerance])
+
+	var actual_volume := _mesh_enclosed_volume_measure(actual_vertices, actual_triangles)
+	var expected_volume := _mesh_enclosed_volume_measure(expected_vertices, expected_triangles)
+	var volume_tolerance := maxf(surface_tolerance * surface_tolerance * surface_tolerance, expected_volume * HULL_VOLUME_RELATIVE_TOLERANCE)
+	_expect(absf(actual_volume - expected_volume) <= volume_tolerance, "%s hull volume expected %.9f but got %.9f; tolerance %.9f" % [path, expected_volume, actual_volume, volume_tolerance])
+	print("OPEN_BRUSH_REFERENCE_HULL_GEOMETRY\tpath=%s\tbrush=%s\tverts=%d\ttris=%d\tactual_to_expected=%.9f\texpected_to_actual=%.9f\tvolume_delta=%.9f" % [
+		path,
+		desc.m_DurableName,
+		actual_vertices.size(),
+		int(actual_triangles.size() / 3),
+		actual_to_expected,
+		expected_to_actual,
+		absf(actual_volume - expected_volume),
+	])
+
+func _compare_required_channel_completeness(path: String, mesh: Dictionary, layout: Dictionary, vertex_count: int) -> void:
+	var requirements := {
+		"normals": bool(layout.get("use_normals", false)),
+		"colors": bool(layout.get("use_colors", false)),
+		"tangents": bool(layout.get("use_tangents", false)),
+	}
+	for channel_name in requirements:
+		if bool(requirements[channel_name]):
+			_expect((mesh.get(channel_name, []) as Array).size() == vertex_count, "%s convex hull %s channel is complete" % [path, channel_name])
+	for channel in range(3):
+		if int(layout.get("uv%d_size" % channel, 0)) > 0:
+			var channel_name := "uv%d" % channel
+			_expect((mesh.get(channel_name, []) as Array).size() == vertex_count, "%s convex hull %s channel is complete" % [path, channel_name])
+
+func _mesh_triangles_are_valid(vertices: Array, triangles: Array, tolerance: float) -> bool:
+	for index in range(0, triangles.size(), 3):
+		if index + 2 >= triangles.size():
+			return false
+		var first := int(triangles[index])
+		var second := int(triangles[index + 1])
+		var third := int(triangles[index + 2])
+		if first < 0 or second < 0 or third < 0 or first >= vertices.size() or second >= vertices.size() or third >= vertices.size():
+			return false
+		var a: Vector3 = vertices[first]
+		var b: Vector3 = vertices[second]
+		var c: Vector3 = vertices[third]
+		if (b - a).cross(c - a).length_squared() <= tolerance * tolerance * tolerance * tolerance:
+			return false
+	return true
+
+func _mesh_is_closed(vertices: Array, triangles: Array, tolerance: float) -> bool:
+	var welded_indices: Array[int] = []
+	var welded_vertices: Array[Vector3] = []
+	for value in vertices:
+		var vertex: Vector3 = value
+		var welded_index := -1
+		for candidate_index in range(welded_vertices.size()):
+			if welded_vertices[candidate_index].distance_to(vertex) <= tolerance:
+				welded_index = candidate_index
+				break
+		if welded_index < 0:
+			welded_index = welded_vertices.size()
+			welded_vertices.append(vertex)
+		welded_indices.append(welded_index)
+	var edge_counts := {}
+	for index in range(0, triangles.size(), 3):
+		for offset in range(3):
+			var first := welded_indices[int(triangles[index + offset])]
+			var second := welded_indices[int(triangles[index + (offset + 1) % 3])]
+			if first == second:
+				return false
+			var edge_key := "%d:%d" % [mini(first, second), maxi(first, second)]
+			edge_counts[edge_key] = int(edge_counts.get(edge_key, 0)) + 1
+	for edge_key in edge_counts:
+		var count := int(edge_counts[edge_key])
+		if count < 2 or count % 2 != 0:
+			return false
+	return not edge_counts.is_empty()
+
+func _max_vertices_to_mesh_surface(source_vertices: Array, target_vertices: Array, target_triangles: Array) -> float:
+	if source_vertices.is_empty() or target_vertices.is_empty() or target_triangles.is_empty():
+		return INF
+	var maximum_distance := 0.0
+	for value in source_vertices:
+		var point: Vector3 = value
+		var nearest := INF
+		for index in range(0, target_triangles.size(), 3):
+			if index + 2 >= target_triangles.size():
+				continue
+			var a: Vector3 = target_vertices[int(target_triangles[index])]
+			var b: Vector3 = target_vertices[int(target_triangles[index + 1])]
+			var c: Vector3 = target_vertices[int(target_triangles[index + 2])]
+			nearest = minf(nearest, _point_triangle_distance(point, a, b, c))
+		maximum_distance = maxf(maximum_distance, nearest)
+	return maximum_distance
+
+func _point_triangle_distance(point: Vector3, a: Vector3, b: Vector3, c: Vector3) -> float:
+	var ab := b - a
+	var ac := c - a
+	var ap := point - a
+	var d1 := ab.dot(ap)
+	var d2 := ac.dot(ap)
+	if d1 <= 0.0 and d2 <= 0.0:
+		return point.distance_to(a)
+	var bp := point - b
+	var d3 := ab.dot(bp)
+	var d4 := ac.dot(bp)
+	if d3 >= 0.0 and d4 <= d3:
+		return point.distance_to(b)
+	var vc := d1 * d4 - d3 * d2
+	if vc <= 0.0 and d1 >= 0.0 and d3 <= 0.0:
+		var v := d1 / (d1 - d3)
+		return point.distance_to(a + v * ab)
+	var cp := point - c
+	var d5 := ab.dot(cp)
+	var d6 := ac.dot(cp)
+	if d6 >= 0.0 and d5 <= d6:
+		return point.distance_to(c)
+	var vb := d5 * d2 - d1 * d6
+	if vb <= 0.0 and d2 >= 0.0 and d6 <= 0.0:
+		var w := d2 / (d2 - d6)
+		return point.distance_to(a + w * ac)
+	var va := d3 * d6 - d5 * d4
+	if va <= 0.0 and d4 - d3 >= 0.0 and d5 - d6 >= 0.0:
+		var w := (d4 - d3) / ((d4 - d3) + (d5 - d6))
+		return point.distance_to(b + w * (c - b))
+	var denominator := 1.0 / (va + vb + vc)
+	var v := vb * denominator
+	var w := vc * denominator
+	return point.distance_to(a + ab * v + ac * w)
+
+func _mesh_enclosed_volume_measure(vertices: Array, triangles: Array) -> float:
+	if vertices.is_empty() or triangles.is_empty():
+		return 0.0
+	var center := Vector3.ZERO
+	for value in vertices:
+		center += value as Vector3
+	center /= float(vertices.size())
+	var volume := 0.0
+	for index in range(0, triangles.size(), 3):
+		var a: Vector3 = vertices[int(triangles[index])] - center
+		var b: Vector3 = vertices[int(triangles[index + 1])] - center
+		var c: Vector3 = vertices[int(triangles[index + 2])] - center
+		volume += absf(a.dot(b.cross(c))) / 6.0
+	return volume
 
 func _load_json_file(path: String) -> Dictionary:
 	var json := FileAccess.get_file_as_string(path)
