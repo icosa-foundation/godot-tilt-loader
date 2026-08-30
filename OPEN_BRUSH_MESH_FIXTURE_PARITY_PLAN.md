@@ -16,7 +16,7 @@ Establish authoritative same-input mesh parity between the Open Brush C# runtime
 5. Preserve full vertex-channel widths, including shader-facing particle attributes.
 6. Diagnose broad failures as possible conversion-boundary defects before changing brush runtime code or relaxing tolerances.
 7. Never regenerate expected output from the Godot implementation.
-8. Record the Open Brush generator revision and conversion format version so checked-in fixtures are reproducible.
+8. Record the Open Brush generator revision with reported results so the external raw fixtures are reproducible.
 
 ## Phase 1: Corpus and Harness Audit
 
@@ -28,15 +28,15 @@ Establish authoritative same-input mesh parity between the Open Brush C# runtime
 
 Deliverable: a schema and coverage report grounded in the actual fixture corpus.
 
-## Phase 2: Normalized Fixture Converter
+## Phase 2: Direct Raw Fixture Reader
 
-1. Add a deterministic conversion tool that reads raw Open Brush fixture JSON.
-2. Emit compact fixtures under `Resources/Fixtures/OpenBrushReferenceMeshes/` containing only exact stroke input, live mesh data, required layout/material metadata, and provenance.
-3. Exclude post-`BrushBaker` mesh data and GLBs from the normalized mesh-generation fixtures.
-4. Give the normalized format an explicit version and reject unknown raw schema versions.
-5. Ensure repeated conversion produces byte-identical output.
+1. Read raw Open Brush `.mesh.json` fixtures directly from an explicitly supplied directory.
+2. Reject unknown raw schema versions and coordinate systems.
+3. Use the fixture's `input`, `vertexLayout`, `live`, and `polygonFaces` data without writing an intermediate fixture format.
+4. Ignore post-`BrushBaker` mesh data and GLBs in the mesh-generation comparison.
+5. Keep Unity-to-Godot coordinate and unit conversion at the in-memory comparison boundary.
 
-Deliverable: converter, format documentation, and deterministic-output validation.
+Deliverable: direct raw reader and focused coordinate-boundary validation.
 
 ## Phase 3: Five-Brush Pilot
 
@@ -71,8 +71,8 @@ Deliverable: a small, independently tested conversion module used by the fixture
 
 ## Phase 5: Full Corpus and Coverage
 
-1. Convert and check in all suitable live-mesh fixtures.
-2. Add a manifest mapping fixture durable names and GUIDs to Godot brush descriptors and generator classes.
+1. Compare all suitable raw live-mesh fixtures without checking the corpus into this repository.
+2. Resolve fixture durable names and GUIDs through the existing Godot manifest and runtime registry.
 3. Require every registered live brush to be covered or explicitly classified with a reason.
 4. Classify failures as harness/conversion defects, GDScript port defects, known runtime differences, unsupported brushes, or missing source fixtures.
 5. Preserve known mismatches as explicit classifications, not silently weakened comparisons.
@@ -124,10 +124,10 @@ targeted branch profiles with explicit coverage purposes.
 
 ## Planned Commit Boundaries
 
-1. Add the schema audit and normalized fixture converter.
-2. Add the five-brush normalized fixture pilot.
+1. Add the schema audit and direct raw fixture reader.
+2. Add the five-brush raw fixture pilot.
 3. Add strict comparator and coordinate-conversion coverage.
-4. Add the full normalized fixture corpus and coverage manifest.
+4. Add direct full-corpus coverage accounting.
 5. Add CI integration and final documentation.
 
 Each commit should remain independently reviewable and should not mix fixture-data updates with unrelated runtime fixes.
@@ -137,10 +137,9 @@ Each commit should remain independently reviewable and should not mix fixture-da
 1. Phase 1 is complete. `OPEN_BRUSH_MESH_FIXTURE_AUDIT.md` records the measured
    corpus size, schema, channel layouts, catalog reconciliation, and the two
    registered Godot brushes absent from the source fixture corpus.
-2. Phase 2 is implemented for the pilot. The deterministic converter emits the
-   normalized v2 schema with source provenance, exact stroke input, material and
-   layout metadata, and finalized live-mesh data. Its `--check` mode passes for
-   all five pilot fixtures.
+2. Phase 2 is implemented. The comparator reads Open Brush's raw schema directly
+   and uses its exact stroke input, layout metadata, finalized live mesh, and
+   polygon faces without creating a second on-disk fixture representation.
 3. Phase 3 has started. Ink, DuctTapeGeometry, Stars, Sparks, and MatteHull now
    replay through the shared runtime and produce element-level mismatch
    diagnostics. Ink, DuctTapeGeometry, Stars, and Sparks pass. MatteHull remains
@@ -149,9 +148,8 @@ Each commit should remain independently reviewable and should not mix fixture-da
    handedness, position and semantic metric scaling, normals, tangents, indexed
    winding preservation, triangle-soup record preservation, channel alignment,
    and bounds.
-5. Phase 5 has started. All 95 source fixtures convert deterministically into a
-   10.96 MiB normalized corpus. The spatial baseline at Open Brush commit
-   `cd1c6529cffbbc897df43d3087a668306418f4a7` passes 89 fixtures and exposes 6
+5. Phase 5 has started. The comparator reads all 95 source fixtures directly.
+   The measured spatial baseline passes 89 fixtures and exposes 6
    strict failures, all deferred hull-backend discrepancies. The shared
    Unity-to-Godot surface-frame conversion fix resolved the 55 spatial
    orientation/curvature discrepancies without relaxing the comparator.
@@ -165,8 +163,7 @@ Each commit should remain independently reviewable and should not mix fixture-da
    `ConcaveHull` now produces 1,476 vertices and 326 polygon faces. The fixture
    producer removes duplicate geometric triangles before extracting polygon
    boundaries, which prevents double-sided render triangles from creating
-   empty face records. The complete normalized corpus passes deterministic
-   conversion checking. Targeted secondary profiles remain pending the branch
+   empty face records. Targeted secondary profiles remain pending the branch
    coverage audit.
 
 ## Planar Pilot Classification (Historical)

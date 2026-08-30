@@ -2,13 +2,11 @@
 
 ## Snapshot
 
-1. Open Brush producer commit: `cd1c6529cffbbc897df43d3087a668306418f4a7` (`Deduplicate fixture hull triangles`).
-2. Raw fixtures converted: 95.
-3. Normalized fixture size: 11,491,376 bytes (`10.96 MiB`).
-4. Registered Godot live brushes covered: 95 of 97.
-5. Brushes without source fixtures remain `Slice` and `PassthroughHull`.
-6. Full deterministic converter check completes in approximately one second.
-7. Full Godot replay comparison completes in under one second on the measured Windows development machine.
+1. Raw Open Brush fixtures compared: 95.
+2. Registered Godot live brushes covered: 95 of 97.
+3. Brushes without source fixtures remain `Slice` and `PassthroughHull`.
+4. The raw corpus remains in the Open Brush checkout and is not committed or normalized in this repository.
+5. Record the Open Brush producer revision whenever publishing a comparison result.
 
 ## Current Full-Corpus Result
 
@@ -64,22 +62,12 @@ spatial baseline for a newly exercised branch.
 
 ## Reproduction
 
-Convert and verify the complete corpus from the repository root:
-
-```powershell
-godot --headless --xr-mode off --path . `
-  --script res://Tools/OpenBrushMeshFixtures/ConvertOpenBrushMeshFixtures.gd -- `
-  --source-dir=<open-brush>/Support/BrushFixtures `
-  --source-commit=cd1c6529cffbbc897df43d3087a668306418f4a7 `
-  --check
-```
-
-Run all comparisons:
+Generate or regenerate the fixtures in Open Brush, then run all comparisons from this repository root:
 
 ```powershell
 godot --headless --xr-mode off --path . `
   --script res://Tests/GDScript/OpenBrushReferenceMeshFixtureTest.gd -- `
-  --require-open-brush-reference-fixtures
+  --fixtures=<open-brush>/Support/BrushFixtures
 ```
 
 ## Next Work

@@ -11,8 +11,7 @@
 - Godot port directory: `Scripts/Brushes`
 - Current test classification inventory: `OPEN_BRUSH_PARITY_TEST_INVENTORY.md`
 - Brush class inventory: `OPEN_BRUSH_BRUSH_CLASS_INVENTORY.md`
-- Open Brush reference mesh fixture contract: `Resources/Fixtures/OpenBrushReferenceMeshes/README.md`
-- Open Brush reference mesh exporter source: `Tools/OpenBrushReferenceMeshExport/OpenBrushReferenceMeshExportTest.cs`
+- Raw Open Brush reference fixtures: generated in the Open Brush checkout under `Support/BrushFixtures`
 
 The Godot C# commit above is the current immediate conversion reference unless
 this file is deliberately updated. Upstream Open Brush C# remains the intended
@@ -145,11 +144,8 @@ Implemented so far:
 - Direct runtime finalization for `QuadStripBrushDistanceUV` now flushes pending tangent requests like the visual update path, matching the established stretch UV finalization behavior.
 - Open Brush fake layout brushes (`PbrBrushScript`, `EnvironmentBrushScript`, `SvgBrushScript`) are classified as non-mesh layout providers with explicit no-op batched finalization.
 - Converted Godot brush material coverage now exists for the catalog `Digital`, `Race`, and `PassthroughHull` normal brushes, and `Slice.gdshader` now stages CUSTOM0 data through a vertex varying so headless shader validation compiles.
-- Current Godot parity tests and probes are classified in `OPEN_BRUSH_PARITY_TEST_INVENTORY.md`, including the remaining evidence gap that no authoritative Open Brush reference mesh fixtures have been exported yet.
-- An Open Brush reference mesh fixture harness now exists at `Tests/GDScript/OpenBrushReferenceMeshFixtureTest.gd`. It scans `Resources/Fixtures/OpenBrushReferenceMeshes/*.json`, replays each referenced stroke through Godot, and compares vertex positions, triangle indices, normals, colors, tangents, and full-width UV0/UV1/UV2 data against Open Brush-exported mesh data.
-- The Unity-side exporter source now exists at `Tools/OpenBrushReferenceMeshExport/OpenBrushReferenceMeshExportTest.cs`. It is installed in the Open Brush Unity editor test assembly and exports finalized `BatchSubset` mesh data plus `GeometryPool` layout/channel data for the representative cafe Ink, DuctTapeGeometry, Stars, Sparks, and MatteHull fixtures.
-- `Tools/OpenBrushReferenceMeshExport/RunOpenBrushReferenceMeshExport.ps1` now defaults to the separate `open-brush-reference-exporter-worktree` checkout and refuses to run against the main `open-brush-fast` checkout unless `-AllowMainOpenBrushProject` is passed explicitly.
-- `Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd` now keeps the representative cafe fixture contract executable by checking that the Unity exporter source, runner safety guard, and reference fixture README stay aligned.
+- Current Godot parity tests and probes are classified in `OPEN_BRUSH_PARITY_TEST_INVENTORY.md`.
+- `Tests/GDScript/OpenBrushReferenceMeshFixtureTest.gd` reads raw `.mesh.json` files directly from an explicitly supplied Open Brush `Support/BrushFixtures` directory. It replays each stroke through Godot and compares topology, vertex channels, bounds, and hull polygon faces without a copied or normalized Godot fixture corpus.
 - `OPEN_BRUSH_BRUSH_CLASS_INVENTORY.md` now records the Phase 1.2 brush class inventory: runtime class, Open Brush source file, catalog prefab families, geometry/UV role, finalization requirement, coverage, and current status. `Tests/GDScript/BrushClassInventoryCoverageTest.gd` keeps that inventory aligned with the catalog prefab families and expected source/runtime classes.
 - The four Open Brush experimental ParentBrush composites (`CandyCane`, `HolidayTree`, `Braid3`, and `Snowflake`) are now explicitly recorded as unsupported catalog brushes instead of surfacing as generic missing GUID warnings during manifest loading.
 - `TiltBrushManifest.append_from()` now de-duplicates merged manifests by brush GUID instead of object identity and lets normal-brush entries take precedence over compatibility entries. This removes duplicate catalog GUID warnings and registers 97 live normal brushes when `Manifest.asset` and `Manifest_Experimental.asset` are combined.
@@ -265,13 +261,10 @@ Focused tests added/updated:
   - verifies `Resources/Fixtures/cafe_sparks_stroke_463.json` resolves to `Sparks` / `TubeBrush` and produces 34 vertices, 96 indices, full UV0/color channels, and stable cafe-space bounds,
   - verifies `Resources/Fixtures/cafe_matte_hull_stroke_11.json` resolves to `MatteHull` / `HullBrush` and produces 36 vertices, 36 indices, full UV0/color channels, and stable cafe-space bounds.
 - `Tests/GDScript/OpenBrushReferenceMeshFixtureTest.gd`
-  - provides the source-of-truth mesh comparison harness for future Open Brush C# mesh fixtures,
-  - scans `Resources/Fixtures/OpenBrushReferenceMeshes/*.json`,
-  - supports referenced stroke fixtures via `source_stroke_fixture`,
+  - provides the source-of-truth mesh comparison harness for raw Open Brush C# mesh fixtures,
+  - scans the directory supplied through `--fixtures=<directory>` for `.mesh.json` files,
   - compares positions, triangle indices, normals, colors, tangents, and full-width UV0/UV1/UV2 values directly from `MeshData`,
-  - accepts `--require-open-brush-reference-fixtures` to fail when no fixtures are present.
-- `Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd`
-  - checks the checked-in Unity exporter source still includes the representative cafe fixture export set,
+  - skips when no directory is supplied and fails when an explicitly supplied directory is missing or empty.
   - checks the exporter runner defaults to a separate Open Brush worktree and refuses the main Open Brush checkout by default,
   - checks the reference fixture README names the same representative cafe fixtures,
   - verifies the explicit `OpenBrushReferenceExport` category and `ExportRepresentativeCafeFixtures` entry point are present.
@@ -373,45 +366,6 @@ Additional validation after strengthening the importer fallback regression guard
 ```
 
 Result: command exited successfully. The guard now rejects the old importer-local family dispatch helpers, fallback tessellator entry points, and fallback constants, and requires the shared registry, replay, and material resolver path.
-
-Additional validation after adding the exporter-runner main-checkout safety guard:
-
-```powershell
-& .\Tools\OpenBrushReferenceMeshExport\RunOpenBrushReferenceMeshExport.ps1 -OpenBrushRoot "C:\Users\andyb\Documents\open-brush-fast"
-```
-
-Result: command stopped before launching Unity with `Refusing to run reference export against the main Open Brush checkout`.
-
-The exporter was then attempted against `C:\Users\andyb\Documents\open-brush-reference-exporter-worktree`:
-
-```powershell
-& .\Tools\OpenBrushReferenceMeshExport\RunOpenBrushReferenceMeshExport.ps1 -OpenBrushRoot "C:\Users\andyb\Documents\open-brush-reference-exporter-worktree"
-```
-
-Result: Unity opened the separate worktree but failed before running tests during package resolution: `The "path" argument must be of type string. Received undefined.` No reference mesh fixtures were generated.
-
-Exporter contract validation after the runner guard change:
-
-```powershell
-& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd
-```
-
-Result: command exited successfully.
-
-Additional validation after making the exporter runner stage the Unity test
-source automatically into the target Open Brush worktree:
-
-```powershell
-powershell.exe -NoProfile -Command "& { `$script = Get-Content -LiteralPath 'Tools\OpenBrushReferenceMeshExport\RunOpenBrushReferenceMeshExport.ps1' -Raw; [scriptblock]::Create(`$script) | Out-Null; Write-Output 'RUNNER_SYNTAX_OK' }"
-& "godot" --headless --xr-mode off --path . --script res://Tests/GDScript/OpenBrushReferenceExporterCoverageTest.gd
-git diff --check
-```
-
-Result: all commands exited successfully. The runner now copies
-`Tools/OpenBrushReferenceMeshExport/OpenBrushReferenceMeshExportTest.cs` into
-`Assets/Editor/Tests/OpenBrushReferenceMeshExportTest.cs` in the selected
-Open Brush exporter worktree before launching Unity, removing a manual setup
-step from reference fixture generation.
 
 Additional validation after tightening brush class inventory status coverage:
 
@@ -563,8 +517,8 @@ Result: all commands exited successfully. `LiveVsTiltUvParityTest.gd` reports
 zero vertex, primary UV, UV2, and `CUSTOM0` deltas for `Stars` and `Embers`
 across direct runtime replay, memory replay, pointer math, and live object
 drawing. This closes the immediate Godot path divergence that was specific to
-Genius particle first-update state; Open Brush reference mesh fixtures are still
-required for final C# parity proof.
+Genius particle first-update state; the raw Open Brush fixture comparison is the
+final C# parity evidence for this path.
 
 Additional validation after correcting generated minimal/inspector stroke
 scale-vs-pressure semantics:
@@ -686,6 +640,6 @@ Known validation noise:
    - compare any remaining descriptor/frame-layout branches line-by-line,
    - add Open Brush reference mesh fixture comparison for representative flat geometry strokes.
 3. Extract additional lightweight real-stroke fixtures for any brush the inspector identifies as suspect.
-4. Generate or import authoritative Open Brush reference mesh fixtures; the current cafe fixture verifies Godot runtime stability for a real stroke but does not yet compare against Open Brush vertex-by-vertex output.
+4. Run the direct raw Open Brush fixture comparison after relevant runtime or fixture-generator changes and classify any new discrepancies.
 5. Convert current helper tests into generated-mesh parity tests where possible.
 6. Audit all remaining brush classes line-by-line against the reference source.

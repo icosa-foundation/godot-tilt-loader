@@ -69,8 +69,8 @@ Shared runtime and integration files that affect parity include:
 
 ## Fixture Baseline
 
-Open Brush reference mesh fixture exports belong under
-`Resources/Fixtures/OpenBrushReferenceMeshes/` and must identify the source C#
-commit that generated them. Until authoritative exported mesh JSON fixtures are
-checked in, the existing Godot fixture tests prove runtime stability but not
-full Open Brush vertex-for-vertex parity.
+Open Brush owns and generates the authoritative raw mesh fixtures under its
+`Support/BrushFixtures` directory. This repository does not copy or normalize
+that corpus. Run `OpenBrushReferenceMeshFixtureTest.gd` with an explicit
+`--fixtures=<directory>` argument to compare the same raw data directly against
+the Godot runtime. Record the Open Brush revision alongside reported results.
