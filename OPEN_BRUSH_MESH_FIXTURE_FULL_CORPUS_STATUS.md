@@ -10,22 +10,26 @@
 
 ## Current Full-Corpus Result
 
-1. Passing fixtures: 89.
-2. Failing fixtures: 6.
+1. Passing fixtures: 94.
+2. Failing fixtures: 1 (`ConcaveHull`).
 3. Every fixture loads, resolves its brush descriptor, replays, and emits a comparison summary.
-4. Remaining mismatches stay strict test failures; this report records the comparator's absolute and relative numeric allowances explicitly.
+4. Ordinary brush fixtures, including `ConcaveHull`, retain strict topology and vertex-channel comparison.
 5. The earlier planar corpus reached 90 passing fixtures and 5 deferred hull
    failures. The spatial corpus deliberately varies all three position axes,
-   orientation, pressure, segment length, and turn angle. Every non-hull fixture
-   now matches the Open Brush reference mesh.
+   orientation, pressure, segment length, and turn angle.
 
 ## Failure Classification
 
-1. Deferred MIConvexHull/QuickHull boundary classification (6):
-   `ConcaveHull`, `DiamondHull`, `MatteHull`, `ShinyHull`, `SmoothHull`, and
-   `UnlitHull`. The five convex hull fixtures each have 10 of 148 Open Brush
-   polygon faces without a native match. `ConcaveHull` has 326 reference faces
-   and no native Godot hull result.
+1. Strict ordinary-brush mismatch (1): `ConcaveHull`. Open Brush emits 1,476
+   vertices and indices; Godot emits 1,464. The first subsequent position
+   mismatch is approximately `0.12305` metres and normal directions also differ.
+2. Regular convex-hull compatibility (5): `DiamondHull`, `MatteHull`,
+   `ShinyHull`, `SmoothHull`, and `UnlitHull` pass a geometric-equivalence gate.
+   It requires valid non-degenerate triangles, a closed surface, complete
+   required channels, matching bounds and enclosed volume, and bidirectional
+   vertex-to-surface distance within tolerance. Measured surface deviations are
+   below `0.000001` metres. Exact polygon-face machinery is retained for later
+   work but is not the current required gate.
 
 ## Spatial-Baseline Resolution
 
@@ -55,7 +59,7 @@ spatial baseline for a newly exercised branch.
 6. Empty source/runtime output handling was validated by the planar corpus. The
    spatial baseline intentionally supersedes that input: Open Brush now emits a
    non-empty `ConcaveHull` with 1,476 vertices and 326 polygon faces, exposing
-   the native Godot failure described above. Coverage still verifies that the
+   the strict Godot mesh discrepancy described above. Coverage still verifies that the
    95-fixture corpus omits only `Slice` and `PassthroughHull`.
 7. Accumulated distance-UV precision (5): `Charcoal`, `DuctTape`, `Flat`, `Highlighter`, and `Streamers`.
    Their UV offsets were six float32 representable steps after repeated cross-runtime vector-length accumulation. UV comparisons now retain the `0.00001` absolute tolerance and add a one-part-per-million relative allowance; no runtime arithmetic changed.
@@ -72,7 +76,8 @@ godot --headless --xr-mode off --path . `
 
 ## Next Work
 
-1. Keep the six hull-family failures deferred under the existing hull-backend classification.
-2. Decide whether to add the representative non-unit-scale profile identified in `OPEN_BRUSH_MESH_FIXTURE_AUDIT.md`; do not change the Open Brush generator before that decision.
-3. Consider pressure-endpoint/short-stroke and alternate-seed profiles only after the scale result, and keep them limited to representative generator families.
-4. Re-run the full corpus after any fixture, adapter, or relevant runtime change and update these counts.
+1. Diagnose `ConcaveHull` as an ordinary strict mesh-generation discrepancy; do not apply the regular convex-hull allowance to it.
+2. Return to exact regular-hull polygon-face parity later without removing the retained matcher.
+3. Decide whether to add the representative non-unit-scale profile identified in `OPEN_BRUSH_MESH_FIXTURE_AUDIT.md`; do not change the Open Brush generator before that decision.
+4. Consider pressure-endpoint/short-stroke and alternate-seed profiles only after the scale result, and keep them limited to representative generator families.
+5. Re-run the full corpus after any fixture, adapter, or relevant runtime change and update these counts.

@@ -140,17 +140,18 @@ Each commit should remain independently reviewable and should not mix fixture-da
 2. Phase 2 is implemented. The comparator reads Open Brush's raw schema directly
    and uses its exact stroke input, layout metadata, finalized live mesh, and
    polygon faces without creating a second on-disk fixture representation.
-3. Phase 3 has started. Ink, DuctTapeGeometry, Stars, Sparks, and MatteHull now
-   replay through the shared runtime and produce element-level mismatch
-   diagnostics. Ink, DuctTapeGeometry, Stars, and Sparks pass. MatteHull remains
-   failing with explicit runtime-output differences.
+3. Phase 3 is complete for the five-brush pilot. Ink, DuctTapeGeometry, Stars,
+   and Sparks pass strict comparison. MatteHull passes the regular convex-hull
+   geometric-equivalence gate.
 4. Phase 4 has started. The standalone adapter test passes for input
    handedness, position and semantic metric scaling, normals, tangents, indexed
    winding preservation, triangle-soup record preservation, channel alignment,
    and bounds.
 5. Phase 5 has started. The comparator reads all 95 source fixtures directly.
-   The measured spatial baseline passes 89 fixtures and exposes 6
-   strict failures, all deferred hull-backend discrepancies. The shared
+   The measured spatial baseline passes 94 fixtures and exposes one strict
+   ordinary-brush failure in `ConcaveHull`. The five regular convex-hull brushes
+   pass geometric equivalence while their exact polygon-face matcher remains
+   available for later work. The shared
    Unity-to-Godot surface-frame conversion fix resolved the 55 spatial
    orientation/curvature discrepancies without relaxing the comparator.
    Coverage accounting confirms that the 95 fixtures cover all but `Slice` and
@@ -184,16 +185,15 @@ classification above.
 2. Ink now passes vertex and index counts, exact topology, positions, normals,
    colors, and UVs. Its maximum tangent delta is `0.00003678`, within the
    documented tangent-specific `0.00005` numerical tolerance.
-3. Hull polygon parity is deferred as a known native-backend difference. Under
-   the spatial baseline, `DiamondHull`, `MatteHull`, `ShinyHull`, `SmoothHull`,
-   and `UnlitHull` each have 10 of 148 Open Brush polygon faces without a native
-   match. `ConcaveHull` has 326 Open Brush faces while the native Godot hull
-   returns no result. This supersedes the earlier planar fixture's specific
-   43-versus-44 boundary-vertex measurement, while preserving its conclusion:
-   the discrepancy is in MIConvexHull-versus-QuickHull boundary selection, not
-   merely triangle diagonals. Exact resolution remains intentionally outside
-   the current fixture-parity scope; do not weaken the comparison or tune the
-   fixture around the backend.
+3. Exact regular-hull polygon parity remains deferred as a known native-backend
+   difference. `DiamondHull`, `MatteHull`, `ShinyHull`, `SmoothHull`, and
+   `UnlitHull` pass geometric surface equivalence; their exact polygon-face
+   matcher is retained for later work. `ConcaveHull` is not classified as a
+   regular hull brush and remains on strict topology and vertex-channel
+   comparison, where it currently emits 1,464 vertices/indices against Open
+   Brush's 1,476. The earlier report that it returned no native hull was a
+   comparator-classification error: `ConcaveHullBrush` is a separate geometry
+   generator, not a `HullBrush` subtype.
 4. Sparks uses the `Tube_Sparks`/`TubeBrush` generator rather than `SprayBrush`.
    It now passes vertex and index counts, exact topology, positions, normals,
    tangents, colors, UVs, and bounds. Its maximum position delta is `0.00000095`
